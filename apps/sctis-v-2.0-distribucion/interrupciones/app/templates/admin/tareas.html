@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+{% block title %}Monitoreo de Tareas en Segundo Plano{% endblock %}
+{% block header_title %}Tareas de Fondo{% endblock %}
+
+{% block content %}
+<div id="app" class="max-w-6xl mx-auto">
+    <div class="industrial-card p-0 mb-6">
+        <div class="bg-gray-100 px-6 py-4 border-b border-gray-300 flex items-center justify-between">
+            <h2 class="font-bold text-corpo-dark uppercase tracking-widest text-sm flex items-center gap-2">
+                <i class="fas fa-tasks text-corpo-blue"></i> Monitoreo de Tareas de Fondo
+            </h2>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-5 items-end">
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Filtro de Entidad</label>
+                    <select v-model="filtroEstado" @change="cargar" class="industrial-input w-full p-2.5 text-sm font-mono">
+                        <option value="">TODOS LOS ESTADOS</option>
+                        <option v-for="e in estados" :value="e.state_code">${ e.state_name }</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Filtro de Estado de Tarea</label>
+                    <select v-model="filtroTarea" @change="cargar" class="industrial-input w-full p-2.5 text-sm font-mono">
+                        <option value="">TODAS LAS TAREAS</option>
+                        <option value="PENDIENTE">PENDIENTE</option>
+                        <option value="EN_PROCESO">EN PROCESO</option>
+                        <option value="COMPLETADA">COMPLETADA</option>
+                        <option value="CANCELADA">CANCELADA</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2 flex justify-end">
+                    <button @click="cargar" class="bg-white border border-gray-400 text-gray-700 hover:bg-gray-50 px-6 py-2.5 rounded-sm flex items-center gap-2 uppercase tracking-widest text-xs font-bold transition shadow-sm">
+                        <i class="fas fa-sync-alt" :class="{'fa-spin': cargando}"></i>
+                        Actualizar Telemetría
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="industrial-card p-0">
+        <div class="bg-gray-100 px-6 py-4 border-b border-gray-300 flex items-center justify-between">
+            <h2 class="font-bold text-corpo-dark uppercase tracking-widest text-sm flex items-center gap-2">
+                <i class="fas fa-list text-corpo-blue"></i> Registro de Operaciones Asíncronas
+            </h2>
+            <span class="text-xs font-mono text-gray-500 bg-white px-2 py-1 rounded border border-gray-300 shadow-inner">
+                ${ tareas.length } TAREAS
+            </span>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="bg-gray-50 text-gray-600 text-[10px] uppercase font-bold tracking-wider font-mono border-b border-gray-300">
+                    <tr>
+                        <th class="px-4 py-3 border-r border-gray-200"># Tarea ID</th>
+                        <th class="px-4 py-3 border-r border-gray-200">Entidad</th>
+                        <th class="px-4 py-3 border-r border-gray-200">Operador</th>
+                        <th class="px-4 py-3 border-r border-gray-200">Proceso</th>
+                        <th class="px-4 py-3 border-r border-gray-200">Detalles</th>
+                        <th class="px-4 py-3 border-r border-gray-200 text-center">Registros (OK/Err)</th>
+                        <th class="px-4 py-3 border-r border-gray-200">Estado Tarea</th>
+                        <th class="px-4 py-3 border-r border-gray-200">Tiempo/Alarma</th>
+                        <th class="px-4 py-3 text-center">Controles</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 text-gray-700 font-medium">
+                    <tr v-if="cargando && tareas.length === 0">
+                        <td colspan="9" class="px-6 py-12 text-center text-gray-400 font-mono text-xs uppercase tracking-widest">
+                            <i class="fas fa-circle-notch fa-spin mr-2"></i> Obteniendo estado del procesador...
+                        </td>
+                    </tr>
+                    <tr v-else-if="tareas.length === 0">
+                        <td colspan="9" class="px-6 py-12 text-center text-gray-500 font-mono text-xs uppercase tracking-widest">
+                            <i class="fas fa-inbox mr-2"></i> No se registran tareas en la cola
+                        </td>
+                    </tr>
+                    <tr v-for="t in tareas" :key="t.tarea_id" class="hover:bg-blue-50 transition-colors" :class="{'bg-red-50': t.esta_vencida}">
+                        <td class="px-4 py-3 font-mono text-xs font-bold border-r border-gray-200">${ t.tarea_id }</td>
+                        <td class="px-4 py-3 text-xs border-r border-gray-200">
+                            <span class="inline-flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-corpo-blue"></span>${ t.state_name || t.estado_codigo }</span>
+                        </td>
+                        <td class="px-4 py-3 text-xs font-mono border-r border-gray-200 uppercase">${ t.full_name || t.username }</td>
+                        <td class="px-4 py-3 border-r border-gray-200">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-purple-100 text-purple-800 border border-purple-200 shadow-inner">
+                                ${ t.tipo_tarea }
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-[11px] truncate max-w-[200px] border-r border-gray-200" :title="t.descripcion">${ t.descripcion || '—' }</td>
+                        <td class="px-4 py-3 text-center font-mono text-xs font-bold border-r border-gray-200">
+                            <span class="text-green-600">${ t.registros_ok }</span> /
+                            <span class="text-red-600">${ t.registros_rechazados }</span> /
+                            <span class="text-gray-500">${ t.registros_total }</span>
+                        </td>
+                        <td class="px-4 py-3 border-r border-gray-200">
+                            <span v-if="t.estado_tarea === 'PENDIENTE'" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-yellow-100 text-yellow-800 border border-yellow-200 shadow-inner">
+                                <i class="fas fa-clock mr-1"></i> EN ESPERA
+                            </span>
+                            <span v-else-if="t.estado_tarea === 'EN_PROCESO'" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-800 border border-blue-200 shadow-inner">
+                                <i class="fas fa-cog fa-spin mr-1"></i> PROCESANDO
+                            </span>
+                            <span v-else-if="t.estado_tarea === 'COMPLETADA'" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-800 border border-green-200 shadow-inner">
+                                <i class="fas fa-check mr-1"></i> FINALIZADA
+                            </span>
+                            <span v-else class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-600 border border-gray-300 shadow-inner">
+                                ${ t.estado_tarea }
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 border-r border-gray-200 font-mono text-xs">
+                            <span v-if="t.esta_vencida" class="text-red-600 font-bold px-1.5 py-0.5 bg-red-100 border border-red-200 rounded" title="Superó tiempo máximo esperado">
+                                <i class="fas fa-exclamation-triangle"></i> ${ Math.floor(t.horas_transcurridas) }H
+                            </span>
+                            <span v-else class="text-gray-500">${ Math.floor(t.horas_transcurridas || 0) }H</span>
+                        </td>
+                        <td class="px-4 py-3 text-center space-x-1">
+                            <button v-if="t.archivo_correccion" @click="descargarCorreccion(t.archivo_correccion)" 
+                                    class="text-corpo-blue hover:text-corpo-dark bg-blue-50 hover:bg-blue-100 p-1.5 rounded transition border border-transparent hover:border-blue-200" title="Descargar log de correcciones">
+                                <i class="fas fa-file-download"></i>
+                            </button>
+                            <button v-if="t.estado_tarea === 'PENDIENTE' || t.estado_tarea === 'EN_PROCESO'" @click="completarTarea(t.tarea_id)" 
+                                    class="text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100 p-1.5 rounded transition border border-transparent hover:border-green-200" title="Forzar finalización de tarea">
+                                <i class="fas fa-check-circle"></i>
+                            </button>
+                            <button v-if="t.estado_tarea === 'PENDIENTE'" @click="cancelarTarea(t.tarea_id)" 
+                                    class="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 p-1.5 rounded transition border border-transparent hover:border-red-200" title="Anular ejecución de tarea">
+                                <i class="fas fa-ban"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script>
+const { createApp } = Vue;
+createApp({
+    delimiters: ['${', '}'],
+    data() {
+        return {
+            tareas: [],
+            estados: [],
+            cargando: true,
+            filtroEstado: '',
+            filtroTarea: ''
+        };
+    },
+    async mounted() {
+        await this.cargarEstados();
+        await this.cargar();
+    },
+    methods: {
+        async cargarEstados() {
+            try {
+                const r = await fetch('/api/estados');
+                if (r.ok) {
+                    this.estados = await r.json();
+                }
+            } catch(e) { 
+                console.error('Error cargando estados:', e); 
+            }
+        },
+        async cargar() {
+            this.cargando = true;
+            try {
+                const params = new URLSearchParams();
+                if (this.filtroEstado) params.set('estado', this.filtroEstado);
+                if (this.filtroTarea) params.set('estado_tarea', this.filtroTarea);
+                
+                let url = '/api/admin/tareas';
+                if (params.toString()) url += '?' + params.toString();
+                
+                const r = await fetch(url);
+                if (r.ok) {
+                    this.tareas = await r.json();
+                }
+            } catch(e) {
+                console.error('Error cargando tareas:', e);
+            } finally {
+                this.cargando = false;
+            }
+        },
+        async completarTarea(tareaId) {
+            if (!confirm('¿Confirma que desea forzar el estado de esta tarea a COMPLETADA?')) return;
+            try {
+                await fetch(`/api/admin/tareas/${tareaId}/completar`, { method: 'POST' });
+                await this.cargar();
+            } catch (e) {
+                console.error(e);
+            }
+        },
+        async cancelarTarea(tareaId) {
+            if (!confirm('¿Confirma que desea ANULAR la ejecución de esta tarea?')) return;
+            try {
+                await fetch(`/api/admin/tareas/${tareaId}/cancelar`, { method: 'POST' });
+                await this.cargar();
+            } catch (e) {
+                console.error(e);
+            }
+        },
+        descargarCorreccion(filename) {
+            window.open(`/api/admin/tareas/correccion/${filename}`, '_blank');
+        },
+        formatearFecha(fecha) {
+            if (!fecha) return '—';
+            return new Date(fecha).toLocaleString('es-VE', {
+                day: '2-digit', month: 'short', year: 'numeric',
+                hour: '2-digit', minute: '2-digit', hour12: false
+            });
+        }
+    }
+}).mount('#app');
+</script>
+{% endblock %}

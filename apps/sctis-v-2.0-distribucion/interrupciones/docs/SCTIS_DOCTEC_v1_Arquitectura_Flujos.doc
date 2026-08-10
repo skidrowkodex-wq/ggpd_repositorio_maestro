@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>DOCUMENTO TÉCNICO
+ARQUITECTURA Y FLUJOS DE PROCESO</title>
+<style>
+body { font-family: Arial, sans-serif; font-size: 11pt; color: #1e293b; line-height: 1.6; margin: 40px; }
+h1 { color: #003C71; font-size: 20pt; margin-top: 24pt; margin-bottom: 12pt; border-bottom: 2px solid #003C71; padding-bottom: 6px; }
+h2 { color: #003C71; font-size: 15pt; margin-top: 18pt; margin-bottom: 8pt; }
+h3 { color: #003C71; font-size: 12pt; margin-top: 14pt; margin-bottom: 6pt; }
+p { margin-bottom: 10pt; text-align: justify; }
+table { border-collapse: collapse; width: 100%; margin: 14pt 0; }
+th, td { border: 1px solid #cbd5e1; padding: 8pt 10pt; text-align: left; vertical-align: top; font-size: 10pt; }
+th { background-color: #003C71; color: #ffffff; font-weight: bold; }
+tr:nth-child(even) td { background-color: #f8fafc; }
+.portada { text-align: center; padding: 40px 20px; border: 2px solid #003C71; background-color: #f8fafc; margin-bottom: 30px; border-radius: 8px; }
+.portada h1 { border-bottom: none; font-size: 24pt; margin-bottom: 12pt; color: #003C71; }
+.portada .subtitulo { font-size: 13pt; color: #334155; font-weight: bold; margin-bottom: 8pt; }
+.portada .sistema { font-size: 11pt; color: #64748b; margin-bottom: 16pt; }
+.control-doc { width: 100%; margin-bottom: 24pt; border: 1px solid #cbd5e1; }
+.control-doc td { padding: 6pt 10pt; font-size: 9.5pt; }
+.control-doc .lbl { font-weight: bold; background-color: #e2e8f0; width: 25%; color: #1e293b; }
+.info-box { background-color: #f0f9ff; border-left: 4px solid #0284c7; padding: 10pt 14pt; margin: 12pt 0; border-radius: 4px; }
+.tech-box { background-color: #f8fafc; border-left: 4px solid #475569; padding: 10pt 14pt; margin: 12pt 0; border-radius: 4px; }
+.box-title { font-weight: bold; margin-bottom: 4pt; color: #0f172a; }
+ul, ol { margin-bottom: 10pt; padding-left: 24pt; }
+li { margin-bottom: 4pt; }
+pre { background-color: #f1f5f9; padding: 10pt; border-radius: 4px; border: 1px solid #e2e8f0; font-size: 9pt; font-family: monospace; }
+.footer { margin-top: 40pt; border-top: 1px solid #cbd5e1; padding-top: 10pt; text-align: center; font-size: 9pt; color: #64748b; }
+</style>
+</head>
+<body>
+<div class="portada"><h1>DOCUMENTO TÉCNICO
+ARQUITECTURA Y FLUJOS DE PROCESO</h1><div class="subtitulo">Sistema de Gestión de Tiras de Interrupción Eléctrica</div><div class="sistema">SCTIS v1.0</div><div class="fecha">Agosto 2026</div></div>
+<table class="control-doc"><tr><td class="lbl">Código Documento:</td><td>SCTIS-DOCTEC-001</td><td class="lbl">Fecha:</td><td>Agosto 2026</td></tr><tr><td class="lbl">Sistema:</td><td>SCTIS v1.0</td><td class="lbl">Estado:</td><td>VIGENTE / APROBADO</td></tr></table>
+<h1>1. Objeto y Alcance</h1>
+<p>El presente documento técnico describe la arquitectura, el modelo de datos y los flujos de proceso del Sistema de Gestión de Tiras de Interrupción Eléctrica (SCTIS) v1.0, desarrollado por la Gerencia General de Distribución de CORPOELEC en colaboración con la Unidad de Servicios de Automatización de Procesos de Distribución.</p>
+<p>El sistema automatiza la carga de tiras de interrupción desde archivos Excel, homologa las causas reportadas por cada estado contra el catálogo oficial de causas, aplica controles de calidad de datos alineados con ISO 8000, genera auditoría completa de cada carga y provee tableros de control para seguimiento. El alcance funcional cubre los estados operadores que reportan a la Gerencia de Gestión de Planificación de Distribución.</p>
+<h1>2. Referencias Normativas</h1>
+<table><thead><tr>
+<th>Referencia</th>
+<th>Descripción</th>
+</tr></thead><tbody>
+<tr>
+<td>ISO 9001:2015</td>
+<td>Sistemas de gestión de la calidad — enfoque de procesos y mejora continua</td>
+</tr>
+<tr>
+<td>ISO 27001:2022</td>
+<td>Seguridad de la información — autenticación, autorización y trazabilidad</td>
+</tr>
+<tr>
+<td>ISO 8000-100</td>
+<td>Calidad de datos — principios de gestión y evaluación de la calidad de datos maestros</td>
+</tr>
+<tr>
+<td>ISO 8000-150</td>
+<td>Calidad de datos — evaluación de la calidad de datos maestros</td>
+</tr>
+<tr>
+<td>Marco eléctrico venezolano</td>
+<td>Normas internas CORPOELEC y MPPEE para reportes de interrupciones de servicio</td>
+</tr>
+</tbody></table>
+<h1>3. Términos y Definiciones</h1>
+<table><thead><tr><th>Término</th><th>Definición</th></tr></thead><tbody>
+<tr><td><b>Tira de interrupción</b></td><td>Registro de un evento de interrupción de servicio eléctrico con datos de subestación, circuito, fechas, causa, duración y energía no suministrada.</td></tr>
+<tr><td><b>TTI</b></td><td>Tiempo Total de Interrupción, energía no suministrada durante el evento (MWh).</td></tr>
+<tr><td><b>Causa homologada</b></td><td>Causa asignada a uno de los códigos oficiales del catálogo sctis.causa.</td></tr>
+<tr><td><b>Activo</b></td><td>Subestación o circuito registrado en el inventario CORPOELEC (common.assets).</td></tr>
+<tr><td><b>Formato homologado</b></td><td>Plantilla Excel oficial de 21 columnas (Formato TIRAS Estándar) que deben usar los estados.</td></tr>
+<tr><td><b>Catálogo de formatos</b></td><td>Tabla sctis.formato_catalogo que registra 11 formatos por estado y sus reglas de parseo.</td></tr>
+<tr><td><b>RLS</b></td><td>Row Level Security. Mecanismo de PostgreSQL que restringe filas visibles por usuario.</td></tr>
+<tr><td><b>Scoring ISO 8000</b></td><td>Puntaje de calidad (0-100) de cada registro según 9 reglas de evaluación automática.</td></tr>
+<tr><td><b>Homologación</b></td><td>Proceso de mapear una causa reportada por un estado a una causa oficial del catálogo.</td></tr>
+<tr><td><b>HojaMemoria</b></td><td>Wrapper de openpyxl en modo read_only que optimiza el parseo de hojas grandes.</td></tr>
+<tr><td><b>Alias de activo</b></td><td>Sinónimo aprendido: nombre fuera de norma que el sistema resuelve automáticamente a un activo del catálogo (sctis.asset_alias).</td></tr>
+<tr><td><b>Cola de revisión de activos</b></td><td>Bandeja de solicitudes de SE/CT reportados fuera de catálogo que requieren aprobación del administrador (sctis.asset_request).</td></tr>
+<tr><td><b>Backfill</b></td><td>Actualización retroactiva de tiras ya cargadas para vincular su subestación/circuito al activo aprobado.</td></tr>
+</tbody></table>
+<hr style="margin: 30px 0; border: none; border-top: 1px dashed #cbd5e1;">
+<h1>4. Arquitectura del Sistema</h1>
+<h2>4.1. Arquitectura general</h2>
+<table><thead><tr><th>Paso</th><th>Descripción</th></tr></thead><tbody>
+<tr><td><b>FRONTEND</b></td><td>HTML · Vue.js 3 · Tailwind CSS · Chart.js · Plotly.js</td></tr>
+<tr><td><b>BACKEND</b></td><td>Flask (Python 3) · API REST · Wizard de importación</td></tr>
+<tr><td><b>BASE DE DATOS</b></td><td>PostgreSQL 17 · esquemas common/sctis/audit · RLS</td></tr>
+<tr><td><b>INTELIGENCIA ARTIFICIAL</b></td><td>Google Gemini (gemini-2.5-flash) · causa, calidad, duplicados</td></tr>
+<tr><td><b>DESPLIEGUE</b></td><td>Vercel Serverless Functions · alternativo Cloud Run/Docker</td></tr>
+</tbody></table>
+<p>La aplicación sigue una arquitectura de tres capas con una capa transversal de inteligencia artificial. El frontend consume endpoints REST JSON expuestos por Flask. La capa de datos está organizada en tres esquemas PostgreSQL: common (datos maestros compartidos), sctis (datos del sistema de interrupciones) y audit (auditoría y calidad). La capa de IA interviene en la homologación de causas, la evaluación de calidad y la detección de duplicados.</p>
+<h2>4.2. Stack tecnológico</h2>
+<table><thead><tr>
+<th>Capa</th>
+<th>Tecnología</th>
+<th>Versión</th>
+<th>Propósito</th>
+</tr></thead><tbody>
+<tr>
+<td>Lenguaje</td>
+<td>Python</td>
+<td>3.x</td>
+<td>Backend y scripts de conversión</td>
+</tr>
+<tr>
+<td>Framework web</td>
+<td>Flask</td>
+<td>2.x</td>
+<td>API REST y renderizado de plantillas</td>
+</tr>
+<tr>
+<td>Base de datos</td>
+<td>PostgreSQL</td>
+<td>17</td>
+<td>Persistencia con esquemas common/sctis/audit</td>
+</tr>
+<tr>
+<td>Cloud DB (objetivo)</td>
+<td>Supabase</td>
+<td>-</td>
+<td>PostgreSQL gestionado en la nube</td>
+</tr>
+<tr>
+<td>IA</td>
+<td>Google Gemini</td>
+<td>gemini-2.5-flash</td>
+<td>Homologación, calidad y duplicados</td>
+</tr>
+<tr>
+<td>Frontend</td>
+<td>Vue.js 3</td>
+<td>3.x</td>
+<td>Interactividad del wizard y formularios</td>
+</tr>
+<tr>
+<td>Estilos</td>
+<td>Tailwind CSS</td>
+<td>3.x</td>
+<td>Diseño de interfaz</td>
+</tr>
+<tr>
+<td>Gráficos</td>
+<td>Chart.js · Plotly.js</td>
+<td>-</td>
+<td>Dashboard y diagrama Sankey</td>
+</tr>
+<tr>
+<td>Parseo Excel</td>
+<td>openpyxl</td>
+<td>3.x</td>
+<td>Lectura de archivos .xlsx (modo read_only)</td>
+</tr>
+<tr>
+<td>Despliegue</td>
+<td>Vercel / Docker</td>
+<td>-</td>
+<td>Serverless Functions / contenedor</td>
+</tr>
+</tbody></table>
+<h2>4.3. Esquema de base de datos</h2>
+<p>El sistema utiliza PostgreSQL 17 con tres esquemas principales.</p>
+<ul>
+<li>common — datos maestros: states (estados), assets (subestaciones y circuitos, inventario CORPOELEC), process_codes.</li>
+<li>sctis — datos del sistema: tira_interrupcion (tabla principal), causa (22 causas oficiales), sub_causa (14 sub-causas), formato_catalogo (11 formatos), tarea_pendiente, asset_alias (diccionario aprendido de sinónimos SE/CT), asset_request (cola de revisión de activos nuevos), user_profiles, user_roles, despachador, tipo_operacion, duplicate_groups, duplicate_members, data_quality_rules.</li>
+<li>audit — auditoría y calidad: submissions (registro de cada carga), access_log, change_log, data_issues, quality_metrics.</li>
+</ul>
+<p>Las tablas transaccionales incluyen claves foráneas (FK) e índices. common.assets usa parent_asset_id para la jerarquía subestación → circuito. Todas las tablas tienen timestamps de creación y modificación en zona horaria America/Caracas.</p>
+<h2>4.4. Seguridad</h2>
+<ul>
+<li>Autenticación por sesión Flask con contraseña hasheada.</li>
+<li>Bloqueo por 5 intentos fallidos durante 30 minutos.</li>
+<li>Autorización por roles: admin (acceso total) y editor (solo su estado asignado).</li>
+<li>Row Level Security (RLS) en PostgreSQL: filtro de filas por estado a nivel de BD, no solo visual.</li>
+<li>Trazabilidad completa: cada acceso y cada carga queda registrada en audit.</li>
+<li>Configuración centralizada de secretos vía variables de entorno (Vercel @secret).</li>
+</ul>
+<hr style="margin: 30px 0; border: none; border-top: 1px dashed #cbd5e1;">
+<h1>5. Flujos de Proceso</h1>
+<h2>5.1. Flujo de Importación Excel (Wizard de 3 pasos)</h2>
+<table><thead><tr><th>Paso</th><th>Descripción</th></tr></thead><tbody>
+<tr><td><b>PASO 1</b></td><td>Subir archivo · seleccionar estado (admin) · elegir hoja si multi-hoja</td></tr>
+<tr><td><b>PASO 2</b></td><td>Detectar formato · validar estructura · parsear · homologar causas · resolver activos</td></tr>
+<tr><td><b>PASO 3</b></td><td>Previsualizar · confirmar · insertar en BD · auditar</td></tr>
+</tbody></table>
+<p>El flujo de importación es el proceso central del sistema. Consta de 3 pasos en la interfaz: subida, previsualización y confirmación. Internamente, la fase de previsualización ejecuta: detección de formato, validación de estructura, parseo de la hoja seleccionada, detección de activos inconsistentes y homologación de causas.</p>
+<h3>5.1.1. Subida del archivo</h3>
+<p>El usuario accede a 'Importar' y sube un archivo Excel (.xlsx). Si el archivo tiene varias hojas visibles, el sistema devuelve requires_sheet_selection con la lista de hojas y un token de sesión; el usuario debe seleccionar UNA sola hoja. No se cargan múltiples hojas: el responsable debe consolidar sus reportes en una sola hoja antes de subir. Esta decisión fue tomada deliberadamente para evitar cargas parciales sin control.</p>
+<div class="tech-box"><div class="box-title">NOTA TÉCNICA</div><p>La subida genera un token UUID y guarda el archivo en /tmp/sctis_imports. Si hay varias hojas visibles se pide selección; en caso contrario se usa la primera hoja visible.</p></div>
+<h3>5.1.2. Detección y validación de formato</h3>
+<p>El sistema primero intenta validar la estructura contra la plantilla oficial (HEADERS_FORMATO_ESPERADOS). Si la estructura no coincide, consulta el catálogo sctis.formato_catalogo: filtra los formatos del estado del usuario (o el estado seleccionado por el admin) y compara las palabras clave de encabezado (header_keywords). El formato con mayor coincidencia (ratio ≥ 0.6) gana. Si no hay coincidencia, el archivo se rechaza con mensaje de formato no reconocido.</p>
+<h3>Resolución de formato:</h3>
+<table><thead><tr><th>Condición</th><th>Acciones</th></tr></thead><tbody>
+<tr><td><b>Formato de catálogo</b></td><td>Coincidencia con formato de catálogo → se aplica su mapeo_columnas y reglas de parseo</td></tr>
+<tr><td><b>Formato inválido</b></td><td>Sin coincidencia → rechazo 422 con instructivo de corrección</td></tr>
+</tbody></table>
+<h3>5.1.3. Parseo y normalización</h3>
+<p>El parseo se realiza con openpyxl en modo read_only (data_only=True) a través del wrapper HojaMemoria, que resuelve el acceso por fila ws[row_idx] y los atributos max_row/max_column. Este wrapper redujo el tiempo de parseo de la hoja CARABOBO (6351×63 celdas) de ~100 segundos a ~6 segundos. Los valores se normalizan: fechas/horas se combinan en timestamps, la fecha de falla se deriva de la fecha de inicio, y los campos vacíos se limpian a NULL.</p>
+<h3>5.1.4. Homologación de causas</h3>
+<p>Cada causa original reportada por el estado se normaliza (mayúsculas, sin acentos) y se mapea a una de las 22 causas oficiales de sctis.causa. El mapeo lo define el usuario en el paso de previsualización (campo mapping). El sistema sugiere la causa oficial más cercana, incluyendo sugerencias generadas por IA (Google Gemini) cuando hay ambigüedad.</p>
+<h3>5.1.5. Resolución de activos inconsistentes</h3>
+<p>El sistema cruza cada par (subestación, circuito) contra common.assets del estado. Los activos que no coinciden se listan con sugerencias de emparejamiento y una preclasificación automática (probable typo, posible alias o probable activo nuevo). Para cada uno, el usuario puede tomar una de dos rutas:</p>
+<ul>
+<li>Mapear el nombre original a un activo existente del catálogo: el sistema guarda el par (nombre reportado → activo) en el diccionario sctis.asset_alias. En cargas futuras ese nombre se resuelve automáticamente, sin volver a preguntar. Es el mecanismo de aprendizaje del sistema, por estado y por tipo de activo.</li>
+<li>Reportar el activo como nuevo ('no está en catálogo'): se crea una solicitud en sctis.asset_request, la tira se ingresa con el nombre libre (subestacion_id/circuito_id en NULL) y queda pendiente de revisión del administrador. La resolución es en cascada: primero subestaciones, luego circuitos.</li>
+</ul>
+<p>Los nombres se normalizan para matching (elimina voltajes, paréntesis, numerales romanos y sufijos numéricos). La preclasificación usa un comparador difuso (difflib) con umbrales de similitud: ratio ≥ 0.85 → probable typo; ≥ 0.60 → posible alias; en caso contrario → probable activo nuevo.</p>
+<h3>5.1.6. Confirmación e inserción</h3>
+<p>Tras la previsualización, el usuario confirma la importación. El sistema recorre las filas de la hoja seleccionada, inserta cada registro en sctis.tira_interrupcion (resolviendo activos y despachadores), y cuenta insertados vs. rechazados. Los registros rechazados se recogen con el motivo del error por fila.</p>
+<h2>5.2. Flujo de Auditoría de Cargas</h2>
+<table><thead><tr><th>Paso</th><th>Descripción</th></tr></thead><tbody>
+<tr><td><b>PREVIEW</b></td><td>Inserta audit.submissions (PENDING) con formato, hoja, filas, usuario</td></tr>
+<tr><td><b>CONFIRMAR</b></td><td>Actualiza accepted_count / rejected_count y validation_status</td></tr>
+<tr><td><b>¿RECHAZADOS?</b></td><td>validation_status = VALIDATED (0) o PARTIAL (>0)</td></tr>
+<tr><td><b>CORREGIR</b></td><td>Crea sctis.tarea_pendiente CORREGIR_DATOS + genera Excel de corrección</td></tr>
+</tbody></table>
+<p>Cada importación queda registrada en audit.submissions: process_code (sctis_import), estado, nombre de archivo, hoja seleccionada, hojas del libro, cantidad de filas, estado de validación, formato detectado y usuario que ingirió los datos. Cuando hay rechazados, se crea una tarea pendiente de tipo CORREGIR_DATOS asociada a la submission y se genera un archivo Excel de corrección con los registros rechazados.</p>
+<div class="tech-box"><div class="box-title">NOTA TÉCNICA</div><p>common.process_codes contiene el proceso 'sctis_import' (minúsculas, requerido por el check constraint de lowercase).</p></div>
+<h2>5.3. Flujo de Control de Calidad (ISO 8000)</h2>
+<p>El trigger trg_tira_quality evalúa cada registro con 9 reglas de calidad (completitud, consistencia, precisión) y asigna un scoring 0-100. Los resultados se almacenan en record_quality_scores. La detección de duplicados (trg_tira_duplicate_check) identifica registros repetidos tras el INSERT usando combinaciones de fecha + circuito + hora. El trigger trg_set_mes auto-computa el campo mes desde fecha_falla.</p>
+<table><thead><tr>
+<th>Regla</th>
+<th>Descripción</th>
+</tr></thead><tbody>
+<tr>
+<td>Completitud</td>
+<td>Campos obligatorios no nulos (subestación, circuito, fecha, causa)</td>
+</tr>
+<tr>
+<td>Consistencia</td>
+<td>Coherencia entre fechas (inicio ≤ fin) y duraciones</td>
+</tr>
+<tr>
+<td>Precisión</td>
+<td>Valores numéricos en rango y formato esperado</td>
+</tr>
+<tr>
+<td>Integridad referencial</td>
+<td>FKs válidas: estado, subestación, circuito, causa, despachador</td>
+</tr>
+<tr>
+<td>Detalle de causa</td>
+<td>Causa no genérica sin sub-causa complementaria</td>
+</tr>
+<tr>
+<td>Observaciones</td>
+<td>Registros con observaciones relevantes</td>
+</tr>
+<tr>
+<td>Duplicados</td>
+<td>No repetición de evento (fecha + circuito + hora)</td>
+</tr>
+<tr>
+<td>Duración</td>
+<td>Coherencia entre duración reportada y horas calculadas</td>
+</tr>
+<tr>
+<td>Mes</td>
+<td>Campo mes auto-computado conforme a fecha_falla</td>
+</tr>
+</tbody></table>
+<h2>5.4. Flujo de Dashboard y API de Datos</h2>
+<p>El dashboard (/dashboard) ofrece 4 perspectivas expertas: Ingeniero Eléctrico, Mantenimiento, Project Manager y Data Scientist. La API /api/dashboard expone 13 secciones de datos: causas, horas, tendencia, sistema, desglose OTRAS (Sankey), circuitos, subestaciones, estados, horario, calidad, entre otros. Los gráficos (Chart.js y Plotly.js) se pueden descargar como PNG.</p>
+<h2>5.5. Flujo de Tareas Pendientes</h2>
+<p>Las tareas pendientes (sctis.tarea_pendiente) gestionan el seguimiento de acciones. Hay dos tipos: CORREGIR_DATOS (cuando una carga tiene rechazados, se genera un Excel de corrección) y APROBAR_ACTIVO (cuando se reportan SE/CT nuevos que requieren revisión del administrador). En ambos casos la tarea nace en estado PENDIENTE, se lista en /admin/tareas y se completa o cancela desde el panel de administración.</p>
+<h2>5.6. Flujo de Aprendizaje del Diccionario de Activos (ISO 8000-110)</h2>
+<table><thead><tr><th>Paso</th><th>Descripción</th></tr></thead><tbody>
+<tr><td><b>DETECTAR</b></td><td>Nombre fuera de norma identificado en la carga</td></tr>
+<tr><td><b>MAPEAR</b></td><td>Usuario selecciona el activo oficial de referencia</td></tr>
+<tr><td><b>GUARDAR</b></td><td>sctis.asset_alias registra el sinónimo por estado y tipo</td></tr>
+<tr><td><b>RESOLVER</b></td><td>Cargas futuras resuelven automáticamente el nombre</td></tr>
+</tbody></table>
+<p>El diccionario de alias sctis.asset_alias materializa el principio ISO 8000-110 de 'identificador único por entidad': un mismo activo físico tiene un único registro maestro en common.assets, y todos los nombres reportados fuera de norma se remiten a él mediante sinónimos. La tabla guarda estado, tipo (SUBSTATION/CIRCUITO), nombre reportado, subestación de referencia (para circuitos), el activo destino y el usuario que lo definió. Un índice único (estado, tipo, nombre, se_referencia) evita sinónimos duplicados.</p>
+<div class="tech-box"><div class="box-title">NOTA TÉCNICA</div><p>sctis.asset_alias se consulta en detectar_activos_inconsistentes antes del matching difuso y en confirmar_import durante la inserción. Los alias se registran automáticamente cuando el usuario mapea en la previsualización o cuando el administrador aprueba/asigna alias en la bandeja.</p></div>
+<h2>5.7. Flujo de Revisión y Aprobación de Activos Nuevos (Control de Cambios)</h2>
+<table><thead><tr><th>Paso</th><th>Descripción</th></tr></thead><tbody>
+<tr><td><b>ENCUADRAR</b></td><td>SE/CT reportado como nuevo se inserta en sctis.asset_request (PENDIENTE)</td></tr>
+<tr><td><b>PRE-CLASIFICAR</b></td><td>El sistema sugiere probable typo, alias o activo nuevo con activo candidato</td></tr>
+<tr><td><b>SUPERVISAR</b></td><td>El administrador revisa la bandeja /admin/activos y decide</td></tr>
+<tr><td><b>DECIDIR</b></td><td>Aprobar (crea activo + backfill + alias) · Es alias · Corregir · Rechazar</td></tr>
+<tr><td><b>RESOLVER</b></td><td>Las tiras previas se vinculan (backfill) y las futuras se resuelven solas</td></tr>
+</tbody></table>
+<p>Las solicitudes de activos nuevos (sctis.asset_request) se someten a un control de cambios gobernado: solo el administrador materializa SE/CT en common.assets. Cada solicitud registra estado, tipo, nombre reportado, nombre canónico sugerido, subestación de referencia, filas afectadas, clasificación automática, activo sugerido, submission de origen y usuario solicitante. Al decidir se registran decided_by, decided_at y comentario (trazabilidad ISO 27001). Se crea una tarea pendiente APROBAR_ACTIVO para que la supervisión no quede en el aire; la tarea se completa automáticamente cuando no quedan solicitudes pendientes del estado.</p>
+<table><thead><tr>
+<th>Decisión</th>
+<th>Acción del sistema</th>
+<th>Efecto</th>
+</tr></thead><tbody>
+<tr>
+<td>Aprobar</td>
+<td>Crea el activo en common.assets (nombre normalizado, código y parent correctos)</td>
+<td>Backfill de tiras previas + alias automático para cargas futuras</td>
+</tr>
+<tr>
+<td>Es alias</td>
+<td>Vincula el nombre reportado a un activo existente (sctis.asset_alias)</td>
+<td>Renombrados y nombres viejos resueltos sin duplicar el catálogo</td>
+</tr>
+<tr>
+<td>Corregir</td>
+<td>Ajusta el nombre canónico sugerido antes de aprobar</td>
+<td>Evita tipeos y normaliza el nombre en catálogo</td>
+</tr>
+<tr>
+<td>Rechazar</td>
+<td>Marca RECHAZADO con comentario</td>
+<td>El nombre queda sin resolver y visible en reportes</td>
+</tr>
+</tbody></table>
+<p>Con esta separación en dos zonas —ingestión de datos (no bloqueada) y gobierno del catálogo (supervisado)— se aplica el enfoque de procesos de ISO 9001:2015: el catálogo maestro se modifica únicamente mediante un procedimiento controlado, con evidencia y trazabilidad de cada decisión.</p>
+<h2>5.8. Flujo del Módulo de Monitoreo de Cargas y Matriz de Seguimiento</h2>
+<table><thead><tr><th>Paso</th><th>Descripción</th></tr></thead><tbody>
+<tr><td><b>CROSS-QUERY</b></td><td>Consulta audit.submissions + sctis.audit_admin_carga_excepcional + sctis.tira_interrupcion</td></tr>
+<tr><td><b>CONSOLIDAR</b></td><td>Obtiene última fecha de carga y totales por cada uno de los 24 estados</td></tr>
+<tr><td><b>EVALUAR</b></td><td>Aplica métricas: Semanal (dias <= 4) y Mensual (dias <= 25 ó dia_mes <= 3)</td></tr>
+<tr><td><b>ALERTA & TAREAS</b></td><td>Clasifica estados + genera listas de faltantes + emisión de tareas directas</td></tr>
+</tbody></table>
+<p>El endpoint `/api/admin/monitoreo-cargas/matriz` calcula en tiempo real el estado de cumplimiento de los 24 estados de Venezuela. Para garantizar una métrica fidedigna, consolida la última interacción registrada cruzando tres tablas:</p>
+<ul>
+<li>audit.submissions: Registros de importación de archivos subidos por operadores.</li>
+<li>sctis.audit_admin_carga_excepcional: Cargas de emergencia o correcciones excepcionales ejecutadas por administración.</li>
+<li>sctis.tira_interrupcion: Registros directos de eventos asociados a cada estado.</li>
+</ul>
+<table><thead><tr>
+<th>Frecuencia</th>
+<th>Condición Algorítmica</th>
+<th>Estado Asignado</th>
+<th>Acción de Control</th>
+</tr></thead><tbody>
+<tr>
+<td>Semanal</td>
+<td>dias_desde_carga <= 4</td>
+<td>AL_DIA</td>
+<td>Carga dentro del ciclo semanal.</td>
+</tr>
+<tr>
+<td>Semanal</td>
+<td>dia_semana en (Mié, Jue) y dias_desde_carga > 4</td>
+<td>EN_RIESGO</td>
+<td>Alerta: Carga Requerida Hoy.</td>
+</tr>
+<tr>
+<td>Semanal</td>
+<td>dias_desde_carga > 4</td>
+<td>MOROSO</td>
+<td>Falta Carga Semanal → Incluye en lista de faltantes semanal.</td>
+</tr>
+<tr>
+<td>Mensual</td>
+<td>dias_desde_carga <= 25</td>
+<td>AL_DIA</td>
+<td>Consolidado al día.</td>
+</tr>
+<tr>
+<td>Mensual</td>
+<td>dia_mes <= 3</td>
+<td>EN_RIESGO</td>
+<td>En Plazo Mensual (Ventana abierta hasta el 3).</td>
+</tr>
+<tr>
+<td>Mensual</td>
+<td>dias_desde_carga > 25 y dia_mes > 3</td>
+<td>MOROSO</td>
+<td>Falta Consolidado Mensual → Incluye en lista de faltantes mensual.</td>
+</tr>
+</tbody></table>
+<p>Desde la matriz de control, el administrador puede accionar el botón 'Solicitar' que invoca la creación de una tarea en `sctis.tarea_pendiente` (tipos `SOLICITUD_CARGA_SEMANAL` o `SOLICITUD_CONSOLIDADO_MENSUAL`) asignada al usuario del estado con un plazo límite (24h ó 48h) de respuesta formal.</p>
+<hr style="margin: 30px 0; border: none; border-top: 1px dashed #cbd5e1;">
+<h1>6. Modelo de Datos Detallado</h1>
+<h2>6.1. Tabla principal: sctis.tira_interrupcion</h2>
+<table><thead><tr>
+<th>Columna</th>
+<th>Tipo</th>
+<th>Descripción</th>
+</tr></thead><tbody>
+<tr>
+<td>tira_id</td>
+<td>serial PK</td>
+<td>Identificador del registro</td>
+</tr>
+<tr>
+<td>estado_codigo</td>
+<td>text FK</td>
+<td>Estado (common.states)</td>
+</tr>
+<tr>
+<td>fecha_falla</td>
+<td>date</td>
+<td>Fecha de la falla (derivada de fecha inicio)</td>
+</tr>
+<tr>
+<td>mes</td>
+<td>text</td>
+<td>Mes auto-computado por trg_set_mes (ej: ENERO)</td>
+</tr>
+<tr>
+<td>sistema</td>
+<td>text</td>
+<td>Sistema eléctrico (distribución, transmisión)</td>
+</tr>
+<tr>
+<td>subestacion / subestacion_id</td>
+<td>text / FK</td>
+<td>Subestación y referencia a common.assets</td>
+</tr>
+<tr>
+<td>circuito / circuito_id</td>
+<td>text / FK</td>
+<td>Circuito y referencia a common.assets</td>
+</tr>
+<tr>
+<td>fecha_inicio / fecha_fin</td>
+<td>timestamp</td>
+<td>Inicio y fin del evento (combinados fecha+hora)</td>
+</tr>
+<tr>
+<td>causa / sub_causa</td>
+<td>text</td>
+<td>Causa original y sub-causa reportadas</td>
+</tr>
+<tr>
+<td>causa_id</td>
+<td>int FK</td>
+<td>Causa homologada (sctis.causa)</td>
+</tr>
+<tr>
+<td>despachador / despachador_id</td>
+<td>text / FK</td>
+<td>Despachador y referencia</td>
+</tr>
+<tr>
+<td>kva / horas</td>
+<td>numeric</td>
+<td>Potencia afectada y horas de interrupción</td>
+</tr>
+<tr>
+<td>duracion_calculada / horas_calculadas</td>
+<td>numeric</td>
+<td>Campos calculados automáticamente</td>
+</tr>
+<tr>
+<td>sectores / ciudad / observacion</td>
+<td>text</td>
+<td>Información complementaria</td>
+</tr>
+<tr>
+<td>created_by</td>
+<td>text</td>
+<td>Origen del registro (importacion_excel, formulario)</td>
+</tr>
+</tbody></table>
+<h2>6.2. Catálogos y auditoría</h2>
+<table><thead><tr>
+<th>Tabla</th>
+<th>Esquema</th>
+<th>Descripción</th>
+</tr></thead><tbody>
+<tr>
+<td>sctis.causa</td>
+<td>sctis</td>
+<td>22 causas oficiales (causa_id, causa_codigo, causa_nombre)</td>
+</tr>
+<tr>
+<td>sctis.sub_causa</td>
+<td>sctis</td>
+<td>14 sub-causas asociadas a causas</td>
+</tr>
+<tr>
+<td>sctis.formato_catalogo</td>
+<td>sctis</td>
+<td>11 formatos con header_keywords, header_row, data_start_row, mapeo_columnas (jsonb), reglas</td>
+</tr>
+<tr>
+<td>sctis.tarea_pendiente</td>
+<td>sctis</td>
+<td>Tareas CORREGIR_DATOS y APROBAR_ACTIVO con estado, conteos y archivo de corrección</td>
+</tr>
+<tr>
+<td>sctis.asset_alias</td>
+<td>sctis</td>
+<td>Diccionario aprendido de sinónimos SE/CT por estado (nombre fuera de norma → activo)</td>
+</tr>
+<tr>
+<td>sctis.asset_request</td>
+<td>sctis</td>
+<td>Cola de revisión de activos nuevos con clasificación, decisiones y trazabilidad</td>
+</tr>
+<tr>
+<td>common.states</td>
+<td>common</td>
+<td>Catálogo de estados (24 registros)</td>
+</tr>
+<tr>
+<td>common.assets</td>
+<td>common</td>
+<td>Inventario: ~4.311 CT y ~838 SE activas</td>
+</tr>
+<tr>
+<td>common.process_codes</td>
+<td>common</td>
+<td>Códigos de proceso: sctis_import (lowercase)</td>
+</tr>
+<tr>
+<td>audit.submissions</td>
+<td>audit</td>
+<td>Registro de cada carga (PENDING/VALIDATED/PARTIAL)</td>
+</tr>
+<tr>
+<td>audit.data_issues</td>
+<td>audit</td>
+<td>Incidencia de calidad por registro</td>
+</tr>
+<tr>
+<td>sctis.record_quality_scores</td>
+<td>sctis</td>
+<td>Scores ISO 8000 por registro</td>
+</tr>
+<tr>
+<td>sctis.duplicate_groups / duplicate_members</td>
+<td>sctis</td>
+<td>Grupos de duplicados detectados</td>
+</tr>
+</tbody></table>
+<hr style="margin: 30px 0; border: none; border-top: 1px dashed #cbd5e1;">
+<h1>7. Integración con Inteligencia Artificial</h1>
+<p>El sistema integra Google Gemini (modelo gemini-2.5-flash) como capa de IA transversal, activa cuando GEMINI_API_KEY está configurada. Sus funciones son:</p>
+<ul>
+<li>suggest_cause / suggest-causes-batch: homologa causas originales a las 22 oficiales con confianza (0-1) y justificación JSON.</li>
+<li>evaluate_quality_with_ai: evalúa calidad ISO 8000 de un registro (score 0-100, issues, suggestions).</li>
+<li>detect_duplicates_with_ai: analiza pares de registros para detectar duplicados potenciales.</li>
+</ul>
+<div class="tech-box"><div class="box-title">NOTA TÉCNICA</div><p>El acceso a Gemini usa el paquete google-genai. La API key se configura en GEMINI_API_KEY (variable de entorno). Si no está disponible, el sistema degrada elegantemente al matching determinístico.</p></div>
+<h1>8. Configuración y Despliegue</h1>
+<table><thead><tr>
+<th>Entorno</th>
+<th>Detalle</th>
+</tr></thead><tbody>
+<tr>
+<td>Local</td>
+<td>run.py (puerto 8080), load_dotenv() carga .env, APP_DEBUG=false evita el watchdog reloader</td>
+</tr>
+<tr>
+<td>Vercel</td>
+<td>vercel.json mapea rutas; @vercel/python; entry point api/index.py con dispatch a todas las rutas Flask</td>
+</tr>
+<tr>
+<td>Cloud Run / Docker</td>
+<td>Dockerfile, cloudbuild.yaml y deploy.sh como alternativa</td>
+</tr>
+<tr>
+<td>Base de datos</td>
+<td>PostgreSQL en BD local (ggpd_se_cto_v1); objetivo Supabase en la nube</td>
+</tr>
+<tr>
+<td>Migraciones</td>
+<td>migraciones/001-009: esquema, catálogos, homologación, ISO, campos de cálculo, formato_catalogo, auditoría, asset_alias, asset_request</td>
+</tr>
+</tbody></table>
+<h1>9. Desarrollo con IA y Próximas Fases</h1>
+<p>El desarrollo del sistema se realizó con asistencia de modelos de inteligencia artificial en todas sus etapas: análisis de formatos, diseño de esquema, generación de código, documentación y verificación. Esta sección da crédito a los modelos que han intervenido y describe las fases siguientes.</p>
+<table><thead><tr>
+<th>Modelo / Plataforma</th>
+<th>Rol</th>
+</tr></thead><tbody>
+<tr>
+<td>Google Gemini (gemini-2.5-flash)</td>
+<td>Integración IA en producción: homologación, calidad, duplicados</td>
+</tr>
+<tr>
+<td>Modelos de asistencia al desarrollo</td>
+<td>A completar por el equipo (se listarán los que han intervenido)</td>
+</tr>
+</tbody></table>
+<ul>
+<li>Migración a Google AI Studio: potenciar la capa de IA con capacidades generativas ampliadas (pendiente de aprobación).</li>
+<li>Migración de la base de datos a Supabase: PostgreSQL gestionado en la nube.</li>
+<li>Despliegue en Vercel: versión beta con variables de entorno como secretos.</li>
+</ul>
+<hr style="margin: 30px 0; border: none; border-top: 1px dashed #cbd5e1;">
+<h1>Anexo A — Catálogo de Causas Homologadas (22)</h1>
+<table><thead><tr>
+<th>ID</th>
+<th>Código</th>
+<th>Nombre</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>ACCIDENTAL</td>
+<td>Accidental</td>
+</tr>
+<tr>
+<td>2</td>
+<td>APERTURA_EMERGENCIA</td>
+<td>Apertura por Emergencia</td>
+</tr>
+<tr>
+<td>3</td>
+<td>ATMOSFERICA</td>
+<td>Atmosférica</td>
+</tr>
+<tr>
+<td>4</td>
+<td>ATRIBUIBLE_MANTENIMIENTO</td>
+<td>Atribuible a Mantenimiento</td>
+</tr>
+<tr>
+<td>5</td>
+<td>ATRIBUIBLE_COORD_PROT</td>
+<td>Atribuible a Coordinación de Protecciones</td>
+</tr>
+<tr>
+<td>6</td>
+<td>BAJA_TENSION</td>
+<td>Baja Tensión</td>
+</tr>
+<tr>
+<td>7</td>
+<td>COMPONENTE_DANADO</td>
+<td>Componente Dañado</td>
+</tr>
+<tr>
+<td>8</td>
+<td>ERROR_OPERACIONES</td>
+<td>Error de Operaciones</td>
+</tr>
+<tr>
+<td>9</td>
+<td>FALLA_EQUIPOS</td>
+<td>Falla de Equipos</td>
+</tr>
+<tr>
+<td>10</td>
+<td>FALLA_LINEA_115KV</td>
+<td>Falla en Línea ≥ 115 KV</td>
+</tr>
+<tr>
+<td>11</td>
+<td>MANIOBRA_MT</td>
+<td>Maniobra en Línea MT</td>
+</tr>
+<tr>
+<td>12</td>
+<td>OTRAS</td>
+<td>Otras</td>
+</tr>
+<tr>
+<td>13</td>
+<td>POR_TERCEROS</td>
+<td>Por Terceros</td>
+</tr>
+<tr>
+<td>14</td>
+<td>PROGRAMADA</td>
+<td>Programada</td>
+</tr>
+<tr>
+<td>15</td>
+<td>RACIONAMIENTO</td>
+<td>Racionamiento</td>
+</tr>
+<tr>
+<td>16</td>
+<td>SOBRECARGA</td>
+<td>Sobrecarga</td>
+</tr>
+<tr>
+<td>17</td>
+<td>SIN_TENSION_SE</td>
+<td>Sin Tensión S/E</td>
+</tr>
+<tr>
+<td>18</td>
+<td>SOBRECORRIENTE_FASE</td>
+<td>Sobrecorriente en Fase</td>
+</tr>
+<tr>
+<td>19</td>
+<td>SOBRECORRIENTE_NEUTRO</td>
+<td>Sobrecorriente en el Neutro</td>
+</tr>
+<tr>
+<td>20</td>
+<td>SOBRECORRIENTE_FASE_NEUTRO</td>
+<td>Sobrecorriente en Fase y Neutro</td>
+</tr>
+<tr>
+<td>21</td>
+<td>VEGETACION</td>
+<td>Vegetación</td>
+</tr>
+<tr>
+<td>22</td>
+<td>PAC</td>
+<td>PAC (Programación de Adecuación de Carga)</td>
+</tr>
+</tbody></table>
+<h1>Anexo B — Catálogo de Sub-Causas (14)</h1>
+<table><thead><tr>
+<th>ID</th>
+<th>Causa</th>
+<th>Sub-causa</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>7</td>
+<td>Línea Rota en MT</td>
+</tr>
+<tr>
+<td>2</td>
+<td>7</td>
+<td>Puente Roto en MT</td>
+</tr>
+<tr>
+<td>3</td>
+<td>7</td>
+<td>Punto Roto en MT</td>
+</tr>
+<tr>
+<td>4</td>
+<td>14</td>
+<td>Poda (Control de Vegetación)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>14</td>
+<td>Mantenimiento Programado Tipo Poda</td>
+</tr>
+<tr>
+<td>6</td>
+<td>3</td>
+<td>Descarga Atmosférica</td>
+</tr>
+<tr>
+<td>7</td>
+<td>3</td>
+<td>Fuertes Lluvias en la Zona</td>
+</tr>
+<tr>
+<td>8</td>
+<td>21</td>
+<td>Rama sobre Líneas de MT</td>
+</tr>
+<tr>
+<td>9</td>
+<td>13</td>
+<td>Terceros podando árbol</td>
+</tr>
+<tr>
+<td>10</td>
+<td>12</td>
+<td>Causa Desconocida</td>
+</tr>
+<tr>
+<td>11</td>
+<td>1</td>
+<td>Impacto de Ave sobre Líneas de MT</td>
+</tr>
+<tr>
+<td>12</td>
+<td>7</td>
+<td>Punto Caliente</td>
+</tr>
+<tr>
+<td>13</td>
+<td>4</td>
+<td>Ajuste de Tornillería</td>
+</tr>
+<tr>
+<td>14</td>
+<td>7</td>
+<td>Reemplazo de Cortacorriente</td>
+</tr>
+</tbody></table>
+<h1>Anexo C — Catálogo de Formatos (11)</h1>
+<div class="info-box"><div class="box-title">AVISO</div><p>Los códigos de formato listados son PROPUESTOS y deben revisarse y validarse con el equipo funcional antes de su uso oficial.</p></div>
+<table><thead><tr>
+<th>Código propuesto</th>
+<th>Nombre</th>
+<th>Estado</th>
+<th>Observación</th>
+</tr></thead><tbody>
+<tr>
+<td>TIRAS</td>
+<td>Formato TIRAS Estándar</td>
+<td>Multi-estado</td>
+<td>Formato homologado base (21 columnas)</td>
+</tr>
+<tr>
+<td>F328</td>
+<td>Formato F328 — Sistema Eléctrico</td>
+<td>Multi-estado</td>
+<td>Formato oficial F328 del sistema eléctrico</td>
+</tr>
+<tr>
+<td>ANZOATEGUI</td>
+<td>Formato Anzoátegui / Nesparta</td>
+<td>ANZOÁTEGUI</td>
+<td>Formato propietario del estado (convertido vía script)</td>
+</tr>
+<tr>
+<td>CARABOBO</td>
+<td>Formato Carabobo</td>
+<td>CARABOBO</td>
+<td>Formato propietario del estado</td>
+</tr>
+<tr>
+<td>CAPITAL</td>
+<td>Formato Capital</td>
+<td>DISTRITO CAPITAL</td>
+<td>Formato propietario del Distrito Capital</td>
+</tr>
+<tr>
+<td>GUARICO_1</td>
+<td>Formato Guárico (Variante 1)</td>
+<td>GUÁRICO</td>
+<td>Variante 1 del estado Guárico</td>
+</tr>
+<tr>
+<td>GUARICO_2</td>
+<td>Formato Guárico (Variante 2)</td>
+<td>GUÁRICO</td>
+<td>Variante 2 del estado Guárico</td>
+</tr>
+<tr>
+<td>LARA</td>
+<td>Formato Lara</td>
+<td>LARA</td>
+<td>Formato propietario del estado</td>
+</tr>
+<tr>
+<td>MIRANDA_TUY</td>
+<td>Formato Miranda Tuy Barlovento</td>
+<td>MIRANDA</td>
+<td>Formato propietario de Miranda (Tuy/Barlovento)</td>
+</tr>
+<tr>
+<td>YARACUY</td>
+<td>Formato Yaracuy</td>
+<td>YARACUY</td>
+<td>Formato propietario del estado</td>
+</tr>
+<tr>
+<td>ZULIA</td>
+<td>Formato Zulia</td>
+<td>ZULIA</td>
+<td>Formato propietario del estado</td>
+</tr>
+</tbody></table>
+<div class="footer"><p>SCTIS-DOCTEC-001 - DOCUMENTO TÉCNICO
+ARQUITECTURA Y FLUJOS DE PROCESO | SCTIS v1.0 </p></div></body></html>

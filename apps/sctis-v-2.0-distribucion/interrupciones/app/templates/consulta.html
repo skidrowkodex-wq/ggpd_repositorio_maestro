@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% block title %}Consulta de Novedades{% endblock %}
+{% block header_title %}Consulta de Tiras de Interrupción{% endblock %}
+
+{% block content %}
+<div class="industrial-card p-0 mb-6">
+    <div class="bg-gray-100 px-6 py-4 border-b border-gray-300 flex items-center justify-between">
+        <h2 class="font-bold text-corpo-dark uppercase tracking-widest text-sm flex items-center gap-2">
+            <i class="fas fa-filter text-corpo-blue"></i> Filtros de Búsqueda
+        </h2>
+    </div>
+    <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+            <div>
+                <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Estado Geográfico</label>
+                <select id="filtro-estado" class="industrial-input w-full p-2.5 text-sm">
+                    <option value="">TODOS</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Mes Reporte</label>
+                <select id="filtro-mes" class="industrial-input w-full p-2.5 text-sm font-mono">
+                    <option value="">TODOS</option>
+                    {% for m in ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'] %}
+                    <option value="{{ m }}">{{ m }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Estado Cálculo</label>
+                <select id="filtro-calculo" class="industrial-input w-full p-2.5 text-sm font-mono">
+                    <option value="">TODOS</option>
+                    <option value="REVISAR CALCULO">ANOMALÍA (REVISAR CÁLCULO)</option>
+                    <option value="CALCULO VALIDO">VÁLIDO (CÁLCULO VÁLIDO)</option>
+                    <option value="INCOMPLETO_EXCEPCION_ADMIN">⚠️ EXCEPCIÓN ADMIN (DATOS INCOMPLETOS)</option>
+                    <option value="SIN DATOS">INCOMPLETO (SIN DATOS)</option>
+                </select>
+            </div>
+            <div class="flex items-end">
+                <button onclick="cargar()" class="w-full bg-corpo-blue text-white py-2.5 px-4 rounded-sm hover:bg-corpo-dark transition flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest shadow-md">
+                    <i class="fas fa-search"></i> Ejecutar Consulta
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="industrial-card p-0">
+    <div class="bg-gray-100 px-6 py-4 border-b border-gray-300 flex items-center justify-between">
+        <h2 class="font-bold text-corpo-dark uppercase tracking-widest text-sm flex items-center gap-2">
+            <i class="fas fa-table text-corpo-blue"></i> Resultados de Consulta
+        </h2>
+        <span class="text-xs font-mono text-gray-500 bg-white px-2 py-1 border border-gray-300 rounded" id="total-registros">0 REGISTROS</span>
+    </div>
+    <div id="tabla-container" class="overflow-x-auto">
+        <table class="w-full text-sm text-left">
+            <thead class="bg-gray-50 text-gray-600 text-[10px] uppercase font-bold tracking-wider font-mono border-b border-gray-300">
+                <tr>
+                    <th class="px-4 py-3">ID Tira</th>
+                    <th class="px-4 py-3">Mes</th>
+                    <th class="px-4 py-3">Falla</th>
+                    <th class="px-4 py-3">Estado</th>
+                    <th class="px-4 py-3">Circuito</th>
+                    <th class="px-4 py-3">Causa Reportada</th>
+                    <th class="px-4 py-3">Homologación</th>
+                    <th class="px-4 py-3 text-right">Duración (H)</th>
+                    <th class="px-4 py-3">Estado Cálculo</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-body" class="divide-y divide-gray-200 text-gray-700 font-medium">
+                <tr><td colspan="9" class="px-6 py-12 text-center text-gray-400 font-mono"><i class="fas fa-search mr-2"></i> Presione Ejecutar Consulta para cargar datos...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+async function cargarFiltros() {
+    const res = await fetch('/api/estados');
+    if (res.ok) {
+        const estados = await res.json();
+        const select = document.getElementById('filtro-estado');
+        estados.forEach(e => {
+            select.innerHTML += `<option value="${e.state_code}">${e.state_name}</option>`;
+        });
+    }
+}
+
+async function cargar() {
+    const tbody = document.getElementById('tabla-body');
+    const b = document.querySelector('button[onclick="cargar()"]');
+    
+    b.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> PROCESANDO...';
+    b.disabled = true;
+    tbody.innerHTML = '<tr><td colspan="9" class="px-6 py-12 text-center text-gray-400 font-mono"><i class="fas fa-spinner fa-spin mr-2"></i> Solicitando telemetría al servidor...</td></tr>';
+    
+    const params = new URLSearchParams();
+    const est = document.getElementById('filtro-estado').value;
+    const mes = document.getElementById('filtro-mes').value;
+    const cal = document.getElementById('filtro-calculo').value;
+    
+    if (est) params.append('estado', est);
+    if (mes) params.append('mes', mes);
+    if (cal) params.append('estado_calculo', cal);
+    
+    try {
+        const res = await fetch('/api/interrupciones?' + params.toString());
+        const datos = await res.json();
+        
+        document.getElementById('total-registros').innerText = `${datos.length} REGISTROS`;
+        
+        if (datos.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" class="px-6 py-12 text-center text-gray-500 font-mono text-xs uppercase tracking-widest"><i class="fas fa-info-circle mr-2"></i> Ningún registro coincide con los criterios</td></tr>';
+        } else {
+            tbody.innerHTML = datos.map(d => {
+                const fecha = d.fecha_falla ? new Date(d.fecha_falla).toLocaleDateString('es-VE') : '-';
+                
+                let badgeHomologada = '<span class="text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold uppercase tracking-wide border border-red-200 shadow-inner">Pendiente</span>';
+                if (d.causa_id) {
+                    badgeHomologada = `<span class="text-[10px] bg-green-100 text-green-800 px-1.5 py-0.5 rounded font-bold uppercase tracking-wide border border-green-200 shadow-inner">${d.causa_homologada}</span>`;
+                }
+                
+                let calcClass = 'bg-gray-100 text-gray-600 border-gray-300';
+                let calcLabel = d.estado_calculo || '-';
+                if (d.estado_calculo === 'REVISAR CALCULO') calcClass = 'bg-red-100 text-red-700 border-red-300';
+                if (d.estado_calculo === 'CALCULO VALIDO') calcClass = 'bg-green-100 text-green-700 border-green-300';
+                if (d.es_excepcion_admin || d.estado_calculo === 'INCOMPLETO_EXCEPCION_ADMIN') {
+                    calcClass = 'bg-amber-100 text-amber-900 border-amber-400 font-bold';
+                    calcLabel = '⚠️ EXCEPCIÓN ADMIN';
+                }
+                
+                return `
+                <tr class="hover:bg-blue-50 transition-colors ${d.es_excepcion_admin ? 'bg-amber-50/40' : ''}">
+                    <td class="px-4 py-3 font-mono text-xs font-bold">#${d.tira_id}</td>
+                    <td class="px-4 py-3 font-mono text-xs">${d.mes || '-'}</td>
+                    <td class="px-4 py-3 font-mono text-xs">${fecha}</td>
+                    <td class="px-4 py-3 text-xs"><span class="inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-corpo-blue"></span>${d.state_name || '-'}</span></td>
+                    <td class="px-4 py-3 text-xs font-mono">${d.circuito || '-'}</td>
+                    <td class="px-4 py-3 text-[11px] truncate max-w-[200px]" title="${d.causa || ''}">${d.causa || '-'}</td>
+                    <td class="px-4 py-3">${badgeHomologada}</td>
+                    <td class="px-4 py-3 text-right font-mono text-xs font-bold text-gray-900">${d.horas_calculadas ?? d.horas ?? '-'}</td>
+                    <td class="px-4 py-3">
+                        <span class="text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-widest border shadow-inner ${calcClass}" title="${d.es_excepcion_admin ? 'Audit ID #' + d.audit_id + ' (Carga Excepcional Administrador)' : ''}">
+                            ${calcLabel}
+                        </span>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+    } catch(e) {
+        tbody.innerHTML = '<tr><td colspan="9" class="px-6 py-12 text-center text-red-600 font-mono text-xs uppercase tracking-widest"><i class="fas fa-exclamation-triangle mr-2"></i> Error al conectar con el servidor</td></tr>';
+    } finally {
+        b.innerHTML = '<i class="fas fa-search"></i> Ejecutar Consulta';
+        b.disabled = false;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    cargarFiltros();
+});
+</script>
+{% endblock %}

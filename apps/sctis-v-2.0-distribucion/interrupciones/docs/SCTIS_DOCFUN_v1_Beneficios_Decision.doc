@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>DOCUMENTO FUNCIONAL
+BENEFICIOS Y DESCRIPCIÓN DEL SISTEMA</title>
+<style>
+body { font-family: Arial, sans-serif; font-size: 11pt; color: #1e293b; line-height: 1.6; margin: 40px; }
+h1 { color: #003C71; font-size: 20pt; margin-top: 24pt; margin-bottom: 12pt; border-bottom: 2px solid #003C71; padding-bottom: 6px; }
+h2 { color: #003C71; font-size: 15pt; margin-top: 18pt; margin-bottom: 8pt; }
+h3 { color: #003C71; font-size: 12pt; margin-top: 14pt; margin-bottom: 6pt; }
+p { margin-bottom: 10pt; text-align: justify; }
+table { border-collapse: collapse; width: 100%; margin: 14pt 0; }
+th, td { border: 1px solid #cbd5e1; padding: 8pt 10pt; text-align: left; vertical-align: top; font-size: 10pt; }
+th { background-color: #003C71; color: #ffffff; font-weight: bold; }
+tr:nth-child(even) td { background-color: #f8fafc; }
+.portada { text-align: center; padding: 40px 20px; border: 2px solid #003C71; background-color: #f8fafc; margin-bottom: 30px; border-radius: 8px; }
+.portada h1 { border-bottom: none; font-size: 24pt; margin-bottom: 12pt; color: #003C71; }
+.portada .subtitulo { font-size: 13pt; color: #334155; font-weight: bold; margin-bottom: 8pt; }
+.portada .sistema { font-size: 11pt; color: #64748b; margin-bottom: 16pt; }
+.control-doc { width: 100%; margin-bottom: 24pt; border: 1px solid #cbd5e1; }
+.control-doc td { padding: 6pt 10pt; font-size: 9.5pt; }
+.control-doc .lbl { font-weight: bold; background-color: #e2e8f0; width: 25%; color: #1e293b; }
+.info-box { background-color: #f0f9ff; border-left: 4px solid #0284c7; padding: 10pt 14pt; margin: 12pt 0; border-radius: 4px; }
+.tech-box { background-color: #f8fafc; border-left: 4px solid #475569; padding: 10pt 14pt; margin: 12pt 0; border-radius: 4px; }
+.box-title { font-weight: bold; margin-bottom: 4pt; color: #0f172a; }
+ul, ol { margin-bottom: 10pt; padding-left: 24pt; }
+li { margin-bottom: 4pt; }
+pre { background-color: #f1f5f9; padding: 10pt; border-radius: 4px; border: 1px solid #e2e8f0; font-size: 9pt; font-family: monospace; }
+.footer { margin-top: 40pt; border-top: 1px solid #cbd5e1; padding-top: 10pt; text-align: center; font-size: 9pt; color: #64748b; }
+</style>
+</head>
+<body>
+<div class="portada"><h1>DOCUMENTO FUNCIONAL
+BENEFICIOS Y DESCRIPCIÓN DEL SISTEMA</h1><div class="subtitulo">Sistema de Gestión de Tiras de Interrupción Eléctrica</div><div class="sistema">SCTIS v1.0</div><div class="fecha">Agosto 2026</div></div>
+<table class="control-doc"><tr><td class="lbl">Código Documento:</td><td>SCTIS-DOCFUN-001</td><td class="lbl">Fecha:</td><td>Agosto 2026</td></tr><tr><td class="lbl">Sistema:</td><td>SCTIS v1.0</td><td class="lbl">Estado:</td><td>VIGENTE / APROBADO</td></tr></table>
+<h1>1. Introducción</h1>
+<p>El Sistema de Gestión de Tiras de Interrupción Eléctrica (SCTIS) automatiza el proceso de recolección, validación y consolidación de las tiras de interrupción de servicio que reportan los estados operadores de CORPOELEC.</p>
+<p>Hoy, cada estado prepara sus reportes en archivos Excel con formatos propios, los envía por correo y el equipo de seguimiento los consolida manualmente. Ese proceso es lento, propenso a errores y dificulta la trazabilidad.</p>
+<p>Con SCTIS, el operador de cada estado sube su archivo Excel al sistema web, y este valida automáticamente la estructura, homologa las causas a las oficiales, verifica que las subestaciones y circuitos existan, detecta duplicados, mide la calidad de los datos y deja todo registrado para auditoría. El resultado es información confiable, disponible en tiempo real y respaldada por tableros de control.</p>
+<h2>1.1. Párrafo ejecutivo</h2>
+<div class="info-box"><div class="box-title">EN LENGUAJE CLARO</div><p>SCTIS convierte un proceso manual, descentralizado y propenso a errores en una plataforma centralizada, automatizada y auditable. Lo que antes tomaba días de trabajo y revisiones, ahora se hace en minutos con controles de calidad automáticos. El sistema fue desarrollado con asistencia de modelos de inteligencia artificial y sienta las bases para una futura migración a la nube (Supabase) y a Google AI Studio.</p></div>
+<h1>2. El Problema Actual (Antes)</h1>
+<table><thead><tr>
+<th>Dimensión</th>
+<th>Situación actual</th>
+</tr></thead><tbody>
+<tr>
+<td>Formatos</td>
+<td>Cada estado usa su propio formato de Excel; el mismo estado puede usar variantes distintas</td>
+</tr>
+<tr>
+<td>Recolección</td>
+<td>Los reportes se consolidan manualmente por correo, con demoras y extravíos</td>
+</tr>
+<tr>
+<td>Errores</td>
+<td>Errores de digitación, duplicados y causas mal escritas que no se detectan</td>
+</tr>
+<tr>
+<td>Causas</td>
+<td>Las causas se reportan con criterios distintos por estado; es difícil comparar</td>
+</tr>
+<tr>
+<td>Activos</td>
+<td>Subestaciones y circuitos escritos con nombres distintos para el mismo activo</td>
+</tr>
+<tr>
+<td>Trazabilidad</td>
+<td>No se sabe quién cargó qué, cuándo, ni con qué resultado</td>
+</tr>
+<tr>
+<td>Consolidación</td>
+<td>Los cálculos de horas y energía se hacen a mano o en hojas separadas</td>
+</tr>
+<tr>
+<td>Visibilidad</td>
+<td>No existe un tablero único de seguimiento por estado, causa o mes</td>
+</tr>
+</tbody></table>
+<h1>3. La Solución (Después)</h1>
+<table><thead><tr>
+<th>Dimensión</th>
+<th>Situación con SCTIS</th>
+</tr></thead><tbody>
+<tr>
+<td>Formatos</td>
+<td>El sistema detecta automáticamente el formato de cada estado (11 formatos registrados)</td>
+</tr>
+<tr>
+<td>Recolección</td>
+<td>Carga web centralizada; el operador sube el Excel y el sistema lo procesa</td>
+</tr>
+<tr>
+<td>Errores</td>
+<td>Validación automática de estructura, tipos y campos obligatorios</td>
+</tr>
+<tr>
+<td>Causas</td>
+<td>Homologación automática a las 22 causas oficiales, con sugerencias de IA</td>
+</tr>
+<tr>
+<td>Activos</td>
+<td>Emparejamiento con el inventario oficial; el sistema aprende los sinónimos y supervisa los activos nuevos</td>
+</tr>
+<tr>
+<td>Trazabilidad</td>
+<td>Auditoría completa de cada carga: usuario, fecha, hoja, aceptados y rechazados</td>
+</tr>
+<tr>
+<td>Consolidación</td>
+<td>Cálculo automático de horas, duración y mes; calidad ISO 8000 por registro</td>
+</tr>
+<tr>
+<td>Visibilidad</td>
+<td>Dashboard con 4 perspectivas expertas, monitoreo de cargas por estado y gráficos descargables</td>
+</tr>
+<tr>
+<td>Seguimiento de Cargas</td>
+<td>Matriz en tiempo real que identifica qué estados han cumplido y quiénes están en mora (semanal y mensual)</td>
+</tr>
+</tbody></table>
+<h1>4. Beneficios Concretos</h1>
+<table><thead><tr>
+<th>Beneficio</th>
+<th>Descripción</th>
+<th>Impacto</th>
+</tr></thead><tbody>
+<tr>
+<td>Ahorro de tiempo</td>
+<td>La carga de un archivo completo pasa de horas a minutos</td>
+<td>Alto</td>
+</tr>
+<tr>
+<td>Menos errores</td>
+<td>Validaciones automáticas reducen errores de digitación y duplicados</td>
+<td>Alto</td>
+</tr>
+<tr>
+<td>Información confiable</td>
+<td>Causas y activos homologados permiten comparar entre estados</td>
+<td>Alto</td>
+</tr>
+<tr>
+<td>Trazabilidad total</td>
+<td>Cada carga queda auditada; se genera tarea de corrección automática</td>
+<td>Alto</td>
+</tr>
+<tr>
+<td>Monitoreo de Cargas en Vivo</td>
+<td>Matriz clara que indica quién falta por cargar data por semana (Mié/Jue) y mes (día 3), con emisión directa de requerimientos</td>
+<td>Alto</td>
+</tr>
+<tr>
+<td>Calidad medible</td>
+<td>Scoring ISO 8000 (0-100) por registro con 9 reglas</td>
+<td>Medio</td>
+</tr>
+<tr>
+<td>Catálogo que aprende</td>
+<td>Los sinónimos de SE/CT se memorizan por estado; cada carga resuelve más rápido que la anterior</td>
+<td>Alto</td>
+</tr>
+<tr>
+<td>Inventario gobernado</td>
+<td>Los activos nuevos pasan por aprobación del administrador con trazabilidad completa</td>
+<td>Alto</td>
+</tr>
+<tr>
+<td>Decisiones basadas en datos</td>
+<td>Dashboard en tiempo real con tendencias, causas y horas</td>
+<td>Alto</td>
+</tr>
+<tr>
+<td>Base para la nube</td>
+<td>Preparado para migrar a Supabase y Google AI Studio</td>
+<td>Medio</td>
+</tr>
+</tbody></table>
+<hr style="margin: 30px 0; border: none; border-top: 1px dashed #cbd5e1;">
+<h1>5. Descripción Funcional del Software</h1>
+<h2>5.1. Acceso y roles</h2>
+<p>El sistema se accede por un navegador web con usuario y contraseña. Existen dos roles: el administrador (accede a todos los estados y gestiona usuarios, auditoría y tareas) y el operador/editor (solo ve y carga su estado asignado). La seguridad limita el acceso a nivel de base de datos: un operador no puede ver ni modificar datos de otros estados.</p>
+<h2>5.2. Carga de datos desde Excel</h2>
+<p>El operador sube su archivo Excel desde la opción 'Importar'. Si el archivo tiene varias hojas, el sistema le pide que seleccione una sola. Luego procesa la hoja y le muestra un resumen: cantidad de registros, formato detectado, causas a homologar y activos sin resolver. El operador revisa y confirma; solo entonces los datos se guardan en la base de datos.</p>
+<h2>5.3. Formato inteligente</h2>
+<p>El sistema reconoce automáticamente el formato de cada estado comparando los encabezados de la hoja contra un catálogo de 11 formatos. Si el archivo no coincide con ninguno, lo rechaza con un mensaje claro de qué está mal y cómo corregirlo.</p>
+<h2>5.4. Homologación de causas</h2>
+<p>Cada estado reporta las causas a su manera. El sistema las asigna automáticamente a las 22 causas oficiales del catálogo, mostrando el resultado en la previsualización para que el operador lo confirme o ajuste. Cuando hay ambigüedad, la inteligencia artificial sugiere la causa más probable.</p>
+<h2>5.5. Resolución de activos</h2>
+<p>El sistema verifica que cada subestación y circuito del archivo exista en el inventario oficial del estado. Si un nombre no coincide (por ejemplo por diferencias de tildes o numerales), lo marca y ofrece opciones de emparejamiento. El sistema aprende de cada decisión: cuando el operador señala a qué activo se refiere, guarda esa referencia y en las cargas siguientes el nombre se resuelve automáticamente.</p>
+<p>Si un activo no está en el inventario, el operador puede reportarlo como nuevo. La tira se carga igual (sin bloqueos), y la solicitud queda en una bandeja de revisión para que el administrador la apruebe, la asocie a un activo existente o la rechace. Así el inventario se mantiene íntegro y gobernado.</p>
+<h2>5.6. Control de calidad</h2>
+<p>Cada registro recibe un puntaje de calidad (0-100) basado en completitud, consistencia y precisión. Los duplicados se detectan automáticamente. Los registros con problemas no se descartan, pero quedan marcados para revisión, porque en el sector eléctrico la información disponible suele ser la única que existe.</p>
+<h2>5.7. Auditoría y tareas</h2>
+<p>Cada carga queda registrada con usuario, fecha, archivo, hoja, cantidad de aceptados y rechazados. Si hay registros rechazados, el sistema genera automáticamente una tarea de corrección y un archivo Excel con los errores por fila para que el operador los revise y recargue.</p>
+<h2>5.8. Tablero de control</h2>
+<p>El dashboard presenta 4 perspectivas: Ingeniero Eléctrico (causas, horas, tendencia), Mantenimiento, Project Manager y Data Scientist. Incluye gráficos de causas, horas, tendencias, sistemas, circuitos, subestaciones, estados y horarios, más un diagrama Sankey que desglosa las causas 'OTRAS' en su causa original.</p>
+<h2>5.9. Aprendizaje del sistema y supervisión de activos</h2>
+<p>El SCTIS incorpora dos mecanismos complementarios para mantener íntegro el inventario maestro de subestaciones y circuitos:</p>
+<ul>
+<li>Diccionario aprendido: cuando un nombre fuera de norma se asocia a un activo oficial, el sistema lo memoriza por estado y lo aplica automáticamente en las cargas futuras. Elimina el trabajo repetitivo de re-mapear los mismos nombres cada semana.</li>
+<li>Supervisión de activos nuevos: los SE/CT reportados que no existen en el catálogo se encolan y el administrador decide aprobar (creándolos en el inventario con su nombre normalizado), asociarlos como alias de uno existente, corregir el nombre o rechazarlos con un comentario. Al aprobar, las tiras ya cargadas se vinculan automáticamente (backfill).</li>
+</ul>
+<p>Todo queda registrado: quién reportó, quién decidió, cuándo y con qué comentario. Este control de cambios es clave para la trazabilidad y la confiabilidad de los datos bajo normas ISO.</p>
+<h2>5.10. Módulo de Monitoreo de Cargas y Matriz de Seguimiento</h2>
+<p>El sistema cuenta con un Módulo Especializado de Monitoreo de Cargas que elimina la incertidumbre sobre el cumplimiento de entregas de datos por parte de los 24 estados operadores de Venezuela:</p>
+<ul>
+<li>Transparencia Total por Estado: Evalúa en tiempo real la última fecha de carga registrada combinando las tres fuentes de ingesta (auditoría de archivos subidos por el operador, cargas excepcionales administrativas e inserciones directas de tiras).</li>
+<li>Control Semanal (Miércoles / Jueves): Evalúa si el estado ha subido data en los últimos 4 días. Alerta de forma inmediata sobre la carga requerida semanalmente.</li>
+<li>Control Mensual (Consolidado hasta el Día 3): Mantiene la disciplina del cierre de mes, otorgando plazo activo entre el día 1 y 3 del mes posterior, marcando como moroso a quien sobrepase este límite.</li>
+<li>Filtros Rápidos y Paneles de Alerta: Permite aislar en un clic a los estados con 'Falta Semanal', 'Falta Mes' o visualizar a los estados que están 'Al Día'.</li>
+<li>Emisión Directa de Requerimientos: Permite al supervisor enviar con un solo clic tareas de solicitud urgente (24h/48h) directo al perfil del operador correspondiente.</li>
+</ul>
+<p>Todo el proceso de seguimiento queda completamente documentado y automatizado sin dejar espacio a dudas sobre quién falta por entregar su información.</p>
+<hr style="margin: 30px 0; border: none; border-top: 1px dashed #cbd5e1;">
+<h1>6. Diagrama de Flujo General</h1>
+<table><thead><tr><th>Paso</th><th>Descripción</th></tr></thead><tbody>
+<tr><td><b>OPERADOR</b></td><td>Sube Excel con sus tiras</td></tr>
+<tr><td><b>SCTIS</b></td><td>Detecta formato y valida estructura</td></tr>
+<tr><td><b>HOMOLOGACIÓN</b></td><td>Causas a las 22 oficiales · activos verificados</td></tr>
+<tr><td><b>REVISIÓN</b></td><td>Operador confirma o corrige en previsualización</td></tr>
+<tr><td><b>GUARDADO</b></td><td>Datos insertados · auditoría y calidad</td></tr>
+<tr><td><b>TABLERO</b></td><td>Dashboards y reportes</td></tr>
+</tbody></table>
+<p>El proceso completo, desde subir el archivo hasta ver los datos en el tablero, se realiza en la misma sesión web y queda registrado para auditoría.</p>
+<h1>7. Impacto Esperado</h1>
+<table><thead><tr>
+<th>Indicador</th>
+<th>Antes</th>
+<th>Con SCTIS</th>
+</tr></thead><tbody>
+<tr>
+<td>Tiempo de carga de un reporte mensual</td>
+<td>Horas (consolidación manual)</td>
+<td>Minutos (subida + confirmación)</td>
+</tr>
+<tr>
+<td>Errores de digitación</td>
+<td>Frecuentes, sin detección</td>
+<td>Detectados y rechazados con detalle</td>
+</tr>
+<tr>
+<td>Duplicados</td>
+<td>No detectados</td>
+<td>Detectados automáticamente</td>
+</tr>
+<tr>
+<td>Comparabilidad entre estados</td>
+<td>Baja (formatos y causas distintos)</td>
+<td>Alta (homologación a 22 causas)</td>
+</tr>
+<tr>
+<td>Re-mapeo de nombres de activos</td>
+<td>Repetitivo en cada carga</td>
+<td>Automático (diccionario que aprende por estado)</td>
+</tr>
+<tr>
+<td>Control del inventario maestro</td>
+<td>Sin supervisión</td>
+<td>Bandeja de aprobación con trazabilidad</td>
+</tr>
+<tr>
+<td>Trazabilidad</td>
+<td>Limitada (correo)</td>
+<td>Total (auditoría por carga)</td>
+</tr>
+<tr>
+<td>Calidad de datos</td>
+<td>No medible</td>
+<td>Score ISO 8000 por registro</td>
+</tr>
+<tr>
+<td>Acceso a la información</td>
+<td>Reportes estáticos</td>
+<td>Dashboard en tiempo real</td>
+</tr>
+</tbody></table>
+<h1>8. Próximos Pasos</h1>
+<ul>
+<li>Revisión de esta propuesta por los ingenieros y ajuste del software según sus observaciones.</li>
+<li>Migración de la base de datos a Supabase (PostgreSQL en la nube).</li>
+<li>Migración de la capa de inteligencia artificial a Google AI Studio para potenciar el análisis.</li>
+<li>Despliegue en Vercel en versión beta con acceso por estados.</li>
+<li>Actualización de la documentación tras cada ajuste y prueba.</li>
+</ul>
+<h1>9. Desarrollo con Inteligencia Artificial</h1>
+<p>El SCTIS fue desarrollado íntegramente con asistencia de modelos de inteligencia artificial, desde el análisis de formatos y el diseño del esquema de datos hasta la generación de código y documentación. En producción, la IA (Google Gemini, modelo gemini-2.5-flash) apoya la homologación de causas, la evaluación de calidad y la detección de duplicados. La fase siguiente migra esta capacidad a Google AI Studio.</p>
+<div class="info-box"><div class="box-title">IA APLICADA AL SEN</div><p>Este proyecto demuestra que la IA aplicada al sector eléctrico venezolano permite automatizar procesos complejos, reducir errores y liberar tiempo del personal técnico para tareas de mayor valor. Los modelos de asistencia al desarrollo serán listados en detalle por el equipo.</p></div>
+<hr style="margin: 30px 0; border: none; border-top: 1px dashed #cbd5e1;">
+<h1>Anexo A — Glosario</h1>
+<table><thead><tr><th>Término</th><th>Definición</th></tr></thead><tbody>
+<tr><td><b>Tira de interrupción</b></td><td>Registro de un evento de interrupción del servicio eléctrico.</td></tr>
+<tr><td><b>TTI</b></td><td>Tiempo Total de Interrupción: energía no suministrada durante el evento.</td></tr>
+<tr><td><b>Causa homologada</b></td><td>Causa asignada a uno de los códigos oficiales del catálogo.</td></tr>
+<tr><td><b>Activo</b></td><td>Subestación o circuito registrado en el inventario oficial.</td></tr>
+<tr><td><b>Homologación</b></td><td>Proceso de llevar la causa reportada por un estado a una causa oficial.</td></tr>
+<tr><td><b>Scoring ISO 8000</b></td><td>Puntaje de calidad de datos (0-100) de cada registro.</td></tr>
+<tr><td><b>Alias de activo</b></td><td>Sinónimo aprendido por el sistema: nombre fuera de norma que se resuelve automáticamente a un activo del catálogo.</td></tr>
+<tr><td><b>Bandeja de revisión</b></td><td>Lista de SE/CT reportados como nuevos que esperan decisión del administrador (aprobar, alias, corregir o rechazar).</td></tr>
+<tr><td><b>Backfill</b></td><td>Vinculación automática y retroactiva de tiras ya cargadas al activo recién aprobado.</td></tr>
+<tr><td><b>Dashboard</b></td><td>Tablero de control con gráficos y estadísticas en tiempo real.</td></tr>
+<tr><td><b>RLS</b></td><td>Filtro de seguridad a nivel de base de datos que limita lo que ve cada usuario.</td></tr>
+<tr><td><b>Formato homologado</b></td><td>Plantilla Excel oficial que deben usar los estados.</td></tr>
+</tbody></table>
+<h1>Anexo B — Catálogo de Formatos</h1>
+<div class="info-box"><div class="box-title">AVISO</div><p>Los códigos de formato son PROPUESTOS y deben revisarse con el equipo funcional.</p></div>
+<table><thead><tr>
+<th>Código propuesto</th>
+<th>Nombre</th>
+<th>Estado</th>
+</tr></thead><tbody>
+<tr>
+<td>TIRAS</td>
+<td>Formato TIRAS Estándar</td>
+<td>Multi-estado</td>
+</tr>
+<tr>
+<td>F328</td>
+<td>Formato F328 — Sistema Eléctrico</td>
+<td>Multi-estado</td>
+</tr>
+<tr>
+<td>ANZOATEGUI</td>
+<td>Formato Anzoátegui / Nesparta</td>
+<td>ANZOÁTEGUI</td>
+</tr>
+<tr>
+<td>CARABOBO</td>
+<td>Formato Carabobo</td>
+<td>CARABOBO</td>
+</tr>
+<tr>
+<td>CAPITAL</td>
+<td>Formato Capital</td>
+<td>DISTRITO CAPITAL</td>
+</tr>
+<tr>
+<td>GUARICO_1</td>
+<td>Formato Guárico (Variante 1)</td>
+<td>GUÁRICO</td>
+</tr>
+<tr>
+<td>GUARICO_2</td>
+<td>Formato Guárico (Variante 2)</td>
+<td>GUÁRICO</td>
+</tr>
+<tr>
+<td>LARA</td>
+<td>Formato Lara</td>
+<td>LARA</td>
+</tr>
+<tr>
+<td>MIRANDA_TUY</td>
+<td>Formato Miranda Tuy Barlovento</td>
+<td>MIRANDA</td>
+</tr>
+<tr>
+<td>YARACUY</td>
+<td>Formato Yaracuy</td>
+<td>YARACUY</td>
+</tr>
+<tr>
+<td>ZULIA</td>
+<td>Formato Zulia</td>
+<td>ZULIA</td>
+</tr>
+</tbody></table>
+<div class="footer"><p>SCTIS-DOCFUN-001 - DOCUMENTO FUNCIONAL
+BENEFICIOS Y DESCRIPCIÓN DEL SISTEMA | SCTIS v1.0 </p></div></body></html>

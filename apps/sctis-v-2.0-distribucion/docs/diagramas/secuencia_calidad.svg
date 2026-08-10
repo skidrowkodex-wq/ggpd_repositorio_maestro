@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1082.0" height="564" viewBox="0 0 1082.0 564" font-family="Segoe UI, Arial, sans-serif"><defs><marker id="flecha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9 z" fill="#475569"/></marker><marker id="retorno" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9 z" fill="none" stroke="#475569" stroke-width="1.1"/></marker></defs><rect x="0" y="0" width="1082.0" height="564" fill="#ffffff"/><rect x="26.0" y="156" width="199.60000000000002" height="334" rx="6" fill="#ffffff" stroke="none" stroke-width="1.2"/>
+<line x1="125.80000000000001" y1="164" x2="125.80000000000001" y2="472" stroke="#94a3b8" stroke-width="1.1" stroke-dasharray="4 4"/>
+<rect x="233.60000000000002" y="156" width="199.60000000000002" height="334" rx="6" fill="#ffffff" stroke="none" stroke-width="1.2"/>
+<line x1="333.40000000000003" y1="164" x2="333.40000000000003" y2="472" stroke="#94a3b8" stroke-width="1.1" stroke-dasharray="4 4"/>
+<rect x="441.2" y="156" width="199.60000000000002" height="334" rx="6" fill="#ffffff" stroke="none" stroke-width="1.2"/>
+<line x1="541.0" y1="164" x2="541.0" y2="472" stroke="#94a3b8" stroke-width="1.1" stroke-dasharray="4 4"/>
+<rect x="648.8000000000002" y="156" width="199.60000000000002" height="334" rx="6" fill="#ffffff" stroke="none" stroke-width="1.2"/>
+<line x1="748.6000000000001" y1="164" x2="748.6000000000001" y2="472" stroke="#94a3b8" stroke-width="1.1" stroke-dasharray="4 4"/>
+<rect x="856.4000000000001" y="156" width="199.60000000000002" height="334" rx="6" fill="#ffffff" stroke="none" stroke-width="1.2"/>
+<line x1="956.2" y1="164" x2="956.2" y2="472" stroke="#94a3b8" stroke-width="1.1" stroke-dasharray="4 4"/>
+<rect x="121.80000000000001" y="402" width="8" height="20" rx="3" fill="#c7d2fe" stroke="#6366f1" stroke-width="1"/>
+<rect x="329.40000000000003" y="162" width="8" height="20" rx="3" fill="#c7d2fe" stroke="#6366f1" stroke-width="1"/>
+<rect x="329.40000000000003" y="222" width="8" height="20" rx="3" fill="#c7d2fe" stroke="#6366f1" stroke-width="1"/>
+<rect x="329.40000000000003" y="282" width="8" height="20" rx="3" fill="#c7d2fe" stroke="#6366f1" stroke-width="1"/>
+<rect x="329.40000000000003" y="342" width="8" height="20" rx="3" fill="#c7d2fe" stroke="#6366f1" stroke-width="1"/>
+<rect x="329.40000000000003" y="372" width="8" height="20" rx="3" fill="#c7d2fe" stroke="#6366f1" stroke-width="1"/>
+<rect x="537.0" y="192" width="8" height="20" rx="3" fill="#c7d2fe" stroke="#6366f1" stroke-width="1"/>
+<rect x="744.6000000000001" y="252" width="8" height="20" rx="3" fill="#c7d2fe" stroke="#6366f1" stroke-width="1"/>
+<rect x="952.2" y="312" width="8" height="20" rx="3" fill="#c7d2fe" stroke="#6366f1" stroke-width="1"/>
+<line x1="129.8" y1="162" x2="327.40000000000003" y2="162" stroke="#475569" stroke-width="1.4" marker-end="url(#flecha)"/>
+<text x="229.60000000000002" y="156.0" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:600;fill:#1e293b;">INSERT INTO sctis.tira_interrupcion</text>
+<line x1="337.40000000000003" y1="192" x2="535.0" y2="192" stroke="#475569" stroke-width="1.4" marker-end="url(#flecha)"/>
+<text x="437.20000000000005" y="186.0" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:600;fill:#1e293b;">trg_set_mes: computa mes desde fecha_falla</text>
+<line x1="329.40000000000003" y1="222" x2="547.0" y2="222" stroke="#64748b" stroke-width="1.1" stroke-dasharray="5 4" marker-end="url(#retorno)"/>
+<text x="437.20000000000005" y="216.0" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:600;fill:#1e293b;">Campo mes = nombre del mes (AUTO, en mayúsculas)</text>
+<line x1="337.40000000000003" y1="252" x2="742.6000000000001" y2="252" stroke="#475569" stroke-width="1.4" marker-end="url(#flecha)"/>
+<text x="541.0000000000001" y="246.0" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:600;fill:#1e293b;">trg_tira_quality: evalúa las 9 reglas ISO 8000</text>
+<line x1="752.6000000000001" y1="282" x2="327.40000000000003" y2="282" stroke="#475569" stroke-width="1.4" marker-end="url(#flecha)"/>
+<text x="541.0000000000001" y="276.0" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:600;fill:#1e293b;">INSERT record_quality_scores (scoring 0-100)</text>
+<line x1="337.40000000000003" y1="312" x2="950.2" y2="312" stroke="#475569" stroke-width="1.4" marker-end="url(#flecha)"/>
+<text x="644.8000000000001" y="300.25" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:600;fill:#1e293b;">trg_tira_duplicate_check: detecta duplicados (fecha + circuito +</text>
+<text x="644.8000000000001" y="311.75" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:600;fill:#1e293b;">hora)</text>
+<line x1="960.2" y1="342" x2="327.40000000000003" y2="342" stroke="#475569" stroke-width="1.4" marker-end="url(#flecha)"/>
+<text x="644.8000000000001" y="336.0" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:600;fill:#1e293b;">INSERT duplicate_groups / duplicate_members (si aplica)</text>
+<line x1="329.40000000000003" y1="372" x2="962.2" y2="372" stroke="#64748b" stroke-width="1.1" stroke-dasharray="5 4" marker-end="url(#retorno)"/>
+<text x="644.8000000000001" y="366.0" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:600;fill:#1e293b;">Análisis de duplicados completado</text>
+<line x1="121.80000000000001" y1="402" x2="339.40000000000003" y2="402" stroke="#64748b" stroke-width="1.1" stroke-dasharray="5 4" marker-end="url(#retorno)"/>
+<text x="229.60000000000002" y="396.0" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:600;fill:#1e293b;">INSERT confirmado (tira con mes y scoring calculados)</text>
+<rect x="26.0" y="104" width="199.60000000000002" height="54" rx="7" fill="#ede7f6" stroke="#5e35b1" stroke-width="1.4"/>
+<text x="125.80000000000001" y="131.0" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:12.5px;font-weight:700;fill:#0f172a;">API Flask</text>
+<rect x="233.60000000000002" y="104" width="199.60000000000002" height="54" rx="7" fill="#e0f2f1" stroke="#00897b" stroke-width="1.4"/>
+<text x="333.40000000000003" y="131.0" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:12.5px;font-weight:700;fill:#0f172a;">BD PostgreSQL</text>
+<rect x="441.2" y="104" width="199.60000000000002" height="54" rx="7" fill="#e0f2f1" stroke="#00897b" stroke-width="1.4"/>
+<text x="541.0" y="131.0" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:12.5px;font-weight:700;fill:#0f172a;">Trigger trg_set_mes</text>
+<rect x="648.8000000000002" y="104" width="199.60000000000002" height="54" rx="7" fill="#e0f2f1" stroke="#00897b" stroke-width="1.4"/>
+<text x="748.6000000000001" y="124.75" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:12.5px;font-weight:700;fill:#0f172a;">Trigger</text>
+<text x="748.6000000000001" y="137.25" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:12.5px;font-weight:700;fill:#0f172a;">trg_tira_quality</text>
+<rect x="856.4000000000001" y="104" width="199.60000000000002" height="54" rx="7" fill="#e0f2f1" stroke="#00897b" stroke-width="1.4"/>
+<text x="956.2" y="131.0" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:12.5px;font-weight:700;fill:#0f172a;">Trigger trg_tira_dup</text>
+<text x="22" y="34.0" text-anchor="start" style="font-family:Segoe UI, Arial, sans-serif;font-size:17px;font-weight:800;fill:#0f172a;">Flujo 5.3 — Control de Calidad ISO 8000 (Triggers de BD)</text>
+<text x="22" y="56.0" text-anchor="start" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:normal;fill:#64748b;">Diagrama de secuencia por carriles — SCTIS-SEC-03</text>
+<text x="1060.0" y="34.0" text-anchor="end" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:normal;fill:#94a3b8;">SCTIS v1.0</text>
+<line x1="22" y1="66" x2="1060.0" y2="66" stroke="#cbd5e1" stroke-width="1.2"/>
+<text x="22" y="496.0" text-anchor="start" style="font-family:Segoe UI, Arial, sans-serif;font-size:12.5px;font-weight:700;fill:#334155;">Reglas de calidad (ISO 8000):</text>
+<text x="22" y="518.0" text-anchor="start" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:normal;fill:#475569;">• Completitud · Consistencia · Precisión · Integridad referencial</text>
+<text x="22" y="536.0" text-anchor="start" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:normal;fill:#475569;">• Detalle de causa · Observaciones · Duplicados · Duración · Mes</text></svg>

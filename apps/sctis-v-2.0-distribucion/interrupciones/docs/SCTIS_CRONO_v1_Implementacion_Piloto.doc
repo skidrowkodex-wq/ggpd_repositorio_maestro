@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>CRONOGRAMA DE IMPLEMENTACIÓN
+DEL PILOTO SCTIS</title>
+<style>
+body { font-family: Arial, sans-serif; font-size: 11pt; color: #1e293b; line-height: 1.6; margin: 40px; }
+h1 { color: #003C71; font-size: 20pt; margin-top: 24pt; margin-bottom: 12pt; border-bottom: 2px solid #003C71; padding-bottom: 6px; }
+h2 { color: #003C71; font-size: 15pt; margin-top: 18pt; margin-bottom: 8pt; }
+h3 { color: #003C71; font-size: 12pt; margin-top: 14pt; margin-bottom: 6pt; }
+p { margin-bottom: 10pt; text-align: justify; }
+table { border-collapse: collapse; width: 100%; margin: 14pt 0; }
+th, td { border: 1px solid #cbd5e1; padding: 8pt 10pt; text-align: left; vertical-align: top; font-size: 10pt; }
+th { background-color: #003C71; color: #ffffff; font-weight: bold; }
+tr:nth-child(even) td { background-color: #f8fafc; }
+.portada { text-align: center; padding: 40px 20px; border: 2px solid #003C71; background-color: #f8fafc; margin-bottom: 30px; border-radius: 8px; }
+.portada h1 { border-bottom: none; font-size: 24pt; margin-bottom: 12pt; color: #003C71; }
+.portada .subtitulo { font-size: 13pt; color: #334155; font-weight: bold; margin-bottom: 8pt; }
+.portada .sistema { font-size: 11pt; color: #64748b; margin-bottom: 16pt; }
+.control-doc { width: 100%; margin-bottom: 24pt; border: 1px solid #cbd5e1; }
+.control-doc td { padding: 6pt 10pt; font-size: 9.5pt; }
+.control-doc .lbl { font-weight: bold; background-color: #e2e8f0; width: 25%; color: #1e293b; }
+.info-box { background-color: #f0f9ff; border-left: 4px solid #0284c7; padding: 10pt 14pt; margin: 12pt 0; border-radius: 4px; }
+.tech-box { background-color: #f8fafc; border-left: 4px solid #475569; padding: 10pt 14pt; margin: 12pt 0; border-radius: 4px; }
+.box-title { font-weight: bold; margin-bottom: 4pt; color: #0f172a; }
+ul, ol { margin-bottom: 10pt; padding-left: 24pt; }
+li { margin-bottom: 4pt; }
+pre { background-color: #f1f5f9; padding: 10pt; border-radius: 4px; border: 1px solid #e2e8f0; font-size: 9pt; font-family: monospace; }
+.footer { margin-top: 40pt; border-top: 1px solid #cbd5e1; padding-top: 10pt; text-align: center; font-size: 9pt; color: #64748b; }
+</style>
+</head>
+<body>
+<div class="portada"><h1>CRONOGRAMA DE IMPLEMENTACIÓN
+DEL PILOTO SCTIS</h1><div class="subtitulo">Actividades, entregables y fechas probables de entrega del piloto</div><div class="sistema">SCTIS v1.0</div><div class="fecha">Agosto 2026</div></div>
+<table class="control-doc"><tr><td class="lbl">Código Documento:</td><td>SCTIS-CRONO-001</td><td class="lbl">Fecha:</td><td>Agosto 2026</td></tr><tr><td class="lbl">Sistema:</td><td>SCTIS v1.0</td><td class="lbl">Estado:</td><td>VIGENTE / APROBADO</td></tr></table>
+<h1>1. Propósito y Alcance</h1>
+<p>Este cronograma define la planificación de la implementación del piloto del Sistema de Gestión de Tiras de Interrupción Eléctrica (SCTIS): las actividades, su duración estimada, los entregables, las fechas probables de inicio y fin, y los hitos de control.</p>
+<p>El proyecto es atendido por un único programador, por lo que las actividades se ejecutan en forma SECUENCIAL, sin paralelismo. Al finalizar este piloto se iniciarán los otros dos desarrollos pendientes, que dependen de él.</p>
+<h1>2. Contexto y Supuestos</h1>
+<h2>2.1. Estado actual</h2>
+<ul>
+<li>Los 4 documentos de propuesta fueron entregados el 02 de agosto de 2026: técnico, funcional, instructivo de estados e instructivo de administradores.</li>
+<li>El software está desarrollado y verificado en ambiente local sobre PostgreSQL (ggpd_se_cto_v1).</li>
+<li>El despliegue público está preparado para Vercel; la base de datos se migrará a Supabase.</li>
+<li>La capa de inteligencia artificial (Gemini) se migrará a Google AI Studio.</li>
+</ul>
+<h2>2.2. Supuestos de planificación</h2>
+<ul>
+<li>Calendario de días hábiles: lunes a viernes. El lunes 03 de agosto fue declarado no laborable en la empresa.</li>
+<li>La aprobación de los documentos por los ingenieros es la variable crítica que dispara las actividades siguientes.</li>
+<li>Un solo programador atiende el proyecto: las fases se ejecutan en secuencia estricta, sin paralelismo.</li>
+<li>Los dos desarrollos adicionales se planifican para después del cierre de este piloto.</li>
+<li>No se consideran feriados adicionales del mes de agosto; si existen, las fechas se corren al día hábil siguiente.</li>
+</ul>
+<h1>3. Metodología de Estimación</h1>
+<p>Las duraciones se estimaron a partir del avance real del proyecto, de las actividades pendientes registradas en la planificación y de la experiencia del responsable. Cada fase define su entregable y su hito de control.</p>
+<div class="info-box"><div class="box-title">NOTA</div><p>Las fechas son PROBABLES, no contractuales. El hito de aprobación lo fijan los ingenieros; a partir de él las fechas se recalculan con la regla indicada en la sección 7.</p></div>
+<table><thead><tr><th>Paso</th><th>Descripción</th></tr></thead><tbody>
+<tr><td><b>ENTREGA</b></td><td>Cronograma presentado al equipo</td></tr>
+<tr><td><b>REVISIÓN</b></td><td>Ingenieros leen y aprueban los documentos</td></tr>
+<tr><td><b>APROBACIÓN</b></td><td>Hito crítico que dispara el desarrollo restante</td></tr>
+<tr><td><b>IMPLEMENTACIÓN</b></td><td>Fases secuenciales hasta el GO-LIVE</td></tr>
+</tbody></table>
+<hr style="margin: 30px 0; border: none; border-top: 1px dashed #cbd5e1;">
+<h1>4. Fases del Cronograma</h1>
+<p>Las fases se ejecutan en forma estrictamente secuencial. La duración de cada fase se expresa en días hábiles.</p>
+<table><thead><tr>
+<th>Fase</th>
+<th>Actividad</th>
+<th>Duración</th>
+<th>Salida / Entregable</th>
+</tr></thead><tbody>
+<tr>
+<td>F1</td>
+<td>Revisión y aprobación de documentos + tareas pendientes (bandeja de activos, corrección de datos rechazados, alcance de transformaciones)</td>
+<td>3 días</td>
+<td>Acta de aprobación y observaciones documentadas</td>
+</tr>
+<tr>
+<td>F2</td>
+<td>Ajustes del software según observaciones</td>
+<td>2 días</td>
+<td>Código ajustado y migraciones actualizadas</td>
+</tr>
+<tr>
+<td>F3</td>
+<td>Pruebas integrales (carga real, calidad, auditoría)</td>
+<td>2 días</td>
+<td>Acta de pruebas y casos de prueba</td>
+</tr>
+<tr>
+<td>F4</td>
+<td>Iteraciones y correcciones finales</td>
+<td>2 días</td>
+<td>Versión candidata (release candidate)</td>
+</tr>
+<tr>
+<td>F5</td>
+<td>Migración de la capa de IA a Google AI Studio</td>
+<td>1 día</td>
+<td>Integración de IA operativa en Google AI Studio</td>
+</tr>
+<tr>
+<td>F6</td>
+<td>Migración de la base de datos a Supabase y actualización</td>
+<td>1 día</td>
+<td>BD en Supabase con migraciones 001-009 y seguridad activa</td>
+</tr>
+<tr>
+<td>F7</td>
+<td>Despliegue en Vercel y validación en producción</td>
+<td>2 días</td>
+<td>Piloto en línea con acceso por estados</td>
+</tr>
+</tbody></table>
+<div class="tech-box"><div class="box-title">TOTAL</div><p>Duración total estimada: 13 días hábiles desde el inicio de la fase F1. La fase F1 comienza el día hábil siguiente a la entrega del cronograma.</p></div>
+<h1>5. Cronograma con Fechas Probables</h1>
+<p>Suponiendo el inicio de la fase F1 el martes 04 de agosto de 2026 (primer día hábil tras el lunes no laborable), las fechas son:</p>
+<table><thead><tr>
+<th>Fase</th>
+<th>Actividad</th>
+<th>Inicio</th>
+<th>Fin</th>
+<th>Responsable</th>
+</tr></thead><tbody>
+<tr>
+<td>F1</td>
+<td>Revisión, aprobación y tareas pendientes</td>
+<td>Mar 04 Ago</td>
+<td>Jue 06 Ago</td>
+<td>Ingenieros + responsable</td>
+</tr>
+<tr>
+<td>F2</td>
+<td>Ajustes según observaciones</td>
+<td>Vie 07 Ago</td>
+<td>Lun 10 Ago</td>
+<td>Responsable (con IA)</td>
+</tr>
+<tr>
+<td>F3</td>
+<td>Pruebas integrales</td>
+<td>Mar 11 Ago</td>
+<td>Mié 12 Ago</td>
+<td>Responsable + usuarios piloto</td>
+</tr>
+<tr>
+<td>F4</td>
+<td>Iteraciones y correcciones finales</td>
+<td>Jue 13 Ago</td>
+<td>Vie 14 Ago</td>
+<td>Responsable (con IA)</td>
+</tr>
+<tr>
+<td>F5</td>
+<td>Migración IA a Google AI Studio</td>
+<td>Lun 17 Ago</td>
+<td>Lun 17 Ago</td>
+<td>Responsable (con IA)</td>
+</tr>
+<tr>
+<td>F6</td>
+<td>Migración BD a Supabase</td>
+<td>Mar 18 Ago</td>
+<td>Mar 18 Ago</td>
+<td>Responsable</td>
+</tr>
+<tr>
+<td>F7</td>
+<td>Despliegue en Vercel y validación</td>
+<td>Mié 19 Ago</td>
+<td>Jue 20 Ago</td>
+<td>Responsable</td>
+</tr>
+</tbody></table>
+<div class="info-box"><div class="box-title">HITO PRINCIPAL</div><p>GO-LIVE del piloto (fecha probable): JUEVES 20 DE AGOSTO DE 2026.</p></div>
+<h1>6. Hitos de Control</h1>
+<table><thead><tr>
+<th>Hito</th>
+<th>Descripción</th>
+<th>Fecha probable</th>
+</tr></thead><tbody>
+<tr>
+<td>M0</td>
+<td>Elaboración del cronograma</td>
+<td>Lun 03 Ago</td>
+</tr>
+<tr>
+<td>M1</td>
+<td>Entrega del cronograma e inicio de revisión</td>
+<td>Mar 04 Ago</td>
+</tr>
+<tr>
+<td>M2</td>
+<td>APROBACIÓN de los documentos por los ingenieros</td>
+<td>Jue 06 Ago</td>
+</tr>
+<tr>
+<td>M3</td>
+<td>Software ajustado según observaciones</td>
+<td>Lun 10 Ago</td>
+</tr>
+<tr>
+<td>M4</td>
+<td>Pruebas integrales completadas</td>
+<td>Mié 12 Ago</td>
+</tr>
+<tr>
+<td>M5</td>
+<td>Correcciones finales aplicadas</td>
+<td>Vie 14 Ago</td>
+</tr>
+<tr>
+<td>M6</td>
+<td>IA operativa en Google AI Studio</td>
+<td>Lun 17 Ago</td>
+</tr>
+<tr>
+<td>M7</td>
+<td>Base de datos en Supabase</td>
+<td>Mar 18 Ago</td>
+</tr>
+<tr>
+<td>M8</td>
+<td>GO-LIVE del piloto</td>
+<td>Jue 20 Ago</td>
+</tr>
+</tbody></table>
+<hr style="margin: 30px 0; border: none; border-top: 1px dashed #cbd5e1;">
+<h1>7. Regla de Recálculo tras la Aprobación</h1>
+<p>La fecha de GO-LIVE depende de la fecha real de aprobación. Desde la aprobación restan 10 días hábiles de trabajo (fases F2 a F7):</p>
+<table><thead><tr><th>Paso</th><th>Descripción</th></tr></thead><tbody>
+<tr><td><b>APROBACIÓN</b></td><td>Hito definido por los ingenieros</td></tr>
+<tr><td><b>F2 + F3 + F4</b></td><td>Ajustes + pruebas + correcciones (6 días)</td></tr>
+<tr><td><b>F5 + F6</b></td><td>IA Google AI Studio + Supabase (2 días)</td></tr>
+<tr><td><b>F7</b></td><td>Despliegue y validación (2 días)</td></tr>
+<tr><td><b>GO-LIVE</b></td><td>Fecha de aprobación + 10 días hábiles</td></tr>
+</tbody></table>
+<table><thead><tr>
+<th>Escenario</th>
+<th>Fecha de aprobación</th>
+<th>GO-LIVE probable</th>
+</tr></thead><tbody>
+<tr>
+<td>Óptimo</td>
+<td>Jue 06 Ago</td>
+<td>Jue 20 Ago</td>
+</tr>
+<tr>
+<td>Conservador</td>
+<td>Vie 07 Ago</td>
+<td>Vie 21 Ago</td>
+</tr>
+<tr>
+<td>Con demora</td>
+<td>Lun 10 Ago</td>
+<td>Lun 24 Ago</td>
+</tr>
+</tbody></table>
+<div class="tech-box"><div class="box-title">RECÁLCULO</div><p>Si la aprobación ocurre en una fecha distinta, aplique la regla: GO-LIVE = fecha de aprobación + 10 días hábiles.</p></div>
+<h1>8. Entregables por Fase</h1>
+<table><thead><tr>
+<th>Fase</th>
+<th>Entregable</th>
+<th>Contenido</th>
+</tr></thead><tbody>
+<tr>
+<td>F1</td>
+<td>Acta de aprobación</td>
+<td>Observaciones documentadas y decisiones de alcance</td>
+</tr>
+<tr>
+<td>F2</td>
+<td>Software ajustado</td>
+<td>Cambios aplicados y migraciones actualizadas</td>
+</tr>
+<tr>
+<td>F3</td>
+<td>Acta de pruebas</td>
+<td>Casos de prueba, resultados y registros de prueba</td>
+</tr>
+<tr>
+<td>F4</td>
+<td>Versión candidata</td>
+<td>Release candidate lista para despliegue</td>
+</tr>
+<tr>
+<td>F5</td>
+<td>Integración de IA</td>
+<td>Homologación, calidad y duplicados en Google AI Studio</td>
+</tr>
+<tr>
+<td>F6</td>
+<td>BD en Supabase</td>
+<td>Migraciones 001-009, catálogos, RLS y seguridad</td>
+</tr>
+<tr>
+<td>F7</td>
+<td>Piloto en línea</td>
+<td>URL de acceso, credenciales por estado y validación con datos reales</td>
+</tr>
+</tbody></table>
+<h1>9. Riesgos y Supuestos de Fechas</h1>
+<table><thead><tr>
+<th>Riesgo / supuesto</th>
+<th>Impacto</th>
+<th>Mitigación</th>
+</tr></thead><tbody>
+<tr>
+<td>La aprobación se retrasa</td>
+<td>Se corre la fecha de GO-LIVE</td>
+<td>Aplicar la regla de recálculo (aprobación + 10 días hábiles)</td>
+</tr>
+<tr>
+<td>Observaciones que exigen cambios estructurales</td>
+<td>+1 a 2 días en la fase F2</td>
+<td>Separar cambios estructurales de ajustes menores</td>
+</tr>
+<tr>
+<td>Feriados o ferias de agosto no previstos</td>
+<td>Desplazamiento de fechas</td>
+<td>Correr al día hábil siguiente y notificar</td>
+</tr>
+<tr>
+<td>Pruebas con datos reales destapan defectos</td>
+<td>Mayor esfuerzo en F4</td>
+<td>El margen de la fase F4 absorbe las correcciones</td>
+</tr>
+<tr>
+<td>Demora en cuentas o permisos de Google AI Studio o Supabase</td>
+<td>Retraso en F5-F6</td>
+<td>Solicitar los accesos desde la aprobación de documentos</td>
+</tr>
+<tr>
+<td>Un solo programador</td>
+<td>Sin paralelismo: el proyecto toma más semanas que un equipo</td>
+<td>Secuenciación estricta y foco único en el piloto</td>
+</tr>
+</tbody></table>
+<h1>10. Nota sobre los Desarrollos Adicionales</h1>
+<p>Existen dos desarrollos adicionales planificados que dependen de este proyecto. Por política de gestión y por contar con un único programador, no es recomendable atender varios proyectos en paralelo, especialmente cuando están enlazados entre sí. Ambos desarrollos se iniciarán al cierre del piloto SCTIS, siguiendo la misma metodología de planificación y control aquí descrita.</p>
+<hr style="margin: 30px 0; border: none; border-top: 1px dashed #cbd5e1;">
+<h1>Anexo A — Vista Resumida del Cronograma</h1>
+<p>Representación visual simplificada de la secuencia de fases sobre los 13 días hábiles del calendario (▓▓ = día de actividad, · = día sin actividad):</p>
+<pre>   Día:   1   2   3   4   5   6   7   8   9  10  11  12  13
+Fecha:  04  05  06  07  10  11  12  13  14  17  18  19  20  Ago
+F1     ▓▓  ▓▓  ▓▓  ·   ·   ·   ·   ·   ·   ·   ·   ·   ·
+F2     ·   ·   ·   ▓▓  ▓▓  ·   ·   ·   ·   ·   ·   ·   ·
+F3     ·   ·   ·   ·   ·   ▓▓  ▓▓  ·   ·   ·   ·   ·   ·
+F4     ·   ·   ·   ·   ·   ·   ·   ▓▓  ▓▓  ·   ·   ·   ·
+F5     ·   ·   ·   ·   ·   ·   ·   ·   ·   ▓▓  ·   ·   ·
+F6     ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ▓▓  ·   ·
+F7     ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ·   ▓▓  ▓▓</pre>
+<h1>Anexo B — Glosario</h1>
+<table><thead><tr><th>Término</th><th>Definición</th></tr></thead><tbody>
+<tr><td><b>Piloto</b></td><td>Implementación controlada del sistema con un grupo de estados antes de la generalización.</td></tr>
+<tr><td><b>GO-LIVE</b></td><td>Puesta en operación del piloto: el sistema queda disponible para su uso real.</td></tr>
+<tr><td><b>Hito</b></td><td>Punto de control con fecha definida que marca la finalización de una fase.</td></tr>
+<tr><td><b>Día hábil</b></td><td>Día de trabajo de lunes a viernes; los feriados y fines de semana no se cuentan.</td></tr>
+<tr><td><b>Release candidate</b></td><td>Versión del software considerada lista para despliegue si las pruebas son exitosas.</td></tr>
+<tr><td><b>Backlog</b></td><td>Conjunto de actividades o correcciones pendientes por ejecutar.</td></tr>
+<tr><td><b>Supabase</b></td><td>Plataforma PostgreSQL en la nube que alojará la base de datos del sistema.</td></tr>
+<tr><td><b>Google AI Studio</b></td><td>Plataforma de Google para la capa de inteligencia artificial del sistema.</td></tr>
+<tr><td><b>Vercel</b></td><td>Plataforma de despliegue (hosting) de la aplicación web.</td></tr>
+</tbody></table>
+<div class="footer"><p>SCTIS-CRONO-001 - CRONOGRAMA DE IMPLEMENTACIÓN
+DEL PILOTO SCTIS | SCTIS v1.0 </p></div></body></html>

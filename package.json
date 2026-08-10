@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "discover": "node .agents/discover.js",
+    "spec": "node .agents/fetch_spec.js",
+    "scan": "node .agents/scan_tables.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.48.1"

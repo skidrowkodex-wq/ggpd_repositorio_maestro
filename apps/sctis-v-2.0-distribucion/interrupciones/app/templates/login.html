@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Iniciar Sesión{% endblock %}
+{% block header_title %}Control de Acceso{% endblock %}
+
+{% block content %}
+<div class="min-h-[80vh] flex items-center justify-center">
+    <div class="w-full max-w-md">
+        <!-- Tarjeta de Login Industrial -->
+        <div class="industrial-card overflow-hidden">
+            <!-- Header de la tarjeta -->
+            <div class="bg-corpo-dark p-6 text-center border-b-4 border-corpo-accent relative overflow-hidden">
+                <div class="absolute inset-0 opacity-10" style="background-image: repeating-linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000), repeating-linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000); background-position: 0 0, 10px 10px; background-size: 20px 20px;"></div>
+                <div class="relative z-10 flex justify-center mb-3">
+                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-corpo-accent">
+                        <i class="fas fa-bolt text-3xl text-corpo-blue"></i>
+                    </div>
+                </div>
+                <h1 class="relative z-10 text-2xl font-bold text-white tracking-widest font-mono mt-2">SCTIS</h1>
+                <p class="relative z-10 text-[10px] text-gray-300 uppercase tracking-widest mt-1 mb-2 max-w-[200px] mx-auto leading-tight">Seguimiento y Control de Interrupciones de Servicio</p>
+            </div>
+            
+            <div id="app" class="p-8 bg-white">
+                <div v-if="error" class="bg-red-50 border-l-4 border-red-600 text-red-800 rounded-r p-4 mb-6 text-sm flex items-start gap-3 shadow-sm">
+                    <i class="fas fa-exclamation-triangle mt-0.5 text-red-600"></i> 
+                    <div>
+                        <strong class="block font-bold mb-1">Acceso Denegado</strong>
+                        ${ error }
+                    </div>
+                </div>
+                
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">Identificador de Usuario</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-user text-gray-400"></i>
+                            </div>
+                            <input v-model="username" type="text" class="industrial-input w-full pl-10 pr-3 py-2.5 text-sm" placeholder="ID. Ej. ggpd_admin" @keyup.enter="login" autofocus>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">Clave de Seguridad</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-lock text-gray-400"></i>
+                            </div>
+                            <input v-model="password" type="password" class="industrial-input w-full pl-10 pr-3 py-2.5 text-sm font-mono tracking-widest" placeholder="••••••••" @keyup.enter="login">
+                        </div>
+                    </div>
+                    
+                    <div class="pt-2">
+                        <button @click="login" :disabled="cargando"
+                                class="w-full bg-corpo-blue text-white py-3 px-4 rounded-sm hover:bg-corpo-dark transition-colors disabled:opacity-70 flex items-center justify-center gap-2 font-bold uppercase tracking-wider text-sm shadow-md border border-[#002244]">
+                            <i v-if="cargando" class="fas fa-circle-notch fa-spin"></i>
+                            <i v-else class="fas fa-sign-in-alt"></i>
+                            ${ cargando ? 'Autenticando...' : 'Iniciar Operación' }
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center border-t border-gray-100 pt-5">
+                    <p class="text-[9px] text-gray-500 font-mono uppercase tracking-widest leading-relaxed">
+                        Ministerio del Poder Popular para la Energía Eléctrica (MPPEE)<br>
+                        Corporación Eléctrica Nacional (CORPOELEC)<br>
+                        Gerencia General de Distribución<br>
+                        Gestión de Planificación de Distribución
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script>
+const { createApp } = Vue;
+createApp({
+    delimiters: ['${', '}'],
+    data() {
+        return { username: '', password: '', cargando: false, error: null };
+    },
+    methods: {
+        async login() {
+            if (!this.username || !this.password) { this.error = 'Complete las credenciales requeridas.'; return; }
+            this.cargando = true;
+            this.error = null;
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: this.username, password: this.password }),
+                });
+                const data = await res.json();
+                if (!res.ok) { this.error = data.error || 'Error de autenticación'; this.cargando = false; return; }
+                window.location.href = '/';
+            } catch (e) { this.error = 'Fallo de conexión con el servidor maestro.'; }
+            this.cargando = false;
+        }
+    },
+}).mount('#app');
+
+// Hide sidebar elements for login page completely if needed, 
+// though we usually keep base layout unless we override body.
+document.addEventListener('DOMContentLoaded', () => {
+    const sb = document.getElementById('sidebar');
+    if(sb) sb.style.display = 'none';
+    const hd = document.querySelector('header');
+    if(hd) hd.style.display = 'none';
+});
+</script>
+{% endblock %}

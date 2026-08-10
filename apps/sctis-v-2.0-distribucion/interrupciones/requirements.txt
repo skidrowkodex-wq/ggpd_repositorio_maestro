@@ -1,0 +1,13 @@
+flask
+psycopg2-binary
+openpyxl
+gunicorn
+google-genai
+google-cloud-aiplatform
+firebase-admin
+supabase
+vertexai
+google-api-python-client
+pandas
+python-docx
+python-dotenv
