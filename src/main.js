@@ -295,32 +295,41 @@ async function runFullDiagnostic() {
 
 // Fetch Data Table
 async function fetchTableData() {
+  const schemaName = document.getElementById('schema-name-input')?.value.trim() || 'public';
   const tableName = document.getElementById('table-name-input').value.trim() || 'activos_red';
   const tableCountLabel = document.getElementById('table-count-label');
   const tableQueryTime = document.getElementById('table-query-time');
   const tableHead = document.getElementById('table-head');
   const tableBody = document.getElementById('table-body');
 
-  tableCountLabel.textContent = `Consultando tabla "${tableName}"...`;
+  tableCountLabel.textContent = `Consultando "${schemaName}.${tableName}"...`;
   const t0 = performance.now();
 
   try {
-    const { data, error, count } = await supabase.from(tableName).select('*').limit(50);
+    const client = schemaName === 'public' ? supabase : supabase.schema(schemaName);
+    const { data, error, count } = await client.from(tableName).select('*').limit(50);
     const t1 = performance.now();
     tableQueryTime.textContent = `${Math.round(t1 - t0)} ms`;
 
     if (error) {
-      tableCountLabel.textContent = `Tabla "${tableName}": no existe o requiere permisos RLS.`;
+      tableCountLabel.textContent = `Error en "${schemaName}.${tableName}"`;
       tableHead.innerHTML = `<tr><th>Estado de la Consulta</th></tr>`;
+      const isSchemaError = error.message.includes('PGRST106') || error.message.includes('schema') || error.code === 'PGRST106';
+      
       tableBody.innerHTML = `
         <tr>
           <td class="empty-state">
             <div style="color: var(--status-warning); font-weight:600;">⚠️ ${escapeHtml(error.message)}</div>
-            <p class="text-sm text-muted" style="margin-top:0.5rem;">Tip: Si la tabla no ha sido creada aún en el Dashboard de Supabase, puedes crearla desde el editor SQL o habilitar las políticas de acceso (RLS).</p>
+            <p class="text-sm text-muted" style="margin-top:0.5rem;">
+              ${isSchemaError ? 
+                `<strong>Tip de Esquema Personalizado:</strong> Para acceder al esquema <code>"${escapeHtml(schemaName)}"</code> por la API REST, añade dicho esquema en Supabase en <em>Project Settings -> API -> Exposed Schemas</em> y otorga permisos <code>GRANT USAGE ON SCHEMA ${escapeHtml(schemaName)} TO anon, authenticated;</code>.` :
+                `Tip: Si la tabla no ha sido creada aún en el Dashboard de Supabase, puedes crearla desde el editor SQL o habilitar las políticas de acceso (RLS).`
+              }
+            </p>
           </td>
         </tr>
       `;
-      addLog('info', `Consulta a tabla '${tableName}': ${error.message}`);
+      addLog('info', `Consulta a '${schemaName}.${tableName}': ${error.message}`);
       return;
     }
 
