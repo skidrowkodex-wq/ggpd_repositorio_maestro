@@ -1,0 +1,486 @@
+{% extends "base.html" %}
+
+{% block title %}Descarga de Datos de Interrupciones{% endblock %}
+{% block header_title %}Módulo de Exportación y Descarga de Datos{% endblock %}
+
+{% block content %}
+<div id="app" class="space-y-6">
+    <!-- Top Header Banner -->
+    <div class="bg-corpo-dark text-white p-6 rounded-sm shadow-md border-l-4 border-corpo-accent flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <div class="flex items-center gap-2 text-corpo-accent text-xs font-mono font-bold uppercase tracking-widest mb-1">
+                <i class="fas fa-shield-alt"></i> Módulo Exclusivo para Administradores
+            </div>
+            <h2 class="text-2xl font-bold tracking-tight">Descarga Masiva de Tiras de Interrupción</h2>
+            <p class="text-xs text-gray-300 mt-1 max-w-3xl">
+                Exporte información histórica con la estructura homologada oficial de 21 columnas ISO 8000 / ISO 27001. Cada evento de descarga es auditado y registrado en el libro de operaciones con firma de no repudio.
+            </p>
+        </div>
+        <div class="flex items-center gap-2 bg-white/10 px-4 py-2 rounded border border-white/20 text-xs font-mono">
+            <i class="fas fa-user-shield text-corpo-accent"></i>
+            <span>ADMINISTRACIÓN SCTIS</span>
+        </div>
+    </div>
+
+    <!-- Main Grid: Filters & Settings -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Filter Panel (2 Cols) -->
+        <div class="lg:col-span-2 industrial-card p-6 space-y-6">
+            <div class="flex items-center justify-between border-b border-gray-200 pb-3">
+                <h3 class="font-bold text-base text-corpo-dark flex items-center gap-2">
+                    <i class="fas fa-filter text-corpo-blue"></i>
+                    Filtros de Selección de Datos
+                </h3>
+                <button @click="resetFiltros" class="text-xs text-gray-500 hover:text-corpo-blue underline flex items-center gap-1">
+                    <i class="fas fa-undo text-[10px]"></i> Restablecer Filtros
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Año -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                        Año Falla
+                    </label>
+                    <select v-model="filtros.anio" @change="onFiltroChange" class="w-full industrial-input text-xs px-3 py-2">
+                        <option value="TODOS">TODOS LOS AÑOS</option>
+                        <option v-for="a in opciones.anios" :key="a" :value="a">${ a }</option>
+                    </select>
+                </div>
+
+                <!-- Mes -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                        Mes Falla
+                    </label>
+                    <select v-model="filtros.mes" @change="onFiltroChange" class="w-full industrial-input text-xs px-3 py-2">
+                        <option value="TODOS">TODOS LOS MESES</option>
+                        <option v-for="m in opciones.meses" :key="m" :value="m">${ m }</option>
+                    </select>
+                </div>
+
+                <!-- Estado -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                        Estado / Entidad
+                    </label>
+                    <select v-model="filtros.estado" @change="onEstadoChange" class="w-full industrial-input text-xs px-3 py-2">
+                        <option value="TODOS">TODOS LOS ESTADOS</option>
+                        <option v-for="e in opciones.estados" :key="e.state_code" :value="e.state_code">${ e.state_name }</option>
+                    </select>
+                </div>
+
+                <!-- Causa Homologada -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                        Causa Homologada
+                    </label>
+                    <select v-model="filtros.causa_id" @change="onFiltroChange" class="w-full industrial-input text-xs px-3 py-2">
+                        <option value="TODAS">TODAS LAS CAUSAS</option>
+                        <option v-for="c in opciones.causas" :key="c.causa_id" :value="c.causa_id">${ c.causa_codigo } - ${ c.causa_nombre }</option>
+                    </select>
+                </div>
+
+                <!-- Subestación -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                        Subestación
+                    </label>
+                    <select v-model="filtros.subestacion" @change="onSubestacionChange" class="w-full industrial-input text-xs px-3 py-2">
+                        <option value="TODAS">TODAS LAS SUBESTACIONES</option>
+                        <option v-for="se in subestacionesFiltradas" :key="se.asset_id" :value="se.asset_name">${ se.asset_name }</option>
+                    </select>
+                </div>
+
+                <!-- Circuito -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                        Circuito
+                    </label>
+                    <select v-model="filtros.circuito" @change="onFiltroChange" class="w-full industrial-input text-xs px-3 py-2">
+                        <option value="TODOS">TODOS LOS CIRCUITOS</option>
+                        <option v-for="ci in circuitosFiltrados" :key="ci.asset_id" :value="ci.asset_name">${ ci.asset_name }</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Active Filters Summary Chips -->
+            <div class="pt-3 border-t border-gray-100 flex flex-wrap items-center gap-2 text-xs">
+                <span class="text-gray-500 font-bold uppercase text-[10px]">Criterios Activos:</span>
+                <span class="bg-blue-100 text-corpo-blue px-2 py-0.5 rounded font-mono text-[11px] font-bold">Año: ${ filtros.anio }</span>
+                <span class="bg-blue-100 text-corpo-blue px-2 py-0.5 rounded font-mono text-[11px] font-bold">Mes: ${ filtros.mes }</span>
+                <span class="bg-blue-100 text-corpo-blue px-2 py-0.5 rounded font-mono text-[11px] font-bold">Estado: ${ filtros.estado }</span>
+                <span class="bg-blue-100 text-corpo-blue px-2 py-0.5 rounded font-mono text-[11px] font-bold">Causa: ${ getCausaNombre(filtros.causa_id) }</span>
+                <span class="bg-blue-100 text-corpo-blue px-2 py-0.5 rounded font-mono text-[11px] font-bold">Subestación: ${ filtros.subestacion }</span>
+                <span class="bg-blue-100 text-corpo-blue px-2 py-0.5 rounded font-mono text-[11px] font-bold">Circuito: ${ filtros.circuito }</span>
+            </div>
+        </div>
+
+        <!-- Format & Action Card (1 Col) -->
+        <div class="industrial-card p-6 flex flex-col justify-between space-y-6">
+            <div>
+                <h3 class="font-bold text-base text-corpo-dark border-b border-gray-200 pb-3 mb-4 flex items-center gap-2">
+                    <i class="fas fa-file-export text-corpo-accent"></i>
+                    Formato de Salida
+                </h3>
+
+                <div class="space-y-3">
+                    <!-- Excel Option -->
+                    <label class="flex items-start p-3 border rounded cursor-pointer transition select-none"
+                           :class="filtros.formato === 'EXCEL' ? 'bg-green-50 border-green-500 ring-1 ring-green-500' : 'bg-white border-gray-300 hover:bg-gray-50'">
+                        <input type="radio" v-model="filtros.formato" value="EXCEL" class="mt-1 text-green-600 focus:ring-green-500">
+                        <div class="ml-3">
+                            <span class="block text-xs font-bold text-gray-900 flex items-center gap-1.5 uppercase">
+                                <i class="fas fa-file-excel text-green-700 text-sm"></i> Microsoft Excel (.xlsx)
+                            </span>
+                            <span class="block text-[11px] text-gray-500 leading-tight mt-0.5">
+                                Formato nativo con 21 columnas y pestaña de instructivo. Listo para análisis y re-importación.
+                            </span>
+                        </div>
+                    </label>
+
+                    <!-- CSV Option -->
+                    <label class="flex items-start p-3 border rounded cursor-pointer transition select-none"
+                           :class="filtros.formato === 'CSV' ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500' : 'bg-white border-gray-300 hover:bg-gray-50'">
+                        <input type="radio" v-model="filtros.formato" value="CSV" class="mt-1 text-blue-600 focus:ring-blue-500">
+                        <div class="ml-3">
+                            <span class="block text-xs font-bold text-gray-900 flex items-center gap-1.5 uppercase">
+                                <i class="fas fa-file-csv text-blue-700 text-sm"></i> Texto Plano CSV (.csv)
+                            </span>
+                            <span class="block text-[11px] text-gray-500 leading-tight mt-0.5">
+                                Delimitado por punto y coma (;) con codificación UTF-8 BOM para fácil integración en sistemas externos.
+                            </span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Quick Metrics Summary -->
+            <div class="bg-gray-50 p-4 rounded border border-gray-200 space-y-2">
+                <div class="text-[11px] font-bold text-gray-600 uppercase tracking-wider flex justify-between">
+                    <span>Resultado de Selección:</span>
+                    <span v-if="loadingPreview" class="text-corpo-blue"><i class="fas fa-spinner fa-spin"></i> Calculando...</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-center pt-1">
+                    <div class="bg-white p-2 rounded border border-gray-200">
+                        <div class="text-lg font-bold font-mono text-corpo-dark">${ previewStats.total_registros || 0 }</div>
+                        <div class="text-[9px] text-gray-500 uppercase">Registros</div>
+                    </div>
+                    <div class="bg-white p-2 rounded border border-gray-200">
+                        <div class="text-lg font-bold font-mono text-corpo-blue">${ previewStats.total_horas || 0 }</div>
+                        <div class="text-[9px] text-gray-500 uppercase">Horas Total</div>
+                    </div>
+                </div>
+                <div v-if="previewStats.excepciones_count > 0" class="text-[10px] text-amber-800 bg-amber-50 p-1.5 rounded border border-amber-200 flex items-center gap-1">
+                    <i class="fas fa-exclamation-triangle text-amber-600"></i>
+                    <span>Incluye <strong>${ previewStats.excepciones_count }</strong> registros de excepción admin.</span>
+                </div>
+            </div>
+
+            <!-- Download Button -->
+            <div>
+                <button @click="ejecutarDescarga" 
+                        :disabled="downloading || (previewStats.total_registros === 0)"
+                        class="w-full bg-corpo-blue hover:bg-corpo-dark text-white font-bold text-xs uppercase tracking-widest py-3.5 px-4 rounded-sm shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                    <i v-if="downloading" class="fas fa-circle-notch fa-spin text-sm"></i>
+                    <i v-else-if="filtros.formato === 'EXCEL'" class="fas fa-download text-sm"></i>
+                    <i v-else class="fas fa-file-csv text-sm"></i>
+                    <span>${ downloading ? 'Generando Archivo...' : 'Descargar Archivo' }</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Preview Table Header -->
+    <div class="industrial-card p-6 space-y-4">
+        <div class="flex items-center justify-between border-b border-gray-200 pb-3">
+            <div>
+                <h3 class="font-bold text-base text-corpo-dark flex items-center gap-2">
+                    <i class="fas fa-table text-corpo-blue"></i>
+                    Vista Previa del Archivo a Descargar
+                </h3>
+                <p class="text-xs text-gray-500">
+                    Muestra de los primeros 10 registros que serán incluidos en la exportación homologada de 21 columnas.
+                </p>
+            </div>
+            <span class="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded border font-mono font-bold">
+                Estructura Formato Oficial SCTIS
+            </span>
+        </div>
+
+        <div class="overflow-x-auto border border-gray-200 rounded-sm">
+            <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                    <tr class="bg-[#1F4E79] text-white font-mono text-[10px] uppercase">
+                        <th class="p-2 border border-gray-600 min-w-[100px]">ESTADO</th>
+                        <th class="p-2 border border-gray-600 min-w-[90px]">SISTEMA</th>
+                        <th class="p-2 border border-gray-600 min-w-[90px]">DISTRITO</th>
+                        <th class="p-2 border border-gray-600 min-w-[140px]">SUBESTACIÓN</th>
+                        <th class="p-2 border border-gray-600 min-w-[130px]">CIRCUITO</th>
+                        <th class="p-2 border border-gray-600 min-w-[100px]">F. INICIO</th>
+                        <th class="p-2 border border-gray-600 min-w-[80px]">H. INICIO</th>
+                        <th class="p-2 border border-gray-600 min-w-[100px]">F. FIN</th>
+                        <th class="p-2 border border-gray-600 min-w-[80px]">H. FIN</th>
+                        <th class="p-2 border border-gray-600 min-w-[80px]">DURACIÓN</th>
+                        <th class="p-2 border border-gray-600 min-w-[70px]">CARGA</th>
+                        <th class="p-2 border border-gray-600 min-w-[60px]">FREC</th>
+                        <th class="p-2 border border-gray-600 min-w-[70px]">HORAS</th>
+                        <th class="p-2 border border-gray-600 min-w-[70px]">TTI CTO</th>
+                        <th class="p-2 border border-gray-600 min-w-[60px]">SEÑAL</th>
+                        <th class="p-2 border border-gray-600 min-w-[150px]">CAUSA</th>
+                        <th class="p-2 border border-gray-600 min-w-[120px]">SUB-CAUSA</th>
+                        <th class="p-2 border border-gray-600 min-w-[160px]">OBSERVACIÓN</th>
+                        <th class="p-2 border border-gray-600 min-w-[130px]">SECTORES</th>
+                        <th class="p-2 border border-gray-600 min-w-[100px]">CIUDAD</th>
+                        <th class="p-2 border border-gray-600 min-w-[70px]">KVA</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 font-mono text-[11px]">
+                    <tr v-if="loadingPreview">
+                        <td colspan="21" class="p-8 text-center text-gray-500">
+                            <i class="fas fa-spinner fa-spin mr-2"></i> Cargando vista previa...
+                        </td>
+                    </tr>
+                    <tr v-else-if="previewStats.sample_rows.length === 0">
+                        <td colspan="21" class="p-8 text-center text-gray-500">
+                            No se encontraron registros que coincidan con los filtros seleccionados.
+                        </td>
+                    </tr>
+                    <tr v-else v-for="(row, idx) in previewStats.sample_rows" :key="idx" class="hover:bg-blue-50/60 transition">
+                        <td v-for="(val, colIdx) in row" :key="colIdx" class="p-2 border border-gray-200 truncate max-w-[180px]" :title="val">
+                            ${ val !== null && val !== undefined ? val : '' }
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Audit History Section -->
+    <div class="industrial-card p-6 space-y-4">
+        <div class="flex items-center justify-between border-b border-gray-200 pb-3">
+            <div>
+                <h3 class="font-bold text-base text-corpo-dark flex items-center gap-2">
+                    <i class="fas fa-clipboard-list text-corpo-accent"></i>
+                    Historial de Auditoría de Descargas
+                </h3>
+                <p class="text-xs text-gray-500">
+                    Registro de eventos de exportación y descargas masivas ejecutados por usuarios administradores.
+                </p>
+            </div>
+            <button @click="cargarAuditoria" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded border transition flex items-center gap-1">
+                <i class="fas fa-sync-alt text-[10px]"></i> Actualizar Bitácora
+            </button>
+        </div>
+
+        <div class="overflow-x-auto border border-gray-200 rounded-sm">
+            <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                    <tr class="bg-gray-100 text-gray-700 font-bold uppercase tracking-wider">
+                        <th class="p-3 border-b">ID</th>
+                        <th class="p-3 border-b">Fecha y Hora</th>
+                        <th class="p-3 border-b">Usuario Administrador</th>
+                        <th class="p-3 border-b">Formato</th>
+                        <th class="p-3 border-b text-right">Registros</th>
+                        <th class="p-3 border-b">IP Origen</th>
+                        <th class="p-3 border-b">Filtros Aplicados</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 font-mono text-[11px]">
+                    <tr v-if="auditoriaLogs.length === 0">
+                        <td colspan="7" class="p-6 text-center text-gray-500">
+                            No hay descargas registradas en la bitácora aún.
+                        </td>
+                    </tr>
+                    <tr v-else v-for="log in auditoriaLogs" :key="log.download_id" class="hover:bg-gray-50">
+                        <td class="p-3 font-bold text-corpo-blue">#${ log.download_id }</td>
+                        <td class="p-3 text-gray-600">${ formatFecha(log.created_at) }</td>
+                        <td class="p-3 font-bold text-gray-900">${ log.username }</td>
+                        <td class="p-3">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold border"
+                                  :class="log.formato === 'EXCEL' ? 'bg-green-100 text-green-800 border-green-300' : 'bg-blue-100 text-blue-800 border-blue-300'">
+                                ${ log.formato }
+                            </span>
+                        </td>
+                        <td class="p-3 text-right font-bold">${ log.total_registros }</td>
+                        <td class="p-3 text-gray-500">${ log.ip_address || '127.0.0.1' }</td>
+                        <td class="p-3 text-[10px] text-gray-600 max-w-xs truncate" :title="log.filtros_json">
+                            ${ log.filtros_json }
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script>
+const { createApp } = Vue;
+
+createApp({
+    delimiters: ['${', '}'],
+    data() {
+        return {
+            filtros: {
+                anio: 'TODOS',
+                mes: 'TODOS',
+                estado: 'TODOS',
+                causa_id: 'TODAS',
+                subestacion: 'TODAS',
+                circuito: 'TODOS',
+                formato: 'EXCEL'
+            },
+            opciones: {
+                anios: [],
+                meses: [],
+                estados: [],
+                causas: [],
+                subestaciones: [],
+                circuitos: []
+            },
+            previewStats: {
+                total_registros: 0,
+                total_horas: 0,
+                total_kva: 0,
+                excepciones_count: 0,
+                sample_rows: []
+            },
+            loadingPreview: false,
+            downloading: false,
+            auditoriaLogs: []
+        };
+    },
+    computed: {
+        subestacionesFiltradas() {
+            if (!this.filtros.estado || this.filtros.estado === 'TODOS') {
+                return this.opciones.subestaciones;
+            }
+            return this.opciones.subestaciones.filter(s => s.state_code === this.filtros.estado);
+        },
+        circuitosFiltrados() {
+            let res = this.opciones.circuitos;
+            if (this.filtros.estado && this.filtros.estado !== 'TODOS') {
+                res = res.filter(c => c.state_code === this.filtros.estado);
+            }
+            if (this.filtros.subestacion && this.filtros.subestacion !== 'TODAS') {
+                const seObj = this.opciones.subestaciones.find(s => s.asset_name === this.filtros.subestacion);
+                if (seObj) {
+                    res = res.filter(c => c.parent_asset_id === seObj.asset_id);
+                }
+            }
+            return res;
+        }
+    },
+    methods: {
+        async init() {
+            await this.cargarOpciones();
+            await this.actualizarPreview();
+            await this.cargarAuditoria();
+        },
+        async cargarOpciones() {
+            try {
+                const res = await fetch('/api/admin/descargas/filtros-opciones');
+                if (res.ok) {
+                    this.opciones = await res.json();
+                }
+            } catch (e) {
+                console.error("Error al cargar opciones:", e);
+            }
+        },
+        onEstadoChange() {
+            this.filtros.subestacion = 'TODAS';
+            this.filtros.circuito = 'TODOS';
+            this.actualizarPreview();
+        },
+        onSubestacionChange() {
+            this.filtros.circuito = 'TODOS';
+            this.actualizarPreview();
+        },
+        onFiltroChange() {
+            this.actualizarPreview();
+        },
+        resetFiltros() {
+            this.filtros = {
+                anio: 'TODOS',
+                mes: 'TODOS',
+                estado: 'TODOS',
+                causa_id: 'TODAS',
+                subestacion: 'TODAS',
+                circuito: 'TODOS',
+                formato: 'EXCEL'
+            };
+            this.actualizarPreview();
+        },
+        getCausaNombre(causa_id) {
+            if (!causa_id || causa_id === 'TODAS') return 'TODAS';
+            const c = this.opciones.causas.find(x => x.causa_id == causa_id);
+            return c ? c.causa_nombre : causa_id;
+        },
+        async actualizarPreview() {
+            this.loadingPreview = true;
+            try {
+                const res = await fetch('/api/admin/descargas/preview', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(this.filtros)
+                });
+                if (res.ok) {
+                    this.previewStats = await res.json();
+                }
+            } catch (e) {
+                console.error("Error cargando vista previa:", e);
+            } finally {
+                this.loadingPreview = false;
+            }
+        },
+        async ejecutarDescarga() {
+            this.downloading = true;
+            try {
+                const params = new URLSearchParams({
+                    anio: this.filtros.anio,
+                    mes: this.filtros.mes,
+                    estado: this.filtros.estado,
+                    causa_id: this.filtros.causa_id,
+                    subestacion: this.filtros.subestacion,
+                    circuito: this.filtros.circuito,
+                    formato: this.filtros.formato
+                });
+
+                window.open('/api/admin/descargas/exportar?' + params.toString(), '_blank');
+
+                setTimeout(() => {
+                    this.cargarAuditoria();
+                }, 2000);
+            } catch (e) {
+                console.error("Error durante descarga:", e);
+            } finally {
+                this.downloading = false;
+            }
+        },
+        async cargarAuditoria() {
+            try {
+                const res = await fetch('/api/admin/descargas/auditoria');
+                if (res.ok) {
+                    this.auditoriaLogs = await res.json();
+                }
+            } catch (e) {
+                console.error("Error al cargar auditoría:", e);
+            }
+        },
+        formatFecha(fStr) {
+            if (!fStr) return '-';
+            try {
+                const d = new Date(fStr);
+                return d.toLocaleString('es-VE');
+            } catch(e) {
+                return fStr;
+            }
+        }
+    },
+    mounted() {
+        this.init();
+    }
+}).mount('#app');
+</script>
+{% endblock %}

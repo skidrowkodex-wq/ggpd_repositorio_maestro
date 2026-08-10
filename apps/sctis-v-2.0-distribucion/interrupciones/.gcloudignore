@@ -1,0 +1,14 @@
+.git
+__pycache__
+*.pyc
+*.pyo
+.venv
+.env
+*.dump
+*.sql
+.vscode
+.idea
+*.md
+docs/
+migraciones/
+generar_documento.py

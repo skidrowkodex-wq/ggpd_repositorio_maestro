@@ -1,0 +1,572 @@
+{% extends "base.html" %}
+
+{% block title %}Monitoreo de Cargas y Control de Data{% endblock %}
+{% block header_title %}Módulo de Oportunidad y Monitoreo de Cargas{% endblock %}
+
+{% block content %}
+<div id="app" class="space-y-6">
+    <!-- Banner de Normativa Favio/SCTIS -->
+    <div class="bg-corpo-dark text-white p-6 rounded-sm shadow-md border-l-4 border-corpo-accent flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <div class="flex items-center gap-2 text-corpo-accent text-xs font-mono font-bold uppercase tracking-widest mb-1">
+                <i class="fas fa-clock"></i> Gobernanza e Ingesta de Datos SCTIS
+            </div>
+            <h2 class="text-2xl font-bold tracking-tight">Control de Oportunidad y Data Incompleta por Estado</h2>
+            <p class="text-xs text-gray-300 mt-1 max-w-4xl">
+                Monitoree el cumplimiento oportuno de las entregas por entidad federal. Según la directiva de control: las cargas <strong>Semanales</strong> se exigen los días <strong>Miércoles y Jueves</strong>; mientras que los <strong>Consolidados Mensuales</strong> deben recibirse a más tardar el <strong>3er día del mes posterior</strong>.
+            </p>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-2">
+            <button @click="abrirModalNuevaTarea()" class="bg-corpo-accent hover:bg-yellow-500 text-corpo-dark font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded shadow transition flex items-center gap-2 whitespace-nowrap">
+                <i class="fas fa-plus-circle"></i> Asignar Tarea a Estado
+            </button>
+        </div>
+    </div>
+
+    <!-- Metrics Bar -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <!-- Total Estados -->
+        <div class="industrial-card p-4 border-l-4 border-corpo-blue">
+            <div class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Entidades Monitoreadas</div>
+            <div class="text-2xl font-bold font-mono text-corpo-dark mt-1">${ resumen.total_estados || 24 }</div>
+            <div class="text-[10px] text-gray-500 mt-1">24 Estados de Venezuela</div>
+        </div>
+
+        <!-- Cumplieron Semanal -->
+        <div class="industrial-card p-4 border-l-4 border-green-500">
+            <div class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Carga Semanal (Mié/Jue)</div>
+            <div class="flex items-baseline gap-2 mt-1">
+                <span class="text-2xl font-bold font-mono text-green-700">${ resumen.cant_cumplieron_semana || 0 }</span>
+                <span class="text-xs text-gray-500">/ 24 Al Día</span>
+            </div>
+            <div class="text-[10px] text-red-600 font-bold mt-1" v-if="(resumen.cant_faltan_semana || 0) > 0">
+                <i class="fas fa-exclamation-circle"></i> Faltan ${ resumen.cant_faltan_semana } por cargar
+            </div>
+            <div class="text-[10px] text-green-600 font-bold mt-1" v-else>
+                100% Cargas Semanales Al Día
+            </div>
+        </div>
+
+        <!-- Consolidado Mensual -->
+        <div class="industrial-card p-4 border-l-4 border-blue-600">
+            <div class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Consolidado Mensual</div>
+            <div class="flex items-baseline gap-2 mt-1">
+                <span class="text-2xl font-bold font-mono text-blue-700">${ resumen.cant_cumplieron_mes || 0 }</span>
+                <span class="text-xs text-gray-500">/ 24 Recibidos</span>
+            </div>
+            <div class="text-[10px] text-red-600 font-bold mt-1" v-if="(resumen.cant_faltan_mes || 0) > 0">
+                <i class="fas fa-times-circle"></i> Faltan ${ resumen.cant_faltan_mes } consolidado
+            </div>
+            <div class="text-[10px] text-blue-600 font-bold mt-1" v-else>
+                100% Consolidados Al Día
+            </div>
+        </div>
+
+        <!-- Morosos Global -->
+        <div class="industrial-card p-4 border-l-4 border-red-500 bg-red-50/20">
+            <div class="text-[10px] font-bold text-red-800 uppercase tracking-wider">Total Estados Morosos</div>
+            <div class="text-2xl font-bold font-mono text-red-700 mt-1">${ resumen.total_morosos || 0 }</div>
+            <div class="text-[10px] text-red-600 font-semibold mt-1">Requieren solicitud de carga</div>
+        </div>
+
+        <!-- Incompletos Global -->
+        <div class="industrial-card p-4 border-l-4 border-amber-600 bg-amber-50/40">
+            <div class="text-[10px] font-bold text-amber-900 uppercase tracking-wider">Registros Incompletos</div>
+            <div class="text-2xl font-bold font-mono text-amber-800 mt-1">${ resumen.total_incompletos_global || 0 }</div>
+            <div class="text-[10px] text-amber-700 font-semibold mt-1">Excepciones pendientes saneamiento</div>
+        </div>
+    </div>
+
+    <!-- Panel Alerta Directa: Estados que FALTAN por Cargar Data -->
+    <div v-if="tabActiva === 'matriz' && (listas.faltan_semana.length > 0 || listas.faltan_mes.length > 0)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Panel Faltantes Semanal -->
+        <div class="bg-red-50 border border-red-200 rounded p-4 space-y-2">
+            <div class="flex justify-between items-center">
+                <h4 class="font-bold text-xs text-red-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fas fa-exclamation-triangle text-red-600"></i>
+                    Estados Faltantes por Carga Semanal (${ listas.faltan_semana.length })
+                </h4>
+                <span class="text-[10px] font-bold text-red-700 bg-red-100 px-2 py-0.5 rounded border border-red-300">
+                    Carga Requerida Mié/Jue
+                </span>
+            </div>
+            <p class="text-[11px] text-red-700">Las siguientes entidades federales aún no han cargado la data semanal de interrupciones:</p>
+            <div class="flex flex-wrap gap-1.5 pt-1">
+                <div v-for="st in listas.faltan_semana" :key="st.code" 
+                     class="bg-white border border-red-300 px-2.5 py-1 rounded text-[11px] font-bold text-red-900 flex items-center gap-2 shadow-sm">
+                    <span>${ st.name }</span>
+                    <button @click="solicitarCargaDirecta(st, 'SOLICITUD_CARGA_SEMANAL')" 
+                            class="bg-red-600 hover:bg-red-700 text-white text-[9px] px-1.5 py-0.5 rounded font-bold uppercase" 
+                            title="Solicitar carga inmediata">
+                        Solicitar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Faltantes Mensual -->
+        <div class="bg-amber-50 border border-amber-200 rounded p-4 space-y-2">
+            <div class="flex justify-between items-center">
+                <h4 class="font-bold text-xs text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fas fa-calendar-times text-amber-700"></i>
+                    Estados Faltantes por Consolidado Mensual (${ listas.faltan_mes.length })
+                </h4>
+                <span class="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded border border-amber-300">
+                    Límite Día 3 del Mes
+                </span>
+            </div>
+            <p class="text-[11px] text-amber-800">Entidades con consolidado mensual pendiente o fuera de plazo:</p>
+            <div class="flex flex-wrap gap-1.5 pt-1">
+                <div v-for="st in listas.faltan_mes" :key="st.code" 
+                     class="bg-white border border-amber-300 px-2.5 py-1 rounded text-[11px] font-bold text-amber-900 flex items-center gap-2 shadow-sm">
+                    <span>${ st.name }</span>
+                    <button @click="solicitarCargaDirecta(st, 'SOLICITUD_CONSOLIDADO_MENSUAL')" 
+                            class="bg-amber-700 hover:bg-amber-800 text-white text-[9px] px-1.5 py-0.5 rounded font-bold uppercase" 
+                            title="Solicitar consolidado mensual">
+                        Solicitar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Navigation Tabs -->
+    <div class="border-b border-gray-300 flex gap-4">
+        <button @click="tabActiva = 'matriz'" 
+                :class="tabActiva === 'matriz' ? 'border-b-2 border-corpo-blue text-corpo-blue font-bold' : 'text-gray-500 hover:text-gray-800 font-medium'"
+                class="pb-3 text-xs uppercase tracking-wider flex items-center gap-2 transition">
+            <i class="fas fa-traffic-light text-sm"></i> Matriz de Semáforo y Oportunidad
+        </button>
+        <button @click="tabActiva = 'tareas'" 
+                :class="tabActiva === 'tareas' ? 'border-b-2 border-corpo-blue text-corpo-blue font-bold' : 'text-gray-500 hover:text-gray-800 font-medium'"
+                class="pb-3 text-xs uppercase tracking-wider flex items-center gap-2 transition">
+            <i class="fas fa-tasks text-sm"></i> Dashboard de Tareas de Saneamiento y Data Incompleta
+        </button>
+    </div>
+
+    <!-- TAB 1: Matriz de Control por Estado -->
+    <div v-if="tabActiva === 'matriz'" class="industrial-card p-6 space-y-4">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-200 pb-4">
+            <div>
+                <h3 class="font-bold text-base text-corpo-dark flex items-center gap-2">
+                    <i class="fas fa-map-marked-alt text-corpo-blue"></i>
+                    Semáforo de Cumplimiento de Entidades Federales
+                </h3>
+                <p class="text-xs text-gray-500">
+                    Evaluación en tiempo real de entregas semanales (Miércoles/Jueves) y consolidados mensuales (hasta el 3 del mes posterior).
+                </p>
+            </div>
+            
+            <!-- Quick Filter Pills -->
+            <div class="flex flex-wrap items-center gap-2">
+                <button @click="filtroRapido = 'TODOS'" 
+                        :class="filtroRapido === 'TODOS' ? 'bg-corpo-dark text-white font-bold' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                        class="px-2.5 py-1 rounded text-xs transition">
+                    Todos (${ matriz.length })
+                </button>
+                <button @click="filtroRapido = 'FALTA_SEMANA'" 
+                        :class="filtroRapido === 'FALTA_SEMANA' ? 'bg-red-600 text-white font-bold' : 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100'"
+                        class="px-2.5 py-1 rounded text-xs transition flex items-center gap-1">
+                    <i class="fas fa-exclamation-circle"></i> Falta Semanal (${ listas.faltan_semana ? listas.faltan_semana.length : 0 })
+                </button>
+                <button @click="filtroRapido = 'FALTA_MES'" 
+                        :class="filtroRapido === 'FALTA_MES' ? 'bg-amber-600 text-white font-bold' : 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100'"
+                        class="px-2.5 py-1 rounded text-xs transition flex items-center gap-1">
+                    <i class="fas fa-calendar-times"></i> Falta Mes (${ listas.faltan_mes ? listas.faltan_mes.length : 0 })
+                </button>
+                <button @click="filtroRapido = 'AL_DIA'" 
+                        :class="filtroRapido === 'AL_DIA' ? 'bg-green-600 text-white font-bold' : 'bg-green-50 text-green-700 border border-green-200 hover:bg-green-100'"
+                        class="px-2.5 py-1 rounded text-xs transition flex items-center gap-1">
+                    <i class="fas fa-check-circle"></i> Al Día (${ resumen.total_al_dia || 0 })
+                </button>
+                <input type="text" v-model="busquedaEstado" placeholder="Buscar Estado..." class="industrial-input text-xs px-3 py-1 w-36">
+                <button @click="cargarMatriz" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-1 rounded text-xs font-bold transition flex items-center gap-1">
+                    <i class="fas fa-sync-alt" :class="{'fa-spin': cargando}"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto border border-gray-200 rounded-sm">
+            <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                    <tr class="bg-corpo-dark text-white font-mono text-[10px] uppercase">
+                        <th class="p-3 border-r border-gray-700">Estado / Entidad</th>
+                        <th class="p-3 border-r border-gray-700">Última Carga Registrada</th>
+                        <th class="p-3 border-r border-gray-700 text-center">Estatus Semanal<br><span class="text-[8px] text-gray-300">(Mié / Jue)</span></th>
+                        <th class="p-3 border-r border-gray-700 text-center">Consolidado Mensual<br><span class="text-[8px] text-gray-300">(Hasta día 3)</span></th>
+                        <th class="p-3 border-r border-gray-700 text-center">Reg. Incompletos</th>
+                        <th class="p-3 border-r border-gray-700 text-center">Tareas Activas</th>
+                        <th class="p-3 text-center">Acciones de Requerimiento</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 font-mono text-[11px]">
+                    <tr v-if="cargando">
+                        <td colspan="7" class="p-8 text-center text-gray-500">
+                            <i class="fas fa-spinner fa-spin mr-2"></i> Evaluando cumplimiento de cargas...
+                        </td>
+                    </tr>
+                    <tr v-else-if="matrizFiltrada.length === 0">
+                        <td colspan="7" class="p-8 text-center text-gray-500">
+                            No se encontraron estados coincidentes.
+                        </td>
+                    </tr>
+                    <tr v-else v-for="st in matrizFiltrada" :key="st.state_code" class="hover:bg-blue-50/50 transition">
+                        <!-- Estado -->
+                        <td class="p-3 font-bold text-gray-900 border-r border-gray-200 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full" 
+                                  :class="st.estatus_semanal === 'AL_DIA' && st.estatus_mensual === 'AL_DIA' ? 'bg-green-500' : (st.estatus_semanal === 'MOROSO' || st.estatus_mensual === 'MOROSO' ? 'bg-red-500' : 'bg-yellow-500')"></span>
+                            <span>${ st.state_name }</span>
+                            <span class="text-[9px] text-gray-400">(${ st.state_code })</span>
+                        </td>
+
+                        <!-- Última Carga -->
+                        <td class="p-3 text-gray-700 border-r border-gray-200">
+                            <div class="font-bold">${ st.ultima_carga }</div>
+                            <div v-if="st.dias_desde_carga !== null" class="text-[10px] text-gray-500">
+                                Hace ${ st.dias_desde_carga } días (${ st.total_filas } reg.)
+                            </div>
+                        </td>
+
+                        <!-- Estatus Semanal -->
+                        <td class="p-3 text-center border-r border-gray-200">
+                            <span v-if="st.estatus_semanal === 'AL_DIA'" class="px-2 py-1 rounded text-[10px] font-bold bg-green-100 text-green-800 border border-green-300 inline-block w-full">
+                                <i class="fas fa-check-circle mr-1"></i> AL DÍA
+                            </span>
+                            <span v-else-if="st.estatus_semanal === 'EN_RIESGO'" class="px-2 py-1 rounded text-[10px] font-bold bg-yellow-100 text-yellow-800 border border-yellow-300 inline-block w-full">
+                                <i class="fas fa-exclamation-triangle mr-1"></i> HOY REQUERIDO
+                            </span>
+                            <span v-else class="px-2 py-1 rounded text-[10px] font-bold bg-red-100 text-red-800 border border-red-300 inline-block w-full">
+                                <i class="fas fa-times-circle mr-1"></i> ATRASADO
+                            </span>
+                        </td>
+
+                        <!-- Consolidado Mensual -->
+                        <td class="p-3 text-center border-r border-gray-200">
+                            <span v-if="st.estatus_mensual === 'AL_DIA'" class="px-2 py-1 rounded text-[10px] font-bold bg-green-100 text-green-800 border border-green-300 inline-block w-full">
+                                <i class="fas fa-check-circle mr-1"></i> RECIBIDO
+                            </span>
+                            <span v-else-if="st.estatus_mensual === 'EN_RIESGO'" class="px-2 py-1 rounded text-[10px] font-bold bg-yellow-100 text-yellow-800 border border-yellow-300 inline-block w-full">
+                                <i class="fas fa-clock mr-1"></i> EN PLAZO (H/DÍA 3)
+                            </span>
+                            <span v-else class="px-2 py-1 rounded text-[10px] font-bold bg-red-100 text-red-800 border border-red-300 inline-block w-full">
+                                <i class="fas fa-exclamation-circle mr-1"></i> ATRASADO
+                            </span>
+                        </td>
+
+                        <!-- Incompletos -->
+                        <td class="p-3 text-center font-bold border-r border-gray-200">
+                            <span v-if="st.incompletos_count > 0" class="text-amber-800 bg-amber-100 px-2 py-0.5 rounded border border-amber-300">
+                                ${ st.incompletos_count } Reg.
+                            </span>
+                            <span v-else class="text-gray-400">0</span>
+                        </td>
+
+                        <!-- Tareas Activas -->
+                        <td class="p-3 text-center font-bold border-r border-gray-200">
+                            <span v-if="st.tareas_activas > 0" class="text-purple-800 bg-purple-100 px-2 py-0.5 rounded border border-purple-300">
+                                ${ st.tareas_activas } Activas
+                            </span>
+                            <span v-else class="text-gray-400">0</span>
+                        </td>
+
+                        <!-- Acciones -->
+                        <td class="p-3 text-center space-x-1">
+                            <button @click="solicitarCarga(st)" 
+                                    class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded text-[10px] font-bold uppercase transition inline-flex items-center gap-1 shadow-sm"
+                                    title="Enviar requerimiento formal de carga de data">
+                                <i class="fas fa-paper-plane"></i> Solicitar Data
+                            </button>
+                            <button v-if="st.incompletos_count > 0" @click="asignarSaneamiento(st)" 
+                                    class="bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1 rounded text-[10px] font-bold uppercase transition inline-flex items-center gap-1 shadow-sm"
+                                    title="Asignar tarea para sanear o corregir registros incompletos">
+                                <i class="fas fa-tools"></i> Tarea Saneamiento
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TAB 2: Dashboard de Tareas -->
+    <div v-if="tabActiva === 'tareas'" class="industrial-card p-6 space-y-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-200 pb-4">
+            <div>
+                <h3 class="font-bold text-base text-corpo-dark flex items-center gap-2">
+                    <i class="fas fa-clipboard-check text-corpo-accent"></i>
+                    Dashboard de Tareas de Control y Data Incompleta
+                </h3>
+                <p class="text-xs text-gray-500">
+                    Control de asignaciones enviadas a los operadores de cada estado para solicitar cargas oportunas o saneamiento de registros incompletos.
+                </p>
+            </div>
+            <button @click="abrirModalNuevaTarea()" class="bg-corpo-blue hover:bg-corpo-dark text-white text-xs font-bold px-4 py-2 rounded transition flex items-center gap-1.5">
+                <i class="fas fa-plus"></i> Nueva Tarea
+            </button>
+        </div>
+
+        <div class="overflow-x-auto border border-gray-200 rounded-sm">
+            <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                    <tr class="bg-gray-100 text-gray-700 font-bold uppercase tracking-wider">
+                        <th class="p-3 border-b">ID</th>
+                        <th class="p-3 border-b">Estado / Entidad</th>
+                        <th class="p-3 border-b">Tipo Tarea</th>
+                        <th class="p-3 border-b">Descripción</th>
+                        <th class="p-3 border-b text-center">Incompletos</th>
+                        <th class="p-3 border-b text-center">Estatus</th>
+                        <th class="p-3 border-b">Límite</th>
+                        <th class="p-3 border-b text-center">Acción</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 font-mono text-[11px]">
+                    <tr v-if="tareasList.length === 0">
+                        <td colspan="8" class="p-8 text-center text-gray-500">
+                            No hay tareas registradas actualmente.
+                        </td>
+                    </tr>
+                    <tr v-else v-for="t in tareasList" :key="t.tarea_id" class="hover:bg-gray-50">
+                        <td class="p-3 font-bold text-corpo-blue">#${ t.tarea_id }</td>
+                        <td class="p-3 font-bold text-gray-900">${ t.state_name || t.estado_codigo }</td>
+                        <td class="p-3">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200">
+                                ${ t.tipo_tarea }
+                            </span>
+                        </td>
+                        <td class="p-3 text-gray-700 max-w-xs truncate" :title="t.descripcion">${ t.descripcion }</td>
+                        <td class="p-3 text-center font-bold text-amber-800">${ t.registros_total || 0 }</td>
+                        <td class="p-3 text-center">
+                            <span v-if="t.estado_tarea === 'COMPLETADA'" class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-[10px] font-bold border border-green-300">
+                                COMPLETADA
+                            </span>
+                            <span v-else-if="t.estado_tarea === 'CANCELADA'" class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-[10px] font-bold border border-gray-300">
+                                CANCELADA
+                            </span>
+                            <span v-else class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded text-[10px] font-bold border border-yellow-300">
+                                PENDIENTE
+                            </span>
+                        </td>
+                        <td class="p-3 text-gray-600">${ t.horas_limite } Horas</td>
+                        <td class="p-3 text-center space-x-1">
+                            <button v-if="t.estado_tarea === 'PENDIENTE'" @click="completarTarea(t.tarea_id)" 
+                                    class="text-green-700 hover:text-green-900 bg-green-50 p-1.5 rounded border border-green-200" title="Marcar completada">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button v-if="t.estado_tarea === 'PENDIENTE'" @click="cancelarTarea(t.tarea_id)" 
+                                    class="text-red-700 hover:text-red-900 bg-red-50 p-1.5 rounded border border-red-200" title="Cancelar tarea">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Nueva Tarea -->
+    <div v-if="modalTarea.abierto" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-sm shadow-xl border border-gray-300 max-w-lg w-full p-6 space-y-4">
+            <div class="flex justify-between items-center border-b border-gray-200 pb-3">
+                <h3 class="font-bold text-base text-corpo-dark flex items-center gap-2">
+                    <i class="fas fa-tasks text-corpo-blue"></i> Asignar Tarea / Requerimiento a Estado
+                </h3>
+                <button @click="modalTarea.abierto = false" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">Estado / Entidad Requerida</label>
+                    <select v-model="modalTarea.estado_codigo" class="industrial-input w-full p-2">
+                        <option value="">SELECCIONE ESTADO</option>
+                        <option v-for="st in matriz" :key="st.state_code" :value="st.state_code">${ st.state_name }</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">Tipo de Requerimiento</label>
+                    <select v-model="modalTarea.tipo_tarea" class="industrial-input w-full p-2">
+                        <option value="SOLICITUD_CARGA_SEMANAL">REQUERIMIENTO CARGA SEMANAL (Mié/Jue)</option>
+                        <option value="SOLICITUD_CONSOLIDADO_MENSUAL">REQUERIMIENTO CONSOLIDADO MENSUAL (Antes del 3)</option>
+                        <option value="SANEAMIENTO_INCOMPLETOS">SANEAMIENTO DE REGISTROS INCOMPLETOS</option>
+                        <option value="REVISION_EXCEPCIONES">REVISIÓN DE EXCEPCIONES OPERATIVAS</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">Instrucciones o Detalles del Requerimiento</label>
+                    <textarea v-model="modalTarea.descripcion" rows="3" class="industrial-input w-full p-2" placeholder="Describa el motivo y requerimiento formal para la entidad..."></textarea>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">Plazo de Respuesta (Horas Límite)</label>
+                    <input type="number" v-model="modalTarea.horas_limite" class="industrial-input w-full p-2" min="12" max="168">
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2 border-t border-gray-200">
+                <button @click="modalTarea.abierto = false" class="px-4 py-2 border text-gray-600 text-xs font-bold rounded">Cancelar</button>
+                <button @click="guardarTarea" class="px-4 py-2 bg-corpo-blue hover:bg-corpo-dark text-white text-xs font-bold rounded">Enviar Requerimiento</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script>
+const { createApp } = Vue;
+
+createApp({
+    delimiters: ['${', '}'],
+    data() {
+        return {
+            tabActiva: 'matriz',
+            cargando: false,
+            busquedaEstado: '',
+            filtroRapido: 'TODOS',
+            resumen: {},
+            listas: {
+                faltan_semana: [],
+                faltan_mes: [],
+                cumplieron_semana: [],
+                cumplieron_mes: []
+            },
+            matriz: [],
+            tareasList: [],
+            modalTarea: {
+                abierto: false,
+                estado_codigo: '',
+                tipo_tarea: 'SOLICITUD_CARGA_SEMANAL',
+                descripcion: '',
+                horas_limite: 48
+            }
+        };
+    },
+    computed: {
+        matrizFiltrada() {
+            let res = this.matriz;
+            
+            if (this.filtroRapido === 'FALTA_SEMANA') {
+                res = res.filter(m => !m.cumplio_semana);
+            } else if (this.filtroRapido === 'FALTA_MES') {
+                res = res.filter(m => !m.cumplio_mes);
+            } else if (this.filtroRapido === 'AL_DIA') {
+                res = res.filter(m => m.cumplio_semana && m.cumplio_mes);
+            }
+
+            if (this.busquedaEstado) {
+                const term = this.busquedaEstado.toLowerCase();
+                res = res.filter(m => m.state_name.toLowerCase().includes(term) || m.state_code.toLowerCase().includes(term));
+            }
+
+            return res;
+        }
+    },
+    methods: {
+        async cargarMatriz() {
+            this.cargando = true;
+            try {
+                const res = await fetch('/api/admin/monitoreo-cargas/matriz');
+                if (res.ok) {
+                    const data = await res.json();
+                    this.resumen = data.resumen || {};
+                    this.listas = data.listas || { faltan_semana: [], faltan_mes: [], cumplieron_semana: [], cumplieron_mes: [] };
+                    this.matriz = data.matriz || [];
+                }
+            } catch (e) {
+                console.error("Error al cargar matriz de monitoreo:", e);
+            } finally {
+                this.cargando = false;
+            }
+        },
+        async cargarTareas() {
+            try {
+                const res = await fetch('/api/admin/tareas');
+                if (res.ok) {
+                    this.tareasList = await res.json();
+                }
+            } catch (e) {
+                console.error("Error cargando tareas:", e);
+            }
+        },
+        solicitarCarga(st) {
+            this.modalTarea.estado_codigo = st.state_code;
+            this.modalTarea.tipo_tarea = 'SOLICITUD_CARGA_SEMANAL';
+            this.modalTarea.descripcion = `Estimado Operador de ${st.state_name}: Según la directiva SCTIS, se requiere el envío oportuno de la carga de data semanal de interrupciones correspondiente a su entidad federal.`;
+            this.modalTarea.horas_limite = 24;
+            this.modalTarea.abierto = true;
+        },
+        solicitarCargaDirecta(st, tipo) {
+            this.modalTarea.estado_codigo = st.code;
+            this.modalTarea.tipo_tarea = tipo;
+            const esSemana = tipo === 'SOLICITUD_CARGA_SEMANAL';
+            this.modalTarea.descripcion = esSemana 
+                ? `REQUERIMIENTO URGENTE: La entidad ${st.name} no presenta carga semanal de interrupciones. Favor realizar la ingesta de data.`
+                : `REQUERIMIENTO CONSOLIDADO: La entidad ${st.name} tiene pendiente la entrega del consolidado mensual. Favor subir la data requerida.`;
+            this.modalTarea.horas_limite = esSemana ? 24 : 48;
+            this.modalTarea.abierto = true;
+        },
+        asignarSaneamiento(st) {
+            this.modalTarea.estado_codigo = st.state_code;
+            this.modalTarea.tipo_tarea = 'SANEAMIENTO_INCOMPLETOS';
+            this.modalTarea.descripcion = `Se detectan ${st.incompletos_count} registros con datos incompletos (fechas/horas o campos pendientes) en la entidad ${st.state_name}. Por favor completar el saneamiento correspondiente.`;
+            this.modalTarea.horas_limite = 48;
+            this.modalTarea.abierto = true;
+        },
+        abrirModalNuevaTarea() {
+            this.modalTarea = {
+                abierto: true,
+                estado_codigo: '',
+                tipo_tarea: 'SOLICITUD_CARGA_SEMANAL',
+                descripcion: '',
+                horas_limite: 48
+            };
+        },
+        async guardarTarea() {
+            if (!this.modalTarea.estado_codigo || !this.modalTarea.descripcion) {
+                alert('Por favor complete el estado y las instrucciones.');
+                return;
+            }
+            try {
+                const res = await fetch('/api/admin/monitoreo-cargas/crear-tarea', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(this.modalTarea)
+                });
+                if (res.ok) {
+                    this.modalTarea.abierto = false;
+                    await this.cargarMatriz();
+                    await this.cargarTareas();
+                    alert('Requerimiento / Tarea asignada exitosamente.');
+                }
+            } catch (e) {
+                console.error("Error al crear tarea:", e);
+            }
+        },
+        async completarTarea(id) {
+            if (!confirm('¿Confirma que desea marcar esta tarea como COMPLETADA?')) return;
+            try {
+                await fetch(`/api/admin/tareas/${id}/completar`, { method: 'POST' });
+                await this.cargarMatriz();
+                await this.cargarTareas();
+            } catch (e) {
+                console.error(e);
+            }
+        },
+        async cancelarTarea(id) {
+            if (!confirm('¿Confirma que desea CANCELAR esta tarea?')) return;
+            try {
+                await fetch(`/api/admin/tareas/${id}/cancelar`, { method: 'POST' });
+                await this.cargarMatriz();
+                await this.cargarTareas();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    },
+    mounted() {
+        this.cargarMatriz();
+        this.cargarTareas();
+    }
+}).mount('#app');
+</script>
+{% endblock %}

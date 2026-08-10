@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCTIS - {% block title %}Seguimiento y Control de Interrupciones de Servicio{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        corpo: {
+                            blue: '#0033A0', // Azul Corpoelec
+                            dark: '#001A57',
+                            light: '#E6F0FA',
+                            accent: '#F2A900', // Amarillo industrial
+                            gray: '#F3F4F6',
+                            border: '#D1D5DB'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['"SF Mono"', 'ui-monospace', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        .sidebar-collapsed { width: 4rem; }
+        .sidebar-collapsed .sidebar-text { display: none; }
+        .sidebar-collapsed .sidebar-header { justify-content: center; padding-left: 0; padding-right: 0;}
+        .sidebar-collapsed .sidebar-logo { display: none; }
+        .sidebar-collapsed .sidebar-menu-item { justify-content: center; }
+        
+        /* Scrollbar industrial */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-left: 1px solid #e5e7eb; }
+        ::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+
+        /* Estilo industrial para tablas y tarjetas */
+        .industrial-card {
+            background-color: white;
+            border: 1px solid #D1D5DB;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border-radius: 0.25rem; /* Menos redondeado, más rígido */
+            border-top: 4px solid #0033A0;
+        }
+
+        .industrial-input {
+            border: 1px solid #9CA3AF;
+            border-radius: 2px;
+            background-color: #F9FAFB;
+            transition: all 0.2s;
+        }
+        .industrial-input:focus {
+            border-color: #0033A0;
+            background-color: white;
+            box-shadow: 0 0 0 2px rgba(0, 51, 160, 0.2);
+            outline: none;
+        }
+    </style>
+</head>
+<body class="bg-corpo-gray font-sans text-gray-800 antialiased overflow-hidden">
+    <div class="flex h-screen w-full">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="bg-corpo-dark text-gray-300 w-64 flex-shrink-0 flex flex-col transition-all duration-300 shadow-xl z-20">
+            <!-- Header -->
+            <div class="h-16 flex items-center justify-between px-4 bg-[#00123f] border-b border-gray-700 sidebar-header">
+                <div class="flex items-center gap-3 overflow-hidden whitespace-nowrap">
+                    <i class="fas fa-bolt text-corpo-accent text-xl flex-shrink-0"></i>
+                    <span class="font-bold text-lg tracking-wider text-white sidebar-logo">SCTIS</span>
+                </div>
+                <button onclick="toggleSidebar()" class="text-gray-400 hover:text-white transition focus:outline-none flex-shrink-0 w-8 h-8 flex items-center justify-center rounded">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+
+            <!-- Navigation Links -->
+            <div class="flex-1 overflow-y-auto py-6 px-3 flex flex-col gap-1">
+                <a href="/" class="flex items-center gap-3 px-3 py-2.5 rounded-sm hover:bg-corpo-blue hover:text-white transition sidebar-menu-item group" title="Inicio">
+                    <i class="fas fa-home w-5 text-center flex-shrink-0"></i> 
+                    <span class="sidebar-text whitespace-nowrap text-sm font-medium">Inicio</span>
+                </a>
+                
+                <div class="my-2 border-t border-gray-700 mx-2"></div>
+                <div class="px-3 py-1 mb-1 text-xs font-semibold text-gray-500 uppercase tracking-wider sidebar-text">Operaciones</div>
+                
+                <a href="/nuevo" class="flex items-center gap-3 px-3 py-2.5 rounded-sm hover:bg-corpo-blue hover:text-white transition sidebar-menu-item group" title="Nuevo Registro">
+                    <i class="fas fa-plus-circle w-5 text-center flex-shrink-0"></i> 
+                    <span class="sidebar-text whitespace-nowrap text-sm font-medium">Nuevo Registro</span>
+                </a>
+                <a href="/importar" class="flex items-center gap-3 px-3 py-2.5 rounded-sm hover:bg-corpo-blue hover:text-white transition sidebar-menu-item group" title="Importar Datos">
+                    <i class="fas fa-upload w-5 text-center flex-shrink-0"></i> 
+                    <span class="sidebar-text whitespace-nowrap text-sm font-medium">Importar Datos</span>
+                </a>
+                <button onclick="descargarFormulario()" class="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-sm hover:bg-corpo-blue hover:text-white transition sidebar-menu-item group" title="Descargar Formulario">
+                    <i class="fas fa-download w-5 text-center flex-shrink-0"></i> 
+                    <span class="sidebar-text whitespace-nowrap text-sm font-medium">Formulario Excel</span>
+                </button>
+                <a href="/consulta" class="flex items-center gap-3 px-3 py-2.5 rounded-sm hover:bg-corpo-blue hover:text-white transition sidebar-menu-item group" title="Consulta">
+                    <i class="fas fa-search w-5 text-center flex-shrink-0"></i> 
+                    <span class="sidebar-text whitespace-nowrap text-sm font-medium">Consultar Tiras</span>
+                </a>
+                <a href="/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-sm hover:bg-corpo-blue hover:text-white transition sidebar-menu-item group" title="Dashboard">
+                    <i class="fas fa-chart-line w-5 text-center flex-shrink-0"></i> 
+                    <span class="sidebar-text whitespace-nowrap text-sm font-medium">Dashboard Analítico</span>
+                </a>
+
+                <!-- Admin Links (Hidden by default) -->
+                <div id="admin-section" class="hidden">
+                    <div class="my-2 border-t border-gray-700 mx-2"></div>
+                    <div class="px-3 py-1 mb-1 text-xs font-semibold text-corpo-accent uppercase tracking-wider sidebar-text">Administración</div>
+                    
+                    <a href="/admin/usuarios" class="flex items-center gap-3 px-3 py-2.5 rounded-sm hover:bg-corpo-blue hover:text-white transition sidebar-menu-item group" title="Gestión de Usuarios">
+                        <i class="fas fa-users-cog w-5 text-center flex-shrink-0"></i> 
+                        <span class="sidebar-text whitespace-nowrap text-sm font-medium">Usuarios</span>
+                    </a>
+                    <a href="/admin/auditoria" class="flex items-center gap-3 px-3 py-2.5 rounded-sm hover:bg-corpo-blue hover:text-white transition sidebar-menu-item group" title="Auditoría">
+                        <i class="fas fa-clipboard-check w-5 text-center flex-shrink-0"></i> 
+                        <span class="sidebar-text whitespace-nowrap text-sm font-medium">Auditoría</span>
+                    </a>
+                    <a href="/admin/tareas" class="flex items-center gap-3 px-3 py-2.5 rounded-sm hover:bg-corpo-blue hover:text-white transition sidebar-menu-item group" title="Tareas Asíncronas">
+                        <i class="fas fa-cogs w-5 text-center flex-shrink-0"></i> 
+                        <span class="sidebar-text whitespace-nowrap text-sm font-medium">Tareas de Fondo</span>
+                    </a>
+                    <a href="/admin/activos" class="flex items-center gap-3 px-3 py-2.5 rounded-sm hover:bg-corpo-blue hover:text-white transition sidebar-menu-item group" title="Gestión de Activos">
+                        <i class="fas fa-network-wired w-5 text-center flex-shrink-0"></i> 
+                        <span class="sidebar-text whitespace-nowrap text-sm font-medium">Catálogo Activos</span>
+                    </a>
+                    <a href="/admin/descargas" class="flex items-center gap-3 px-3 py-2.5 rounded-sm hover:bg-corpo-blue hover:text-white transition sidebar-menu-item group" title="Descarga de Datos">
+                        <i class="fas fa-file-export w-5 text-center flex-shrink-0"></i> 
+                        <span class="sidebar-text whitespace-nowrap text-sm font-medium">Descarga de Datos</span>
+                    </a>
+                    <a href="/admin/monitoreo-cargas" class="flex items-center gap-3 px-3 py-2.5 rounded-sm hover:bg-corpo-blue hover:text-white transition sidebar-menu-item group" title="Control y Monitoreo de Cargas">
+                        <i class="fas fa-traffic-light w-5 text-center flex-shrink-0"></i> 
+                        <span class="sidebar-text whitespace-nowrap text-sm font-medium">Monitoreo de Cargas</span>
+                    </a>
+                    <a href="/admin/configuracion" class="flex items-center gap-3 px-3 py-2.5 rounded-sm hover:bg-corpo-blue hover:text-white transition sidebar-menu-item group" title="Configuración">
+                        <i class="fas fa-sliders-h w-5 text-center flex-shrink-0"></i> 
+                        <span class="sidebar-text whitespace-nowrap text-sm font-medium">Configuración</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- User Info Footer -->
+            <div class="bg-[#00123f] border-t border-gray-700 p-4 sidebar-menu-item flex-col items-center">
+                <div id="user-menu-container" class="w-full flex items-center gap-3 overflow-hidden">
+                    <!-- Loaded via JS -->
+                    <div class="w-8 h-8 rounded-full bg-corpo-blue flex items-center justify-center text-white flex-shrink-0">
+                        <i class="fas fa-user text-xs"></i>
+                    </div>
+                    <div class="flex-1 min-w-0 sidebar-text">
+                        <div class="h-4 bg-gray-700 rounded w-3/4 mb-1 animate-pulse"></div>
+                        <div class="h-3 bg-gray-700 rounded w-1/2 animate-pulse"></div>
+                    </div>
+                </div>
+                <button onclick="logout()" id="logout-btn" class="mt-3 w-full text-left flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium text-gray-400 hover:text-white hover:bg-red-600 rounded transition hidden">
+                    <i class="fas fa-sign-out-alt"></i> <span class="sidebar-text">Cerrar Sesión</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col min-w-0 bg-corpo-gray relative">
+            <!-- Top Header -->
+            <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shadow-sm z-10">
+                <div class="flex items-center gap-4">
+                    <h1 class="text-xl font-bold text-corpo-dark tracking-tight">{% block header_title %}SCTIS{% endblock %}</h1>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <!-- Status Indicator -->
+                    <div class="hidden sm:flex items-center gap-2 px-3 py-1 bg-green-50 border border-green-200 rounded text-xs font-mono text-green-700 shadow-inner">
+                        <span class="relative flex h-2 w-2">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                        </span>
+                        SISTEMA EN LÍNEA
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <span class="bg-gray-100 border border-gray-300 text-gray-600 px-3 py-1 rounded text-xs uppercase tracking-widest font-mono font-bold">
+                            CORPOELEC
+                        </span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Scrollable Area -->
+            <main class="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
+                <!-- Background graphic hint -->
+                <div class="absolute inset-0 z-0 opacity-[0.03] pointer-events-none" style="background-image: radial-gradient(#0033A0 1px, transparent 1px); background-size: 20px 20px;"></div>
+                
+                <div class="relative z-10 max-w-7xl mx-auto">
+                    {% block content %}{% endblock %}
+                </div>
+            </main>
+            
+            <!-- Floating Security Badge -->
+            <div id="security-badge-container" class="fixed bottom-6 right-6 z-50 flex items-end justify-end">
+                <!-- Expanded Content -->
+                <div id="security-badge-content" class="bg-white rounded-sm shadow-2xl border border-gray-200 overflow-hidden mb-2 mr-14 opacity-0 invisible transition-all duration-300 transform translate-y-4 absolute bottom-0 right-0 w-64 pointer-events-none origin-bottom-right">
+                    <div class="bg-[#0033A0] text-white p-3 text-xs uppercase tracking-widest font-bold flex items-center gap-2 border-b-2 border-[#F2A900]">
+                        <i class="fas fa-shield-alt text-[#F2A900]"></i> Certificación y Seguridad
+                    </div>
+                    <div class="p-4 space-y-3">
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-check-circle text-green-600 mt-0.5"></i>
+                            <div class="text-xs text-gray-600 leading-tight">
+                                Cumplimiento normativo <br><strong class="text-gray-900 font-mono tracking-tight text-sm bg-yellow-100 px-1 rounded-sm border border-yellow-200">ISO 27001</strong><br>
+                                <span class="text-[9px] text-gray-500 uppercase tracking-wider">Gestión de Seguridad de Información</span>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-check-circle text-green-600 mt-0.5"></i>
+                            <div class="text-xs text-gray-600 leading-tight">
+                                Cumplimiento normativo <br><strong class="text-gray-900 font-mono tracking-tight text-sm bg-yellow-100 px-1 rounded-sm border border-yellow-200">ISO 8000</strong><br>
+                                <span class="text-[9px] text-gray-500 uppercase tracking-wider">Gestión de Calidad de Datos</span>
+                            </div>
+                        </div>
+                        <div class="mt-3 pt-3 border-t border-gray-100 text-[8px] text-gray-400 font-mono uppercase tracking-widest text-center">
+                            Infraestructura Segura CORPOELEC
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Badge Toggle -->
+                <div id="security-badge-toggle" class="w-12 h-12 bg-white text-green-700 rounded-full flex items-center justify-center shadow-xl cursor-pointer hover:bg-gray-50 transition-colors border border-gray-200 relative z-10" onclick="toggleSecurityBadge()">
+                    <i class="fas fa-shield-alt text-2xl drop-shadow-sm transition-transform duration-300" id="security-badge-icon"></i>
+                    <div class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const sidebar = document.getElementById('sidebar');
+    
+    // Check local storage for sidebar state
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+        sidebar.classList.add('sidebar-collapsed');
+    }
+
+    function toggleSidebar() {
+        sidebar.classList.toggle('sidebar-collapsed');
+        localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('sidebar-collapsed'));
+    }
+
+    function toggleSecurityBadge() { const content = document.getElementById("security-badge-content"); const icon = document.getElementById("security-badge-icon"); if (content.classList.contains("opacity-0")) { content.classList.remove("opacity-0", "invisible", "translate-y-4"); content.classList.add("opacity-100", "visible", "translate-y-0"); icon.classList.remove("text-green-700"); icon.classList.add("text-green-600", "scale-110"); setTimeout(() => { if (!content.classList.contains("opacity-0")) { toggleSecurityBadge(); } }, 8000); } else { content.classList.add("opacity-0", "invisible", "translate-y-4"); content.classList.remove("opacity-100", "visible", "translate-y-0"); icon.classList.remove("text-green-600", "scale-110"); icon.classList.add("text-green-700"); } } async function initUser() {
+        if (window.location.pathname === '/login') return;
+        try {
+            const res = await fetch('/api/me');
+            if (!res.ok) { window.location.href = '/login'; return; }
+            const user = await res.json();
+            
+            const container = document.getElementById('user-menu-container');
+            const logoutBtn = document.getElementById('logout-btn');
+            
+            if (container) {
+                // Get initials
+                const initials = (user.full_name || user.username).substring(0, 2).toUpperCase();
+                
+                container.innerHTML = `
+                    <div class="w-8 h-8 rounded bg-corpo-blue border border-[#00509e] flex items-center justify-center text-white font-bold text-xs flex-shrink-0 shadow-inner">
+                        ${initials}
+                    </div>
+                    <div class="flex-1 min-w-0 sidebar-text">
+                        <div class="text-sm font-semibold text-white truncate" title="${user.full_name || user.username}">${user.full_name || user.username}</div>
+                        <div class="flex items-center gap-1 mt-0.5">
+                            <span class="text-[10px] bg-corpo-accent text-corpo-dark px-1 rounded-sm font-bold uppercase truncate">${user.role_name || ''}</span>
+                            ${user.estado_codigo ? `<span class="text-[10px] bg-gray-700 text-gray-300 px-1 rounded-sm border border-gray-600 truncate">${user.estado_codigo}</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+            if(logoutBtn) logoutBtn.classList.remove('hidden');
+
+            if (user.role_code === 'admin') {
+                const adminSec = document.getElementById('admin-section');
+                if (adminSec) adminSec.classList.remove('hidden');
+            }
+        } catch (e) {
+            if (window.location.pathname !== '/login') window.location.href = '/login';
+        }
+    }
+
+    async function descargarFormulario() {
+        const user = await (await fetch('/api/me')).json();
+        const estado = user.estado_codigo || '';
+        window.open('/api/descargar-formulario?estado=' + estado, '_blank');
+    }
+
+    async function logout() {
+        await fetch('/api/logout', { method: 'POST' });
+        window.location.href = '/login';
+    }
+
+    // Auto init
+    if (window.location.pathname !== '/login') {
+        initUser();
+    }
+    
+    // Set current active nav item
+    document.addEventListener("DOMContentLoaded", () => {
+        const path = window.location.pathname;
+        const links = document.querySelectorAll('#sidebar a');
+        links.forEach(link => {
+            if (link.getAttribute('href') === path || (path.startsWith('/admin') && link.getAttribute('href').startsWith(path))) {
+                link.classList.add('bg-corpo-blue', 'text-white', 'border-l-4', 'border-corpo-accent');
+                link.classList.remove('px-3');
+                link.classList.add('pl-2', 'pr-3');
+            }
+        });
+    });
+    </script>
+</body>
+</html>

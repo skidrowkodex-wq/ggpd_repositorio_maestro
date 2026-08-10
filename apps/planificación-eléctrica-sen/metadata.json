@@ -1,0 +1,6 @@
+{
+  "name": "Planificación Eléctrica SEN",
+  "description": "Sistema de gestión y control para POA y PRTSEN (CORPOELEC) con codificación RDS-PS e indicadores ISO 8000/27001.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

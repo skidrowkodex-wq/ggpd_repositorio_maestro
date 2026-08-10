@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>INSTRUCTIVO ISO PARA ADMINISTRADORES
+Y SUPERVISORES DEL SISTEMA</title>
+<style>
+body { font-family: Arial, sans-serif; font-size: 11pt; color: #1e293b; line-height: 1.6; margin: 40px; }
+h1 { color: #003C71; font-size: 20pt; margin-top: 24pt; margin-bottom: 12pt; border-bottom: 2px solid #003C71; padding-bottom: 6px; }
+h2 { color: #003C71; font-size: 15pt; margin-top: 18pt; margin-bottom: 8pt; }
+h3 { color: #003C71; font-size: 12pt; margin-top: 14pt; margin-bottom: 6pt; }
+p { margin-bottom: 10pt; text-align: justify; }
+table { border-collapse: collapse; width: 100%; margin: 14pt 0; }
+th, td { border: 1px solid #cbd5e1; padding: 8pt 10pt; text-align: left; vertical-align: top; font-size: 10pt; }
+th { background-color: #003C71; color: #ffffff; font-weight: bold; }
+tr:nth-child(even) td { background-color: #f8fafc; }
+.portada { text-align: center; padding: 40px 20px; border: 2px solid #003C71; background-color: #f8fafc; margin-bottom: 30px; border-radius: 8px; }
+.portada h1 { border-bottom: none; font-size: 24pt; margin-bottom: 12pt; color: #003C71; }
+.portada .subtitulo { font-size: 13pt; color: #334155; font-weight: bold; margin-bottom: 8pt; }
+.portada .sistema { font-size: 11pt; color: #64748b; margin-bottom: 16pt; }
+.control-doc { width: 100%; margin-bottom: 24pt; border: 1px solid #cbd5e1; }
+.control-doc td { padding: 6pt 10pt; font-size: 9.5pt; }
+.control-doc .lbl { font-weight: bold; background-color: #e2e8f0; width: 25%; color: #1e293b; }
+.info-box { background-color: #f0f9ff; border-left: 4px solid #0284c7; padding: 10pt 14pt; margin: 12pt 0; border-radius: 4px; }
+.tech-box { background-color: #f8fafc; border-left: 4px solid #475569; padding: 10pt 14pt; margin: 12pt 0; border-radius: 4px; }
+.box-title { font-weight: bold; margin-bottom: 4pt; color: #0f172a; }
+ul, ol { margin-bottom: 10pt; padding-left: 24pt; }
+li { margin-bottom: 4pt; }
+pre { background-color: #f1f5f9; padding: 10pt; border-radius: 4px; border: 1px solid #e2e8f0; font-size: 9pt; font-family: monospace; }
+.footer { margin-top: 40pt; border-top: 1px solid #cbd5e1; padding-top: 10pt; text-align: center; font-size: 9pt; color: #64748b; }
+</style>
+</head>
+<body>
+<div class="portada"><h1>INSTRUCTIVO ISO PARA ADMINISTRADORES
+Y SUPERVISORES DEL SISTEMA</h1><div class="subtitulo">Sistema de Gestión de Tiras de Interrupción Eléctrica — Guía de administración y supervisión</div><div class="sistema">SCTIS v1.0</div><div class="fecha">Agosto 2026</div></div>
+<table class="control-doc"><tr><td class="lbl">Código Documento:</td><td>SCTIS-INSTR-ADM-001</td><td class="lbl">Fecha:</td><td>Agosto 2026</td></tr><tr><td class="lbl">Sistema:</td><td>SCTIS v1.0</td><td class="lbl">Estado:</td><td>VIGENTE / APROBADO</td></tr></table>
+<h1>1. Propósito y Alcance</h1>
+<p>Este instructivo describe los procedimientos de administración y supervisión del Sistema de Gestión de Tiras de Interrupción Eléctrica (SCTIS): gestión de usuarios, revisión de auditoría de cargas, gestión de tareas pendientes y, de forma destacada, la supervisión de subestaciones (SE) y circuitos (CT) reportados fuera del catálogo oficial.</p>
+<p>Va dirigido a los administradores y supervisores del sistema. Por ahora el perfil Supervisor comparte las mismas funciones del Administrador; cuando los roles se diferencien, este documento deberá actualizarse para reflejar los alcances de cada perfil.</p>
+<div class="info-box"><div class="box-title">NOTA DE ROLES</div><p>Mientras no se indique lo contrario, en este documento 'administrador' y 'supervisor' son intercambiables: ambos acceden a los mismos módulos de gestión y supervisión.</p></div>
+<h1>2. Referencias Normativas</h1>
+<table><thead><tr>
+<th>Referencia</th>
+<th>Descripción</th>
+</tr></thead><tbody>
+<tr>
+<td>ISO 9001:2015</td>
+<td>Sistemas de gestión de la calidad — enfoque de procesos, control de cambios y toma de decisiones basada en evidencia</td>
+</tr>
+<tr>
+<td>ISO 27001:2022</td>
+<td>Seguridad de la información — autenticación, autorización y trazabilidad de las acciones</td>
+</tr>
+<tr>
+<td>ISO 8000-110</td>
+<td>Calidad de datos — identificador único por entidad (un registro maestro por activo físico)</td>
+</tr>
+<tr>
+<td>ISO 8000-150</td>
+<td>Calidad de datos — evaluación de la calidad de datos maestros</td>
+</tr>
+</tbody></table>
+<h1>3. Responsabilidades del administrador/supervisor</h1>
+<ul>
+<li>Gestionar las cuentas de usuario de los estados operadores (crear, editar, restablecer contraseñas, desactivar).</li>
+<li>Supervisar en tiempo real la Matriz de Monitoreo de Cargas por estado (entregas semanales y consolidados mensuales).</li>
+<li>Emitir requerimientos inmediatos de carga (SOLICITUD_CARGA_SEMANAL y SOLICITUD_CONSOLIDADO_MENSUAL) a estados morosos.</li>
+<li>Revisar la auditoría de cargas y verificar que cada importación cumpla con la estructura y las homologaciones.</li>
+<li>Atender y cerrar las tareas pendientes (CORREGIR_DATOS, APROBAR_ACTIVO y SOLICITUD_CARGA) dentro del plazo establecido.</li>
+<li>Supervisar la bandeja de activos nuevos: decidir aprobar, asociar como alias, corregir o rechazar cada solicitud.</li>
+<li>Garantizar que el inventario maestro (common.assets) solo se modifique mediante el procedimiento controlado.</li>
+</ul>
+<hr style="margin: 30px 0; border: none; border-top: 1px dashed #cbd5e1;">
+<h1>4. Gestión de usuarios</h1>
+<p>El módulo 'Admin → Usuarios' permite administrar las cuentas de los estados operadores.</p>
+<h2>4.1. Crear un usuario</h2>
+<ul>
+<li>Seleccione 'Admin → Usuarios' y haga clic en 'Nuevo'.</li>
+<li>Registre usuario, nombre completo, rol y estado asignado.</li>
+<li>Asigne una contraseña temporal y entregue el acceso al operador, quien deberá cambiarla en su primer ingreso.</li>
+<li>Cada usuario solo ve y carga los datos de su estado (filtro a nivel de base de datos).</li>
+</ul>
+<h2>4.2. Editar, restablecer contraseña y desactivar</h2>
+<ul>
+<li>Use 'Editar' para cambiar nombre, rol o estado asignado.</li>
+<li>Use 'Restablecer contraseña' cuando el operador la olvide o quede bloqueado.</li>
+<li>Desactive la cuenta cuando el operador deje el puesto; no la elimine, para conservar la trazabilidad de sus cargas.</li>
+</ul>
+<div class="info-box"><div class="box-title">SEGURIDAD</div><p>La cuenta se bloquea automáticamente tras 5 intentos fallidos durante 30 minutos. Solo el administrador puede restablecerla antes.</p></div>
+<h1>5. Auditoría de cargas</h1>
+<p>El módulo 'Admin → Auditoría' muestra el registro de todas las importaciones: usuario, estado, archivo, hoja, cantidad de registros intentados, aceptados y rechazados, formato detectado y estado de validación.</p>
+<ul>
+<li>Revise periódicamente las cargas con estado PARTIAL (hubo rechazados) para confirmar que se generó la tarea de corrección.</li>
+<li>Use el resumen por estado y por usuario para detectar estados que reportan tarde o con errores recurrentes.</li>
+<li>Si una carga parece incorrecta, descargue el archivo de corrección asociado y coordine con el operador.</li>
+</ul>
+<h1>6. Monitoreo de cargas y matriz de cumplimiento por estado</h1>
+<p>El módulo 'Admin → Monitoreo' permite evaluar en tiempo real la disciplina de entrega de los 24 estados de Venezuela, clasificando de forma transparente quiénes han cumplido y quiénes están en mora tanto en la frecuencia semanal como en el consolidado mensual.</p>
+<h2>6.1. Criterios de evaluación de cumplimiento</h2>
+<table><thead><tr>
+<th>Frecuencia</th>
+<th>Criterio de Evaluación</th>
+<th>Estados de Cumplimiento</th>
+<th>Descripción</th>
+</tr></thead><tbody>
+<tr>
+<td>Semanal</td>
+<td>Entrega requerida cada Miércoles / Jueves (Carga en ≤ 4 días)</td>
+<td>Al Día / Carga Requerida Hoy / Falta Carga Semanal</td>
+<td>Verifica que el estado haya ingresado tiras recientes en los últimos 4 días. Los miércoles y jueves se activa la alerta de carga requerida hoy.</td>
+</tr>
+<tr>
+<td>Mensual</td>
+<td>Consolidado entregado antes del día 3 del mes posterior (Carga en ≤ 25 días)</td>
+<td>Consolidado Al Día / En Plazo Mensual / Falta Consolidado Mensual</td>
+<td>Garantiza el cierre estadístico mensual. Entre el día 1 y 3 de cada mes se otorga ventana activa.</td>
+</tr>
+</tbody></table>
+<h2>6.2. Paneles de alerta y acción directa</h2>
+<ul>
+<li>Paneles de alerta superior: Muestra tarjetas destacadas con los contadores de estados al día en entrega semanal y mensual, junto con las cifras de entidades morosas.</li>
+<li>Listas dinámicas de faltantes: Destacan directamente los nombres de los estados que no han cargado data esta semana o este mes.</li>
+<li>Botón 'Solicitar': Permite al administrador emitir inmediatamente un requerimiento directo de carga con plazo de respuesta configurable (24h o 48h) que genera una tarea formal en el perfil del operador del estado.</li>
+<li>Filtros rápidos de matriz: Botones directos para filtrar la tabla de 24 estados por 'Falta Semanal', 'Falta Mes', 'Al Día' o buscar por nombre de estado.</li>
+</ul>
+<hr style="margin: 30px 0; border: none; border-top: 1px dashed #cbd5e1;">
+<h1>7. Gestión de tareas pendientes</h1>
+<p>El módulo 'Admin → Tareas' centraliza las tareas que requieren acción. Tipos de tareas:</p>
+<table><thead><tr>
+<th>Tipo</th>
+<th>Origen</th>
+<th>Acción del administrador / operador</th>
+</tr></thead><tbody>
+<tr>
+<td>CORREGIR_DATOS</td>
+<td>Carga con registros rechazados</td>
+<td>Coordinar con el operador; descargar el Excel de corrección; marcar completada cuando se recargue.</td>
+</tr>
+<tr>
+<td>APROBAR_ACTIVO</td>
+<td>SE/CT reportados como nuevos</td>
+<td>Resolver en la bandeja de Activos; la tarea se completa sola cuando no quedan solicitudes del estado.</td>
+</tr>
+<tr>
+<td>SOLICITUD_CARGA_SEMANAL</td>
+<td>Emitida desde Monitoreo por mora semanal</td>
+<td>El operador debe subir el reporte semanal pendiente. Plazo habitual: 24 horas.</td>
+</tr>
+<tr>
+<td>SOLICITUD_CONSOLIDADO_MENSUAL</td>
+<td>Emitida desde Monitoreo por mora mensual</td>
+<td>El operador debe subir el consolidado mensual pendiente. Plazo habitual: 48 horas.</td>
+</tr>
+</tbody></table>
+<ul>
+<li>Filtre por estado y por tipo de tarea para priorizar.</li>
+<li>Monitoree las tareas vencidas (destacadas con indicador de alerta cuando transcurre más tiempo del límite asignado).</li>
+<li>Marque 'Completada' solo cuando la acción se haya concretado; use 'Cancelar' cuando la tarea ya no aplique.</li>
+</ul>
+<hr style="margin: 30px 0; border: none; border-top: 1px dashed #cbd5e1;">
+<h1>8. Bandeja de revisión de activos</h1>
+<p>Cuando un operador marca una subestación o circuito como 'no está en catálogo', la solicitud llega a la bandeja 'Admin → Activos'. El sistema la preclasifica automáticamente y el administrador/supervisor decide. Esta es la función de supervisión más crítica del sistema: protege la integridad del inventario maestro.</p>
+<h2>8.1. Revisar la bandeja</h2>
+<ul>
+<li>Filtre por estado y por estado de revisión (Pendientes, En revisión, Aprobados, Es alias, Rechazados).</li>
+<li>Revise: nombre reportado, nombre sugerido, subestación referida (para CT), número de filas afectadas, clasificación y activo sugerido.</li>
+<li>Las clasificaciones orientan la decisión: Probable nuevo (no existe nada similar), Probable typo (muy similar a uno existente) y Posible alias (parecido pero distinto).</li>
+</ul>
+<h2>8.2. Aprobar (crear el activo en el catálogo)</h2>
+<ul>
+<li>Verifique el nombre canónico en el campo 'Nombre canónico en catálogo'; corríjalo si tiene errores de tipeo.</li>
+<li>Para SE, indique el voltaje (kV) si se conoce.</li>
+<li>Haga clic en 'Aprobar y crear'. El sistema crea el activo con nombre normalizado, código y jerarquía correctos, vincula las tiras ya cargadas (backfill) y memoriza el nombre como sinónimo.</li>
+<li>Para CT, la SE padre debe estar aprobada o tener alias antes de aprobar el circuito.</li>
+</ul>
+<h2>8.3. Asignar como alias (existe con otro nombre)</h2>
+<ul>
+<li>Cuando el nombre reportado corresponde a un activo que ya existe (renombrado, siglas, nombre anterior), seleccione el activo correcto del catálogo.</li>
+<li>El sistema vincula el nombre reportado a ese activo y las cargas futuras lo resuelven automáticamente, sin duplicar el catálogo.</li>
+</ul>
+<h2>8.4. Corregir el nombre sugerido</h2>
+<ul>
+<li>Si el nombre reportado es válido pero el sugerido está mal escrito, corrija el nombre canónico antes de aprobar.</li>
+<li>La corrección no crea el activo: solo ajusta el nombre propuesto para la posterior aprobación.</li>
+</ul>
+<h2>8.5. Rechazar</h2>
+<ul>
+<li>Use 'Rechazar' cuando el nombre sea ilegible, no corresponda a un activo real o no se pueda determinar.</li>
+<li>Registre siempre el motivo: queda en el comentario y permite reportar los nombres sin resolver.</li>
+</ul>
+<div class="tech-box"><div class="box-title">NOTA TÉCNICA</div><p>Cada decisión queda auditada: quién decidió, cuándo y con qué comentario (trazabilidad ISO 27001). La creación del activo usa source_process = 'sctis_import' y created_by del administrador.</p></div>
+<h1>9. Decisiones de la bandeja (resumen)</h1>
+<table><thead><tr>
+<th>Situación</th>
+<th>Decisión recomendada</th>
+<th>Efecto</th>
+</tr></thead><tbody>
+<tr>
+<td>No existe nada similar en el catálogo</td>
+<td>Aprobar</td>
+<td>Crea el activo, vincula tiras previas y resuelve cargas futuras</td>
+</tr>
+<tr>
+<td>Existe un activo con otro nombre (renombrado/abreviado)</td>
+<td>Es alias</td>
+<td>Asocia el nombre reportado al activo existente sin duplicar</td>
+</tr>
+<tr>
+<td>El nombre tiene un error corregible</td>
+<td>Corregir y aprobar</td>
+<td>Normaliza el nombre antes de crear el activo</td>
+</tr>
+<tr>
+<td>Nombre ilegible o no determinable</td>
+<td>Rechazar</td>
+<td>Queda sin resolver con comentario justificado</td>
+</tr>
+</tbody></table>
+<h1>10. Buenas prácticas de supervisión</h1>
+<ul>
+<li>Revise la bandeja de Activos al menos una vez al día para no acumular solicitudes pendientes.</li>
+<li>Compare siempre el nombre reportado contra el activo sugerido antes de aprobar.</li>
+<li>Prefiera 'Es alias' sobre crear un activo duplicado: el catálogo debe tener un solo registro por activo físico.</li>
+<li>Escriba comentarios claros en los rechazos para que el estado pueda corregir el origen.</li>
+<li>Verifique el estado y la jerarquía (SE padre) antes de aprobar circuitos.</li>
+<li>Mantenga la disciplina de no editar el catálogo por fuera del sistema (nunca por SQL directo).</li>
+</ul>
+<hr style="margin: 30px 0; border: none; border-top: 1px dashed #cbd5e1;">
+<h1>11. Errores frecuentes de supervisión</h1>
+<table><thead><tr>
+<th>Situación</th>
+<th>Causa</th>
+<th>Acción correcta</th>
+</tr></thead><tbody>
+<tr>
+<td>No se puede aprobar un CT</td>
+<td>La SE padre no está aprobada ni tiene alias</td>
+<td>Resuelva primero la SE asociada en la bandeja</td>
+</tr>
+<tr>
+<td>El activo creado aparece duplicado</td>
+<td>Se creó sin verificar el alias o el nombre</td>
+<td>Use 'Es alias' si el activo ya existe; corrija el nombre si es necesario</td>
+</tr>
+<tr>
+<td>Tarea APROBAR_ACTIVO queda pendiente</td>
+<td>Hay solicitudes del estado sin resolver</td>
+<td>Resuelva todas las solicitudes del estado; la tarea se completa sola</td>
+</tr>
+<tr>
+<td>Un estado reporta los mismos nombres cada semana</td>
+<td>Los operadores no emparejan o no se aprobó la solicitud</td>
+<td>Apruebe o asigne alias para que las cargas futuras se resuelvan solas</td>
+</tr>
+</tbody></table>
+<h1>12. Contacto y soporte</h1>
+<ul>
+<li>Coordinación de SCTIS — soporte técnico y funcional.</li>
+<li>Ing. Catherina Favio — Responsable del Proceso de Interrupciones.</li>
+<li>Desarrollador del sistema — gestión de la plataforma y base de datos.</li>
+</ul>
+<h1>Anexo A — Glosario</h1>
+<table><thead><tr><th>Término</th><th>Definición</th></tr></thead><tbody>
+<tr><td><b>Alias de activo</b></td><td>Sinónimo aprendido por el sistema: nombre fuera de norma que se resuelve automáticamente a un activo del catálogo (sctis.asset_alias).</td></tr>
+<tr><td><b>Bandeja de revisión</b></td><td>Módulo 'Admin → Activos' con las solicitudes de SE/CT nuevos pendientes de decisión (sctis.asset_request).</td></tr>
+<tr><td><b>Backfill</b></td><td>Vinculación automática y retroactiva de tiras ya cargadas al activo aprobado o asociado.</td></tr>
+<tr><td><b>Preclasificación</b></td><td>Clasificación automática de la solicitud: probable nuevo, probable typo o posible alias.</td></tr>
+<tr><td><b>Tarea pendiente</b></td><td>Acción requerida registrada en el sistema (CORREGIR_DATOS o APROBAR_ACTIVO).</td></tr>
+<tr><td><b>Corrección de datos</b></td><td>Excel generado con los registros rechazados de una carga y el motivo por fila.</td></tr>
+</tbody></table>
+<h1>Anexo B — Referencias al modelo de datos</h1>
+<table><thead><tr>
+<th>Tabla</th>
+<th>Esquema</th>
+<th>Uso en supervisión</th>
+</tr></thead><tbody>
+<tr>
+<td>sctis.asset_alias</td>
+<td>sctis</td>
+<td>Diccionario de sinónimos SE/CT por estado; se alimenta al aprobar o asignar alias</td>
+</tr>
+<tr>
+<td>sctis.asset_request</td>
+<td>sctis</td>
+<td>Solicitudes de activos nuevos con clasificación, decisiones y trazabilidad</td>
+</tr>
+<tr>
+<td>sctis.tarea_pendiente</td>
+<td>sctis</td>
+<td>Tareas CORREGIR_DATOS y APROBAR_ACTIVO con estado y plazos</td>
+</tr>
+<tr>
+<td>audit.submissions</td>
+<td>audit</td>
+<td>Registro de cada importación con aceptados/rechazados y formato</td>
+</tr>
+<tr>
+<td>common.assets</td>
+<td>common</td>
+<td>Inventario maestro de SE/CT; solo se modifica desde la bandeja</td>
+</tr>
+</tbody></table>
+<div class="footer"><p>SCTIS-INSTR-ADM-001 - INSTRUCTIVO ISO PARA ADMINISTRADORES
+Y SUPERVISORES DEL SISTEMA | SCTIS v1.0 </p></div></body></html>

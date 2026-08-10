@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="utf-8"><title>FLUJO DE PROCESOS SCTIS</title>
+<style>
+body { font-family: Arial, sans-serif; font-size: 11pt; color: #1e293b; line-height: 1.6; margin: 40px; }
+h1 { color: #003C71; font-size: 20pt; margin-top: 24pt; margin-bottom: 12pt; border-bottom: 2px solid #003C71; padding-bottom: 6px; }
+h2 { color: #003C71; font-size: 15pt; margin-top: 18pt; margin-bottom: 8pt; }
+h3 { color: #003C71; font-size: 12pt; margin-top: 14pt; margin-bottom: 6pt; }
+p { margin-bottom: 10pt; text-align: justify; }
+table { border-collapse: collapse; width: 100%; margin: 14pt 0; }
+th, td { border: 1px solid #cbd5e1; padding: 8pt 10pt; text-align: left; vertical-align: top; font-size: 10pt; }
+th { background-color: #003C71; color: #ffffff; font-weight: bold; }
+tr:nth-child(even) td { background-color: #f8fafc; }
+</style></head><body>
+<p>MPPEE  •  CORPOELEC</p>
+<p>Ministerio del Poder Popular para la Energía EléctricaCorporación Eléctrica Nacional</p>
+<p>────────────────────────────────────────────────────────────</p>
+<p>DOCUMENTO DE ARQUITECTURAY FLUJOS DE PROCESO</p>
+<p>Sistema de Gestión de Tiras de Interrupción EléctricaSCTIS v1.0</p>
+<table>
+<tr>
+<th>Unidad Emisora:</th>
+<th>Servicios de Automatización de Procesos de Distribución</th>
+</tr>
+<tr>
+<td>Dirigido a:</td>
+<td>Ing. Adrián Correa — Gerente de Gestión de Planificación de Distribución</td>
+</tr>
+<tr>
+<td></td>
+<td>Ing. Catherina Favio — Responsable del Proceso de Interrupciones</td>
+</tr>
+<tr>
+<td>Gerencia:</td>
+<td>Gerencia General de Distribución Gerencia de Gestión de Planificación de Distribución Grupo de Trabajo Seguimiento y Control</td>
+</tr>
+<tr>
+<td>Empresa:</td>
+<td>MPPEE / CORPOELEC</td>
+</tr>
+<tr>
+<td>Versión:</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>Fecha:</td>
+<td>Julio 2026</td>
+</tr>
+</table>
+<h1>Índice</h1>
+<p>1. Diagrama de Contexto General</p>
+<p>2. Proceso de Carga Masiva desde Excel</p>
+<p>2.1. Subir Archivo</p>
+<p>2.2. Validación de Estructura</p>
+<p>2.3. Detección de Activos Inconsistentes</p>
+<p>2.4. Homologación de Causas</p>
+<p>2.5. Previsualización y Confirmación</p>
+<p>3. Proceso de Carga Manual (Formulario Web)</p>
+<p>4. Proceso de Control de Acceso y Seguridad</p>
+<p>5. Proceso de Control de Calidad ISO 8000</p>
+<p>6. Esquema General de la Base de Datos</p>
+<p>7. Glosario Rápido</p>
+<p>8. Tareas Pendientes para Definir con el Funcional</p>
+<h1>1. Diagrama de Contexto General</h1>
+<table>
+<tr>
+<th>USUARIO OPERADOR Sube Excel Llena formulario</th>
+<th>SCTIS APP WEB Valida estructura Resuelve activos Homologa causas</th>
+<th>BASE DE DATOS PostgreSQL RLS por estado Auditoría</th>
+<th>USUARIO ADMIN Gestiona usuarios</th>
+</tr>
+<tr>
+<td>→</td>
+<td>→</td>
+<td>→</td>
+<td></td>
+</tr>
+</table>
+<p>El sistema recibe datos de interrupción desde dos vías: un archivo Excel (importación masiva de múltiples registros) o un formulario web (carga manual de una sola tira). En ambos casos, la aplicación valida automáticamente que los datos cumplan con la estructura ISO 8000, resuelve inconsistencias de activos (subestaciones y circuitos no registrados), homologa las causas contra el catálogo oficial de 16 causas, y solo entonces persiste en la base de datos. Cada usuario ve exclusivamente los registros de su estado asignado gracias al filtro RLS (Row Level Security) a nivel de PostgreSQL.</p>
+<h1>2. Proceso de Carga Masiva desde Excel</h1>
+<p>Este es el flujo principal del sistema. El planificador de cada estado descarga el Formato Establecido (plantilla Excel de 22 columnas), consolida sus 8 reportes mensuales en una sola hoja, y la sube al sistema. El flujo completo consta de 7 pasos secuenciales, desde la subida del archivo hasta la inserción definitiva en la base de datos.</p>
+<table>
+<tr>
+<th>PASO 1 Subir Archivo</th>
+<th>PASO 2 Validar Estructura</th>
+<th>PASO 3 Detectar Activos</th>
+<th>PASO 4 Resolver Activos</th>
+<th>PASO 5 Homologar Causas</th>
+<th>PASO 6 Preview y Confirmar</th>
+<th>PASO 7 Insertar en BD</th>
+</tr>
+<tr>
+<td>→</td>
+<td>→</td>
+<td>→</td>
+<td>→</td>
+<td>→</td>
+<td>→</td>
+<td></td>
+</tr>
+</table>
+<h2>2.1. Paso 1 — Subir Archivo</h2>
+<p>El usuario accede a la opción 'Importar' en el menú principal, selecciona el archivo Excel (.xlsx) desde su equipo y hace clic en 'Subir'. El sistema recibe el archivo en el servidor y lo prepara para la validación estructural.</p>
+<table>
+<tr>
+<th>LENGUAJE CLARO   ¿Qué espera el sistema? Un archivo Excel con el Formato Establecido de 22 columnas. No se aceptan formatos libres. Cada planificador debe consolidar sus reportes en esta plantilla antes de subir. Si el archivo no coincide, el sistema lo rechaza con un mensaje claro indicando qué columna falta o está incorrecta.</th>
+</tr>
+</table>
+<h2>2.2. Paso 2 — Validación de Estructura</h2>
+<table>
+<tr>
+<th>LEER ARCHIVO Abre Excel y extrae datos</th>
+<th>VERIFICAR COLUMNAS 22 columnas, orden exacto</th>
+<th>VALIDAR TIPOS Fechas, números, texto</th>
+<th>¿ERROR? Rechazo con instructivo</th>
+<th>¿OK? Pasa a Paso 3</th>
+</tr>
+<tr>
+<td>→</td>
+<td>→</td>
+<td>→</td>
+<td>→</td>
+<td></td>
+</tr>
+</table>
+<p>El sistema examina el archivo en tres niveles: (1) cantidad de columnas y nombres esperados, (2) tipos de datos de cada columna, (3) valores obligatorios no nulos. Si alguna columna clave falta, está desplazada, o contiene tipos de datos incorrectos (ej: una fecha almacenada como texto), el sistema devuelve un error 422 con un instructivo detallado de la corrección requerida.</p>
+<table>
+<tr>
+<th>NOTA TÉCNICA   Técnicamente: se valida contra COLUMNAS_FORMULARIO (22 columnas) y HEADERS_FORMATO_ESPERADOS. La verificación es posición-dependente: el orden de las columnas importa tanto como su nombre. Esto evita desplazamientos accidentales que corromperían los datos aguas abajo.</th>
+</tr>
+</table>
+<h2>2.3. Paso 3 — Detección de Activos Inconsistentes</h2>
+<table>
+<tr>
+<th>EXTRAER ACTIVOS Lee subestaciones y circuitos del Excel</th>
+<th>CONSULTAR INVENTARIO Cruza contra common.assets en BD</th>
+<th>¿EXISTE SUBESTACIÓN? Busca por código y estado</th>
+<th>¿EXISTE CIRCUITO? Verifica parentesco con subestación</th>
+<th>INCONSISTENCIA DETECTADA Notifica al usuario</th>
+</tr>
+<tr>
+<td>→</td>
+<td>→</td>
+<td>→</td>
+<td>→</td>
+<td></td>
+</tr>
+</table>
+<p>El sistema cruza cada par (subestación, circuito) del archivo Excel contra el inventario oficial de activos de CORPOELEC registrado en common.assets. Si aparece una subestación que no está registrada, o un circuito que no pertenece a esa subestación, el sistema lo detecta y ofrece al usuario dos opciones.</p>
+<p>Resolución por el usuario:</p>
+<table>
+<tr>
+<th>Opción A: Crear nuevo • Crear nuevo activo en BD • Se registra en common.assets • Queda disponible para futuras cargas</th>
+<th>⬇ ¿Decisión?</th>
+<th>Opción B: Mapear a existente • Mapear a activo existente • Se asigna manualmente • Equivalente a corregir el nombre</th>
+</tr>
+</table>
+<table>
+<tr>
+<th>REGLA DE NEGOCIO   La resolución de activos es en cascada: primero se resuelve la subestación, y una vez resuelta, se validan los circuitos que cuelgan de ella. No se puede resolver un circuito si su subestación padre sigue siendo inconsistente.</th>
+</tr>
+</table>
+<h2>2.4. Paso 4 — Homologación de Causas</h2>
+<p>Cada estado reporta las causas de interrupción con su propio criterio y nomenclatura. El sistema homologa todas esas variantes a las 16 causas oficiales definidas por la Gerencia. Actualmente hay 96 registros de causas cargados y homologados al 100%.</p>
+<table>
+<tr>
+<th>Paso</th>
+<th>Descripción</th>
+<th>Siguiente</th>
+</tr>
+<tr>
+<td>1</td>
+<td>Extraer causa del archivo, normalizar texto</td>
+<td>→ 2</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Buscar coincidencia exacta en catálogo de 96 variantes</td>
+<td>→ 3a o 3b</td>
+</tr>
+<tr>
+<td>3a</td>
+<td>Coincidencia exacta → Homologación automática</td>
+<td>→ 4</td>
+</tr>
+<tr>
+<td>3b</td>
+<td>Sin coincidencia exacta → El sistema sugiere la causa oficial más cercana</td>
+<td>→ 3c</td>
+</tr>
+<tr>
+<td>3c</td>
+<td>Usuario confirma la sugerencia o selecciona manualmente de las 16 causas</td>
+<td>→ 4</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Causa homologada y asociada al registro</td>
+<td>→ Paso 5</td>
+</tr>
+</table>
+<table>
+<tr>
+<th>NOTA TÉCNICA   El catálogo de homologación reside en sctis.causa. Cada variante de causa reportada por los estados tiene un mapeo a una de las 16 causas oficiales. El matching es case-insensitive y usa normalización Unicode para manejar acentos y caracteres especiales.</th>
+</tr>
+</table>
+<h2>2.5. Paso 5 — Previsualización y Confirmación</h2>
+<table>
+<tr>
+<th>GENERAR PREVIEW N° registros Activos creados Causas homologadas</th>
+<th>ALERTAS DE CALIDAD Scoring ISO Duplicados Advertencias</th>
+<th>USUARIO ¿CONFIRMA? Sí → Insertar No → Descartar</th>
+<th>INSERTAR EN BD Commit transaccional Registro de auditoría</th>
+</tr>
+<tr>
+<td>→</td>
+<td>→</td>
+<td>→</td>
+<td></td>
+</tr>
+</table>
+<p>Antes de escribir un solo registro en la base de datos, el sistema presenta un resumen al usuario: cantidad de tiras a insertar, activos nuevos creados, causas homologadas, y cualquier alerta de calidad (duplicados detectados, campos con bajo scoring). El usuario decide si confirma la importación o la descarta. No se persiste nada hasta la confirmación explícita. Si confirma, toda la operación se ejecuta en una transacción: o se inserta todo o no se inserta nada.</p>
+<table>
+<tr>
+<th>LENGUAJE CLARO   Caso de uso: si el usuario detecta en el preview que la duración de varios registros parece incorrecta, puede cancelar la importación, corregir el Excel y subirlo de nuevo sin dejar datos huérfanos en la BD. Es una red de seguridad.</th>
+</tr>
+</table>
+<h1>3. Proceso de Carga Manual (Formulario Web)</h1>
+<p>Para cargas de una sola tira o correcciones puntuales, el sistema dispone de un formulario web interactivo con selecciones en cascada (cascading selects) que guían al usuario y previenen errores de referencias.</p>
+<table>
+<tr>
+<th>Paso</th>
+<th>Descripción</th>
+<th>Siguiente</th>
+</tr>
+<tr>
+<td>1</td>
+<td>Usuario accede a /nuevo</td>
+<td>→ 2</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Estado: bloqueado según perfil del usuario (solo puede cargar su estado)</td>
+<td>→ 3</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Selecciona Subestación: filtrada por el estado (cascading)</td>
+<td>→ 4</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Selecciona Circuito: filtrado por la subestación seleccionada</td>
+<td>→ 5</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Selecciona Despachador: filtrado por el estado</td>
+<td>→ 6</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Llena campos: fecha, inicio, duración, carga, TTI, causa, etc.</td>
+<td>→ 7</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Click 'Guardar' → Validaciones ISO</td>
+<td>→ 8</td>
+</tr>
+<tr>
+<td>8</td>
+<td>¿Todo OK? → Inserta en BD. ¿Error? → Muestra mensaje al usuario</td>
+<td>fin</td>
+</tr>
+</table>
+<table>
+<tr>
+<th>LENGUAJE CLARO   Piénselo como un asistente: selecciona el estado y el sistema le muestra solo las subestaciones de ese estado; selecciona la subestación y le muestra solo sus circuitos. No puede equivocarse de referencia porque las opciones disponibles se ajustan automáticamente.</th>
+</tr>
+</table>
+<table>
+<tr>
+<th>NOTA TÉCNICA   Las listas en cascada se implementan con endpoints REST: GET /api/subestaciones?estado=X, GET /api/circuitos?subestacion_id=Y, GET /api/despachadores?estado=X. El frontend consume estas APIs con fetch asíncrono y actualiza los <select> sin recargar la página.</th>
+</tr>
+</table>
+<h1>4. Proceso de Control de Acceso y Seguridad</h1>
+<p>El sistema implementa seguridad en tres capas: autenticación (verificar quién es), autorización (verificar qué puede hacer), y aislamiento de datos (RLS a nivel BD).</p>
+<h2>Autenticación</h2>
+<table>
+<tr>
+<th>Paso</th>
+<th>Descripción</th>
+<th>Siguiente</th>
+</tr>
+<tr>
+<td>1</td>
+<td>Usuario ingresa usuario y contraseña</td>
+<td>→ 2</td>
+</tr>
+<tr>
+<td>2</td>
+<td>¿Usuario existe en BD?</td>
+<td>No → Error 'Credenciales inválidas'</td>
+</tr>
+<tr>
+<td>3</td>
+<td>¿Usuario está activo?</td>
+<td>No → Error 'Usuario bloqueado/desactivado'</td>
+</tr>
+<tr>
+<td>4</td>
+<td>¿Contraseña correcta?</td>
+<td>No → Incrementa contador de intentos fallidos</td>
+</tr>
+<tr>
+<td>4a</td>
+<td>¿5 intentos fallidos?</td>
+<td>Sí → Bloqueo de 30 minutos</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Autenticación exitosa → Crea sesión persistente</td>
+<td>→ Registro en audit.access_log</td>
+</tr>
+</table>
+<table>
+<tr>
+<th>NOTA TÉCNICA   El bloqueo por intentos fallidos se implementa con una política de 5 intentos en 30 minutos. El contador se resetea al iniciar sesión exitosamente o al cumplirse la ventana de tiempo. Los intentos se registran en audit.access_log con timestamp, IP y user-agent.</th>
+</tr>
+</table>
+<h2>Autorización</h2>
+<table>
+<tr>
+<th>SESIÓN INICIADA Usuario autenticado Rol: admin o editor</th>
+<th>¿ROL ADMIN? Ve TODOS los estados</th>
+<th>¿ROL EDITOR? Ve SOLO su estado asignado</th>
+<th>RLS EN BD Filtro obligatorio a nivel PostgreSQL</th>
+</tr>
+<tr>
+<td>→</td>
+<td>→</td>
+<td>→</td>
+<td></td>
+</tr>
+</table>
+<p>Cada usuario tiene un perfil en user_profiles con estado_codigo asignado y un rol (admin, editor). El admin puede ver, editar y gestionar todos los estados. El editor solo ve y opera sobre los registros de su estado asignado. Este filtro no es solo visual: está implementado con Row Level Security (RLS) en PostgreSQL, lo que significa que aunque un usuario acceda directamente a la BD, las políticas de seguridad lo impiden a nivel de fila.</p>
+<table>
+<tr>
+<th>PARA LA AUDITORÍA   Punto clave para auditoría: cada acción queda registrada en audit.access_log con usuario, timestamp, acción realizada, y datos involucrados. La trazabilidad es completa e irreversible.</th>
+</tr>
+</table>
+<h1>5. Proceso de Control de Calidad ISO 8000</h1>
+<p>El sistema implementa controles de calidad de datos basados en el estándar ISO 8000, adaptado al contexto de tiras de interrupción eléctrica.</p>
+<table>
+<tr>
+<th>CAMPOS OBLIGATORIOS Verifica que no haya nulos en columnas clave</th>
+<th>TIPOS DE DATOS Fechas, números, formatos correctos</th>
+<th>INTEGRIDAD REFERENCIAL FKs: estado, subestación, circuito, causa, despachador</th>
+<th>SCORING DE CALIDAD Puntaje 0-100 por registro</th>
+<th>DETECCIÓN DUPLICADOS Misma fecha + circuito + hora</th>
+</tr>
+<tr>
+<td>→</td>
+<td>→</td>
+<td>→</td>
+<td>→</td>
+<td></td>
+</tr>
+</table>
+<p>Cada registro recibe un puntaje de calidad (scoring) basado en completitud, consistencia y precisión de sus campos. Los registros con baja calidad no se bloquean (porque muchas veces la información disponible es la única que existe), pero quedan marcados y registrados en audit.data_issues para revisión posterior. Los duplicados se detectan por combinación de fecha + circuito + hora de inicio y se notifican al usuario antes de la inserción.</p>
+<table>
+<tr>
+<th>NOTA TÉCNICA   Estructura de audit.data_issues: id_tira FK, tipo_issue (duplicado, scoring_bajo, campo_faltante), severidad (alta, media, baja), descripcion, creado_en. Esto permite generar reportes de calidad por estado, por período, o por tipo de incidencia.</th>
+</tr>
+</table>
+<h1>6. Esquema General de la Base de Datos</h1>
+<p>El sistema utiliza PostgreSQL 17 con tres esquemas principales:</p>
+<h2>Esquema common</h2>
+<p>Datos maestros compartidos</p>
+<p>states — catálogo de estados (24 registros)</p>
+<p>assets — subestaciones y circuitos (inventario CORPOELEC)</p>
+<h2>Esquema sctis</h2>
+<p>Datos del sistema de interrupciones</p>
+<p>tira_interrupcion — registros de interrupción (tabla principal)</p>
+<p>causa — catálogo de 16 causas oficiales + 96 variantes homologadas</p>
+<p>despachador — despachadores asociados a cada estado</p>
+<p>user_profiles — perfil, rol y estado asignado por usuario</p>
+<p>user_roles — roles del sistema (admin, editor)</p>
+<h2>Esquema audit</h2>
+<p>Auditoría y calidad</p>
+<p>access_log — inicio de sesión, intentos fallidos, actividad</p>
+<p>change_log — modificaciones a registros existentes</p>
+<p>data_issues — incidencias de calidad ISO 8000</p>
+<p>Las relaciones entre tablas se gestionan mediante claves foráneas (FK) y políticas RLS. El esquema común (common.assets) incluye un campo parent_id que permite la jerarquía subestación → circuitos. Todas las tablas transaccionales tienen timestamp de creación y modificación.</p>
+<h1>7. Glosario Rápido</h1>
+<table>
+<tr>
+<th>Término</th>
+<th>Definición</th>
+</tr>
+<tr>
+<td>TTI</td>
+<td>Tiempo Total de Interrupción, expresado en MWh. Representa la energía no suministrada durante el evento.</td>
+</tr>
+<tr>
+<td>RLS</td>
+<td>Row Level Security. Mecanismo de PostgreSQL que restringe qué filas puede ver/modificar cada usuario según su perfil.</td>
+</tr>
+<tr>
+<td>Cascading Select</td>
+<td>Lista desplegable que se actualiza automáticamente según la selección anterior (ej: al elegir subestación, se filtran sus circuitos).</td>
+</tr>
+<tr>
+<td>Scoring ISO</td>
+<td>Puntaje de calidad del registro (0-100) basado en completitud, consistencia y precisión de los datos.</td>
+</tr>
+<tr>
+<td>Homologación</td>
+<td>Proceso de mapear una causa reportada por un estado a una de las 16 causas oficiales del catálogo.</td>
+</tr>
+<tr>
+<td>Activo</td>
+<td>Subestación o circuito registrado en el inventario CORPOELEC (tabla common.assets).</td>
+</tr>
+<tr>
+<td>Formato Establecido</td>
+<td>Plantilla Excel oficial de 22 columnas que deben usar todos los estados para reportar sus tiras de interrupción.</td>
+</tr>
+<tr>
+<td>FK (Foreign Key)</td>
+<td>Clave foránea que garantiza integridad referencial entre dos tablas.</td>
+</tr>
+</table>
+<h1>8. Tareas Pendientes para Definir con el Funcional</h1>
+<p>A continuación se listan los puntos que requieren decisión por parte del equipo funcional para continuar con el desarrollo y ajuste del sistema. Cada tarea incluye la descripción del problema, su dependencia y prioridad sugerida.</p>
+<table>
+<tr>
+<th>#</th>
+<th>Tarea</th>
+<th>Descripción</th>
+<th>Depende de</th>
+<th>Prioridad</th>
+</tr>
+<tr>
+<td>1</td>
+<td>Definir columnas de fecha/hora del Formato Establecido</td>
+<td>Determinar si el formulario de 22 columnas debe incluir HORA INICIO (G), FECHA FIN (I) y HORA FIN (J) además de FECHA INICIO (H). Actualmente las columnas G, I y V están en blanco. Los estados Zulia, Miranda y La Guaira ya manejan fecha/hora separadas en sus reportes.</td>
+<td>Funcional (Ing. Catherina)</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Definir contenido de la columna V</td>
+<td>Actualmente en blanco en el Formato Establecido. Posibles usos: tensión nominal, tipo de falta, o código de identificación del activo.</td>
+<td>Funcional</td>
+<td>Media</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Validar catálogo de 16 causas homologadas</td>
+<td>Confirmar que las 96 variantes de causas cargadas y mapeadas a las 16 oficiales cubren todos los escenarios que reportan los estados. Identificar si faltan causas o sobran.</td>
+<td>Jefe de Unidad + Ing. Catherina</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Definir alcance de auditoría de transformaciones</td>
+<td>Decidir si se auditan todos los campos calculados (TTI, duración, MVAmín) o solo los de mayor impacto. Propuesta: crear tabla audit.transformaciones para registrar el valor original vs. valor final por campo, permitiendo trazabilidad completa ante auditorías externas.</td>
+<td>Ing. Adrián + Ing. Catherina</td>
+<td>Media</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Estrategia de migración a Google AI Studio</td>
+<td>Definir hoja de ruta para migrar la aplicación Flask actual a Google AI Studio cuando sea aprobada por la Gerencia.</td>
+<td>Ing. Adrián</td>
+<td>Baja</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Plan de despliegue por estado</td>
+<td>Cronograma de capacitación, prueba y activación para cada uno de los 14 estados operadores que usarán el sistema.</td>
+<td>Jefe de Unidad</td>
+<td>Media</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Revisión de calidad de datos históricos</td>
+<td>Evaluar si los datos ya cargados en la BD requieren ajustes menores (errores de tipeo, causas mal homologadas) antes de poner el sistema en producción oficial.</td>
+<td>Ing. Catherina</td>
+<td>Media</td>
+</tr>
+</table>
+<p>— Fin del documento —Documento generado el 05/08/2026 16:59 por el Sistema de Automatización de Procesos de Distribución.</p>
+</body></html>
