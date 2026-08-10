@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Supabase Web Console - Repositorio Maestro</title>
+  <meta name="description" content="Consola Web interactiva para conectar, probar y explorar tu proyecto de Supabase." />
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Modern Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="url(#brandGradient)" stroke="none"/>
+            <defs>
+              <linearGradient id="brandGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#3ecf8e"/>
+                <stop offset="100%" stop-color="#10b981"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h2>Supabase</h2>
+          <span class="brand-subtitle">Repositorio Maestro</span>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <button class="nav-btn active" data-tab="overview">
+          <i data-lucide="activity"></i>
+          <span>Diagnóstico & Conexión</span>
+        </button>
+        <button class="nav-btn" data-tab="tables">
+          <i data-lucide="database"></i>
+          <span>Explorador de Tablas</span>
+        </button>
+        <button class="nav-btn" data-tab="auth">
+          <i data-lucide="shield-check"></i>
+          <span>Autenticación (Auth)</span>
+        </button>
+        <button class="nav-btn" data-tab="storage">
+          <i data-lucide="folder-archive"></i>
+          <span>Storage (Archivos)</span>
+        </button>
+        <button class="nav-btn" data-tab="logs">
+          <i data-lucide="terminal"></i>
+          <span>Consola de Eventos</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="status-card" id="sidebar-status-card">
+          <div class="status-header">
+            <span class="status-dot pulsing" id="status-indicator-dot"></span>
+            <span class="status-label" id="status-indicator-text">Comprobando...</span>
+          </div>
+          <p class="status-url" id="status-indicator-url">owpiwacuotcaeruvonbd.supabase.co</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Top Bar -->
+      <header class="topbar">
+        <div class="topbar-title">
+          <h1 id="page-title">Diagnóstico & Conexión</h1>
+          <p id="page-description">Verifica el estado del servicio y la conectividad web con tu proyecto de Supabase.</p>
+        </div>
+        
+        <div class="topbar-actions">
+          <button class="btn btn-secondary" id="btn-refresh-connection">
+            <i data-lucide="refresh-cw" id="refresh-icon"></i>
+            <span>Probar Conexión</span>
+          </button>
+          <div class="latency-badge" id="latency-badge">
+            <i data-lucide="zap"></i>
+            <span id="latency-text">-- ms</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="content-body">
+        <!-- TAB 1: OVERVIEW & DIAGNOSTICS -->
+        <section class="tab-pane active" id="tab-overview">
+          <div class="grid grid-2">
+            <!-- Connection Info Card -->
+            <div class="card glass">
+              <div class="card-header">
+                <h3><i data-lucide="server"></i> Credenciales de Proyecto</h3>
+                <span class="badge badge-success">Cargado de .env</span>
+              </div>
+              <div class="card-body">
+                <div class="form-group">
+                  <label>SUPABASE_URL</label>
+                  <div class="input-with-copy">
+                    <input type="text" id="env-supabase-url" readonly value="" />
+                    <button class="btn-icon" data-copy="env-supabase-url" title="Copiar URL">
+                      <i data-lucide="copy"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>SUPABASE_ANON_KEY</label>
+                  <div class="input-with-copy">
+                    <input type="password" id="env-supabase-key" readonly value="" />
+                    <button class="btn-icon" id="toggle-key-visibility" title="Mostrar/Ocultar Clave">
+                      <i data-lucide="eye"></i>
+                    </button>
+                    <button class="btn-icon" data-copy="env-supabase-key" title="Copiar Clave">
+                      <i data-lucide="copy"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="info-box hint">
+                  <i data-lucide="info"></i>
+                  <span>Las credenciales provienen del archivo <code>.env</code>. Para modificarlas, edita el archivo en tu workspace.</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Health & Services Card -->
+            <div class="card glass">
+              <div class="card-header">
+                <h3><i data-lucide="heart-pulse"></i> Pruebas de Servicios</h3>
+              </div>
+              <div class="card-body">
+                <div class="service-list">
+                  <div class="service-item">
+                    <div class="service-info">
+                      <i data-lucide="globe" class="service-icon"></i>
+                      <div>
+                        <div class="service-name">HTTP / Rest Endpoint</div>
+                        <div class="service-desc">Conexión HTTPS al servidor Supabase</div>
+                      </div>
+                    </div>
+                    <span class="badge badge-pending" id="badge-http">Probando...</span>
+                  </div>
+
+                  <div class="service-item">
+                    <div class="service-info">
+                      <i data-lucide="user-check" class="service-icon"></i>
+                      <div>
+                        <div class="service-name">Auth Service</div>
+                        <div class="service-desc">Motor GoTrue de gestión de usuarios</div>
+                      </div>
+                    </div>
+                    <span class="badge badge-pending" id="badge-auth">Probando...</span>
+                  </div>
+
+                  <div class="service-item">
+                    <div class="service-info">
+                      <i data-lucide="database" class="service-icon"></i>
+                      <div>
+                        <div class="service-name">Database / PostgREST</div>
+                        <div class="service-desc">Acceso a esquemas y tablas</div>
+                      </div>
+                    </div>
+                    <span class="badge badge-pending" id="badge-db">Probando...</span>
+                  </div>
+
+                  <div class="service-item">
+                    <div class="service-info">
+                      <i data-lucide="box" class="service-icon"></i>
+                      <div>
+                        <div class="service-name">Storage API</div>
+                        <div class="service-desc">Almacenamiento de archivos y buckets</div>
+                      </div>
+                    </div>
+                    <span class="badge badge-pending" id="badge-storage">Probando...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Test Request Card -->
+          <div class="card glass margin-top">
+            <div class="card-header">
+              <h3><i data-lucide="play-circle"></i> Ejecutar Prueba Rápida de Conexión Web</h3>
+            </div>
+            <div class="card-body">
+              <p>Presiona el botón para realizar una petición real en tiempo real desde este navegador a la API de tu proyecto en Supabase.</p>
+              <div class="action-bar">
+                <button class="btn btn-primary" id="btn-run-full-diagnostic">
+                  <i data-lucide="sparkles"></i>
+                  <span>Ejecutar Diagnóstico Completo</span>
+                </button>
+              </div>
+
+              <div class="terminal-container" id="overview-terminal">
+                <div class="terminal-header">
+                  <span class="terminal-dot red"></span>
+                  <span class="terminal-dot yellow"></span>
+                  <span class="terminal-dot green"></span>
+                  <span class="terminal-title">Respuesta HTTP Supabase API</span>
+                </div>
+                <pre class="terminal-content" id="overview-output">// Haz clic en "Ejecutar Diagnóstico Completo" para ver la respuesta en tiempo real.</pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 2: TABLE EXPLORER -->
+        <section class="tab-pane" id="tab-tables">
+          <div class="card glass">
+            <div class="card-header flex-between">
+              <div>
+                <h3><i data-lucide="database"></i> Consulta de Tabla</h3>
+                <p class="card-subtitle">Escribe el nombre de la tabla en tu base de datos Supabase para consultar sus datos.</p>
+              </div>
+              <button class="btn btn-primary btn-sm" id="btn-open-insert-modal">
+                <i data-lucide="plus"></i>
+                <span>Insertar Registro</span>
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="table-search-bar">
+                <div class="form-group flex-grow">
+                  <div class="input-icon-wrapper">
+                    <i data-lucide="table"></i>
+                    <input type="text" id="table-name-input" placeholder="Nombre de tabla (ej: usuarios, todos, posts, profiles...)" value="todos" />
+                  </div>
+                </div>
+                <button class="btn btn-secondary" id="btn-fetch-table">
+                  <i data-lucide="search"></i>
+                  <span>Consultar Tabla</span>
+                </button>
+              </div>
+
+              <div class="table-meta flex-between margin-top-sm">
+                <span id="table-count-label" class="text-muted">Cargando datos...</span>
+                <span id="table-query-time" class="text-muted font-mono">0 ms</span>
+              </div>
+
+              <!-- Data Table Container -->
+              <div class="data-table-wrapper margin-top-sm">
+                <table class="data-table" id="custom-data-table">
+                  <thead id="table-head">
+                    <tr>
+                      <th>Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody id="table-body">
+                    <tr>
+                      <td class="empty-state">Ingresa un nombre de tabla y haz clic en "Consultar Tabla"</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 3: AUTH TESTER -->
+        <section class="tab-pane" id="tab-auth">
+          <div class="grid grid-2">
+            <!-- Current Session Card -->
+            <div class="card glass">
+              <div class="card-header">
+                <h3><i data-lucide="user-check"></i> Estado de Sesión Actual</h3>
+              </div>
+              <div class="card-body">
+                <div id="auth-session-info" class="session-box">
+                  <div class="empty-session">
+                    <i data-lucide="user-x" class="session-icon"></i>
+                    <p>No hay ningún usuario autenticado en esta sesión.</p>
+                  </div>
+                </div>
+
+                <div class="margin-top" id="auth-logout-wrapper" style="display:none;">
+                  <button class="btn btn-danger" id="btn-auth-logout">
+                    <i data-lucide="log-out"></i>
+                    <span>Cerrar Sesión</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Login / Signup Form -->
+            <div class="card glass">
+              <div class="card-header">
+                <h3><i data-lucide="key-round"></i> Probar Autenticación (Email / Password)</h3>
+              </div>
+              <div class="card-body">
+                <form id="auth-form" onsubmit="return false;">
+                  <div class="form-group">
+                    <label for="auth-email">Correo Electrónico</label>
+                    <input type="email" id="auth-email" placeholder="usuario@ejemplo.com" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="auth-password">Contraseña</label>
+                    <input type="password" id="auth-password" placeholder="••••••••" required />
+                  </div>
+                  <div class="auth-actions margin-top">
+                    <button class="btn btn-primary" id="btn-auth-login">
+                      <i data-lucide="log-in"></i>
+                      <span>Iniciar Sesión</span>
+                    </button>
+                    <button class="btn btn-secondary" id="btn-auth-signup">
+                      <i data-lucide="user-plus"></i>
+                      <span>Registrar Usuario</span>
+                    </button>
+                  </div>
+                </form>
+
+                <div class="auth-result-box margin-top" id="auth-result-box" style="display:none;">
+                  <div class="auth-result-header" id="auth-result-title">Resultado</div>
+                  <pre id="auth-result-content" class="font-mono text-sm"></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 4: STORAGE TESTER -->
+        <section class="tab-pane" id="tab-storage">
+          <div class="card glass">
+            <div class="card-header flex-between">
+              <div>
+                <h3><i data-lucide="folder-archive"></i> Buckets de Almacenamiento</h3>
+                <p class="card-subtitle">Explora los buckets públicos o privados de tu proyecto Supabase Storage.</p>
+              </div>
+              <button class="btn btn-secondary" id="btn-refresh-storage">
+                <i data-lucide="refresh-cw"></i>
+                <span>Actualizar Buckets</span>
+              </button>
+            </div>
+            <div class="card-body">
+              <div id="storage-buckets-container" class="grid grid-3 margin-top-sm">
+                <div class="bucket-skeleton">Cargando buckets...</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 5: LOGS CONSOLE -->
+        <section class="tab-pane" id="tab-logs">
+          <div class="card glass">
+            <div class="card-header flex-between">
+              <h3><i data-lucide="terminal"></i> Registro de Eventos en Tiempo Real</h3>
+              <button class="btn btn-secondary btn-sm" id="btn-clear-logs">
+                <i data-lucide="trash-2"></i>
+                <span>Limpiar Consola</span>
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="logs-console" id="logs-container">
+                <div class="log-entry info">
+                  <span class="log-time">[00:00:00]</span>
+                  <span class="log-msg">Consola web iniciada correctamente.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- INSERT ROW MODAL -->
+  <div class="modal-overlay" id="insert-modal">
+    <div class="modal-card glass">
+      <div class="modal-header">
+        <h3><i data-lucide="plus-circle"></i> Insertar Nuevo Registro</h3>
+        <button class="btn-icon" id="btn-close-modal"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-sm text-muted">Ingresa los datos en formato JSON para insertar en la tabla seleccionada.</p>
+        <div class="form-group margin-top-sm">
+          <label>Objeto JSON a insertar</label>
+          <textarea id="insert-json-input" rows="8" class="font-mono">{
+  "title": "Registro de prueba desde Web",
+  "created_at": "2026-08-09T21:35:00Z"
+}</textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-cancel-modal">Cancelar</button>
+        <button class="btn btn-primary" id="btn-submit-insert">
+          <i data-lucide="check"></i>
+          <span>Insertar en Supabase</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
