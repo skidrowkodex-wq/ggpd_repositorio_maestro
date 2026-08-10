@@ -90,6 +90,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Enter') fetchTableData();
   });
 
+  // Preset Chips Handlers
+  document.querySelectorAll('.chip-btn').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const preset = chip.getAttribute('data-preset');
+      if (preset) {
+        document.getElementById('table-name-input').value = preset;
+        fetchTableData();
+      }
+    });
+  });
+
   // Modal Setup
   const insertModal = document.getElementById('insert-modal');
   document.getElementById('btn-open-insert-modal').addEventListener('click', () => {
@@ -284,7 +295,7 @@ async function runFullDiagnostic() {
 
 // Fetch Data Table
 async function fetchTableData() {
-  const tableName = document.getElementById('table-name-input').value.trim() || 'todos';
+  const tableName = document.getElementById('table-name-input').value.trim() || 'activos_red';
   const tableCountLabel = document.getElementById('table-count-label');
   const tableQueryTime = document.getElementById('table-query-time');
   const tableHead = document.getElementById('table-head');

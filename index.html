@@ -230,16 +230,24 @@
               </button>
             </div>
             <div class="card-body">
+              <div class="preset-chips">
+                <span class="text-sm text-muted">Tablas & Vistas de Activos:</span>
+                <button class="chip-btn" data-preset="activos_red">⚡ activos_red</button>
+                <button class="chip-btn" data-preset="v_activos_distribucion_oficial">📊 v_activos_distribucion_oficial</button>
+                <button class="chip-btn" data-preset="v_activos_pendientes_auditoria">⚠️ v_activos_pendientes_auditoria</button>
+                <button class="chip-btn" data-preset="todos">📋 todos</button>
+              </div>
+
               <div class="table-search-bar">
                 <div class="form-group flex-grow">
                   <div class="input-icon-wrapper">
                     <i data-lucide="table"></i>
-                    <input type="text" id="table-name-input" placeholder="Nombre de tabla (ej: usuarios, todos, posts, profiles...)" value="todos" />
+                    <input type="text" id="table-name-input" placeholder="Nombre de tabla o vista (ej: activos_red, v_activos_distribucion_oficial...)" value="activos_red" />
                   </div>
                 </div>
                 <button class="btn btn-secondary" id="btn-fetch-table">
                   <i data-lucide="search"></i>
-                  <span>Consultar Tabla</span>
+                  <span>Consultar Tabla / Vista</span>
                 </button>
               </div>
 
@@ -384,9 +392,19 @@
         <p class="text-sm text-muted">Ingresa los datos en formato JSON para insertar en la tabla seleccionada.</p>
         <div class="form-group margin-top-sm">
           <label>Objeto JSON a insertar</label>
-          <textarea id="insert-json-input" rows="8" class="font-mono">{
-  "title": "Registro de prueba desde Web",
-  "created_at": "2026-08-09T21:35:00Z"
+          <textarea id="insert-json-input" rows="9" class="font-mono">{
+  "codigo_activo": "SE-0301",
+  "nombre": "Subestación La Yaguara 115kV",
+  "tipo_activo": "SE",
+  "macro_proceso": "DISTRIBUCION",
+  "estado_control": "CONTROLADO",
+  "estado_caracterizacion": "CARACTERIZADO",
+  "esquema_origen": "public",
+  "metadata_tecnica": {
+    "tension_kv": 115,
+    "capacidad_mva": 90,
+    "region": "Capital"
+  }
 }</textarea>
         </div>
       </div>
