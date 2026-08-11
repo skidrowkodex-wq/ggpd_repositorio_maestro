@@ -24,6 +24,10 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'estado_caracterizacion_enum') THEN
         CREATE TYPE estado_caracterizacion_enum AS ENUM ('CARACTERIZADO', 'PROVISIONAL', 'NO_CARACTERIZADO');
     END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'origen_dato_enum') THEN
+        CREATE TYPE origen_dato_enum AS ENUM ('CARACTERIZACION_SE', 'CARACTERIZACION_CT', 'TIRAS_INTERRUPCIONES', 'CENSO_GGPD', 'SISTEMA_EXTERNO', 'OTRO');
+    END IF;
 END $$;
 
 -- ------------------------------------------------------------------------------
@@ -37,6 +41,7 @@ CREATE TABLE IF NOT EXISTS public.activos_red (
     macro_proceso macro_proceso_enum NOT NULL DEFAULT 'DISTRIBUCION',
     estado_control estado_control_enum NOT NULL DEFAULT 'CONTROLADO',
     estado_caracterizacion estado_caracterizacion_enum NOT NULL DEFAULT 'PROVISIONAL',
+    origen_dato origen_dato_enum NOT NULL DEFAULT 'TIRAS_INTERRUPCIONES',
     esquema_origen VARCHAR(50) NOT NULL DEFAULT 'public',
     metadata_tecnica JSONB NOT NULL DEFAULT '{}'::jsonb,
     fecha_registro TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -48,6 +53,7 @@ COMMENT ON TABLE public.activos_red IS 'Tabla Unificada de Activos de Red de Dis
 COMMENT ON COLUMN public.activos_red.codigo_activo IS 'Código único normalizado del activo de red (ej: SE-0104, CT-02).';
 COMMENT ON COLUMN public.activos_red.estado_control IS 'CONTROLADO: Gestionado oficialmente por Distribución. NO_CONTROLADO: Activo externo o no mapeado.';
 COMMENT ON COLUMN public.activos_red.estado_caracterizacion IS 'CARACTERIZADO: Ficha técnica auditada. PROVISIONAL: Registrado automáticamente desde ingesta.';
+COMMENT ON COLUMN public.activos_red.origen_dato IS 'Trazabilidad y Gobierno de Datos: Identifica la fuente original del activo para evitar repudio.';
 
 -- ------------------------------------------------------------------------------
 -- 3. TRIGGER PARA ACTUALIZACIÓN AUTOMÁTICA DE TIMESTAMP
@@ -77,6 +83,10 @@ CREATE INDEX IF NOT EXISTS idx_activos_red_clasificacion
 CREATE INDEX IF NOT EXISTS idx_activos_red_tipo 
     ON public.activos_red (tipo_activo);
 
+-- Index B-Tree sobre origen_dato (Trazabilidad)
+CREATE INDEX IF NOT EXISTS idx_activos_red_origen 
+    ON public.activos_red (origen_dato);
+
 -- Index GIN sobre la metadata técnica JSONB
 CREATE INDEX IF NOT EXISTS idx_activos_red_metadata_gin 
     ON public.activos_red USING gin (metadata_tecnica);
@@ -91,6 +101,7 @@ CREATE OR REPLACE FUNCTION public.upsert_activo_ingesta(
     p_nombre TEXT DEFAULT NULL,
     p_tipo_activo VARCHAR(30) DEFAULT 'CT',
     p_macro_proceso macro_proceso_enum DEFAULT 'DISTRIBUCION',
+    p_origen_dato origen_dato_enum DEFAULT 'TIRAS_INTERRUPCIONES',
     p_esquema_origen VARCHAR(50) DEFAULT 'public',
     p_metadata_tecnica JSONB DEFAULT '{}'::jsonb
 )
@@ -105,6 +116,7 @@ BEGIN
         macro_proceso,
         estado_control,
         estado_caracterizacion,
+        origen_dato,
         esquema_origen,
         metadata_tecnica
     )
@@ -115,6 +127,7 @@ BEGIN
         p_macro_proceso,
         'NO_CONTROLADO',
         'PROVISIONAL',
+        p_origen_dato,
         p_esquema_origen,
         p_metadata_tecnica
     )
