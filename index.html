@@ -33,15 +33,19 @@
           </svg>
         </div>
         <div class="brand-text">
-          <h2>Supabase</h2>
+          <h2>CORPOELEC GGPD</h2>
           <span class="brand-subtitle">Repositorio Maestro</span>
         </div>
       </div>
 
       <nav class="nav-menu">
-        <button class="nav-btn active" data-tab="overview">
+        <button class="nav-btn active" data-tab="portal">
+          <i data-lucide="layout-dashboard"></i>
+          <span>Portal Unificado CORPOELEC</span>
+        </button>
+        <button class="nav-btn" data-tab="overview">
           <i data-lucide="activity"></i>
-          <span>Diagnóstico & Conexión</span>
+          <span>Diagnóstico & Conexión BD</span>
         </button>
         <button class="nav-btn" data-tab="tables">
           <i data-lucide="database"></i>
@@ -77,8 +81,8 @@
       <!-- Top Bar -->
       <header class="topbar">
         <div class="topbar-title">
-          <h1 id="page-title">Diagnóstico & Conexión</h1>
-          <p id="page-description">Verifica el estado del servicio y la conectividad web con tu proyecto de Supabase.</p>
+          <h1 id="page-title">Portal Unificado CORPOELEC GGPD</h1>
+          <p id="page-description">Ecosistema centralizado de aplicaciones de distribución eléctrica y gobierno de datos.</p>
         </div>
         
         <div class="topbar-actions">
@@ -94,8 +98,178 @@
       </header>
 
       <div class="content-body">
+        <!-- TAB 0: PORTAL UNIFICADO CORPOELEC -->
+        <section class="tab-pane active" id="tab-portal">
+          <!-- Hero Banner -->
+          <div class="card glass portal-hero-card">
+            <div class="portal-hero-content">
+              <div class="portal-badge">⚡ CORPOELEC - Gerencia General de Planificación de Distribución</div>
+              <h2>Portal Unificado de Aplicaciones & Gobierno de Datos</h2>
+              <p>Accede a las 5 aplicaciones del proceso Macro de Distribución Eléctrica de Venezuela, monitorea la unificación de activos (SE / CT) y administra las conexiones de base de datos PostgreSQL en Supabase.</p>
+            </div>
+            <div class="portal-hero-stats">
+              <div class="stat-pill">
+                <span class="stat-val">5</span>
+                <span class="stat-lbl">Apps Integradas</span>
+              </div>
+              <div class="stat-pill">
+                <span class="stat-val">100%</span>
+                <span class="stat-lbl">ISO Compliance</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Apps Grid Title -->
+          <div class="section-header margin-top flex-between">
+            <h3><i data-lucide="grid"></i> Aplicaciones del Ecosistema de Distribución</h3>
+            <span class="text-sm text-muted">Fase QA Programada • Agosto 2026</span>
+          </div>
+
+          <div class="grid grid-3 margin-top-sm">
+            <!-- App Card 1: SIGI -->
+            <div class="card glass app-card">
+              <div class="app-card-header">
+                <div class="app-icon sigi-icon"><i data-lucide="map-pin"></i></div>
+                <span class="badge badge-success">Activa Local / Nube</span>
+              </div>
+              <h4 class="app-title">SIGI - Distribución</h4>
+              <p class="app-desc">Gestión, planificación e inspección territorial de la Red de Distribución. Control de viáticos y recursos.</p>
+              <div class="app-meta">
+                <span>Esquema BD: <code>sigi</code> / <code>public</code></span>
+              </div>
+              <div class="app-actions">
+                <a href="/apps/corpoelec-sigi-gestion-planificacion-distribucion/index.html" target="_blank" class="btn btn-primary btn-sm">
+                  <i data-lucide="external-link"></i> Abrir SIGI
+                </a>
+              </div>
+            </div>
+
+            <!-- App Card 2: SCTIS -->
+            <div class="card glass app-card">
+              <div class="app-card-header">
+                <div class="app-icon sctis-icon"><i data-lucide="zap"></i></div>
+                <span class="badge badge-success">Publicada Google Cloud</span>
+              </div>
+              <h4 class="app-title">SCTIS V2.0 Distribución</h4>
+              <p class="app-desc">Seguimiento y control de tiras de interrupción en subestaciones. Homologación con Gemini AI e ISO 8000.</p>
+              <div class="app-meta">
+                <span>Esquema BD: <code>sctis</code></span>
+              </div>
+              <div class="app-actions">
+                <a href="https://sctis-interrupciones-distribucion.ai.studio" target="_blank" class="btn btn-secondary btn-sm">
+                  <i data-lucide="external-link"></i> SCTIS Cloud
+                </a>
+              </div>
+            </div>
+
+            <!-- App Card 3: REMIX SCEIN -->
+            <div class="card glass app-card">
+              <div class="app-card-header">
+                <div class="app-icon scein-icon"><i data-lucide="alert-triangle"></i></div>
+                <span class="badge badge-success">Publicada Vercel</span>
+              </div>
+              <h4 class="app-title">REMIX SCEIN</h4>
+              <p class="app-desc">Seguimiento y control de equipos indisponibles (Transformadores, Interruptores) en las 24 entidades.</p>
+              <div class="app-meta">
+                <span>Esquema BD: <code>scein</code></span>
+              </div>
+              <div class="app-actions">
+                <a href="https://distribucion-indisponibles-sen.vercel.app/" target="_blank" class="btn btn-secondary btn-sm">
+                  <i data-lucide="external-link"></i> SCEIN Vercel
+                </a>
+              </div>
+            </div>
+
+            <!-- App Card 4: Gestor de Tareas y Minutas -->
+            <div class="card glass app-card">
+              <div class="app-card-header">
+                <div class="app-icon tasks-icon"><i data-lucide="file-text"></i></div>
+                <span class="badge badge-success">Publicada Google Cloud</span>
+              </div>
+              <h4 class="app-title">Gestor de Tareas & Minutas</h4>
+              <p class="app-desc">Parsing inteligente de minutas PDF con Gemini 3.6 Flash. Tablero Kanban y compromisos institucionales.</p>
+              <div class="app-meta">
+                <span>Integración: <code>Gemini AI / GenAI</code></span>
+              </div>
+              <div class="app-actions">
+                <a href="https://ggpd-corpoelec-sc-tareas.ai.studio" target="_blank" class="btn btn-secondary btn-sm">
+                  <i data-lucide="external-link"></i> Minutas Cloud
+                </a>
+              </div>
+            </div>
+
+            <!-- App Card 5: Planificación Eléctrica SEN -->
+            <div class="card glass app-card">
+              <div class="app-card-header">
+                <div class="app-icon poa-icon"><i data-lucide="trending-up"></i></div>
+                <span class="badge badge-success">Publicada Vercel</span>
+              </div>
+              <h4 class="app-title">Planificación Eléctrica SEN</h4>
+              <p class="app-desc">Seguimiento de proyectos estratégicos PRTSEN, POA y matriz de gobernanza técnica.</p>
+              <div class="app-meta">
+                <span>Esquema BD: <code>poa</code> / <code>public</code></span>
+              </div>
+              <div class="app-actions">
+                <a href="https://ggpd-planificacion-proyectos-poa.vercel.app/" target="_blank" class="btn btn-secondary btn-sm">
+                  <i data-lucide="external-link"></i> POA Vercel
+                </a>
+              </div>
+            </div>
+
+            <!-- App Card 6: Supabase Console Launcher -->
+            <div class="card glass app-card">
+              <div class="app-card-header">
+                <div class="app-icon db-icon"><i data-lucide="database"></i></div>
+                <span class="badge badge-primary">Motor BD Central</span>
+              </div>
+              <h4 class="app-title">Consola BD & Diagnóstico</h4>
+              <p class="app-desc">Explorador de tablas PostgreSQL multi-esquema, prueba de RLS, cliente Auth y monitoreo de APIs.</p>
+              <div class="app-meta">
+                <span>Proyecto Ref: <code>owpiwacuotcaeruvonbd</code></span>
+              </div>
+              <div class="app-actions">
+                <button class="btn btn-primary btn-sm btn-nav-jump" data-target="tables">
+                  <i data-lucide="search"></i> Explorar Tablas BD
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section: Unified Assets Architecture -->
+          <div class="card glass margin-top">
+            <div class="card-header flex-between">
+              <div>
+                <h3><i data-lucide="layers"></i> Estatus de la Tabla Unificada de Activos (`activos_red`)</h3>
+                <p class="card-subtitle">Normalización del parque de Subestaciones (SE) y Circuitos (CT) de la Red de Distribución Eléctrica de Venezuela.</p>
+              </div>
+              <button class="btn btn-secondary btn-sm btn-nav-jump" data-target="tables">
+                <i data-lucide="arrow-right"></i> Ver en Explorador
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="grid grid-3">
+                <div class="info-stat-card">
+                  <div class="info-stat-title">Subestaciones (SE)</div>
+                  <div class="info-stat-val">Parque Controlado</div>
+                  <div class="info-stat-desc">Subestaciones de 230kV, 115kV y 34.5kV auditadas.</div>
+                </div>
+                <div class="info-stat-card">
+                  <div class="info-stat-title">Circuitos (CT)</div>
+                  <div class="info-stat-val">Media Tensión (MT)</div>
+                  <div class="info-stat-desc">Circuitos de 13.8kV y 34.5kV mapeados a cabeceras SE.</div>
+                </div>
+                <div class="info-stat-card">
+                  <div class="info-stat-title">Activos Exógenos</div>
+                  <div class="info-stat-val">Transmisión & Gen.</div>
+                  <div class="info-stat-desc">Clasificación `NO_CONTROLADO` y `PROVISIONAL` sin pérdida de data.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <!-- TAB 1: OVERVIEW & DIAGNOSTICS -->
-        <section class="tab-pane active" id="tab-overview">
+        <section class="tab-pane" id="tab-overview">
           <div class="grid grid-2">
             <!-- Connection Info Card -->
             <div class="card glass">
