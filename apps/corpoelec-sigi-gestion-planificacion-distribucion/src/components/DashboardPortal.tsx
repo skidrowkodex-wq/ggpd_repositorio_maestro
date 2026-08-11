@@ -95,12 +95,12 @@ export const DashboardPortal: React.FC<DashboardPortalProps> = ({ activeSection,
             onClick={() => setActiveSection('dashboards')}
             className={`flex items-center space-x-2 rounded-xl px-4 py-2.5 text-xs font-black transition-all ${
               activeSection === 'dashboards'
-                ? 'bg-[#002b49] text-white dark:bg-gradient-to-r dark:from-[#00f2fe] dark:to-[#00b4d8] dark:text-[#0a192f] shadow-md'
-                : 'bg-slate-100 text-slate-800 hover:bg-slate-200 border border-slate-300 dark:bg-[#112240] dark:text-slate-300 dark:hover:text-white dark:border-slate-700'
+                ? 'bg-[#002b49] text-white dark:bg-gradient-to-r dark:from-[#00f2fe] dark:to-[#00b4d8] dark:text-[#0a192f] shadow-md ring-2 ring-amber-400'
+                : 'bg-amber-50 text-amber-900 border border-amber-300 hover:bg-amber-100 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-700/50'
             }`}
           >
-            <BarChart3 className="h-4 w-4" />
-            <span>3. Dashboards</span>
+            <BarChart3 className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            <span>3. Dashboards & Mapa Activos 🗺️</span>
           </button>
 
           <button
@@ -137,7 +137,7 @@ export const DashboardPortal: React.FC<DashboardPortalProps> = ({ activeSection,
 
       {/* Render Active Section */}
       <main>
-        {activeSection === 'apps' && <AppLauncher />}
+        {activeSection === 'apps' && <AppLauncher setActiveSection={setActiveSection} />}
         {activeSection === 'minutas' && <MinutarioSection />}
         {activeSection === 'dashboards' && <ProcessDashboard />}
         {activeSection === 'drive' && <DocumentViewer />}
