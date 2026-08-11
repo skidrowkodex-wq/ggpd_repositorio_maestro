@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import { SYSTEM_APPS } from '../mockData/portalData';
 import { AppItem } from '../types/sigi';
-import { ExternalLink, Cpu, Zap, AlertTriangle, ClipboardList, Cloud, Bot, CloudCheck, ShieldCheck, ArrowUpRight } from 'lucide-react';
+import { ExternalLink, Cpu, Zap, AlertTriangle, ClipboardList, Cloud, Bot, CloudCheck, ShieldCheck, ArrowUpRight, MapPin, BarChart3 } from 'lucide-react';
 
-export const AppLauncher: React.FC = () => {
+interface AppLauncherProps {
+  setActiveSection?: (sec: string) => void;
+}
+
+export const AppLauncher: React.FC<AppLauncherProps> = ({ setActiveSection }) => {
   const [filterCategory, setFilterCategory] = useState<string>('ALL');
 
   const filteredApps = SYSTEM_APPS.filter(app => {
@@ -27,6 +31,39 @@ export const AppLauncher: React.FC = () => {
   return (
     <div className="space-y-6">
       
+      {/* Quick Jump to Dashboards & Map Banner */}
+      <div className="rounded-3xl bg-gradient-to-r from-[#002b49] via-[#0b1f3a] to-[#002b49] dark:from-[#081427] dark:via-[#112240] dark:to-[#081427] p-6 border border-amber-500/40 shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="flex items-center space-x-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400">
+            <MapPin className="h-6 w-6" />
+          </div>
+          <div>
+            <div className="flex items-center space-x-2">
+              <span className="rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2.5 py-0.5 text-[10px] font-black uppercase">
+                Eje 3 — Centro de Mando
+              </span>
+              <span className="text-xs text-emerald-400 font-bold hidden sm:inline">✓ Activos samc.activos_red</span>
+            </div>
+            <h3 className="text-base sm:text-lg font-black text-white mt-1">
+              Centro de Mando Unificado, Visor Mapa de Activos & Dashboards Nube
+            </h3>
+            <p className="text-xs text-slate-300 mt-0.5">
+              Accede al mapa de densidad por Estado (Subestaciones/Circuitos) y los tableros consolidados de SCTIS, SCEIN, POA y Minutas.
+            </p>
+          </div>
+        </div>
+
+        {setActiveSection && (
+          <button
+            onClick={() => setActiveSection('dashboards')}
+            className="shrink-0 flex items-center space-x-2 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-[#002b49] font-extrabold px-5 py-3 text-xs shadow-lg hover:shadow-amber-500/20 transition-all cursor-pointer active:scale-95"
+          >
+            <BarChart3 className="h-4 w-4" />
+            <span>Ver Dashboards & Mapa de Activos 🗺️</span>
+          </button>
+        )}
+      </div>
+
       {/* Header Banner */}
       <div className="rounded-3xl bg-white dark:bg-gradient-to-r dark:from-[#112240] dark:via-[#0a192f] dark:to-[#112240] p-6 border border-slate-200 dark:border-[#00f2fe]/30 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
