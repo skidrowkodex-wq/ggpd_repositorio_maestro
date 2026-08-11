@@ -1,0 +1,172 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-main: #f4f6f9;
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --panel-bg: #ffffff;
+    --panel-border: #cbd5e1;
+    --card-bg: #ffffff;
+    --header-bg: #002b49;
+    --header-telemetry-bg: #001f35;
+    --footer-bg: #001f35;
+  }
+
+  [data-theme="dark"] {
+    --bg-main: #060d1a;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --panel-bg: rgba(11, 23, 44, 0.88);
+    --panel-border: rgba(0, 242, 254, 0.2);
+    --card-bg: #0b172c;
+    --header-bg: #040914;
+    --header-telemetry-bg: #081326;
+    --footer-bg: #040814;
+  }
+
+  body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+  }
+}
+
+/* Industrial Engineering Grid Background */
+.bg-industrial-grid {
+  background-image: 
+    linear-gradient(to right, rgba(0, 43, 73, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 43, 73, 0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+[data-theme="dark"] .bg-industrial-grid {
+  background-image: 
+    linear-gradient(to right, rgba(0, 242, 254, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 242, 254, 0.03) 1px, transparent 1px);
+}
+
+/* Top Institutional Venezuela Flag Accent Ribbon */
+.tribanda-venezuela {
+  background: linear-gradient(90deg, #ffcc00 0%, #ffcc00 33.3%, #003399 33.3%, #003399 66.6%, #cf142b 66.6%, #cf142b 100%);
+  height: 4px;
+  width: 100%;
+}
+
+/* ISA-101 SCADA & SAP Fiori Color Palette Tokens */
+.scada-dark { background-color: #060d1a; }
+.scada-normal { color: #059669; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.1); }
+.scada-warning { color: #d97706; border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.1); }
+.scada-alarm { color: #dc2626; border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.1); }
+.scada-cyan { color: #0284c7; border-color: rgba(2, 132, 199, 0.4); background: rgba(2, 132, 199, 0.1); }
+
+/* Voltage Level Standard Colors (ISA-101 SCADA SEN) */
+.voltage-765kv { background-color: #dc2626; color: #ffffff; }
+.voltage-400kv { background-color: #ea580c; color: #ffffff; }
+.voltage-230kv { background-color: #eab308; color: #000000; }
+.voltage-115kv { background-color: #0284c7; color: #ffffff; }
+.voltage-34kv  { background-color: #9333ea; color: #ffffff; }
+.voltage-13kv  { background-color: #06b6d4; color: #ffffff; }
+
+/* Dynamic Theme Card & Glassmorphism Tokens */
+.glass-panel {
+  background: var(--panel-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .glass-panel {
+  box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.55);
+}
+
+.glass-panel-hover {
+  transition: all 0.25s ease-in-out;
+}
+.glass-panel-hover:hover {
+  border-color: #002b49;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 43, 73, 0.12);
+}
+
+[data-theme="dark"] .glass-panel-hover:hover {
+  border-color: rgba(0, 242, 254, 0.5);
+  box-shadow: 0 12px 45px 0 rgba(0, 242, 254, 0.22);
+}
+
+.glass-modal {
+  background: var(--card-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #002b49 0%, #007791 50%, #b45309 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+[data-theme="dark"] .text-gradient {
+  background: linear-gradient(135deg, #00f2fe 0%, #38bdf8 50%, #ffd700 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+[data-theme="dark"] .text-gradient-gold {
+  background: linear-gradient(135deg, #ffd700 0%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-ai {
+  background: linear-gradient(135deg, #6b21a8 0%, #be185d 50%, #005580 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+[data-theme="dark"] .text-gradient-ai {
+  background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #00f2fe 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 43, 73, 0.2);
+}
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border: 1px solid rgba(0, 242, 254, 0.2);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #002b49;
+}
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: #00f2fe;
+}
