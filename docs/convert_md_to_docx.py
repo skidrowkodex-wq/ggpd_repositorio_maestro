@@ -100,7 +100,7 @@ def md_to_docx(md_path, docx_path, doc_path=None):
             # Process table
             rows_data = []
             for tline in table_lines:
-                if '---' in tline:
+                if set(tline.replace('|', '').replace(':', '').replace('-', '').strip()) == set():
                     continue
                 cols = [c.strip() for c in tline.split('|')[1:-1]]
                 if cols:
@@ -244,19 +244,24 @@ if __name__ == '__main__':
     files = [
         "NAC_2026_GGPD_AUDITORIA_ESTATUS_CUATRO_APLICACIONES_V01",
         "NAC_2026_GGPD_AUDITORIA_TECNICA_GOBERNANZA_BD_V01",
-        "NAC_2026_GGPD_AUDITORIA_FUNCIONAL_GOBIERNO_DATOS_V01"
+        "NAC_2026_GGPD_AUDITORIA_FUNCIONAL_GOBIERNO_DATOS_V01",
+    ]
+    qa_files = [
+        "NAC_2026_GGPD_INVENTARIO_ARQUITECTURA_RUTAS_DESPLIEGUE_V01",
+        "NAC_2026_GGPD_RESUMEN_EJECUTIVO_DESPLIEGUE_USUARIOS_QA_V01"
     ]
     
     for f in files:
         md_file = os.path.join(base_dir, f + ".md")
         docx_file = os.path.join(base_dir, f + ".docx")
         doc_file = os.path.join(base_dir, f + ".doc")
-        md_to_docx(md_file, docx_file, doc_file)
-        
-    # Also save copies in apps/planificación-eléctrica-sen/docs
-    app_docs_dir = "/home/skidrowkodex/Documentos/Repositorio_Maestro/apps/planificación-eléctrica-sen/docs"
-    for f in files:
-        md_file = os.path.join(base_dir, f + ".md")
-        docx_file = os.path.join(app_docs_dir, f + ".docx")
-        doc_file = os.path.join(app_docs_dir, f + ".doc")
-        md_to_docx(md_file, docx_file, doc_file)
+        if os.path.exists(md_file):
+            md_to_docx(md_file, docx_file, doc_file)
+
+    qa_dir = os.path.join(base_dir, "despliegues_qa")
+    for f in qa_files:
+        md_file = os.path.join(qa_dir, f + ".md")
+        docx_file = os.path.join(qa_dir, f + ".docx")
+        doc_file = os.path.join(qa_dir, f + ".doc")
+        if os.path.exists(md_file):
+            md_to_docx(md_file, docx_file, doc_file)
