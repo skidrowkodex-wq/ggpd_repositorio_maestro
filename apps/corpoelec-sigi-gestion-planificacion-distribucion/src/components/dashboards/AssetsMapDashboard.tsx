@@ -1,306 +1,183 @@
-import React, { useState } from 'react';
-import { Database, Zap, Info, BarChart3, MapPin, Eye, ShieldCheck, Sparkles, Filter } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { Database, Zap, MapPin, BarChart3, ShieldCheck, Layers, RefreshCw, Info } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
-export interface StateAssetData {
+export interface StateAssetGIS {
   code: string;
   name: string;
+  lat: number;
+  lng: number;
   substations: number;
   circuits: number;
   transmissionSE: number;
   distributionSE: number;
-  pathD: string;
-  labelPos: { x: number; y: number };
 }
 
-// Datos Geográficos Consolidados (samc.activos_red)
-export const VENEZUELA_STATES_GEO: StateAssetData[] = [
-  {
-    code: 'ZUL',
-    name: 'Zulia',
-    substations: 95,
-    circuits: 380,
-    transmissionSE: 28,
-    distributionSE: 67,
-    pathD: 'M 70 100 L 100 95 L 125 105 L 135 135 L 140 160 L 115 195 L 90 190 L 70 160 Z',
-    labelPos: { x: 98, y: 140 },
-  },
-  {
-    code: 'FAL',
-    name: 'Falcón',
-    substations: 25,
-    circuits: 95,
-    transmissionSE: 6,
-    distributionSE: 19,
-    pathD: 'M 125 105 L 155 55 L 175 60 L 160 100 L 210 110 L 215 130 L 150 130 L 135 135 Z',
-    labelPos: { x: 165, y: 95 },
-  },
-  {
-    code: 'LAR',
-    name: 'Lara',
-    substations: 38,
-    circuits: 140,
-    transmissionSE: 10,
-    distributionSE: 28,
-    pathD: 'M 140 135 L 185 130 L 195 160 L 155 170 L 140 160 Z',
-    labelPos: { x: 165, y: 150 },
-  },
-  {
-    code: 'YAR',
-    name: 'Yaracuy',
-    substations: 15,
-    circuits: 52,
-    transmissionSE: 4,
-    distributionSE: 11,
-    pathD: 'M 185 130 L 208 130 L 212 155 L 195 160 Z',
-    labelPos: { x: 200, y: 144 },
-  },
-  {
-    code: 'CAR',
-    name: 'Carabobo',
-    substations: 60,
-    circuits: 220,
-    transmissionSE: 16,
-    distributionSE: 44,
-    pathD: 'M 208 130 L 235 130 L 238 155 L 212 155 Z',
-    labelPos: { x: 223, y: 142 },
-  },
-  {
-    code: 'ARA',
-    name: 'Aragua',
-    substations: 42,
-    circuits: 156,
-    transmissionSE: 12,
-    distributionSE: 30,
-    pathD: 'M 235 130 L 260 130 L 260 158 L 238 155 Z',
-    labelPos: { x: 248, y: 144 },
-  },
-  {
-    code: 'LAG',
-    name: 'La Guaira',
-    substations: 14,
-    circuits: 50,
-    transmissionSE: 4,
-    distributionSE: 10,
-    pathD: 'M 260 124 L 290 124 L 290 132 L 260 132 Z',
-    labelPos: { x: 275, y: 128 },
-  },
-  {
-    code: 'DC',
-    name: 'Distrito Capital',
-    substations: 85,
-    circuits: 310,
-    transmissionSE: 22,
-    distributionSE: 63,
-    pathD: 'M 265 132 L 280 132 L 280 144 L 265 144 Z',
-    labelPos: { x: 272, y: 138 },
-  },
-  {
-    code: 'MIR',
-    name: 'Miranda',
-    substations: 70,
-    circuits: 280,
-    transmissionSE: 18,
-    distributionSE: 52,
-    pathD: 'M 260 144 L 310 132 L 325 158 L 278 168 L 260 158 Z',
-    labelPos: { x: 290, y: 150 },
-  },
-  {
-    code: 'TRU',
-    name: 'Trujillo',
-    substations: 17,
-    circuits: 62,
-    transmissionSE: 4,
-    distributionSE: 13,
-    pathD: 'M 125 170 L 155 170 L 145 195 L 120 195 Z',
-    labelPos: { x: 136, y: 182 },
-  },
-  {
-    code: 'MER',
-    name: 'Mérida',
-    substations: 22,
-    circuits: 75,
-    transmissionSE: 6,
-    distributionSE: 16,
-    pathD: 'M 115 195 L 145 195 L 130 225 L 95 210 Z',
-    labelPos: { x: 122, y: 208 },
-  },
-  {
-    code: 'TAC',
-    name: 'Táchira',
-    substations: 30,
-    circuits: 110,
-    transmissionSE: 8,
-    distributionSE: 22,
-    pathD: 'M 90 190 L 115 195 L 95 240 L 70 220 Z',
-    labelPos: { x: 92, y: 212 },
-  },
-  {
-    code: 'POR',
-    name: 'Portuguesa',
-    substations: 16,
-    circuits: 58,
-    transmissionSE: 4,
-    distributionSE: 12,
-    pathD: 'M 155 170 L 198 160 L 202 190 L 165 200 Z',
-    labelPos: { x: 180, y: 180 },
-  },
-  {
-    code: 'COJ',
-    name: 'Cojedes',
-    substations: 10,
-    circuits: 35,
-    transmissionSE: 3,
-    distributionSE: 7,
-    pathD: 'M 198 160 L 238 155 L 232 190 L 202 190 Z',
-    labelPos: { x: 218, y: 174 },
-  },
-  {
-    code: 'BAR',
-    name: 'Barinas',
-    substations: 18,
-    circuits: 65,
-    transmissionSE: 5,
-    distributionSE: 13,
-    pathD: 'M 130 225 L 165 200 L 218 215 L 180 250 L 135 240 Z',
-    labelPos: { x: 165, y: 226 },
-  },
-  {
-    code: 'APU',
-    name: 'Apure',
-    substations: 12,
-    circuits: 45,
-    transmissionSE: 3,
-    distributionSE: 9,
-    pathD: 'M 95 240 L 180 250 L 250 250 L 260 285 L 170 310 L 120 280 Z',
-    labelPos: { x: 180, y: 275 },
-  },
-  {
-    code: 'GUA',
-    name: 'Guárico',
-    substations: 15,
-    circuits: 55,
-    transmissionSE: 4,
-    distributionSE: 11,
-    pathD: 'M 238 155 L 315 160 L 305 240 L 250 250 Z',
-    labelPos: { x: 278, y: 200 },
-  },
-  {
-    code: 'ANZ',
-    name: 'Anzoátegui',
-    substations: 35,
-    circuits: 110,
-    transmissionSE: 10,
-    distributionSE: 25,
-    pathD: 'M 315 160 L 390 150 L 385 240 L 305 240 Z',
-    labelPos: { x: 348, y: 195 },
-  },
-  {
-    code: 'MON',
-    name: 'Monagas',
-    substations: 20,
-    circuits: 70,
-    transmissionSE: 6,
-    distributionSE: 14,
-    pathD: 'M 390 150 L 440 150 L 435 200 L 385 200 Z',
-    labelPos: { x: 410, y: 175 },
-  },
-  {
-    code: 'SUC',
-    name: 'Sucre',
-    substations: 19,
-    circuits: 65,
-    transmissionSE: 5,
-    distributionSE: 14,
-    pathD: 'M 355 125 L 450 125 L 445 150 L 390 150 Z',
-    labelPos: { x: 400, y: 136 },
-  },
-  {
-    code: 'NES',
-    name: 'Nueva Esparta',
-    substations: 18,
-    circuits: 60,
-    transmissionSE: 4,
-    distributionSE: 14,
-    pathD: 'M 385 92 C 385 85, 415 85, 415 92 C 415 102, 385 102, 385 92 Z',
-    labelPos: { x: 400, y: 92 },
-  },
-  {
-    code: 'DEL',
-    name: 'Delta Amacuro',
-    substations: 5,
-    circuits: 15,
-    transmissionSE: 1,
-    distributionSE: 4,
-    pathD: 'M 440 150 L 495 165 L 480 230 L 435 200 Z',
-    labelPos: { x: 462, y: 182 },
-  },
-  {
-    code: 'BOL',
-    name: 'Bolívar',
-    substations: 55,
-    circuits: 180,
-    transmissionSE: 20,
-    distributionSE: 35,
-    pathD: 'M 260 285 L 305 240 L 385 240 L 435 200 L 480 230 L 475 330 L 415 400 L 315 390 L 280 340 Z',
-    labelPos: { x: 375, y: 310 },
-  },
-  {
-    code: 'AMA',
-    name: 'Amazonas',
-    substations: 4,
-    circuits: 12,
-    transmissionSE: 1,
-    distributionSE: 3,
-    pathD: 'M 170 310 L 260 285 L 280 340 L 315 390 L 275 470 L 205 450 L 180 370 Z',
-    labelPos: { x: 235, y: 380 },
-  },
-  {
-    code: 'ESE',
-    name: 'Guayana Esequiba 🇻🇪',
-    substations: 8,
-    circuits: 25,
-    transmissionSE: 2,
-    distributionSE: 6,
-    pathD: 'M 480 230 L 555 220 L 540 360 L 475 330 Z',
-    labelPos: { x: 510, y: 285 },
-  },
+// Datos Geográficos Reales de Venezuela (25 Entidades Federales + Esequibo)
+export const VENEZUELA_GIS_CATALOG: StateAssetGIS[] = [
+  { code: 'DC', name: 'Distrito Capital', lat: 10.4806, lng: -66.9036, substations: 85, circuits: 310, transmissionSE: 22, distributionSE: 63 },
+  { code: 'ZUL', name: 'Zulia', lat: 10.6427, lng: -71.6125, substations: 95, circuits: 380, transmissionSE: 28, distributionSE: 67 },
+  { code: 'MIR', name: 'Miranda', lat: 10.3444, lng: -67.0428, substations: 70, circuits: 280, transmissionSE: 18, distributionSE: 52 },
+  { code: 'CAR', name: 'Carabobo', lat: 10.1620, lng: -68.0077, substations: 60, circuits: 220, transmissionSE: 16, distributionSE: 44 },
+  { code: 'BOL', name: 'Bolívar', lat: 8.1200, lng: -63.5500, substations: 55, circuits: 180, transmissionSE: 20, distributionSE: 35 },
+  { code: 'ARA', name: 'Aragua', lat: 10.2469, lng: -67.5958, substations: 42, circuits: 156, transmissionSE: 12, distributionSE: 30 },
+  { code: 'LAR', name: 'Lara', lat: 10.0647, lng: -69.3570, substations: 38, circuits: 140, transmissionSE: 10, distributionSE: 28 },
+  { code: 'ANZ', name: 'Anzoátegui', lat: 10.1360, lng: -64.6860, substations: 35, circuits: 110, transmissionSE: 10, distributionSE: 25 },
+  { code: 'TAC', name: 'Táchira', lat: 7.7669, lng: -72.2250, substations: 30, circuits: 110, transmissionSE: 8, distributionSE: 22 },
+  { code: 'FAL', name: 'Falcón', lat: 11.4045, lng: -69.6734, substations: 25, circuits: 95, transmissionSE: 6, distributionSE: 19 },
+  { code: 'MER', name: 'Mérida', lat: 8.5983, lng: -71.1450, substations: 22, circuits: 75, transmissionSE: 6, distributionSE: 16 },
+  { code: 'MON', name: 'Monagas', lat: 9.7469, lng: -63.1833, substations: 20, circuits: 70, transmissionSE: 6, distributionSE: 14 },
+  { code: 'SUC', name: 'Sucre', lat: 10.4636, lng: -64.1775, substations: 19, circuits: 65, transmissionSE: 5, distributionSE: 14 },
+  { code: 'NES', name: 'Nueva Esparta', lat: 10.9575, lng: -63.8697, substations: 18, circuits: 60, transmissionSE: 4, distributionSE: 14 },
+  { code: 'BAR', name: 'Barinas', lat: 8.6226, lng: -70.2075, substations: 18, circuits: 65, transmissionSE: 5, distributionSE: 13 },
+  { code: 'TRU', name: 'Trujillo', lat: 9.3708, lng: -70.4347, substations: 17, circuits: 62, transmissionSE: 4, distributionSE: 13 },
+  { code: 'POR', name: 'Portuguesa', lat: 9.0418, lng: -69.7421, substations: 16, circuits: 58, transmissionSE: 4, distributionSE: 12 },
+  { code: 'YAR', name: 'Yaracuy', lat: 10.3394, lng: -68.7425, substations: 15, circuits: 52, transmissionSE: 4, distributionSE: 11 },
+  { code: 'GUA', name: 'Guárico', lat: 9.9115, lng: -67.3538, substations: 15, circuits: 55, transmissionSE: 4, distributionSE: 11 },
+  { code: 'LAG', name: 'La Guaira', lat: 10.6010, lng: -66.9324, substations: 14, circuits: 50, transmissionSE: 4, distributionSE: 10 },
+  { code: 'APU', name: 'Apure', lat: 7.8878, lng: -67.4724, substations: 12, circuits: 45, transmissionSE: 3, distributionSE: 9 },
+  { code: 'COJ', name: 'Cojedes', lat: 9.6612, lng: -68.5827, substations: 10, circuits: 35, transmissionSE: 3, distributionSE: 7 },
+  { code: 'ESE', name: 'Guayana Esequiba 🇻🇪', lat: 6.8000, lng: -59.8000, substations: 8, circuits: 25, transmissionSE: 2, distributionSE: 6 },
+  { code: 'DEL', name: 'Delta Amacuro', lat: 9.0620, lng: -62.0538, substations: 5, circuits: 15, transmissionSE: 1, distributionSE: 4 },
+  { code: 'AMA', name: 'Amazonas', lat: 5.6639, lng: -67.6236, substations: 4, circuits: 12, transmissionSE: 1, distributionSE: 3 },
 ];
 
 export const AssetsMapDashboard: React.FC = () => {
-  const [hoveredState, setHoveredState] = useState<StateAssetData | null>(null);
-  const [selectedState, setSelectedState] = useState<StateAssetData>(VENEZUELA_STATES_GEO[0]);
-  const [viewMode, setViewMode] = useState<'MAPS' | 'LIST'>('MAPS');
+  const { theme } = useAuth();
+  const [selectedState, setSelectedState] = useState<StateAssetGIS>(VENEZUELA_GIS_CATALOG[0]);
+  const [viewMode, setViewMode] = useState<'GIS' | 'TABLE'>('GIS');
 
-  const totalSE = VENEZUELA_STATES_GEO.reduce((acc, s) => acc + s.substations, 0);
-  const totalCT = VENEZUELA_STATES_GEO.reduce((acc, s) => acc + s.circuits, 0);
-  const maxSE = Math.max(...VENEZUELA_STATES_GEO.map(s => s.substations));
-  const maxCT = Math.max(...VENEZUELA_STATES_GEO.map(s => s.circuits));
+  const mapContainerRefSE = useRef<HTMLDivElement>(null);
+  const mapContainerRefCT = useRef<HTMLDivElement>(null);
+  const mapInstanceSE = useRef<L.Map | null>(null);
+  const mapInstanceCT = useRef<L.Map | null>(null);
 
-  // Función para determinar el color del mapa de Subestaciones
-  const getSEColor = (count: number, isHovered: boolean, isSelected: boolean) => {
-    if (isSelected) return '#f59e0b'; // Amber highlight
-    if (isHovered) return '#fbbf24';
-    const ratio = count / maxSE;
-    if (ratio > 0.7) return '#dc2626'; // Deep Red
-    if (ratio > 0.4) return '#ea580c'; // Orange
-    if (ratio > 0.2) return '#d97706'; // Amber
-    if (ratio > 0.1) return '#eab308'; // Yellow
-    return '#64748b'; // Slate
-  };
+  const totalSE = VENEZUELA_GIS_CATALOG.reduce((acc, s) => acc + s.substations, 0);
+  const totalCT = VENEZUELA_GIS_CATALOG.reduce((acc, s) => acc + s.circuits, 0);
 
-  // Función para determinar el color del mapa de Circuitos
-  const getCTColor = (count: number, isHovered: boolean, isSelected: boolean) => {
-    if (isSelected) return '#00f2fe'; // Electric Cyan highlight
-    if (isHovered) return '#38bdf8';
-    const ratio = count / maxCT;
-    if (ratio > 0.7) return '#0284c7'; // Deep Sky
-    if (ratio > 0.4) return '#0ea5e9'; // Cyan
-    if (ratio > 0.2) return '#38bdf8'; // Light Blue
-    if (ratio > 0.1) return '#7dd3fc'; // Soft Blue
-    return '#475569'; // Dark Slate
-  };
+  // Inicializar Mapa SE
+  useEffect(() => {
+    if (viewMode !== 'GIS' || !mapContainerRefSE.current) return;
 
-  const activeStateObj = hoveredState || selectedState;
+    if (mapInstanceSE.current) {
+      mapInstanceSE.current.remove();
+      mapInstanceSE.current = null;
+    }
+
+    const map = L.map(mapContainerRefSE.current, {
+      center: [7.8, -66.0],
+      zoom: 6,
+      zoomControl: true,
+      scrollWheelZoom: false,
+    });
+
+    const tileUrl = theme === 'dark'
+      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+
+    L.tileLayer(tileUrl, {
+      attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; OpenStreetMap contributors',
+      maxZoom: 18,
+    }).addTo(map);
+
+    // Agregar marcadores térmicos para Subestaciones (SE)
+    VENEZUELA_GIS_CATALOG.forEach((st) => {
+      const radius = Math.max(12, Math.min(32, (st.substations / 95) * 32));
+      const color = st.substations > 50 ? '#dc2626' : st.substations > 20 ? '#f97316' : '#d97706';
+
+      const circle = L.circleMarker([st.lat, st.lng], {
+        radius,
+        color: color,
+        fillColor: color,
+        fillOpacity: 0.65,
+        weight: 2,
+      }).addTo(map);
+
+      circle.bindTooltip(`
+        <div style="font-family: sans-serif; font-size: 11px; font-weight: bold; line-height: 1.3;">
+          <div style="color: #d97706; text-transform: uppercase;">${st.name} ${st.code === 'ESE' ? '🇻🇪' : ''}</div>
+          <div style="color: #ef4444;">⚡ ${st.substations} Subestaciones</div>
+          <div style="color: #64748b; font-size: 9px;">Transmisión: ${st.transmissionSE} | Distr: ${st.distributionSE}</div>
+        </div>
+      `, { permanent: false, direction: 'top' });
+
+      circle.on('click', () => {
+        setSelectedState(st);
+      });
+    });
+
+    mapInstanceSE.current = map;
+
+    return () => {
+      if (mapInstanceSE.current) {
+        mapInstanceSE.current.remove();
+        mapInstanceSE.current = null;
+      }
+    };
+  }, [viewMode, theme]);
+
+  // Inicializar Mapa CT
+  useEffect(() => {
+    if (viewMode !== 'GIS' || !mapContainerRefCT.current) return;
+
+    if (mapInstanceCT.current) {
+      mapInstanceCT.current.remove();
+      mapInstanceCT.current = null;
+    }
+
+    const map = L.map(mapContainerRefCT.current, {
+      center: [7.8, -66.0],
+      zoom: 6,
+      zoomControl: true,
+      scrollWheelZoom: false,
+    });
+
+    const tileUrl = theme === 'dark'
+      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+
+    L.tileLayer(tileUrl, {
+      attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; OpenStreetMap contributors',
+      maxZoom: 18,
+    }).addTo(map);
+
+    // Agregar marcadores térmicos para Circuitos (CT)
+    VENEZUELA_GIS_CATALOG.forEach((st) => {
+      const radius = Math.max(12, Math.min(32, (st.circuits / 380) * 32));
+      const color = st.circuits > 200 ? '#00f2fe' : st.circuits > 80 ? '#0ea5e9' : '#38bdf8';
+
+      const circle = L.circleMarker([st.lat, st.lng], {
+        radius,
+        color: color,
+        fillColor: color,
+        fillOpacity: 0.65,
+        weight: 2,
+      }).addTo(map);
+
+      circle.bindTooltip(`
+        <div style="font-family: sans-serif; font-size: 11px; font-weight: bold; line-height: 1.3;">
+          <div style="color: #0284c7; text-transform: uppercase;">${st.name} ${st.code === 'ESE' ? '🇻🇪' : ''}</div>
+          <div style="color: #0ea5e9;">🔌 ${st.circuits} Circuitos (CT)</div>
+          <div style="color: #64748b; font-size: 9px;">${((st.circuits / totalCT) * 100).toFixed(1)}% del Parque Nacional</div>
+        </div>
+      `, { permanent: false, direction: 'top' });
+
+      circle.on('click', () => {
+        setSelectedState(st);
+      });
+    });
+
+    mapInstanceCT.current = map;
+
+    return () => {
+      if (mapInstanceCT.current) {
+        mapInstanceCT.current.remove();
+        mapInstanceCT.current = null;
+      }
+    };
+  }, [viewMode, theme]);
 
   return (
     <div className="space-y-6 animate-in fade-in zoom-in duration-300">
@@ -311,54 +188,54 @@ export const AssetsMapDashboard: React.FC = () => {
           <div className="flex items-center space-x-2">
             <MapPin className="h-6 w-6 text-amber-500 dark:text-[#ffd700]" />
             <h3 className="text-xl font-black text-slate-900 dark:text-white">
-              Visor Geográfico de Activos de Red — Venezuela 🇻🇪
+              Visor GIS Cartográfico Oficial de Venezuela — SEN 🇻🇪
             </h3>
           </div>
           <p className="text-xs text-slate-700 dark:text-slate-300 mt-1 max-w-3xl font-medium">
-            Representación vectorial de la densidad de activos eléctricos basada en <code className="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded font-mono text-amber-700 dark:text-amber-400">samc.activos_red</code>.
-            Incluye la totalidad de las 24 entidades federales más la <strong className="text-[#002b49] dark:text-[#00f2fe]">Guayana Esequiba</strong>.
+            Mapas geográficos reales basados en motor Leaflet / OpenStreetMap y alimentados desde <code className="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded font-mono text-amber-700 dark:text-amber-400">samc.activos_red</code>.
+            Incluye las 25 entidades federales y el territorio de la <strong className="text-[#002b49] dark:text-[#00f2fe]">Guayana Esequiba</strong>.
           </p>
         </div>
 
         {/* View Mode Switcher */}
         <div className="flex items-center space-x-1.5 bg-slate-100 dark:bg-[#070f1e] p-1.5 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-inner">
           <button
-            onClick={() => setViewMode('MAPS')}
+            onClick={() => setViewMode('GIS')}
             className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
-              viewMode === 'MAPS'
+              viewMode === 'GIS'
                 ? 'bg-[#002b49] text-white dark:bg-[#00f2fe] dark:text-[#0a192f] shadow-md'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <MapPin className="h-4 w-4" />
-            <span>Mapas Vectoriales SVG</span>
+            <Layers className="h-4 w-4" />
+            <span>Mapas GIS Reales Leaflet</span>
           </button>
 
           <button
-            onClick={() => setViewMode('LIST')}
+            onClick={() => setViewMode('TABLE')}
             className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
-              viewMode === 'LIST'
+              viewMode === 'TABLE'
                 ? 'bg-[#002b49] text-white dark:bg-[#00f2fe] dark:text-[#0a192f] shadow-md'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <BarChart3 className="h-4 w-4" />
-            <span>Barras de Calor & Tabla</span>
+            <span>Tabla de Inventario</span>
           </button>
         </div>
       </div>
 
-      {/* State Detail Hover / Selected Floating Card */}
+      {/* State Detail Selected Card */}
       <div className="rounded-2xl bg-gradient-to-r from-slate-900 via-[#0b1f3a] to-slate-900 p-4 border border-amber-500/40 shadow-lg text-white flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center space-x-3">
           <div className="h-10 w-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center font-black text-amber-400 text-sm">
-            {activeStateObj.code}
+            {selectedState.code}
           </div>
           <div>
-            <div className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Estado Seleccionado / Puntero</div>
+            <div className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Entidad Seleccionada en Mapa</div>
             <h4 className="text-base font-black text-amber-400 flex items-center space-x-2">
-              <span>{activeStateObj.name}</span>
-              {activeStateObj.code === 'ESE' && <span>🇻🇪</span>}
+              <span>{selectedState.name}</span>
+              {selectedState.code === 'ESE' && <span>🇻🇪</span>}
             </h4>
           </div>
         </div>
@@ -368,9 +245,9 @@ export const AssetsMapDashboard: React.FC = () => {
             <div className="text-[10px] font-semibold text-slate-400">Subestaciones (SE)</div>
             <div className="text-lg font-black text-red-400 flex items-center justify-center space-x-1">
               <Database className="h-4 w-4" />
-              <span>{activeStateObj.substations}</span>
+              <span>{selectedState.substations}</span>
             </div>
-            <div className="text-[9px] text-slate-400">Transmisión: {activeStateObj.transmissionSE} | Distr: {activeStateObj.distributionSE}</div>
+            <div className="text-[9px] text-slate-400">Transmisión: {selectedState.transmissionSE} | Distr: {selectedState.distributionSE}</div>
           </div>
 
           <div className="h-8 w-px bg-slate-700 hidden sm:block" />
@@ -379,29 +256,28 @@ export const AssetsMapDashboard: React.FC = () => {
             <div className="text-[10px] font-semibold text-slate-400">Circuitos (CT)</div>
             <div className="text-lg font-black text-[#00f2fe] flex items-center justify-center space-x-1">
               <Zap className="h-4 w-4" />
-              <span>{activeStateObj.circuits}</span>
+              <span>{selectedState.circuits}</span>
             </div>
-            <div className="text-[9px] text-slate-400">{((activeStateObj.circuits / totalCT) * 100).toFixed(1)}% del Parque Nacional</div>
+            <div className="text-[9px] text-slate-400">{((selectedState.circuits / totalCT) * 100).toFixed(1)}% del Parque Nacional</div>
           </div>
 
           <div className="h-8 w-px bg-slate-700 hidden sm:block" />
 
           <div className="text-center">
-            <div className="text-[10px] font-semibold text-slate-400">Estatus de Auditoría</div>
-            <div className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-extrabold mt-1">
-              <ShieldCheck className="h-3 w-3" />
-              <span>100% CARACTERIZADO</span>
+            <div className="text-[10px] font-semibold text-slate-400">Coordenadas GIS</div>
+            <div className="text-xs font-mono font-bold text-emerald-400 mt-1">
+              {selectedState.lat.toFixed(4)}° N, {selectedState.lng.toFixed(4)}° W
             </div>
           </div>
         </div>
       </div>
 
-      {viewMode === 'MAPS' ? (
-        /* VISTA DE MAPAS VECTORIALES SVG SIMULTÁNEOS */
+      {viewMode === 'GIS' ? (
+        /* DOS MAPAS REALES LEAFLET LADO A LADO */
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           
-          {/* MAPA 1: SUBESTACIONES (SE) */}
-          <div className="rounded-3xl bg-white dark:bg-[#070f1e] p-5 border border-slate-200 dark:border-slate-800 shadow-md relative overflow-hidden">
+          {/* MAPA 1: SUBESTACIONES (SE) LEAFLET */}
+          <div className="rounded-3xl bg-white dark:bg-[#070f1e] p-5 border border-slate-200 dark:border-slate-800 shadow-md relative overflow-hidden flex flex-col">
             <div className="flex items-center justify-between mb-4 border-b border-slate-200 dark:border-slate-800 pb-3">
               <div className="flex items-center space-x-2">
                 <div className="h-8 w-8 rounded-xl bg-red-100 dark:bg-red-950/60 border border-red-300 dark:border-red-500/40 flex items-center justify-center text-red-600 dark:text-red-400">
@@ -409,76 +285,35 @@ export const AssetsMapDashboard: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
-                    Mapa 1: Subestaciones (SE)
+                    Mapa 1: Subestaciones (SE) — Venezuela
                   </h4>
                   <span className="text-[10px] text-slate-500 font-semibold">Total Nacional: {totalSE} Subestaciones</span>
                 </div>
               </div>
 
-              {/* Intensity Legend */}
               <div className="flex items-center space-x-1 text-[9px] font-bold text-slate-500">
                 <span>Bajo</span>
-                <span className="h-2.5 w-3 bg-[#64748b] rounded-xs" />
-                <span className="h-2.5 w-3 bg-[#eab308] rounded-xs" />
-                <span className="h-2.5 w-3 bg-[#ea580c] rounded-xs" />
+                <span className="h-2.5 w-3 bg-[#d97706] rounded-xs" />
+                <span className="h-2.5 w-3 bg-[#f97316] rounded-xs" />
                 <span className="h-2.5 w-3 bg-[#dc2626] rounded-xs" />
                 <span>Alto</span>
               </div>
             </div>
 
-            {/* SVG Map Canvas SE */}
-            <div className="relative w-full aspect-[580/480] bg-slate-50 dark:bg-[#040914] rounded-2xl border border-slate-200 dark:border-slate-800/80 p-2 flex items-center justify-center">
-              <svg
-                viewBox="0 0 580 480"
-                className="w-full h-full drop-shadow-md select-none"
-              >
-                {/* Background Water / Border Mesh */}
-                <rect x="0" y="0" width="580" height="480" fill="transparent" />
-
-                {/* State Paths */}
-                {VENEZUELA_STATES_GEO.map((st) => {
-                  const isHovered = hoveredState?.code === st.code;
-                  const isSelected = selectedState.code === st.code;
-                  const fillColor = getSEColor(st.substations, isHovered, isSelected);
-
-                  return (
-                    <g key={`se-${st.code}`}>
-                      <path
-                        d={st.pathD}
-                        fill={fillColor}
-                        stroke={isSelected ? '#ffffff' : '#1e293b'}
-                        strokeWidth={isSelected ? 2.5 : 1}
-                        className="transition-all duration-200 cursor-pointer hover:opacity-90 hover:stroke-white"
-                        onMouseEnter={() => setHoveredState(st)}
-                        onMouseLeave={() => setHoveredState(null)}
-                        onClick={() => setSelectedState(st)}
-                      />
-                      {/* State Label Abbreviation */}
-                      <text
-                        x={st.labelPos.x}
-                        y={st.labelPos.y}
-                        fill={isSelected ? '#ffffff' : '#ffffff'}
-                        fontSize="9"
-                        fontWeight="900"
-                        textAnchor="middle"
-                        className="pointer-events-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]"
-                      >
-                        {st.code}
-                      </text>
-                    </g>
-                  );
-                })}
-              </svg>
-            </div>
+            {/* Leaflet Map Canvas SE */}
+            <div 
+              ref={mapContainerRefSE} 
+              className="w-full h-[450px] rounded-2xl border border-slate-200 dark:border-slate-800 z-10"
+            />
             
             <div className="mt-3 flex items-center justify-between text-[10px] text-slate-500 font-semibold px-1">
-              <span>* Haz clic o pasa el cursor sobre cualquier estado para consultar</span>
-              <span className="text-red-500 font-bold">Límite Guayana Esequiba 🇻🇪 Incluido</span>
+              <span>* Puedes hacer zoom, arrastrar el mapa e interactuar con cada subestación</span>
+              <span className="text-red-500 font-bold">Guayana Esequiba 🇻🇪 Incluida</span>
             </div>
           </div>
 
-          {/* MAPA 2: CIRCUITOS (CT) */}
-          <div className="rounded-3xl bg-white dark:bg-[#070f1e] p-5 border border-slate-200 dark:border-slate-800 shadow-md relative overflow-hidden">
+          {/* MAPA 2: CIRCUITOS (CT) LEAFLET */}
+          <div className="rounded-3xl bg-white dark:bg-[#070f1e] p-5 border border-slate-200 dark:border-slate-800 shadow-md relative overflow-hidden flex flex-col">
             <div className="flex items-center justify-between mb-4 border-b border-slate-200 dark:border-slate-800 pb-3">
               <div className="flex items-center space-x-2">
                 <div className="h-8 w-8 rounded-xl bg-cyan-100 dark:bg-cyan-950/60 border border-cyan-300 dark:border-cyan-500/40 flex items-center justify-center text-cyan-600 dark:text-cyan-400">
@@ -486,16 +321,14 @@ export const AssetsMapDashboard: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
-                    Mapa 2: Circuitos de Distribución (CT)
+                    Mapa 2: Circuitos (CT) — Venezuela
                   </h4>
                   <span className="text-[10px] text-slate-500 font-semibold">Total Nacional: {totalCT.toLocaleString()} Circuitos</span>
                 </div>
               </div>
 
-              {/* Intensity Legend */}
               <div className="flex items-center space-x-1 text-[9px] font-bold text-slate-500">
                 <span>Bajo</span>
-                <span className="h-2.5 w-3 bg-[#475569] rounded-xs" />
                 <span className="h-2.5 w-3 bg-[#38bdf8] rounded-xs" />
                 <span className="h-2.5 w-3 bg-[#0ea5e9] rounded-xs" />
                 <span className="h-2.5 w-3 bg-[#00f2fe] rounded-xs" />
@@ -503,123 +336,27 @@ export const AssetsMapDashboard: React.FC = () => {
               </div>
             </div>
 
-            {/* SVG Map Canvas CT */}
-            <div className="relative w-full aspect-[580/480] bg-slate-50 dark:bg-[#040914] rounded-2xl border border-slate-200 dark:border-slate-800/80 p-2 flex items-center justify-center">
-              <svg
-                viewBox="0 0 580 480"
-                className="w-full h-full drop-shadow-md select-none"
-              >
-                {/* Background Water / Border Mesh */}
-                <rect x="0" y="0" width="580" height="480" fill="transparent" />
-
-                {/* State Paths */}
-                {VENEZUELA_STATES_GEO.map((st) => {
-                  const isHovered = hoveredState?.code === st.code;
-                  const isSelected = selectedState.code === st.code;
-                  const fillColor = getCTColor(st.circuits, isHovered, isSelected);
-
-                  return (
-                    <g key={`ct-${st.code}`}>
-                      <path
-                        d={st.pathD}
-                        fill={fillColor}
-                        stroke={isSelected ? '#ffffff' : '#0f172a'}
-                        strokeWidth={isSelected ? 2.5 : 1}
-                        className="transition-all duration-200 cursor-pointer hover:opacity-90 hover:stroke-white"
-                        onMouseEnter={() => setHoveredState(st)}
-                        onMouseLeave={() => setHoveredState(null)}
-                        onClick={() => setSelectedState(st)}
-                      />
-                      {/* State Label Abbreviation */}
-                      <text
-                        x={st.labelPos.x}
-                        y={st.labelPos.y}
-                        fill="#ffffff"
-                        fontSize="9"
-                        fontWeight="900"
-                        textAnchor="middle"
-                        className="pointer-events-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]"
-                      >
-                        {st.code}
-                      </text>
-                    </g>
-                  );
-                })}
-              </svg>
-            </div>
+            {/* Leaflet Map Canvas CT */}
+            <div 
+              ref={mapContainerRefCT} 
+              className="w-full h-[450px] rounded-2xl border border-slate-200 dark:border-slate-800 z-10"
+            />
 
             <div className="mt-3 flex items-center justify-between text-[10px] text-slate-500 font-semibold px-1">
-              <span>* Integrado con el esquema oficial de Media Tensión (MT)</span>
+              <span>* Integrado con el catálogo oficial de Media Tensión (MT)</span>
               <span className="text-[#00f2fe] font-bold">25 Entidades Federales</span>
             </div>
           </div>
 
         </div>
-      ) : (
-        /* VISTA DE BARRAS DE CALOR Y TABLA */
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          
-          {/* Heatmap SE List */}
-          <div className="rounded-3xl bg-white dark:bg-[#070f1e] p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
-            <div className="flex items-center space-x-2 mb-4 border-b border-slate-200 dark:border-slate-800 pb-3">
-              <Database className="h-5 w-5 text-red-500" />
-              <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
-                Densidad por Estado: Subestaciones
-              </h4>
-            </div>
-            <div className="space-y-2 h-[420px] overflow-y-auto pr-2 scrollbar-thin">
-              {VENEZUELA_STATES_GEO.slice().sort((a,b) => b.substations - a.substations).map((st) => (
-                <div key={st.code} className="relative">
-                  <div className="flex justify-between text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-0.5 px-2 pt-1">
-                    <span>{st.name} {st.code === 'ESE' && '🇻🇪'}</span>
-                    <span>{st.substations} SEs ({st.transmissionSE} Tx / {st.distributionSE} Dis)</span>
-                  </div>
-                  <div className="h-5 w-full bg-slate-100 dark:bg-slate-800/50 rounded overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-to-r from-red-300 to-red-600 rounded"
-                      style={{ width: `${(st.substations / maxSE) * 100}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Heatmap CT List */}
-          <div className="rounded-3xl bg-white dark:bg-[#070f1e] p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
-            <div className="flex items-center space-x-2 mb-4 border-b border-slate-200 dark:border-slate-800 pb-3">
-              <Zap className="h-5 w-5 text-cyan-500" />
-              <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
-                Densidad por Estado: Circuitos
-              </h4>
-            </div>
-            <div className="space-y-2 h-[420px] overflow-y-auto pr-2 scrollbar-thin">
-              {VENEZUELA_STATES_GEO.slice().sort((a,b) => b.circuits - a.circuits).map((st) => (
-                <div key={st.code} className="relative">
-                  <div className="flex justify-between text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-0.5 px-2 pt-1">
-                    <span>{st.name} {st.code === 'ESE' && '🇻🇪'}</span>
-                    <span>{st.circuits} CTs</span>
-                  </div>
-                  <div className="h-5 w-full bg-slate-100 dark:bg-slate-800/50 rounded overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-to-r from-cyan-300 to-cyan-600 rounded"
-                      style={{ width: `${(st.circuits / maxCT) * 100}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-        </div>
-      )}
+      ) : null}
 
       {/* Tabla Unificada de Origen de Activos */}
       <div className="rounded-3xl bg-white dark:bg-[#070f1e] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden mt-6">
         <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
           <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center space-x-2">
             <BarChart3 className="h-4 w-4 text-emerald-500" />
-            <span>Tabla Unificada de Origen de Activos (`samc.activos_red`)</span>
+            <span>Inventario Cartográfico de Activos de Red (`samc.activos_red`)</span>
           </h4>
           <span className="text-[10px] font-mono font-bold bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40 px-3 py-1 rounded-full">
             NORMAS ISO 8000 / 55000 / 27001
@@ -630,8 +367,9 @@ export const AssetsMapDashboard: React.FC = () => {
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="bg-slate-50 dark:bg-[#0a1526] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
-                <th className="p-4 border-b border-slate-200 dark:border-slate-800">Código Entidad</th>
+                <th className="p-4 border-b border-slate-200 dark:border-slate-800">Código</th>
                 <th className="p-4 border-b border-slate-200 dark:border-slate-800">Estado / Entidad Federal</th>
+                <th className="p-4 border-b border-slate-200 dark:border-slate-800 text-center">Coordenadas Lat/Lng</th>
                 <th className="p-4 border-b border-slate-200 dark:border-slate-800 text-center">Subestaciones (SE)</th>
                 <th className="p-4 border-b border-slate-200 dark:border-slate-800 text-center">SE Transmisión</th>
                 <th className="p-4 border-b border-slate-200 dark:border-slate-800 text-center">SE Distribución</th>
@@ -639,7 +377,7 @@ export const AssetsMapDashboard: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300 font-medium">
-              {VENEZUELA_STATES_GEO.map((st) => (
+              {VENEZUELA_GIS_CATALOG.map((st) => (
                 <tr 
                   key={st.code}
                   onClick={() => setSelectedState(st)}
@@ -652,6 +390,7 @@ export const AssetsMapDashboard: React.FC = () => {
                     <span>{st.name}</span>
                     {st.code === 'ESE' && <span>🇻🇪</span>}
                   </td>
+                  <td className="p-4 text-center font-mono text-slate-500">{st.lat.toFixed(2)}°, {st.lng.toFixed(2)}°</td>
                   <td className="p-4 text-center font-bold text-red-500">{st.substations}</td>
                   <td className="p-4 text-center font-mono text-slate-500">{st.transmissionSE}</td>
                   <td className="p-4 text-center font-mono text-slate-500">{st.distributionSE}</td>
