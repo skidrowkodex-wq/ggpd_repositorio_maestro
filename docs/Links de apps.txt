@@ -1,0 +1,219 @@
+Links de apps:
+*************************************************************************
+Proyecto: Seguimiento y Control de Tiras de Interrupcion
+Nombre de la app: SCTIS V 2.0 Distribucion
+Url de publicacion: https://sctis-interrupciones-distribucion.ai.studio
+Integraciones: Google Drive, Gmail, Gemini AI
+Cuenta AI STUDIO: skidrowkdex@gmail.com.
+Cuenta de Despliegue: skidrowkodex@gmail.com
+Motor de Publicacion: Cloud Google (cloud.google.com).
+
+
+USUARIOS:
+Usuarios Preconfigurados y Credenciales (sctis.user_profiles)
+Usuario (username)	Nombre Completo	Rol Asignado	Contraseña (password)	Descripción / Ámbito
+c_favio	Catherina Favio	admin	Favio2026.	Administrador General
+ggpd_admin	Administrador GgPD	admin	Lunes35.	Admin Gerencia General de Protección y Distribución
+fullstack001	Full Stack Operator	admin	Lunes35.	Operador Técnico / Soporte
+admin	Administrador Sistema	admin	password	Cuenta Administrador por defecto
+
+Funcionalidades Principales de IA
+A. Homologación Automática de Causas (suggest_cause y batch_suggest_causes)
+
+    Propósito: Mapear textos libres o descripciones no estandarizadas provenientes de reportes o archivos Excel hacia las 16 causas oficiales del sistema SCTIS (ej. ROBO DE MATERIAL, CAIDA DE ARBOL, MANIOBRA EN LINEA MT, SOBRECORRIENTE EN FASE, etc.).
+
+    Formatos de respuesta: Retorna un JSON estructurado con:
+
+        causa_homologada
+
+        confianza (valor de 0.0 a 1.0)
+
+        sub_causa_sugerida
+
+        justificacion
+
+B. Auditoría de Calidad de Datos ISO 8000 (evaluate_quality_with_ai)
+
+    Propósito: Evaluar la coherencia y completitud de un registro de interrupción eléctrica.
+
+    Respuesta:
+
+        score (puntuación de calidad de 0 a 100)
+
+        issues (lista de inconsistencias detectadas)
+
+        suggestions (sugerencias para corrección)
+
+        estado_calculo (CALCULO VALIDO / REVISAR CALCULO)
+
+C. Detección Inteligente de Duplicados (detect_duplicates_with_ai)
+
+    Propósito: Analizar pares de eventos de interrupción para identificar posibles registros duplicados o solapados en tiempo y subestación/circuito.
+
+    Respuesta:
+
+        es_duplicado (booleano)
+
+        confianza (score de certidumbre)
+
+        razon (explicación del hallazgo)
+
+
+
+***************************************************************************************
+
+Proyecto: Sistema de Seguimiento de Minutas y Proyectos
+Nombre de la app: CORPOELEC - Gestor de Tareas y Minutas 
+Url de publicacion: https://ggpd-corpoelec-sc-tareas.ai.studio
+Integraciones: Gemini AI.
+Cuenta AI STUDIO: skidrowkodex@gmail.com.
+Cuenta de Despliegue: skidrowkodex@gmail.com.
+Motor de Publicacion: Cloud Google (cloud.google.com).
+
+
+USUARIOS:
+ Nivel Personal Técnico y Analistas (analista)
+Usuario (username)	Nombre Completo	Cargo / Función	Unidad Organizativa
+@w_prato	Walter Prato	Analista Senior de Planificación	División de Planificación
+@c_fabio / @k_fabio	Caterina Fabio (Fabio K.)	Analista de Sistemas y Planificación	División de Planificación
+@b_gonzalez	Blanca González	Asistente de Gerencia General	Gerencia Gestión de Planificación
+@m_brito	Michael Brito	Analista de Control y Seguimiento	Grupo de Seguimiento y Control
+@a_garcia	Arturo García	Analista de Operaciones y Rescate SEN	Grupo de Seguimiento y Control
+@e_castro	Esteban Castro	Analista de Estadísticas y Cobertura	Grupo de Seguimiento y Control
+@j_bencomo	Jaime Bencomo	Analista de Redes de Distribución	División de Planificación
+@d_blanco	Dayais E. Blanco	Analista de Proyectos Energéticos	División de Planificación
+@j_jimenez	Jorge Jiménez	Analista de Incidencias Territoriales	Grupo de Seguimiento y Control
+@j_parra	Jasmín Parra	Analista de Cierres y Consolidación	Grupo de Seguimiento y Control
+@jo_parra	Josser Parra	Analista de Campo y Soporte Técnico	Grupo de Seguimiento y Control
+
+
+La integración y uso de la Inteligencia Artificial (IA) en este proyecto está diseñada para automatizar la extracción de minutas de reunión y digitalizar compromisos institucionales.
+1. Modelo de IA y Arquitectura del Sistema
+
+    Modelo Utilizado: Gemini 3.6 Flash mediante el SDK oficial de Google @google/genai de Google AI Studio.
+
+    Ejecución Segura (Server-Side): Toda la lógica de IA se ejecuta exclusivamente en el servidor backend (Node.js / Express en /server.ts) a través del endpoint /api/parse-minuta.
+
+    Seguridad de la API Key: La clave GEMINI_API_KEY se mantiene oculta en variables de entorno del servidor y nunca se expone al navegador ni al usuario final.
+
+2. ¿Cómo se Utiliza la IA en el Flujo de Trabajo?
+
+El caso de uso principal es el Parsing Inteligente de Minutas de Reunión:
+
+    Carga Multimodal de Minutas (PDF / Texto):
+
+        El usuario sube un archivo PDF (o pega la transcripción) en la interfaz de la aplicación (MinutaUploader.tsx).
+
+        El archivo PDF se codifica en Base64 y se transmite al endpoint /api/parse-minuta.
+
+    Procesamiento NATIVO sin OCR de terceros:
+
+        Gracias a las capacidades multimodales nativas de Gemini 3.6 Flash, el modelo analiza directamente la estructura visual, tablas y texto del PDF sin requerir herramientas externas de extracción.
+
+    Garantía de Salida Estructurada (Structured JSON Schema):
+
+        Se utiliza la configuración de responseSchema de la API de Gemini para forzar al modelo a responder estrictamente en un objeto JSON validado con esquema estricto.
+
+3. Información que Extrae y Clasifica Automáticamente la IA
+
+Al procesar una minuta, Gemini extrae y organiza automáticamente los siguientes bloques:
+
+    Metadatos Principales: Número correlativo de la minuta (ej. 26-0004), fecha de la reunión (DD/MM/YYYY e ISO), hora, lugar/modalidad (ej. Videoconferencia Google Meet), coordinador de la reunión y objetivo.
+
+    Lista de Participantes y Asistencia: Lista de asistentes con su nombre, unidad organizativa, confirmación de asistencia (true/false) y observaciones.
+
+    Tabla de Compromisos Asignados:
+
+        Responsable: Identifica a las personas o áreas encargadas (ej. Ing. Adrian Correa, Yván Cipirán, Caterina Fabio, etc.).
+
+        Compromiso: Descripción completa y clara de la tarea asignada.
+
+        Plazo / Fecha Límite: Fecha de entrega en formato texto e ISO.
+
+        Prioridad y Área de Gestión: Asigna automáticamente la prioridad (Alta, Media, Baja) y el área técnica sugerida (Data Base, Automatización, Tecnología, Proyectos, Formalización, etc.).
+
+    Pendientes por Área: Identifica y clasifica los asuntos pendientes que dependen de otras gerencias o unidades externas.
+
+4. Beneficios Operativos para CORPOELEC
+
+    Cero Carga Manual: Convierte un PDF estático de varias páginas en registros interactivos en cuestión de segundos.
+
+    Población Automática del Sistema: Los compromisos extraídos por la IA alimentan automáticamente el Tablero Kanban, los KPIs estratégicos PRTSEN/POA y el módulo de Notificaciones por Correo & Google Drive Sync.
+
+    Asignación Automática a Usuarios: Al identificar los nombres de los responsables, el sistema RBAC restringe o habilita las vistas para que cada analista o supervisor vea sus compromisos de inmediato.
+
+
+
+
+
+
+*************************************************************
+Proyecto: Planificacion Electrica SEN
+Nombre de la app: Planificacion Electrica SEN
+Repo Github: ggpd-planificacion-proyectos-poa
+Url de publicacion: https://ggpd-planificacion-proyectos-poa.vercel.app/
+Integraciones: Gemini AI.
+Cuenta AI Studio: skidrowkodex@gmail.com.
+Cuenta de Despliegue: ggpd.innovacion.corpelec@gmail.com
+Cuenta Github:ggpd.innovacion.corpelec@gmail.com
+Motor de Publicacion: Vercel.
+
+USUARIOS:
+
+Listado de Usuarios, Perfiles y Credenciales Registradas
+Usuario (username)	Correo Institucional	Contraseña	Nombre Completo	Rol	Cargo	Gerencia / Unidad
+j_pacheco	j_pacheco@corpoelec.gob.ve	Pacheco2026.	Josue D. Pacheco	ADMINISTRADOR	Administrador del Sistema / Planificación Eléctrica	Gerencia General de Planificación de Distribución (GGPD)
+ggpd_admin	ggpd_admin@corpoelec.gob.ve	Lunes35.	Administrador GGPD	ADMINISTRADOR	Administrador General GGPD	Gerencia General de Planificación de Distribución (GGPD)
+w_prato	w_prato@corpoelec.gob.ve	Prato2026.	Walter Prato	ESPECIALISTA	Especialista en Planificación de Distribución	Gerencia General de Planificación de Distribución (GGPD)
+j_bencomo	j_bencomo@corpoelec.gob.ve	Bencomo2026.	Jaime Bencomo	ESPECIALISTA	Especialista en Proyectos PRTSEN	Gerencia General de Planificación de Distribución (GGPD)
+c_reyes	c_reyes@corpoelec.gob.ve	Reyes2026.	Carlos Reyes	ESPECIALISTA	Especialista en Evaluación POA & RDS-PS	Gerencia General de Planificación de Distribución (GGPD)
+a_correa	a_correa@corpoelec.gob.ve	Correa2026.	Adrian Correa	ESPECIALISTA	Especialista en Control y Seguimiento Operativo	Gerencia General de Planificación de Distribución (GGPD)
+analista_gestion	analista_gestion@corpoelec.gob.ve	Lunes35.	Lcdo. Juan Pérez	ANALISTA	Analista de Control y Seguimiento Territorial	Gerencia General de Planificacion de Distribucion (GGPD).
+
+INTEGRACION DE LA IA:
+
+El proyecto contempla las siguientes integraciones técnicas y de infraestructura (adicionales a Supabase):
+1. Google Gemini API (@google/genai)
+
+    Propósito: Asistencia inteligente y capacidades de IA del servidor.
+
+    Uso: Procesamiento de texto, análisis de datos de planificación e interpretación de normativas de auditoría.
+
+    Configuración: Vía variable de entorno GEMINI_API_KEY en el backend.
+    
+  ***************************************************************************
+  
+Proyecto: Seguimiento y Control de Equipos Indisponibles.
+Nombre de la app: REMIX SCEIN - seguimiento y control de equipos indisponibles CORPOELEC
+Url de publicacion: https://distribucion-indisponibles-sen.vercel.app/
+Integraciones: Gemini AI.
+Cuenta AI Studio: ggpd.innovacion.corpelec@gmail.com.
+Cuenta de Despliegue: ggpd.innovacion.corpelec@gmail.com
+Cuenta Github:ggpd.innovacion.corpelec@gmail.com
+Motor de Publicacion: Vercel.
+
+USUARIOS:
+
+Nombre Completo	Usuario (username)	Correo Electrónico	Perfil / Rol	Ámbito / Estado	Contraseña Inicial
+Administrador General GGPD	ggpd_admin	admin.ggpd@corpoelec.gob.ve	ADMIN_NACIONAL	Nacional (Global)	Lunes35.
+Ing. J. Jiménez	j_jimenez	j.jimenez@corpoelec.gob.ve	ADMIN_NACIONAL	Nacional (Global)	Jimenez2026.
+Ing. J. Pacheco	j_pacheco	j.pacheco@corpoelec.gob.ve	ADMIN_NACIONAL	Nacional (Global)	Pacheco2026.
+Ing. Y. Cipiran	y_cipiran	y.cipiran@corpoelec.gob.ve	ADMIN_NACIONAL	Nacional (Global)	Cipiran2026.
+Analista Estatal Táchira	e_tachira	analista.tachira@corpoelec.gob.ve	ANALISTA_ESTATAL	Táchira (TA)	Tachira2026.
+Auditor ISO 8000 / 27001	a_auditor	auditoria.iso@corpoelec.gob.ve	AUDITOR	Solo Lectura	Auditor2026.
+
+
+INTEGRACION DE LA IA:
+
+Procesamiento e Ingesta Automatizada de Datos
+En los procesos del sistema, la IA interviene en la validación y auditoría de la información de equipos e inventarios:
+Ingesta de Planillas Complejas: Procesa e interpreta datos provenientes de planillas y reportes de las 24 entidades federales.
+Control de Calidad (ISO 8000 & OWASP): Ayuda a detectar de forma instantánea inconsistencias sintácticas, discrepancias en niveles de tensión (
+), duplicidad de registros de equipos indisponibles y errores de formato.
+Generación de Reportes Ejecutivos: Asiste en la estructuración de informes técnicos y justificaciones de financiamiento e impacto para la Gerencia General de Programación de Distribución (GGPD).
+3. Integración Técnica en el Servidor (Server-Side API)
+La aplicación cuenta con la capacidad configurada de Gemini API en el Servidor (MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API) con el SDK oficial @google/genai.
+Esto garantiza que todas las peticiones a los modelos de Gemini se realicen de forma segura desde el servidor (backend) sin exponer claves de API ni credenciales sensibles en el navegador web del usuario.
+
+
+
