@@ -33,27 +33,42 @@ document.addEventListener('DOMContentLoaded', () => {
   const pageDesc = document.getElementById('page-description');
 
   const tabMeta = {
-    overview: { title: 'Diagnóstico & Conexión', desc: 'Verifica el estado del servicio y la conectividad web con tu proyecto de Supabase.' },
-    tables: { title: 'Explorador de Tablas', desc: 'Consulta, filtra e inserta registros en la base de datos de Supabase.' },
+    portal: { title: 'Portal Unificado CORPOELEC GGPD', desc: 'Ecosistema centralizado de aplicaciones de distribución eléctrica y gobierno de datos.' },
+    overview: { title: 'Diagnóstico & Conexión BD', desc: 'Verifica el estado del servicio y la conectividad web con tu proyecto de Supabase.' },
+    tables: { title: 'Explorador de Tablas & Esquemas', desc: 'Consulta, filtra e inserta registros en la base de datos de Supabase.' },
     auth: { title: 'Autenticación (Auth)', desc: 'Prueba la creación de cuentas e inicio de sesión con Supabase Auth.' },
     storage: { title: 'Almacenamiento (Storage)', desc: 'Explora y administra los buckets de archivos públicos y privados.' },
     logs: { title: 'Consola de Eventos', desc: 'Registro en tiempo real de todas las peticiones y respuestas recibidas.' }
   };
 
+  const switchTab = (targetTab) => {
+    navBtns.forEach(b => b.classList.remove('active'));
+    tabPanes.forEach(p => p.classList.remove('active'));
+
+    const activeBtn = document.querySelector(`.nav-btn[data-tab="${targetTab}"]`);
+    if (activeBtn) activeBtn.classList.add('active');
+
+    const activePane = document.getElementById(`tab-${targetTab}`);
+    if (activePane) activePane.classList.add('active');
+
+    if (tabMeta[targetTab]) {
+      pageTitle.textContent = tabMeta[targetTab].title;
+      pageDesc.textContent = tabMeta[targetTab].desc;
+    }
+  };
+
   navBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       const targetTab = btn.getAttribute('data-tab');
+      switchTab(targetTab);
+    });
+  });
 
-      navBtns.forEach(b => b.classList.remove('active'));
-      tabPanes.forEach(p => p.classList.remove('active'));
-
-      btn.classList.add('active');
-      document.getElementById(`tab-${targetTab}`).classList.add('active');
-
-      if (tabMeta[targetTab]) {
-        pageTitle.textContent = tabMeta[targetTab].title;
-        pageDesc.textContent = tabMeta[targetTab].desc;
-      }
+  // Jump Navigation Buttons
+  document.querySelectorAll('.btn-nav-jump').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.getAttribute('data-target');
+      if (target) switchTab(target);
     });
   });
 
