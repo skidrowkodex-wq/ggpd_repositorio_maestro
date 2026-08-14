@@ -107,15 +107,17 @@ Todos los microservicios y el portal central se encuentran **activos y respondie
       - **SCPPE V3.0:** `SCPPE V3.0 - Seguimiento y Control de Planes y Proyectos Especiales de Distribucion` (Puerto :3004).
       - **SCMTP V2.0:** `SCMTP V2.0 - Seguimiento y Control de Minutas y Tareas de Planificacion` (Puerto :3003).
       - Actualizado en [`mockData/portalData.ts`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/src/mockData/portalData.ts), [`LandingPage.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/src/components/LandingPage.tsx), [`UserManagementModule.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/src/components/UserManagementModule.tsx), [`DashboardRegistry.ts`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/src/components/dashboards/DashboardRegistry.ts), [`AppSpecificDashboards.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/src/components/dashboards/AppSpecificDashboards.tsx), [`AppLauncher.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/src/components/AppLauncher.tsx) y en la documentación normativa QA.
-    - **Integración de Avances Frontend desde Google AI Studio:**
-      - Incorporados banners industriales de alta densidad con matriz de puntos y chevrons reflectivos en [`AppLauncher.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/src/components/AppLauncher.tsx) e [`IndustrialActionBanners.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/src/components/IndustrialActionBanners.tsx).
-      - Integrado el archivo oficial **`corpoelec-logo.png`** (560x142) escalado +5% horizontal con padding institucional en [`Navbar.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/src/components/Navbar.tsx) y [`CorpoelecLogo.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/src/components/logos/CorpoelecLogo.tsx).
-      - Blindaje de autenticación estándar ISO 27001: retiro de accesos directos, claves visibles y ComboBox de estado (auto-asignación territorial por perfil de usuario).
-      - Sincronización bidireccional automática a Repositorio Maestro (`origin/main`) y Repositorio Innovación (`distribucion-corpoelec-automatizacion`).
-    - **Validación y Enlace en Vivo:** 
-      - Webhook oficial verificado en vivo con `HTTP 200 OK` respondiendo `{ status: "ONLINE", cuenta: "bk.ggpd.corpoelec@gmail.com", carpetaId: "1mnnChue2IUqOh5Or99_v2LiJ3TaRJvy7" }`.
-      - URL pre-configurada por defecto en SIGI: `https://script.google.com/macros/s/AKfycbxonVU31GBXuVCfu_5G8hmADkYFB7yriPJVt2nS9w7uMjsERu5_WPzpQSVbuB2kvtQkqA/exec`.
-      - Compilación limpia `npm run build` (`vite build` exitoso con código 0).
+      - **Integración de Avances Frontend desde Google AI Studio:**
+        - Incorporados banners industriales de alta densidad con matriz de puntos y chevrons reflectivos en [`AppLauncher.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/src/components/AppLauncher.tsx) e [`IndustrialActionBanners.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/src/components/IndustrialActionBanners.tsx).
+        - Integrado el archivo oficial **`corpoelec-logo.png`** (560x142) escalado +5% horizontal con padding institucional en [`Navbar.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/src/components/Navbar.tsx) y [`CorpoelecLogo.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/src/components/logos/CorpoelecLogo.tsx).
+        - Blindaje de autenticación estándar ISO 27001: retiro de accesos directos, claves visibles y ComboBox de estado (auto-asignación territorial por perfil de usuario).
+        - **Mecanismo Single Sign-On (SSO):** Implementado handshake inter-aplicación (`?sso=true&user=...`) para que usuarios autorizados (Administradores, Gerencia y Especialistas con permisos) ingresen directo a las 4 aplicaciones satélites sin reingresar contraseñas.
+        - **Gobernanza RBAC:** Cuentas `VISOR_ESTADAL` restringidas exclusivamente a visualización en portal SIGI; ejecución de aplicaciones maestras condicionada a autorización administrativa previa.
+        - Sincronización bidireccional automática a Repositorio Maestro (`origin/main`) y Repositorio Innovación (`distribucion-corpoelec-automatizacion`).
+      - **Validación y Enlace en Vivo:** 
+        - Webhook oficial verificado en vivo con `HTTP 200 OK` respondiendo `{ status: "ONLINE", cuenta: "bk.ggpd.corpoelec@gmail.com", carpetaId: "1mnnChue2IUqOh5Or99_v2LiJ3TaRJvy7" }`.
+        - URL pre-configurada por defecto en SIGI: `https://script.google.com/macros/s/AKfycbxonVU31GBXuVCfu_5G8hmADkYFB7yriPJVt2nS9w7uMjsERu5_WPzpQSVbuB2kvtQkqA/exec`.
+        - Compilación limpia `npm run build` (`vite build` exitoso con código 0).
 6. **Retrospectiva Técnica Integral:**
    - Creación de [retrospective.MD](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/retrospective.MD) detallando éxitos, incidencias, causas raíz, soluciones aplicadas, elementos pendientes y análisis de tiempos de resolución.
 
@@ -124,11 +126,12 @@ Todos los microservicios y el portal central se encuentran **activos y respondie
 ## 📋 6. Tareas Pendientes / Próximos Pasos Prioritarios
 - [x] **Integración y Gobernanza Google Drive:** Implementado control RBAC, doble cuenta de correo, bandeja de aprobaciones y Webhook con `bk.ggpd.corpoelec@gmail.com`.
 - [x] **Despliegue de 25 Cuentas Estadales y Perfil Visor:** Implementado perfil `VISOR_ESTADAL`, State-Lock, ocultamiento de apps/Drive y memorándum normativo QA `.md` / `.doc`.
+- [x] **Single Sign-On (SSO) y Handshake Inter-Aplicación:** Implementado paso de sesión transparente desde SIGI hacia las 4 aplicaciones maestras (SCPPE, SCMTP, SCEIN, SCTIS).
+- [x] **Calibración Visual del Logo Institucional (+5% Ancho):** Logo oficial CORPOELEC ajustado en alta resolución.
 - [x] **Levantar suite completa de servidores:** Todos los servicios activos localmente (SIGI en 3001, microservicios en 3002-3005).
-- [ ] **Pruebas de Interfaz (GUI) en Navegador:** Validar navegación e inicio de sesión con cuentas estadales en `http://localhost:3001` y `http://localhost:5000`.
+- [ ] **Pruebas de Usuario y Validación Operativa en Navegador:** Validar flujo completo de inicio de sesión y apertura de aplicaciones en vivo.
 - [ ] **Validación de Conexión Supabase:** Probar el botón "Probar Conexión" y explorador de tablas en la consola web.
 - [ ] **Ingesta de Datos Inicial:** Coordinar con los administradores de aplicaciones la carga centralizada de data piloto en SCTIS v2.0 y SCEIN.
-
 
 ---
 
