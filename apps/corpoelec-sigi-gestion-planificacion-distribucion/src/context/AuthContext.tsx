@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserRole, StateCode, AuthSession } from '../types/sigi';
 import { VENEZUELAN_STATES } from '../mockData/portalData';
 import { INITIAL_INSTITUTIONAL_USERS } from '../mockData/usersCatalog';
@@ -12,7 +12,6 @@ export const getCatalogUsers = (): InstitutionalUser[] => {
     if (raw) {
       const parsed: InstitutionalUser[] = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        // Merge with INITIAL_INSTITUTIONAL_USERS to guarantee latest system accounts (ggpd_admin, a_correa, j_pacheco)
         const userMap = new Map<string, InstitutionalUser>();
         INITIAL_INSTITUTIONAL_USERS.forEach(u => userMap.set(u.username.toLowerCase(), u));
         parsed.forEach(u => {
@@ -46,7 +45,7 @@ export const saveCatalogUsers = (users: InstitutionalUser[]) => {
 
 interface AuthContextType {
   session: AuthSession;
-  login: (credentialOrPasskey: string, stateCode: StateCode, passwordInput?: string) => { success: boolean; message?: string };
+  login: (usernameInput: string, passwordInput: string, fallbackStateCode?: StateCode) => { success: boolean; message?: string };
   logout: () => void;
   setStateCode: (code: StateCode) => void;
   theme: 'light' | 'dark';
@@ -55,27 +54,24 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const PASSKEY_MAP: Record<string, UserRole> = {
-  SIGI2026: 'OPERADOR',
-  OPERADOR2026: 'OPERADOR',
-  ANALISTA2026: 'ANALISTA',
-  MINUTAS2026: 'ANALISTA',
-  GERENCIA2026: 'GERENCIA',
-  ADMIN2026: 'ADMINISTRADOR',
-  ADMINISTRADOR2026: 'ADMINISTRADOR',
-};
-
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [session, setSession] = useState<AuthSession>(() => {
     const saved = sessionStorage.getItem('sigi_auth_session');
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) { console.error(e); }
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error('Error parsing stored session', e);
+      }
     }
     return {
       authenticated: false,
+      userCode: '',
+      name: '',
       role: 'OPERADOR',
-      stateCode: '01',
+      stateCode: '01' as StateCode,
       stateName: 'Distrito Capital',
+      accessTime: '',
     };
   });
 
@@ -97,107 +93,68 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
   };
 
-  const login = (credentialOrPasskey: string, stateCode: StateCode, passwordInput?: string) => {
-    const trimmed = credentialOrPasskey.trim();
+  const login = (usernameInput: string, passwordInput: string, fallbackStateCode?: StateCode) => {
+    const trimmed = usernameInput.trim();
     const trimmedPass = passwordInput ? passwordInput.trim() : '';
 
-    if (!trimmed && !trimmedPass) {
-      return { success: false, message: 'Por favor ingrese sus credenciales de acceso institucional.' };
+    if (!trimmed || !trimmedPass) {
+      return { success: false, message: 'Por favor ingrese su usuario corporativo y contraseña institucional.' };
     }
 
     const allUsers = getCatalogUsers();
-    let matchedUser: InstitutionalUser | undefined = undefined;
+    
+    // Find matching user by username/email and password
+    const matchedUser = allUsers.find(
+      (u) => 
+        (u.username.toLowerCase() === trimmed.toLowerCase() || 
+         u.email.toLowerCase() === trimmed.toLowerCase() || 
+         (u.googleEmail && u.googleEmail.toLowerCase() === trimmed.toLowerCase())) &&
+        (u.initialPassword === trimmedPass || u.initialPassword?.toLowerCase() === trimmedPass.toLowerCase())
+    );
 
-    // Case 1: Both username and password provided
-    if (trimmed && trimmedPass) {
-      matchedUser = allUsers.find(
-        (u) => 
-          (u.username.toLowerCase() === trimmed.toLowerCase() || 
-           u.email.toLowerCase() === trimmed.toLowerCase() || 
-           (u.googleEmail && u.googleEmail.toLowerCase() === trimmed.toLowerCase())) &&
-          (u.initialPassword === trimmedPass || u.initialPassword?.toLowerCase() === trimmedPass.toLowerCase())
-      );
-
-      if (!matchedUser) {
-        return { 
-          success: false, 
-          message: 'Usuario o clave institucional incorrectos. Verifique sus credenciales corporativas.' 
-        };
-      }
-    } else {
-      // Case 2: Single token / passkey entered
-      const token = trimmed || trimmedPass;
-
-      // 2.1 Match by password in catalog
-      matchedUser = allUsers.find(
-        (u) => u.initialPassword === token || u.initialPassword?.toLowerCase() === token.toLowerCase()
-      );
-
-      // 2.2 Match by username in catalog
-      if (!matchedUser) {
-        matchedUser = allUsers.find(
-          (u) => u.username.toLowerCase() === token.toLowerCase()
-        );
-      }
-    }
-
-    // If matched to a specific user in the catalog
-    if (matchedUser) {
-      if (matchedUser.status === 'SUSPENDIDO') {
-        return { success: false, message: 'Usuario temporalmente suspendido por directiva de seguridad.' };
-      }
-
-      const targetState = matchedUser.stateCode && matchedUser.stateCode !== 'NAC' 
-        ? matchedUser.stateCode 
-        : stateCode;
-      
-      const stateObj = VENEZUELAN_STATES.find((s) => s.code === targetState) || VENEZUELAN_STATES.find(s => s.code === stateCode);
-
-      const newSession: AuthSession = {
-        authenticated: true,
-        userCode: matchedUser.id,
-        name: matchedUser.fullName,
-        role: matchedUser.role,
-        stateCode: targetState,
-        stateName: stateObj ? stateObj.name : 'Nivel Central / Nacional',
-        accessTime: new Date().toLocaleTimeString(),
+    if (!matchedUser) {
+      return { 
+        success: false, 
+        message: 'Usuario o contraseña institucional incorrectos. Verifique sus credenciales corporativas.' 
       };
-
-      setSession(newSession);
-      return { success: true };
     }
 
-    // Case 3: Match with level passkey map (SIGI2026, GERENCIA2026, ADMIN2026, ADMINISTRADOR2026)
-    const singleToken = (trimmed || trimmedPass).toUpperCase();
-    const roleFromMap = PASSKEY_MAP[singleToken];
-    if (roleFromMap) {
-      const stateObj = VENEZUELAN_STATES.find((s) => s.code === stateCode);
-      const newSession: AuthSession = {
-        authenticated: true,
-        userCode: `usr-${singleToken.toLowerCase()}`,
-        name: `Usuario ${roleFromMap}`,
-        role: roleFromMap,
-        stateCode,
-        stateName: stateObj ? stateObj.name : 'Desconocido',
-        accessTime: new Date().toLocaleTimeString(),
-      };
-
-      setSession(newSession);
-      return { success: true };
+    if (matchedUser.status === 'SUSPENDIDO') {
+      return { success: false, message: 'Usuario temporalmente suspendido por directiva de seguridad.' };
     }
 
-    return { 
-      success: false, 
-      message: 'Clave o credenciales institucionales inválidas. Ingrese usuario y clave corporativa (ej. ggpd_admin, a_correa, j_pacheco) o clave directa [Estado]2026!.' 
+    // Determine assigned state automatically from user profile
+    const targetState = matchedUser.stateCode && matchedUser.stateCode !== 'NAC' 
+      ? matchedUser.stateCode 
+      : (fallbackStateCode || ('01' as StateCode));
+    
+    const stateObj = VENEZUELAN_STATES.find((s) => s.code === matchedUser.stateCode) || 
+                     VENEZUELAN_STATES.find((s) => s.code === targetState) || 
+                     VENEZUELAN_STATES[0];
+
+    const newSession: AuthSession = {
+      authenticated: true,
+      userCode: matchedUser.id,
+      name: matchedUser.fullName,
+      role: matchedUser.role,
+      stateCode: targetState as StateCode,
+      stateName: matchedUser.stateCode === 'NAC' ? 'Nivel Central / Nacional' : (stateObj ? stateObj.name : 'Coordinación Estadal'),
+      accessTime: new Date().toLocaleTimeString(),
     };
+
+    setSession(newSession);
+    return { success: true };
   };
 
   const logout = () => {
     setSession({
       authenticated: false,
+      userCode: '',
+      name: '',
       role: 'OPERADOR',
-      stateCode: '01',
+      stateCode: '01' as StateCode,
       stateName: 'Distrito Capital',
+      accessTime: '',
     });
   };
 

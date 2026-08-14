@@ -49,8 +49,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onClick={() => setActiveSection(session.role === 'VISOR_ESTADAL' ? 'dashboards' : 'apps')}
               >
                 {/* Official CORPOELEC Logo Card */}
-                <div className="h-9 sm:h-10 px-2 sm:px-2.5 py-1 rounded-xl bg-white border border-slate-200 dark:border-slate-700/80 shadow-2xs flex items-center justify-center shrink-0 group-hover:border-[#002b49] dark:group-hover:border-[#00f2fe]/60 transition-colors">
-                  <CorpoelecLogo className="h-6 sm:h-7.5 w-auto" />
+                <div className="h-9 sm:h-10 px-2.5 sm:px-3.5 py-1 rounded-xl bg-white border border-slate-200 dark:border-slate-700/80 shadow-2xs flex items-center justify-center shrink-0 group-hover:border-[#002b49] dark:group-hover:border-[#00f2fe]/60 transition-colors">
+                  <CorpoelecLogo className="h-6.5 sm:h-8 w-auto" />
                 </div>
 
                 {/* Vertical Separator */}

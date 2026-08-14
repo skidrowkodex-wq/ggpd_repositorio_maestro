@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { VENEZUELAN_STATES } from '../mockData/portalData';
 import { StateCode } from '../types/sigi';
-import { Lock, ShieldCheck, MapPin, KeyRound, AlertCircle, ArrowRight, X, User, Shield } from 'lucide-react';
+import { Lock, ShieldCheck, KeyRound, AlertCircle, ArrowRight, X, User, Shield } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -15,15 +14,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
   const { login } = useAuth();
   const [username, setUsername] = useState('');
   const [passkey, setPasskey] = useState('');
-  const [selectedState, setSelectedState] = useState<StateCode>(initialStateCode || ('01' as StateCode));
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  React.useEffect(() => {
-    if (initialStateCode) {
-      setSelectedState(initialStateCode);
-    }
-  }, [initialStateCode, isOpen]);
 
   if (!isOpen) return null;
 
@@ -39,14 +31,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
     setIsSubmitting(true);
 
     setTimeout(() => {
-      const res = login(username.trim(), selectedState, passkey.trim());
+      const res = login(username.trim(), passkey.trim(), initialStateCode);
       setIsSubmitting(false);
 
       if (res.success) {
         onClose();
         if (onSuccess) onSuccess();
       } else {
-        setErrorMsg(res.message || 'Usuario o clave de acceso institucional incorrectos.');
+        setErrorMsg(res.message || 'Usuario o contraseña institucional incorrectos.');
       }
     }, 400);
   };
@@ -84,28 +76,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
           </p>
         </div>
 
-        {/* Formulario Estándar de Acceso */}
+        {/* Formulario Estándar de Acceso (Sin ComboBox territorial, auto-asignado por cuenta) */}
         <form onSubmit={handleSubmit} className="space-y-4">
           
-          {/* State Selector */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center space-x-1.5">
-              <MapPin className="h-3.5 w-3.5 text-[#d97706] dark:text-[#ffd700]" />
-              <span>Entidad Federal / Coordinación *</span>
-            </label>
-            <select
-              value={selectedState}
-              onChange={(e) => setSelectedState(e.target.value as StateCode)}
-              className="w-full rounded-xl bg-slate-50 dark:bg-[#081427] border border-slate-300 dark:border-slate-700 px-3.5 py-2.5 text-xs text-slate-900 dark:text-white focus:border-[#002b49] dark:focus:border-[#00f2fe] focus:outline-none focus:ring-1 focus:ring-[#002b49] font-mono font-bold"
-            >
-              {VENEZUELAN_STATES.map((st) => (
-                <option key={st.code} value={st.code}>
-                  [{st.code}] {st.name} ({st.circuitsCount} CTs)
-                </option>
-              ))}
-            </select>
-          </div>
-
           {/* Username Input */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center space-x-1.5">
@@ -152,7 +125,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
           <div className="rounded-xl bg-slate-50 dark:bg-[#061224] p-3 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400 flex items-start space-x-2.5">
             <Shield className="h-4 w-4 shrink-0 text-[#002b49] dark:text-[#00f2fe] mt-0.5" />
             <p className="leading-snug">
-              Acceso restringido al personal autorizado de CORPOELEC. Toda sesión y transacción es auditada bajo norma <strong>ISO/IEC 27001</strong> y <strong>COBIT 2019</strong>.
+              El estado y nivel de acceso se configuran automáticamente según el perfil del usuario autenticado. Sesión auditada bajo norma <strong>ISO/IEC 27001</strong>.
             </p>
           </div>
 
