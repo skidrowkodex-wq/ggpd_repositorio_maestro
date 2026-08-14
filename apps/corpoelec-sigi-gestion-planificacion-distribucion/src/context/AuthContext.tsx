@@ -1,10 +1,52 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { UserRole, StateCode, AuthSession } from '../types/sigi';
 import { VENEZUELAN_STATES } from '../mockData/portalData';
+import { INITIAL_INSTITUTIONAL_USERS } from '../mockData/usersCatalog';
+import { InstitutionalUser } from '../types/userManagement';
+
+export const STORAGE_USERS_KEY = 'CORPOELEC_SIGI_USERS_V1';
+
+export const getCatalogUsers = (): InstitutionalUser[] => {
+  try {
+    const raw = localStorage.getItem(STORAGE_USERS_KEY);
+    if (raw) {
+      const parsed: InstitutionalUser[] = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        // Merge with INITIAL_INSTITUTIONAL_USERS to guarantee latest system accounts (ggpd_admin, a_correa, j_pacheco)
+        const userMap = new Map<string, InstitutionalUser>();
+        INITIAL_INSTITUTIONAL_USERS.forEach(u => userMap.set(u.username.toLowerCase(), u));
+        parsed.forEach(u => {
+          const existing = userMap.get(u.username.toLowerCase());
+          if (existing) {
+            userMap.set(u.username.toLowerCase(), {
+              ...existing,
+              ...u,
+              initialPassword: existing.initialPassword || u.initialPassword,
+            });
+          } else {
+            userMap.set(u.username.toLowerCase(), u);
+          }
+        });
+        return Array.from(userMap.values());
+      }
+    }
+  } catch (e) {
+    console.error('Error loading users from storage:', e);
+  }
+  return INITIAL_INSTITUTIONAL_USERS;
+};
+
+export const saveCatalogUsers = (users: InstitutionalUser[]) => {
+  try {
+    localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
+  } catch (e) {
+    console.error('Error saving users to storage:', e);
+  }
+};
 
 interface AuthContextType {
   session: AuthSession;
-  login: (passkey: string, stateCode: StateCode) => { success: boolean; message?: string };
+  login: (credentialOrPasskey: string, stateCode: StateCode, passwordInput?: string) => { success: boolean; message?: string };
   logout: () => void;
   setStateCode: (code: StateCode) => void;
   theme: 'light' | 'dark';
@@ -13,31 +55,13 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-import { INITIAL_INSTITUTIONAL_USERS } from '../mockData/usersCatalog';
-import { InstitutionalUser } from '../types/userManagement';
-
-const STORAGE_USERS_KEY = 'CORPOELEC_SIGI_USERS_V1';
-
-const getCatalogUsers = (): InstitutionalUser[] => {
-  try {
-    const raw = localStorage.getItem(STORAGE_USERS_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    }
-  } catch (e) {
-    console.error(e);
-  }
-  return INITIAL_INSTITUTIONAL_USERS;
-};
-
 const PASSKEY_MAP: Record<string, UserRole> = {
   SIGI2026: 'OPERADOR',
   OPERADOR2026: 'OPERADOR',
   ANALISTA2026: 'ANALISTA',
   MINUTAS2026: 'ANALISTA',
   GERENCIA2026: 'GERENCIA',
-  ADMIN2026: 'GERENCIA',
+  ADMIN2026: 'ADMINISTRADOR',
   ADMINISTRADOR2026: 'ADMINISTRADOR',
 };
 
@@ -73,28 +97,56 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
   };
 
-  const login = (passkey: string, stateCode: StateCode) => {
-    const trimmed = passkey.trim();
-    if (!trimmed) {
-      return { success: false, message: 'Por favor ingrese su clave institucional.' };
+  const login = (credentialOrPasskey: string, stateCode: StateCode, passwordInput?: string) => {
+    const trimmed = credentialOrPasskey.trim();
+    const trimmedPass = passwordInput ? passwordInput.trim() : '';
+
+    if (!trimmed && !trimmedPass) {
+      return { success: false, message: 'Por favor ingrese sus credenciales de acceso institucional.' };
     }
 
     const allUsers = getCatalogUsers();
+    let matchedUser: InstitutionalUser | undefined = undefined;
 
-    // 1. Check exact match in users catalog by initialPassword
-    let matchedUser = allUsers.find(
-      (u) => u.initialPassword === trimmed || u.initialPassword?.toLowerCase() === trimmed.toLowerCase()
-    );
-
-    // 1.1 If not found, check by username (if user entered their username)
-    if (!matchedUser) {
+    // Case 1: Both username and password provided
+    if (trimmed && trimmedPass) {
       matchedUser = allUsers.find(
-        (u) => u.username.toLowerCase() === trimmed.toLowerCase()
+        (u) => 
+          (u.username.toLowerCase() === trimmed.toLowerCase() || 
+           u.email.toLowerCase() === trimmed.toLowerCase() || 
+           (u.googleEmail && u.googleEmail.toLowerCase() === trimmed.toLowerCase())) &&
+          (u.initialPassword === trimmedPass || u.initialPassword?.toLowerCase() === trimmedPass.toLowerCase())
       );
+
+      if (!matchedUser) {
+        return { 
+          success: false, 
+          message: 'Usuario o clave institucional incorrectos. Verifique sus credenciales corporativas.' 
+        };
+      }
+    } else {
+      // Case 2: Single token / passkey entered
+      const token = trimmed || trimmedPass;
+
+      // 2.1 Match by password in catalog
+      matchedUser = allUsers.find(
+        (u) => u.initialPassword === token || u.initialPassword?.toLowerCase() === token.toLowerCase()
+      );
+
+      // 2.2 Match by username in catalog
+      if (!matchedUser) {
+        matchedUser = allUsers.find(
+          (u) => u.username.toLowerCase() === token.toLowerCase()
+        );
+      }
     }
 
-    // 1.2 If matched by catalog user
+    // If matched to a specific user in the catalog
     if (matchedUser) {
+      if (matchedUser.status === 'SUSPENDIDO') {
+        return { success: false, message: 'Usuario temporalmente suspendido por directiva de seguridad.' };
+      }
+
       const targetState = matchedUser.stateCode && matchedUser.stateCode !== 'NAC' 
         ? matchedUser.stateCode 
         : stateCode;
@@ -107,7 +159,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         name: matchedUser.fullName,
         role: matchedUser.role,
         stateCode: targetState,
-        stateName: stateObj ? stateObj.name : 'Desconocido',
+        stateName: stateObj ? stateObj.name : 'Nivel Central / Nacional',
         accessTime: new Date().toLocaleTimeString(),
       };
 
@@ -115,13 +167,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return { success: true };
     }
 
-    // 2. Check legacy passkey map (e.g., SIGI2026, GERENCIA2026, ADMIN2026)
-    const roleFromMap = PASSKEY_MAP[trimmed.toUpperCase()];
+    // Case 3: Match with level passkey map (SIGI2026, GERENCIA2026, ADMIN2026, ADMINISTRADOR2026)
+    const singleToken = (trimmed || trimmedPass).toUpperCase();
+    const roleFromMap = PASSKEY_MAP[singleToken];
     if (roleFromMap) {
       const stateObj = VENEZUELAN_STATES.find((s) => s.code === stateCode);
       const newSession: AuthSession = {
         authenticated: true,
-        userCode: `usr-${trimmed.toLowerCase()}`,
+        userCode: `usr-${singleToken.toLowerCase()}`,
         name: `Usuario ${roleFromMap}`,
         role: roleFromMap,
         stateCode,
@@ -135,7 +188,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     return { 
       success: false, 
-      message: 'Clave institucional inválida. Para Coordinaciones Estadales use [Estado]2026!. (ej. Tachira2026!., Zulia2026!.) o claves de nivel (SIGI2026, GERENCIA2026).' 
+      message: 'Clave o credenciales institucionales inválidas. Ingrese usuario y clave corporativa (ej. ggpd_admin, a_correa, j_pacheco) o clave directa [Estado]2026!.' 
     };
   };
 

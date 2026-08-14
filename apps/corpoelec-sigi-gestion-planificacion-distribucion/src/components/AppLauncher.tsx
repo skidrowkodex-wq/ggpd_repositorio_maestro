@@ -142,58 +142,93 @@ export const AppLauncher: React.FC<AppLauncherProps> = ({ setActiveSection }) =>
     <div className="space-y-6">
       
       {/* Quick Jump to Dashboards & Map Banner */}
-      <div className="rounded-3xl bg-gradient-to-r from-[#002b49] via-[#0b1f3a] to-[#002b49] dark:from-[#081427] dark:via-[#112240] dark:to-[#081427] p-6 border border-amber-500/40 shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="flex items-center space-x-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400">
+      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#072146] via-[#002b49] to-[#041426] text-white p-6 sm:p-7 shadow-xl border border-blue-900/60 dark:border-[#00f2fe]/30 flex flex-col md:flex-row items-center justify-between gap-5 group hover:border-[#00f2fe]/80 transition-all duration-300">
+        {/* Technical Dot Matrix */}
+        <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#00f2fe_1.5px,transparent_1.5px)] [background-size:16px_16px]" />
+
+        {/* Stylized Right Watermark Chevrons */}
+        <div className="absolute -right-6 -bottom-6 opacity-10 pointer-events-none text-[#00f2fe] select-none">
+          <svg width="180" height="180" viewBox="0 0 100 100" fill="currentColor">
+            <path d="M10 20 L35 50 L10 80 L25 80 L50 50 L25 20 Z" />
+            <path d="M40 20 L65 50 L40 80 L55 80 L80 50 L55 20 Z" />
+          </svg>
+        </div>
+
+        <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 max-w-3xl">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-[#00f2fe]">
             <MapPin className="h-6 w-6" />
           </div>
-          <div>
-            <div className="flex items-center space-x-2">
-              <span className="rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2.5 py-0.5 text-[10px] font-black uppercase">
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#00f2fe] font-bold">
                 Eje 3 — Centro de Mando
               </span>
-              <span className="text-xs text-emerald-400 font-bold hidden sm:inline">✓ Activos samc.activos_red</span>
+              <span className="rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-2.5 py-0.5 text-[10px] font-mono font-bold flex items-center space-x-1">
+                <span>✓</span>
+                <span>Activos samc.activos_red</span>
+              </span>
             </div>
-            <h3 className="text-base sm:text-lg font-black text-white mt-1">
+            <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white">
               Centro de Mando Unificado, Visor Mapa de Activos & Dashboards Nube
             </h3>
-            <p className="text-xs text-slate-300 mt-0.5">
-              Accede al mapa de densidad por Estado (Subestaciones/Circuitos) y los tableros consolidados de SCTIS V2.0, SCEIN V3.0, SCPPE V3.0 y SCMTP V2.0.
-            </p>
+            
+            {/* Pill Container with Chevron Glyphs */}
+            <div className="rounded-2xl bg-cyan-500/20 backdrop-blur-md border border-cyan-400/30 p-2.5 sm:p-3 flex items-center space-x-2.5">
+              <div className="flex items-center text-[#00f2fe] font-black text-xs tracking-tighter shrink-0 animate-pulse">
+                <span>&gt;&gt;&gt;</span>
+              </div>
+              <p className="text-xs text-cyan-50 font-medium leading-snug">
+                Accede al mapa de densidad por Estado (Subestaciones/Circuitos) y los tableros consolidados de SCTIS V2.0, SCEIN V3.0, SCPPE V3.0 y SCMTP V2.0.
+              </p>
+            </div>
           </div>
         </div>
 
         {setActiveSection && (
-          <button
-            onClick={() => setActiveSection('dashboards')}
-            className="shrink-0 flex items-center space-x-2 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-[#002b49] font-extrabold px-5 py-3 text-xs shadow-lg hover:shadow-amber-500/20 transition-all cursor-pointer active:scale-95"
-          >
-            <BarChart3 className="h-4 w-4" />
-            <span>Ver Dashboards & Mapa de Activos 🗺️</span>
-          </button>
+          <div className="relative z-10 shrink-0 w-full md:w-auto pt-2 md:pt-0">
+            <button
+              onClick={() => setActiveSection('dashboards')}
+              className="w-full md:w-auto shrink-0 flex items-center justify-center space-x-2 rounded-2xl bg-white hover:bg-cyan-50 text-[#072146] font-black px-6 py-3.5 text-xs shadow-lg hover:shadow-cyan-500/20 transition-all cursor-pointer active:scale-95 border border-white/40"
+            >
+              <BarChart3 className="h-4 w-4 text-[#002b49]" />
+              <span>Ver Dashboards & Mapa de Activos 🗺️</span>
+            </button>
+          </div>
         )}
       </div>
 
       {/* Header Banner */}
-      <div className="rounded-3xl bg-white dark:bg-gradient-to-r dark:from-[#112240] dark:via-[#0a192f] dark:to-[#112240] p-6 border border-slate-200 dark:border-[#00f2fe]/30 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
+      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#072146] via-[#002b49] to-[#041426] text-white p-6 sm:p-7 shadow-xl border border-blue-900/60 dark:border-[#00f2fe]/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 group hover:border-[#00f2fe]/80 transition-all duration-300">
+        <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#00f2fe_1.5px,transparent_1.5px)] [background-size:16px_16px]" />
+        
+        <div className="absolute -right-6 -bottom-6 opacity-10 pointer-events-none text-[#00f2fe] select-none">
+          <svg width="180" height="180" viewBox="0 0 100 100" fill="currentColor">
+            <path d="M10 20 L35 50 L10 80 L25 80 L50 50 L25 20 Z" />
+            <path d="M40 20 L65 50 L40 80 L55 80 L80 50 L55 20 Z" />
+          </svg>
+        </div>
+
+        <div className="relative z-10">
           <div className="flex items-center space-x-2">
-            <CloudCheck className="h-5 w-5 text-[#002b49] dark:text-[#00f2fe]" />
-            <h2 className="text-xl font-black text-slate-900 dark:text-white">Eje 1: Portal de Aplicaciones y Recursos Nube</h2>
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#00f2fe] font-bold flex items-center space-x-1.5">
+              <CloudCheck className="h-4 w-4" />
+              <span>Eje 1 · Catálogo Operacional</span>
+            </span>
           </div>
-          <p className="text-xs text-slate-700 dark:text-slate-300 mt-1 max-w-2xl font-medium">
+          <h2 className="text-xl sm:text-2xl font-black text-white mt-1">Portal de Aplicaciones y Recursos Nube</h2>
+          <p className="text-xs text-cyan-100/90 mt-1 max-w-2xl font-medium">
             Acceso directo y centralizado a los sistemas oficiales de la Gerencia Nacional de Gestión de Planificación de Distribución.
           </p>
         </div>
 
         {/* Filter Pill Buttons */}
-        <div className="flex flex-wrap items-center gap-1.5 rounded-2xl bg-slate-100 dark:bg-[#0a192f] p-1.5 border border-slate-300 dark:border-slate-700 shadow-xs">
+        <div className="relative z-10 flex flex-wrap items-center gap-1.5 rounded-2xl bg-white/10 backdrop-blur-md p-1.5 border border-white/20 shadow-xs">
           <button
             onClick={() => setFilterCategory('ALL')}
             className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
               filterCategory === 'ALL'
-                ? 'bg-[#002b49] text-white dark:bg-[#00f2fe] dark:text-[#0a192f] shadow-xs'
-                : 'text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+                ? 'bg-white text-[#072146] shadow-sm'
+                : 'text-cyan-100 hover:text-white hover:bg-white/10'
             }`}
           >
             Todas ({SYSTEM_APPS.length})
@@ -202,8 +237,8 @@ export const AppLauncher: React.FC<AppLauncherProps> = ({ setActiveSection }) =>
             onClick={() => setFilterCategory('MAESTRA')}
             className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
               filterCategory === 'MAESTRA'
-                ? 'bg-[#002b49] text-white dark:bg-[#00f2fe] dark:text-[#0a192f] shadow-xs'
-                : 'text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+                ? 'bg-white text-[#072146] shadow-sm'
+                : 'text-cyan-100 hover:text-white hover:bg-white/10'
             }`}
           >
             Aplicaciones Maestras
@@ -212,8 +247,8 @@ export const AppLauncher: React.FC<AppLauncherProps> = ({ setActiveSection }) =>
             onClick={() => setFilterCategory('NUBE')}
             className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
               filterCategory === 'NUBE'
-                ? 'bg-[#002b49] text-white dark:bg-[#00f2fe] dark:text-[#0a192f] shadow-xs'
-                : 'text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+                ? 'bg-white text-[#072146] shadow-sm'
+                : 'text-cyan-100 hover:text-white hover:bg-white/10'
             }`}
           >
             Recursos Nube

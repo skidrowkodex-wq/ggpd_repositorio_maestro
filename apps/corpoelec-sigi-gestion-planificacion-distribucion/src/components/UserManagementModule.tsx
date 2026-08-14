@@ -435,38 +435,52 @@ export const UserManagementModule: React.FC = () => {
     <div className="space-y-6">
       
       {/* Header Banner */}
-      <div className="rounded-3xl bg-white dark:bg-gradient-to-r dark:from-[#112240] dark:via-[#0a192f] dark:to-[#112240] p-6 border border-slate-200 dark:border-[#00f2fe]/30 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
+      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#072146] via-[#002b49] to-[#041426] text-white p-6 sm:p-7 shadow-xl border border-blue-900/60 dark:border-[#00f2fe]/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 group hover:border-[#00f2fe]/80 transition-all duration-300">
+        <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#00f2fe_1.5px,transparent_1.5px)] [background-size:16px_16px]" />
+        
+        <div className="absolute -right-6 -bottom-6 opacity-10 pointer-events-none text-[#00f2fe] select-none">
+          <svg width="180" height="180" viewBox="0 0 100 100" fill="currentColor">
+            <path d="M10 20 L35 50 L10 80 L25 80 L50 50 L25 20 Z" />
+            <path d="M40 20 L65 50 L40 80 L55 80 L80 50 L55 20 Z" />
+          </svg>
+        </div>
+
+        <div className="relative z-10">
           <div className="flex items-center space-x-2">
-            <Users className="h-5 w-5 text-[#002b49] dark:text-[#00f2fe]" />
-            <h2 className="text-xl font-black text-slate-900 dark:text-white">Eje 5: Centro Unificado de Gestión de Usuarios y Accesos SSO</h2>
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#00f2fe] font-bold flex items-center space-x-1.5">
+              <Users className="h-4 w-4 text-purple-400" />
+              <span>Eje 5 · Ciberseguridad & SSO</span>
+            </span>
           </div>
-          <p className="text-xs text-slate-700 dark:text-slate-300 mt-1 max-w-2xl font-medium">
+          <h2 className="text-xl sm:text-2xl font-black text-white mt-1">Centro Unificado de Gestión de Usuarios y Accesos SSO</h2>
+          <p className="text-xs text-cyan-100/90 mt-1 max-w-2xl font-medium">
             Aprovisionamiento centralizado de cuentas, permisos por aplicación mediante asistente interactivo y Single Sign-On (SSO) bajo estándares <strong>ISO 27001, ISO 8000 y OWASP Top 10</strong>.
           </p>
         </div>
 
-        <button
-          onClick={() => {
-            setFormUser({
-              username: '',
-              fullName: '',
-              email: '',
-              role: 'ANALISTA',
-              stateCode: 'NAC',
-              unit: 'División de Planificación',
-              status: 'ACTIVO',
-              initialPassword: 'Corpoelec2026#',
-              permissions: { sctis: true, tareasMinutas: true, planificacion: true, scein: false, gdriveRepo: false },
-            });
-            setEditingUser(null);
-            setIsAddModalOpen(true);
-          }}
-          className="flex items-center space-x-2 rounded-xl bg-[#002b49] text-white dark:bg-gradient-to-r dark:from-[#00f2fe] dark:to-[#00b4d8] dark:text-[#0a192f] px-4 py-2.5 text-xs font-black uppercase shadow-md hover:scale-105 transition-all shrink-0"
-        >
-          <UserPlus className="h-4 w-4" />
-          <span>Crear Nuevo Usuario SSO</span>
-        </button>
+        <div className="relative z-10 shrink-0">
+          <button
+            onClick={() => {
+              setFormUser({
+                username: '',
+                fullName: '',
+                email: '',
+                role: 'ANALISTA',
+                stateCode: 'NAC',
+                unit: 'División de Planificación',
+                status: 'ACTIVO',
+                initialPassword: 'Corpoelec2026#',
+                permissions: { sctis: true, tareasMinutas: true, planificacion: true, scein: false, gdriveRepo: false },
+              });
+              setEditingUser(null);
+              setIsAddModalOpen(true);
+            }}
+            className="flex items-center space-x-2 rounded-2xl bg-white hover:bg-cyan-50 text-[#072146] px-5 py-3 text-xs font-black uppercase shadow-md hover:scale-105 transition-all shrink-0"
+          >
+            <UserPlus className="h-4 w-4 text-[#002b49]" />
+            <span>Crear Nuevo Usuario SSO</span>
+          </button>
+        </div>
       </div>
 
       {/* Sub-Navigation Tabs: Users List vs Requests Workflow vs ISO 27001 Audit Logs */}
@@ -777,15 +791,23 @@ export const UserManagementModule: React.FC = () => {
         <div className="space-y-6 animate-in fade-in duration-200">
           
           {/* Google Cloud & Webhook Integration Control Banner */}
-          <div className="rounded-3xl bg-gradient-to-r from-[#002b49] via-[#081f3d] to-[#002b49] text-white p-6 border border-cyan-500/30 shadow-xl space-y-4">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#072146] via-[#002b49] to-[#041426] text-white p-6 sm:p-7 shadow-xl border border-blue-900/60 dark:border-[#00f2fe]/30 space-y-4 group hover:border-[#00f2fe]/80 transition-all duration-300">
+            <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#00f2fe_1.5px,transparent_1.5px)] [background-size:16px_16px]" />
+            <div className="absolute -right-6 -bottom-6 opacity-10 pointer-events-none text-[#00f2fe] select-none">
+              <svg width="160" height="160" viewBox="0 0 100 100" fill="currentColor">
+                <path d="M10 20 L35 50 L10 80 L25 80 L50 50 L25 20 Z" />
+                <path d="M40 20 L65 50 L40 80 L55 80 L80 50 L55 20 Z" />
+              </svg>
+            </div>
+
+            <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="flex items-center space-x-3">
-                <div className="h-12 w-12 rounded-2xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/30 shrink-0">
-                  <Cloud className="h-6 w-6 text-cyan-400" />
+                <div className="h-12 w-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shrink-0">
+                  <Cloud className="h-6 w-6 text-cyan-300" />
                 </div>
                 <div>
                   <div className="flex items-center space-x-2">
-                    <span className="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 text-[10px] font-mono font-black uppercase">
+                    <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 text-[10px] font-mono font-black uppercase">
                       Google Cloud Apps Script Webhook
                     </span>
                     <span className="text-[11px] text-emerald-400 font-bold flex items-center space-x-1">
@@ -796,8 +818,8 @@ export const UserManagementModule: React.FC = () => {
                   <h3 className="text-base sm:text-lg font-black text-white mt-0.5">
                     Automatización en Tiempo Real con Repositorio GGPD
                   </h3>
-                  <p className="text-xs text-slate-300">
-                    Carpeta oficial: <code className="text-cyan-300 font-mono">1mnnChue2IUqOh5Or99_v2LiJ3TaRJvy7</code>. Al hacer clic en <strong>Aprobar</strong>, Google Drive otorga el permiso y envía la notificación oficial por correo.
+                  <p className="text-xs text-cyan-100/90">
+                    Carpeta oficial: <code className="text-[#00f2fe] font-mono bg-black/30 px-1.5 py-0.5 rounded">1mnnChue2IUqOh5Or99_v2LiJ3TaRJvy7</code>. Al hacer clic en <strong>Aprobar</strong>, Google Drive otorga el permiso y envía la notificación oficial por correo.
                   </p>
                 </div>
               </div>
@@ -814,9 +836,9 @@ export const UserManagementModule: React.FC = () => {
                 <button
                   onClick={handleTestWebhook}
                   disabled={isDispatching}
-                  className="flex items-center space-x-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-slate-900 font-black text-xs shadow-md transition-all active:scale-95 cursor-pointer"
+                  className="flex items-center space-x-1.5 px-4 py-2.5 rounded-2xl bg-white hover:bg-cyan-50 text-[#072146] font-black text-xs shadow-md transition-all active:scale-95 cursor-pointer"
                 >
-                  <RefreshCw className={`h-4 w-4 ${isDispatching ? 'animate-spin' : ''}`} />
+                  <RefreshCw className={`h-4 w-4 text-[#002b49] ${isDispatching ? 'animate-spin' : ''}`} />
                   <span>Probar Conexión Webhook</span>
                 </button>
               </div>

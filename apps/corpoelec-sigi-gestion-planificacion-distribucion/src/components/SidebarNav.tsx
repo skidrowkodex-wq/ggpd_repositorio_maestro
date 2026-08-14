@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { StateSelector } from './StateSelector';
+import { SigiAcronymModal } from './SigiAcronymModal';
 import { 
   LayoutGrid, 
   FileText, 
@@ -17,7 +18,9 @@ import {
   User, 
   Sparkles,
   Menu,
-  X
+  X,
+  Info,
+  HelpCircle
 } from 'lucide-react';
 
 interface SidebarNavProps {
@@ -38,6 +41,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
   setIsMobileOpen,
 }) => {
   const { session, logout, theme, toggleTheme } = useAuth();
+  const [isSigiModalOpen, setIsSigiModalOpen] = useState(false);
   const isVisorEstadal = session.role === 'VISOR_ESTADAL';
 
   const rawNavItems = [
@@ -72,14 +76,21 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
       >
         {/* Sidebar Header */}
         <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-          <div className="flex items-center space-x-3 overflow-hidden">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#002b49] text-white dark:bg-gradient-to-br dark:from-[#00f2fe] dark:to-[#ffd700] dark:text-[#0a192f] font-black text-sm shadow-md">
+          <div 
+            onClick={() => setIsSigiModalOpen(true)}
+            className="flex items-center space-x-3 overflow-hidden cursor-pointer group/sigihead select-none"
+            title="Haga clic para ver el significado e importancia de SIGI"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#002b49] text-white dark:bg-gradient-to-br dark:from-[#00f2fe] dark:to-[#ffd700] dark:text-[#0a192f] font-black text-sm shadow-md group-hover/sigihead:scale-105 transition-transform">
               SIGI
             </div>
             {(!isCollapsed || isMobileOpen) && (
-              <div className="truncate">
-                <span className="text-sm font-black text-slate-900 dark:text-white block leading-tight">CORPOELEC</span>
-                <span className="text-[10px] text-slate-600 dark:text-slate-300 font-semibold">GGPD Planificación</span>
+              <div className="truncate text-left">
+                <div className="flex items-center space-x-1">
+                  <span className="text-sm font-black text-slate-900 dark:text-white block leading-tight">CORPOELEC</span>
+                  <Info className="h-3 w-3 text-cyan-500 opacity-60 group-hover/sigihead:opacity-100" />
+                </div>
+                <span className="text-[10px] text-slate-600 dark:text-slate-300 font-semibold block">GGPD Planificación</span>
               </div>
             )}
           </div>
@@ -200,6 +211,12 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
         </div>
 
       </aside>
+
+      {/* Dedicated SIGI Explanation Modal */}
+      <SigiAcronymModal 
+        isOpen={isSigiModalOpen} 
+        onClose={() => setIsSigiModalOpen(false)} 
+      />
     </>
   );
 };
