@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { StateSelector } from './StateSelector';
 import { SigiAcronymModal } from './SigiAcronymModal';
+import { CorpoelecLogo } from './logos/CorpoelecLogo';
 import { LogOut, Lock, Sun, Moon, Menu, ChevronRight, HelpCircle, Info } from 'lucide-react';
 
 interface NavbarProps {
@@ -48,12 +49,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onClick={() => setActiveSection(session.role === 'VISOR_ESTADAL' ? 'dashboards' : 'apps')}
               >
                 {/* Official CORPOELEC Logo Card */}
-                <div className="h-9 sm:h-10 px-2.5 py-1 rounded-xl bg-white border border-slate-200 dark:border-slate-700/80 shadow-2xs flex items-center justify-center overflow-hidden shrink-0 group-hover:border-[#002b49] dark:group-hover:border-[#00f2fe]/60 transition-colors">
-                  <img 
-                    src="/images/corpoelec_logo.jpg" 
-                    alt="CORPOELEC" 
-                    className="h-6 sm:h-7 w-auto object-contain"
-                  />
+                <div className="h-9 sm:h-10 px-2 sm:px-2.5 py-1 rounded-xl bg-slate-50 dark:bg-[#0b1b36] border border-slate-200 dark:border-slate-700/80 shadow-2xs flex items-center justify-center shrink-0 group-hover:border-[#002b49] dark:group-hover:border-[#00f2fe]/60 transition-colors">
+                  <CorpoelecLogo className="h-6 sm:h-7.5 w-auto" />
                 </div>
 
                 {/* Vertical Separator */}
