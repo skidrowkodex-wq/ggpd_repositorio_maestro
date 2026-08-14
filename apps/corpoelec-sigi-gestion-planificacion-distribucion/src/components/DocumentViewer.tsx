@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { INITIAL_DOCUMENTS } from '../mockData/portalData';
 import { DocumentItem } from '../types/sigi';
 import { useAuth } from '../context/AuthContext';
-import { Cloud, Download, Lock, FileSpreadsheet, FileText, CheckCircle2, ExternalLink } from 'lucide-react';
+import { logSecurityAuditEvent } from '../utils/securityUtils';
+import { INITIAL_INSTITUTIONAL_USERS } from '../mockData/usersCatalog';
+import { Cloud, Download, Lock, FileSpreadsheet, FileText, CheckCircle2, ExternalLink, FolderGit2 } from 'lucide-react';
 
 export const DocumentViewer: React.FC = () => {
   const { session } = useAuth();
@@ -10,11 +12,31 @@ export const DocumentViewer: React.FC = () => {
 
   const canDownload = selectedDoc.downloadAllowedRoles.includes(session.role);
 
+  const matchedUser = INITIAL_INSTITUTIONAL_USERS.find(u => 
+    u.username.toLowerCase() === (session.name || '').toLowerCase() ||
+    (session.userCode && u.username === session.userCode)
+  );
+  const isRoleAuthorized = session.role === 'ADMINISTRADOR' || session.role === 'GERENCIA';
+  const hasDrivePermission = isRoleAuthorized || (matchedUser?.permissions?.gdriveRepo ?? false);
+
+  const handleOpenDriveFolder = () => {
+    logSecurityAuditEvent({
+      eventType: 'GDRIVE_ACCESS_SUCCESS',
+      userId: session.userCode || 'usr-session',
+      username: session.name || 'Usuario',
+      fullName: session.name,
+      targetApp: 'Repositorio Google Drive Corporativo',
+      details: 'Apertura de la carpeta raíz Google Drive desde el Visor de Documentos (Eje 4).',
+      stateCode: session.stateCode,
+    });
+    window.open('https://drive.google.com/drive/folders/1mnnChue2IUqOh5Or99_v2LiJ3TaRJvy7', '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <div className="space-y-6">
       
       {/* Header Banner */}
-      <div className="rounded-3xl bg-white dark:bg-gradient-to-r dark:from-[#112240] dark:via-[#0a192f] dark:to-[#112240] p-6 border border-slate-200 dark:border-[#00f2fe]/30 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="rounded-3xl bg-white dark:bg-gradient-to-r dark:from-[#112240] dark:via-[#0a192f] dark:to-[#112240] p-6 border border-slate-200 dark:border-[#00f2fe]/30 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2">
             <Cloud className="h-5 w-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
@@ -25,14 +47,32 @@ export const DocumentViewer: React.FC = () => {
           </p>
         </div>
 
-        {/* User Download Privilege Badge */}
-        <div className={`flex items-center space-x-2 rounded-xl px-3.5 py-2 border text-xs font-bold shadow-xs shrink-0 ${
-          canDownload
-            ? 'bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/30'
-            : 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/30'
-        }`}>
-          {canDownload ? <CheckCircle2 className="h-4 w-4 text-emerald-700 dark:text-emerald-400 shrink-0" /> : <Lock className="h-4 w-4 text-amber-700 dark:text-amber-400 shrink-0" />}
-          <span>{canDownload ? 'Descarga Permitida (Rol Nivel 2/3)' : 'Modo Lectura Protegida'}</span>
+        {/* User Actions & Privilege Badge */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          {hasDrivePermission ? (
+            <button
+              onClick={handleOpenDriveFolder}
+              className="flex items-center space-x-1.5 rounded-xl px-3.5 py-2 bg-cyan-50 text-cyan-900 border border-cyan-300 dark:bg-cyan-950/80 dark:text-cyan-300 dark:border-cyan-800 text-xs font-bold shadow-xs hover:scale-105 transition-all"
+            >
+              <Cloud className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+              <span>Carpeta Raíz Drive (Nube)</span>
+              <ExternalLink className="h-3 w-3 ml-0.5" />
+            </button>
+          ) : (
+            <span className="flex items-center space-x-1.5 rounded-xl px-3 py-1.5 bg-slate-100 text-slate-500 border border-slate-200 dark:bg-slate-800 dark:text-slate-400 text-xs font-bold">
+              <Lock className="h-3.5 w-3.5" />
+              <span>Drive Restringido</span>
+            </span>
+          )}
+
+          <div className={`flex items-center space-x-2 rounded-xl px-3.5 py-2 border text-xs font-bold shadow-xs shrink-0 ${
+            canDownload
+              ? 'bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/30'
+              : 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/30'
+          }`}>
+            {canDownload ? <CheckCircle2 className="h-4 w-4 text-emerald-700 dark:text-emerald-400 shrink-0" /> : <Lock className="h-4 w-4 text-amber-700 dark:text-amber-400 shrink-0" />}
+            <span>{canDownload ? 'Descarga Permitida (Rol Nivel 2/3)' : 'Modo Lectura Protegida'}</span>
+          </div>
         </div>
       </div>
 

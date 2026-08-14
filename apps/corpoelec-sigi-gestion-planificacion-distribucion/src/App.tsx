@@ -12,9 +12,26 @@ import { AuthModal } from './components/AuthModal';
 const MainLayout: React.FC = () => {
   const { session } = useAuth();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authInitialState, setAuthInitialState] = useState<any>(undefined);
   const [activeSection, setActiveSection] = useState<string>('apps');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const handleOpenAuth = (stateCode?: string) => {
+    if (stateCode) {
+      setAuthInitialState(stateCode);
+    }
+    setIsAuthModalOpen(true);
+  };
+
+  // If user is VISOR_ESTADAL, lock them out of apps, drive and users, defaulting to dashboards
+  React.useEffect(() => {
+    if (session.authenticated && session.role === 'VISOR_ESTADAL') {
+      if (activeSection === 'apps' || activeSection === 'drive' || activeSection === 'usuarios') {
+        setActiveSection('dashboards');
+      }
+    }
+  }, [session.authenticated, session.role, activeSection]);
 
   return (
     <div className="min-h-screen bg-[#f8fafc] dark:bg-[#070f1e] text-slate-900 dark:text-slate-100 flex flex-col justify-between selection:bg-[#002b49] selection:text-white dark:selection:bg-[#00f2fe] dark:selection:text-[#0a192f] transition-colors">
@@ -43,7 +60,7 @@ const MainLayout: React.FC = () => {
 
           {/* Industrial Navigation Header Bar */}
           <Navbar
-            onOpenAuthModal={() => setIsAuthModalOpen(true)}
+            onOpenAuthModal={() => handleOpenAuth()}
             activeSection={activeSection}
             setActiveSection={setActiveSection}
             onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
@@ -59,7 +76,7 @@ const MainLayout: React.FC = () => {
               />
             ) : (
               <LandingPage
-                onOpenAuth={() => setIsAuthModalOpen(true)}
+                onOpenAuth={handleOpenAuth}
               />
             )}
           </main>
@@ -79,7 +96,8 @@ const MainLayout: React.FC = () => {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
-        onSuccess={() => setActiveSection('apps')}
+        initialStateCode={authInitialState}
+        onSuccess={() => setActiveSection(session.role === 'VISOR_ESTADAL' ? 'dashboards' : 'apps')}
       />
 
     </div>

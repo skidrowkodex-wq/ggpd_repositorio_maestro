@@ -11,14 +11,17 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ activeSection,
   const { session } = useAuth();
 
   if (!session.authenticated) return null;
+  const isVisorEstadal = session.role === 'VISOR_ESTADAL';
 
-  const items = [
-    { id: 'apps', label: 'Apps', icon: LayoutGrid },
-    { id: 'minutas', label: 'Minutas', icon: FileText },
-    { id: 'dashboards', label: 'Procesos', icon: BarChart3 },
-    { id: 'drive', label: 'Drive', icon: Cloud },
-    { id: 'usuarios', label: 'Usuarios', icon: Users },
+  const rawItems = [
+    { id: 'apps', label: 'Apps', icon: LayoutGrid, hideForVisor: true },
+    { id: 'minutas', label: 'Minutas', icon: FileText, hideForVisor: false },
+    { id: 'dashboards', label: 'Tableros', icon: BarChart3, hideForVisor: false },
+    { id: 'drive', label: 'Drive', icon: Cloud, hideForVisor: true },
+    { id: 'usuarios', label: 'Usuarios', icon: Users, hideForVisor: true },
   ];
+
+  const items = rawItems.filter(item => !isVisorEstadal || !item.hideForVisor);
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-white/95 dark:bg-[#060d1a]/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 px-2 py-1.5 shadow-2xl">

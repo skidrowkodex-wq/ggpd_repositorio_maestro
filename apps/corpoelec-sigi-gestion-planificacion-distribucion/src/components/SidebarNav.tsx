@@ -38,14 +38,17 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
   setIsMobileOpen,
 }) => {
   const { session, logout, theme, toggleTheme } = useAuth();
+  const isVisorEstadal = session.role === 'VISOR_ESTADAL';
 
-  const navItems = [
-    { id: 'apps', label: '1. Lanzador de Apps', icon: LayoutGrid, desc: '4 Apps Maestras GGPD' },
-    { id: 'minutas', label: '2. Minutario Técnico', icon: FileText, desc: 'Acuerdos e Inventarios' },
-    { id: 'dashboards', label: '3. Dashboards Procesos', icon: BarChart3, desc: 'Indicadores ISO/SAP' },
-    { id: 'drive', label: '4. Visor Google Drive', icon: Cloud, desc: 'Documentos Nube' },
-    { id: 'usuarios', label: '5. Gestión Usuarios SSO', icon: Users, desc: 'Directorio & Permisos' },
+  const rawNavItems = [
+    { id: 'apps', label: '1. Lanzador de Apps', icon: LayoutGrid, desc: '4 Apps Maestras GGPD', hideForVisor: true },
+    { id: 'minutas', label: '2. Minutario Técnico', icon: FileText, desc: 'Acuerdos e Inventarios', hideForVisor: false },
+    { id: 'dashboards', label: '3. Tableros KGI/KPI', icon: BarChart3, desc: 'Centro de Mando & Telemetría', hideForVisor: false },
+    { id: 'drive', label: '4. Visor Google Drive', icon: Cloud, desc: 'Documentos Nube', hideForVisor: true },
+    { id: 'usuarios', label: '5. Gestión Usuarios SSO', icon: Users, desc: 'Directorio & Permisos', hideForVisor: true },
   ];
+
+  const navItems = rawNavItems.filter(item => !isVisorEstadal || !item.hideForVisor);
 
   return (
     <>

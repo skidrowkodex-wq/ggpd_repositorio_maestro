@@ -8,14 +8,21 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  initialStateCode?: StateCode;
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => {
+export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess, initialStateCode }) => {
   const { login } = useAuth();
   const [passkey, setPasskey] = useState('');
-  const [selectedState, setSelectedState] = useState<StateCode>('01' as StateCode);
+  const [selectedState, setSelectedState] = useState<StateCode>(initialStateCode || ('01' as StateCode));
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  React.useEffect(() => {
+    if (initialStateCode) {
+      setSelectedState(initialStateCode);
+    }
+  }, [initialStateCode, isOpen]);
 
   if (!isOpen) return null;
 
@@ -34,7 +41,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
       } else {
         setErrorMsg(res.message || 'Clave de acceso institucional incorrecta.');
       }
-    }, 400);
+    }, 300);
   };
 
   return (
@@ -116,12 +123,22 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
           )}
 
           {/* Key Reference Helper Box */}
-          <div className="rounded-xl bg-blue-50/80 dark:bg-[#061224] p-3.5 border border-blue-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 space-y-1.5 font-mono">
-            <div className="font-bold text-[#002b49] dark:text-[#00f2fe]">Claves de Prueba Institucionales:</div>
-            <div className="text-[11px] leading-relaxed">
-              • <strong className="text-slate-900 dark:text-white">SIGI2026</strong> / <strong className="text-slate-900 dark:text-white">OPERADOR2026</strong> (Nivel 1 Consulta)<br />
-              • <strong className="text-slate-900 dark:text-white">ANALISTA2026</strong> / <strong className="text-slate-900 dark:text-white">MINUTAS2026</strong> (Nivel 2 Analítica)<br />
-              • <strong className="text-slate-900 dark:text-white">GERENCIA2026</strong> / <strong className="text-slate-900 dark:text-white">ADMIN2026</strong> (Nivel 3 Descargas)
+          <div className="rounded-xl bg-blue-50/80 dark:bg-[#061224] p-3.5 border border-blue-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 space-y-2 font-mono">
+            <div className="font-bold text-[#002b49] dark:text-[#00f2fe] flex items-center justify-between">
+              <span>Claves de Acceso QA Institucionales:</span>
+              <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">25 Estados Activos</span>
+            </div>
+            <div className="text-[11px] leading-relaxed space-y-1">
+              <div>
+                • <strong>25 Coordinaciones Estadales:</strong> <code className="bg-amber-100 dark:bg-amber-950/60 px-1 py-0.2 rounded text-amber-900 dark:text-amber-300 font-bold">[Estado]2026!.</code>
+                <span className="text-[10px] text-slate-500 block">Ej: <strong className="text-slate-900 dark:text-white">Tachira2026!.</strong>, <strong className="text-slate-900 dark:text-white">Zulia2026!.</strong>, <strong className="text-slate-900 dark:text-white">Capital2026!.</strong>, <strong className="text-slate-900 dark:text-white">Esequibo2026!.</strong></span>
+              </div>
+              <div className="pt-0.5 border-t border-slate-200 dark:border-slate-800">
+                • <strong>Administradores / Gerencia:</strong> <code className="text-slate-900 dark:text-white font-bold">Pacheco2026.</code> / <code className="text-slate-900 dark:text-white font-bold">Favio2026.</code> / <code className="text-slate-900 dark:text-white font-bold">Lunes35.</code>
+              </div>
+              <div>
+                • <strong>Claves de Nivel:</strong> <code className="text-slate-900 dark:text-white font-bold">SIGI2026</code> / <code className="text-slate-900 dark:text-white font-bold">GERENCIA2026</code>
+              </div>
             </div>
           </div>
 
