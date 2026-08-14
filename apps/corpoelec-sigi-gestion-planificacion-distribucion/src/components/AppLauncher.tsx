@@ -288,9 +288,14 @@ export const AppLauncher: React.FC<AppLauncherProps> = ({ setActiveSection }) =>
             isAllowed = hasDrivePermission;
           } else if (isWebhookCard) {
             isAllowed = isAdmin;
+          } else if (matchedUser?.permissions) {
+            if (app.id === 'sctis') isAllowed = matchedUser.permissions.sctis;
+            else if (app.id === 'planificacion-sen') isAllowed = matchedUser.permissions.planificacion;
+            else if (app.id === 'scein') isAllowed = matchedUser.permissions.scein;
+            else if (app.id === 'minutas-app') isAllowed = matchedUser.permissions.tareasMinutas;
           }
 
-          const isRestricted = (isDriveCard && !hasDrivePermission) || (isWebhookCard && !isAdmin);
+          const isRestricted = !isAllowed;
 
           return (
             <div
