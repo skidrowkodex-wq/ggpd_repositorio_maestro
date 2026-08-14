@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>NAC_2026_GGPD_MANUAL_SISTEMA_ARQUITECTURA_SIGI_V01</title>
+<style>
+@page {
+  size: letter portrait;
+  margin: 1.0in;
+}
+body {
+  font-family: Calibri, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #FFFFFF;
+}
+</style>
+</head>
+<body>
+<h1 style="color:#003366; font-family:Calibri, Arial, sans-serif; font-size:22pt; margin-bottom:8pt; border-bottom:2px solid #003366; padding-bottom:4pt;">MANUAL TÉCNICO Y DE ARQUITECTURA: SISTEMA INTEGRADO DE GESTIÓN Y PLANIFICACIÓN DE DISTRIBUCIÓN (SIGI)</h1>
+<p style="font-family:Calibri, Arial, sans-serif; font-size:11pt; line-height:1.4; color:#1E293B; margin:4pt 0 8pt 0;"><strong>NOMENCLATURA NORMATIVA:</strong> `NAC_2026_GGPD_MANUAL_SISTEMA_ARQUITECTURA_SIGI_V01.md`  <br/><strong>CÓDIGO INSTRUCTIVO INSTITUCIONAL:</strong> GGPD-SGM-INS-005 (v3.0 ISO)  <br/><strong>FECHA DE EMISIÓN:</strong> 14 de Agosto de 2026  <br/><strong>PROPIEDAD:</strong> Corporación Eléctrica Nacional (CORPOELEC) — Gerencia General de Planificación de Distribución (GGPD)  <br/><strong>ESTÁNDARES DE CUMPLIMIENTO:</strong> ISO 8000-110, ISO 9001:2015, ISO 55000/55001, ISO/IEC 27001:2022 e ISACA COBIT 2019</p>
+<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" />
+<h2 style="color:#004488; font-family:Calibri, Arial, sans-serif; font-size:16pt; margin-top:14pt; margin-bottom:6pt;">🏛️ 1. INTRODUCCIÓN Y ALCANCE ESTRATÉGICO</h2>
+<p style="font-family:Calibri, Arial, sans-serif; font-size:11pt; line-height:1.4; color:#1E293B; margin:4pt 0 8pt 0;">El <strong>Sistema Integrado de Gestión y Planificación de Distribución (SIGI)</strong> constituye la plataforma central, integradora y portal maestro de la <strong>Gerencia General de Planificación de Distribución (GGPD)</strong> de CORPOELEC.</p>
+<p style="font-family:Calibri, Arial, sans-serif; font-size:11pt; line-height:1.4; color:#1E293B; margin:4pt 0 8pt 0;">El SIGI articula el ecosistema tecnológico unificando la gobernanza de datos de las cuatro (4) aplicaciones estratégicas del Sistema Eléctrico Nacional (SEN), los recursos de almacenamiento seguro en la nube (Google Cloud Drive), las automatizaciones en vivo mediante webhooks, y el monitoreo gerencial en tiempo real de las 25 entidades territoriales del país.</p>
+<div style="background-color:#F4F6F8; border:1px solid #E2E8F0; padding:10pt; font-family:Courier New, monospace; font-size:9.5pt; color:#1E293B; margin:10pt 0; white-space:pre-wrap;">
+┌─────────────────────────────────────────────────────────────────────────────────────────────┐
+│                          PORTAL MAESTRO CENTRAL SIGI (CORPOELEC)                            │
+├─────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                             │
+│   ┌─────────────────────┐   ┌─────────────────────┐   ┌─────────────────────┐               │
+│   │ ⚡ SCTIS V2.0       │   │ 🏭 SCEIN V3.0       │   │ 📈 SCPPE V3.0       │               │
+│   │ Interrupciones & ENS│   │ Equipos Indisp. S/E │   │ Planes, POA & Viát. │               │
+│   └──────────┬──────────┘   └──────────┬──────────┘   └──────────┬──────────┘               │
+│              │                         │                         │                          │
+│              └─────────────────────────┼─────────────────────────┘                          │
+│                                        ▼                                                    │
+│                       ┌─────────────────────────────────┐                                   │
+│                       │ 📋 SCMTP V2.0                   │                                   │
+│                       │ Minutas, Tareas & Acuerdos GGPD │                                   │
+│                       └────────────────┬────────────────┘                                   │
+│                                        │                                                    │
+│              ┌─────────────────────────┴─────────────────────────┐                          │
+│              ▼                                                   ▼                          │
+│   ┌─────────────────────┐                             ┌─────────────────────┐               │
+│   │ ☁️ GOOGLE DRIVE      │                             │ 🤖 WEBHOOKS NUBE    │               │
+│   │ Repositorio Oficial │                             │ Orquestación Apps   │               │
+│   └─────────────────────┘                             └─────────────────────┘               │
+└─────────────────────────────────────────────────────────────────────────────────────────────┘
+</div>
+<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" />
+<h2 style="color:#004488; font-family:Calibri, Arial, sans-serif; font-size:16pt; margin-top:14pt; margin-bottom:6pt;">🎨 2. ARQUITECTURA VISUAL: "CORPOELEC INDUSTRIAL GLASSMORPHISM"</h2>
+<p style="font-family:Calibri, Arial, sans-serif; font-size:11pt; line-height:1.4; color:#1E293B; margin:4pt 0 8pt 0;">La interfaz del SIGI implementa el estándar visual institucional de alta ingeniería diseñado para salas de control y despachos operativos:</p>
+<p style="font-family:Calibri, Arial, sans-serif; font-size:11pt; line-height:1.4; color:#1E293B; margin:4pt 0 8pt 0;">1. <strong>Paleta Base Corporativa:</strong><br/>   * <strong>Modo Oscuro (Dark Theme):</strong> Fondo Azul Medianoche Profundo (`#041426`, `#072146`, `#002b49`) con tarjetas flotantes en vidrio esmerilado (`#0b172c` / `#0c1626`) y bordes nítidos `border-slate-800`.<br/>   * <strong>Modo Claro (Light Theme):</strong> Fondos blancos y grises de alta luminiscencia (`#f8fafc` / `#f1f5f9`) con tarjetas blancas puras y bordes `border-slate-200`.<br/>2. <strong>Matriz de Puntos Reflectivos:</strong> Micro-patrón técnico en banners (`bg-[radial-gradient(#00f2fe_1.5px,transparent_1.5px)]`) que evoca telemetría de subestaciones.<br/>3. <strong>Chevrons Reflectivos de Ingeniería:</strong> Marcas de agua angulares en los laterales de módulos y tarjetas.<br/>4. <strong>Badge Oficial CORPOELEC:</strong> Contenedor blanco nítido con el logotipo oficial de CORPOELEC elongado horizontalmente un 5% (`scale-x-[1.05]`) para máxima fidelidad gráfica.<br/>5. <strong>Tipografía Técnica:</strong> <em>Inter</em> para textos administrativos y <em>Roboto Mono / JetBrains Mono</em> para códigos de activos, cifras de potencia (kVA / MVA), energía (MWh) y porcentajes.</p>
+<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" />
+<h2 style="color:#004488; font-family:Calibri, Arial, sans-serif; font-size:16pt; margin-top:14pt; margin-bottom:6pt;">🔐 3. ARQUITECTURA DE AUTENTICACIÓN Y REGLAS DE NEGOCIO (RBAC)</h2>
+<p style="font-family:Calibri, Arial, sans-serif; font-size:11pt; line-height:1.4; color:#1E293B; margin:4pt 0 8pt 0;">El SIGI implementa un modelo de <strong>Control de Acceso Basado en Roles (RBAC)</strong> y <strong>Single Sign-On (SSO)</strong> conforme a <strong>ISO/IEC 27001:2022</strong> e <strong>ISACA COBIT 2019</strong>:</p>
+<h3 style="color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:13pt; margin-top:10pt; margin-bottom:4pt;">Regla 1: Acceso Total Automatizado para Administradores y Gerencia</h3>
+* Usuarios con rol `ADMINISTRADOR` o `GERENCIA` (ej. `ggpd_admin`, `j_pacheco`, `a_correa`, `c_favio`) poseen acceso irrestricto y sin fricción a todas las aplicaciones maestras, consolas de webhook y repositorios.
+<em> Al hacer clic en </em>"Ejecutar Aplicación"*, el sistema genera un enlace SSO transparente (`?sso=true&user=...&role=...&state=...`) que los autentica en las aplicaciones satélites sin solicitar contraseñas adicionales.
+<h3 style="color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:13pt; margin-top:10pt; margin-bottom:4pt;">Regla 2: Acceso Condicionado a Aplicaciones para Especialistas y Operadores de Estado</h3>
+* Los usuarios con rol `ESPECIALISTA`, `ANALISTA` u `OPERADOR` asignados a una entidad federal (ej. `w_prato` [Miranda], `j_bencomo` [Carabobo], `r_cipiran` [Zulia]) solo pueden ejecutar aquellas aplicaciones para las cuales hayan sido <strong>expresamente autorizados</strong> por un Administrador en su ficha de usuario.
+* Si el permiso está activo, ingresan vía SSO directo con su estado preseleccionado. Si no está activo, la tarjeta muestra el candado institucional (`🔒 Requiere Permiso`) con opción de solicitar acceso a la Gerencia.
+<h3 style="color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:13pt; margin-top:10pt; margin-bottom:4pt;">Regla 3: Aislamiento Operativo de Cuentas Estadales de Solo Visualización (`coord_*`)</h3>
+* Las 25 cuentas nominales de coordinación estadal (ej. `coord_capital`, `coord_tachira`, `coord_zulia`) poseen el rol exclusivo `VISOR_ESTADAL`.
+* Están configuradas exclusivamente para <strong>consultar tableros, indicadores, mapas de activos y minutas consolidadas dentro del SIGI</strong>, con todos los accesos a aplicaciones maestras transaccionales externas bloqueados (`permissions: false`), garantizando que no se puedan modificar registros operativos de forma anónima o no trazable.
+<h3 style="color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:13pt; margin-top:10pt; margin-bottom:4pt;">Regla 4: Fijación Territorial Automática (State-Lock)</h3>
+* La jurisdicción territorial se resuelve automáticamente a partir del perfil del usuario autenticado (`matchedUser.stateCode`).
+* Se erradica el ComboBox manual de selección de estado en el login, impidiendo que un usuario suplante o visualice por error una coordinación ajena a la asignada.
+<h3 style="color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:13pt; margin-top:10pt; margin-bottom:4pt;">Regla 5: Blindaje de Credenciales y Trazabilidad ISO 27001</h3>
+* Eliminación total de contraseñas visibles en pantalla y botones de acceso rápido pre-rellenados.
+* Formulario estandarizado de dos campos: <strong>Usuario Corporativo</strong> y <strong>Contraseña Institucional</strong> (con botón de alternancia ver/ocultar).
+* Registro criptográfico inmutable de todos los intentos de acceso autorizados y denegados en la bitácora de auditoría (`logSecurityAuditEvent`).
+<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" />
+<h2 style="color:#004488; font-family:Calibri, Arial, sans-serif; font-size:16pt; margin-top:14pt; margin-bottom:6pt;">🚀 4. MAPA DE MÓDULOS DEL SIGI</h2>
+<table style="width:100%; border-collapse:collapse; margin:12pt 0; font-family:Calibri, Arial, sans-serif; font-size:10pt;"><tr><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;">Módulo / Sección</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;">Identificador</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;">Descripción Funcional</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;">Nivel de Acceso</th></tr><tr><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;">:<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" /></th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;">:<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" /></th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;">:<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" /></th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;">:<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" /></th></tr><tr><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;"><strong>1. Landing Showcase SEN</strong></th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;">`landing`</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;">Portada institucional ejecutiva, métricas de alto impacto (2,480+ circuitos, -45% MTTR), gemelo digital y enlace directo a sistemas.</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;">Público / Todos</th></tr><tr><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;"><strong>2. Lanzador de Aplicaciones</strong></th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;">`launcher`</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;">Catálogo centralizado de las 4 aplicaciones maestras, Google Cloud Drive y Consola de Automatizaciones Nube con soporte SSO.</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;">Todos (con RBAC)</th></tr><tr><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;"><strong>3. Tableros & Mapa de Activos</strong></th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;">`dashboards`</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;">Visor geoespacial interactivo de las 838 Subestaciones y circuitos por Estado, con métricas consolidadas de SCTIS, SCEIN y SCPPE.</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;">Todos los usuarios</th></tr><tr><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;"><strong>4. Repositorio de Minutas</strong></th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;">`minutario`</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;">Buscador y visualizador de minutas de reuniones de planificación, compromisos y acuerdos ministeriales.</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;">Todos los usuarios</th></tr><tr><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;"><strong>5. Gestión de Usuarios & Webhook</strong></th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;">`users`</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;">Panel administrativo de creación de cuentas, asignación de permisos por app, aprobación de solicitudes de Drive y monitoreo del Webhook Google Apps Script.</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;">`ADMINISTRADOR` / `GERENCIA`</th></tr></table>
+<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" />
+<h2 style="color:#004488; font-family:Calibri, Arial, sans-serif; font-size:16pt; margin-top:14pt; margin-bottom:6pt;">🔗 5. INTEGRACIÓN Y PROTOCOLO SINGLE SIGN-ON (SSO)</h2>
+<p style="font-family:Calibri, Arial, sans-serif; font-size:11pt; line-height:1.4; color:#1E293B; margin:4pt 0 8pt 0;">Cuando un usuario autenticado en SIGI pulsa sobre una aplicación satélite, el lanzador invoca la función `getAppLaunchUrl`:</p>
+<div style="background-color:#F4F6F8; border:1px solid #E2E8F0; padding:10pt; font-family:Courier New, monospace; font-size:9.5pt; color:#1E293B; margin:10pt 0; white-space:pre-wrap;">typescript
+const getAppLaunchUrl = (app: AppItem) => {
+  if (app.isCloud || app.id === 'gdrive-ggpd' || !app.url.startsWith('http')) {
+    return app.url;
+  }
+  try {
+    const urlObj = new URL(app.url);
+    if (session.authenticated) {
+      urlObj.searchParams.set('sso', 'true');
+      urlObj.searchParams.set('sso_auth', 'true');
+      const effectiveUser = session.userCode === 'usr-001' 
+        ? 'ggpd_admin' 
+        : (matchedUser?.username || session.userCode || 'ggpd_admin');
+      urlObj.searchParams.set('user', effectiveUser);
+      urlObj.searchParams.set('role', session.role);
+      urlObj.searchParams.set('state', session.stateCode);
+    }
+    return urlObj.toString();
+  } catch {
+    const sep = app.url.includes('?') ? '&' : '?';
+    return `${app.url}${sep}sso=true&sso_auth=true&user=${encodeURIComponent(session.userCode || 'ggpd_admin')}&role=${encodeURIComponent(session.role)}&state=${encodeURIComponent(session.stateCode)}`;
+  }
+};
+</div>
+<p style="font-family:Calibri, Arial, sans-serif; font-size:11pt; line-height:1.4; color:#1E293B; margin:4pt 0 8pt 0;">Las aplicaciones receptoras (`SCPPE V3.0`, `SCMTP V2.0`, `SCEIN V3.0`, `SCTIS V2.0`) leen estos parámetros en su arranque y fijan la sesión de forma inmediata.</p>
+<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" />
+<h2 style="color:#004488; font-family:Calibri, Arial, sans-serif; font-size:16pt; margin-top:14pt; margin-bottom:6pt;">🌐 6. INTEGRACIÓN NUBE GOOGLE DRIVE & WEBHOOK OFICIAL</h2>
+<ul style="margin:6pt 0 10pt 20pt; padding:0;"><li style="margin-bottom:3pt; color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:11pt;"><strong>Cuenta Oficial de Almacenamiento:</strong> `bk.ggpd.corpoelec@gmail.com`</li><li style="margin-bottom:3pt; color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:11pt;"><strong>ID de Carpeta Raíz Google Drive:</strong> `1mnnChue2IUqOh5Or99_v2LiJ3TaRJvy7`</li><li style="margin-bottom:3pt; color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:11pt;"><strong>Endpoint Webhook Google Apps Script:</strong> `https://script.google.com/macros/s/AKfycbxonVU31GBXuVCfu_5G8hmADkYFB7yriPJVt2nS9w7uMjsERu5_WPzpQSVbuB2kvtQkqA/exec`</li><li style="margin-bottom:3pt; color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:11pt;"><strong>Estado Operativo:</strong> Verificado en vivo con `HTTP 200 OK` respondiendo `{ status: "ONLINE", cuenta: "bk.ggpd.corpoelec@gmail.com" }`.</li></ul>
+<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" />
+<h2 style="color:#004488; font-family:Calibri, Arial, sans-serif; font-size:16pt; margin-top:14pt; margin-bottom:6pt;">📂 7. ESPECIFICACIONES TÉCNICAS Y REPOSITORIOS</h2>
+<ul style="margin:6pt 0 10pt 20pt; padding:0;"><li style="margin-bottom:3pt; color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:11pt;"><strong>Stack:</strong> React 18, TypeScript 5, Vite 6, Tailwind CSS 3.4, Leaflet Maps, Lucide Icons, Supabase Auth / PostgreSQL.</li><li style="margin-bottom:3pt; color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:11pt;"><strong>Puerto de Desarrollo Local:</strong> `3001`</li><li style="margin-bottom:3pt; color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:11pt;"><strong>Repositorio Maestro GGPD:</strong> [`https://github.com/skidrowkodex-wq/ggpd_repositorio_maestro.git`](https://github.com/skidrowkodex-wq/ggpd_repositorio_maestro.git)</li><li style="margin-bottom:3pt; color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:11pt;"><strong>Repositorio Standalone de Innovación:</strong> [`https://github.com/distribucion-corpoelec-automatizacion/corpoelec-sigi-gestion-planificacion-distribucion.git`](https://github.com/distribucion-corpoelec-automatizacion/corpoelec-sigi-gestion-planificacion-distribucion.git)</li><li style="margin-bottom:3pt; color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:11pt;"><strong>Autor Git Oficial:</strong> `distribucion-corpoelec-automatizacion <ggpd.automatizacion.corpoelec@gmail.com>`</li></ul>
+</body>
+</html>
