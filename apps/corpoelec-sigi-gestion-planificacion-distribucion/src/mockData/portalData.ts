@@ -25,46 +25,47 @@ export const VENEZUELAN_STATES: VenezuelanState[] = [
   { code: 'DEL', name: 'Delta Amacuro', region: 'Guayana', circuitsCount: 25, activeAutomations: 1 },
   { code: 'AMA', name: 'Amazonas', region: 'Guayana', circuitsCount: 20, activeAutomations: 1 },
   { code: 'LGU', name: 'La Guaira', region: 'Capital', circuitsCount: 70, activeAutomations: 5 },
+  { code: 'YAR', name: 'Yaracuy', region: 'Centro Occidente', circuitsCount: 88, activeAutomations: 4 },
   { code: 'GEQ', name: 'Guayana Esequiba', region: 'Guayana', circuitsCount: 15, activeAutomations: 1 }
 ];
 
 export const SYSTEM_APPS: AppItem[] = [
   {
     id: 'sctis',
-    name: 'SCTIS v2.0 Distribución',
+    name: 'SCTIS V2.0 - Seguimiento y Control de Tiras de Interrupciones',
     description: 'Sistema de Ingesta, Deduplicación y Gobierno de Activos Eléctricos (Subestaciones y Circuitos).',
     category: 'APLICACION_MAESTRA',
-    url: 'https://corpoelec-sctis-v2-distribucion.vercel.app',
+    url: 'https://sctis-interrupciones-distribucion.ai.studio',
     iconName: 'Cpu',
     isCloud: false,
     badgeText: 'Producción ISO 8000'
   },
   {
     id: 'planificacion-sen',
-    name: 'Planificación Eléctrica SEN',
-    description: 'Modelado analítico y proyección de capacidad de distribución del Sistema Eléctrico Nacional.',
+    name: 'SCPPE V3.0 - Seguimiento y Control de Planes y Proyectos Especiales de Distribucion',
+    description: 'Modelado analítico, proyección de capacidad, proyectos POA y viáticos de campo del SEN.',
     category: 'APLICACION_MAESTRA',
-    url: 'https://corpoelec-planificacion-sen.vercel.app',
+    url: 'https://ggpd-planificacion-proyectos-poa.vercel.app/',
     iconName: 'Zap',
     isCloud: false,
     badgeText: 'IA Gemini 3.6'
   },
   {
     id: 'scein',
-    name: 'SCEIN Equipos Indisponibles',
+    name: 'SCEIN V3.0 - Seguimiento y Control de Equipos Indisponibles',
     description: 'Seguimiento y control operativo en tiempo real de transformación y bahías fuera de servicio.',
     category: 'APLICACION_MAESTRA',
-    url: 'https://corpoelec-scein-indisponibles.vercel.app',
+    url: 'https://distribucion-indisponibles-sen.vercel.app/',
     iconName: 'AlertTriangle',
     isCloud: false,
     badgeText: 'Alerta Operativa'
   },
   {
     id: 'minutas-app',
-    name: 'Gestor de Tareas y Minutas GGPD',
+    name: 'SCMTP V2.0 - Seguimiento y Control de Minutas y Tareas de Planificacion',
     description: 'Administración de compromisos, minutas de reuniones de planificación y acuerdos institucionales.',
     category: 'APLICACION_MAESTRA',
-    url: 'https://corpoelec-gestor-minutas.vercel.app',
+    url: 'https://ggpd-corpoelec-sc-tareas.ai.studio',
     iconName: 'ClipboardList',
     isCloud: false,
     badgeText: 'Auditoría COBIT'
@@ -74,7 +75,7 @@ export const SYSTEM_APPS: AppItem[] = [
     name: 'Repositorio Google Drive Corporativo',
     description: 'Buzón institucional unificado de carpetas, minutas en vivo y matrices de distribución en la nube.',
     category: 'NUBE_AUTOMATIZACION',
-    url: 'https://drive.google.com/drive/folders/ggpd-corpoelec-oficial',
+    url: 'https://drive.google.com/drive/folders/1mnnChue2IUqOh5Or99_v2LiJ3TaRJvy7',
     iconName: 'FolderCloud',
     isCloud: true,
     badgeText: 'Cloud Oficial'
@@ -84,10 +85,10 @@ export const SYSTEM_APPS: AppItem[] = [
     name: 'Consola de Automatizaciones Nube',
     description: 'Disparadores y bots automatizados para actualización de inventarios y alertas por correo.',
     category: 'NUBE_AUTOMATIZACION',
-    url: 'https://script.google.com/macros/s/ggpd-corpoelec-automations',
+    url: 'https://script.google.com/macros/s/AKfycbxonVU31GBXuVCfu_5G8hmADkYFB7yriPJVt2nS9w7uMjsERu5_WPzpQSVbuB2kvtQkqA/exec',
     iconName: 'Bot',
     isCloud: true,
-    badgeText: 'Zero-WhatsApp'
+    badgeText: 'Solo Administrador'
   }
 ];
 

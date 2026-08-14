@@ -7,6 +7,13 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "serve:portal": "python3 -m http.server 5000",
+    "serve:sigi": "python3 -m http.server 3001 --directory apps/corpoelec-sigi-gestion-planificacion-distribucion/dist",
+    "serve:sctis": "python3 -m http.server 3002 --directory apps/sctis-v-2.0-distribucion",
+    "serve:tasks": "python3 -m http.server 3003 --directory apps/corpoelec---gestor-de-tareas-y-minutas/dist",
+    "serve:poa": "python3 -m http.server 3004 --directory apps/planificación-eléctrica-sen/dist",
+    "serve:scein": "python3 -m http.server 3005 --directory apps/remix-scein---seguimiento-y-control-de-equipos-indisponibles-corpoelec/dist",
+    "serve:all": "python3 serve_all.py",
     "discover": "node .agents/discover.js",
     "spec": "node .agents/fetch_spec.js",
     "scan": "node .agents/scan_tables.js"

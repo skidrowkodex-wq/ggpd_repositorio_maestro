@@ -1,4 +1,4 @@
-export type UserRole = 'ADMINISTRADOR' | 'GERENCIA' | 'ESPECIALISTA' | 'ANALISTA' | 'OPERADOR' | 'AUDITOR';
+export type UserRole = 'ADMINISTRADOR' | 'GERENCIA' | 'ESPECIALISTA' | 'ANALISTA' | 'OPERADOR' | 'AUDITOR' | 'VISOR_ESTADAL';
 
 export type StateCode =
   | '01' | '02' | '03' | '04' | '05' | '06' | '07'
@@ -8,7 +8,7 @@ export type StateCode =
   | 'NAC' | 'ZUL' | 'DCA' | 'CAR' | 'MIR' | 'LAR' | 'ARA'
   | 'BOL' | 'ANZ' | 'BAR' | 'FAL' | 'MER' | 'TAC' | 'TRU'
   | 'POR' | 'COJ' | 'GUA' | 'SUC' | 'MON' | 'APU' | 'NES'
-  | 'DEL' | 'AMA' | 'LGU' | 'GEQ';
+  | 'DEL' | 'AMA' | 'LGU' | 'YAR' | 'GEQ';
 
 export interface VenezuelanState {
   code: StateCode;

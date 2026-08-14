@@ -10,9 +10,9 @@
     --panel-bg: #ffffff;
     --panel-border: #cbd5e1;
     --card-bg: #ffffff;
-    --header-bg: #002b49;
-    --header-telemetry-bg: #001f35;
-    --footer-bg: #001f35;
+    --header-bg: #ffffff;
+    --header-telemetry-bg: #f8fafc;
+    --footer-bg: #f8fafc;
   }
 
   [data-theme="dark"] {

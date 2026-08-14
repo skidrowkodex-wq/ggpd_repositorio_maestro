@@ -42,7 +42,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Logo & Branding */}
             <div 
               className="flex items-center space-x-2.5 cursor-pointer" 
-              onClick={() => setActiveSection('apps')}
+              onClick={() => setActiveSection(session.role === 'VISOR_ESTADAL' ? 'dashboards' : 'apps')}
             >
               <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-[#002b49] text-white dark:bg-gradient-to-br dark:from-[#00f2fe] dark:to-[#ffd700] dark:text-[#0a192f] shadow-md font-black text-xs sm:text-sm shrink-0">
                 SIGI

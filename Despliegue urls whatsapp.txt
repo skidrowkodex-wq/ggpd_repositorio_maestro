@@ -1,0 +1,19 @@
+Buenas tardes, a continuacion envio el listado de aplicaciones con sus respectivos enlaces de acceso.
+
+Proyecto: Seguimiento y Control de Tiras de Interrupciones.
+Nombre de la app: SCTIS V 2.0 Distribucion
+Url de publicacion: https://sctis-interrupciones-distribucion.ai.studio
+
+
+Proyecto: Sistema de Seguimiento de Minutas y Proyectos
+Nombre de la app: CORPOELEC - Gestor de Tareas y Minutas
+Url de publicacion: https://ggpd-corpoelec-sc-tareas.ai.studio
+
+Proyecto: Planificacion Electrica SEN
+Nombre de la app: Planificacion Electrica SEN
+Url de publicacion: https://ggpd-planificacion-proyectos-poa.vercel.app/
+
+
+Proyecto: Seguimiento y Control de Equipos Indisponibles.
+Nombre de la app: REMIX SCEIN - seguimiento y control de equipos indisponibles CORPOELEC
+Url de publicacion: https://distribucion-indisponibles-sen.vercel.app/
