@@ -17,19 +17,31 @@ export const ProcessDashboard: React.FC = () => {
     <div className="space-y-6">
       
       {/* Header Banner */}
-      <div className="rounded-3xl bg-white dark:bg-gradient-to-r dark:from-[#112240] dark:via-[#0a192f] dark:to-[#112240] p-6 border border-slate-200 dark:border-[#00f2fe]/30 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
+      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#072146] via-[#002b49] to-[#041426] text-white p-6 sm:p-7 shadow-xl border border-blue-900/60 dark:border-[#00f2fe]/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group hover:border-[#00f2fe]/80 transition-all duration-300">
+        <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#00f2fe_1.5px,transparent_1.5px)] [background-size:16px_16px]" />
+        
+        <div className="absolute -right-6 -bottom-6 opacity-10 pointer-events-none text-[#00f2fe] select-none">
+          <svg width="180" height="180" viewBox="0 0 100 100" fill="currentColor">
+            <path d="M10 20 L35 50 L10 80 L25 80 L50 50 L25 20 Z" />
+            <path d="M40 20 L65 50 L40 80 L55 80 L80 50 L55 20 Z" />
+          </svg>
+        </div>
+
+        <div className="relative z-10">
           <div className="flex items-center space-x-2">
-            <BarChart3 className="h-5 w-5 text-[#d97706] dark:text-[#ffd700]" />
-            <h2 className="text-xl font-black text-slate-900 dark:text-white">Eje 3: Dashboards de Procesos y Gestión Nube</h2>
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#00f2fe] font-bold flex items-center space-x-1.5">
+              <BarChart3 className="h-4 w-4 text-amber-400" />
+              <span>Eje 3 · Centro de Mando Operacional</span>
+            </span>
           </div>
-          <p className="text-xs text-slate-700 dark:text-slate-300 mt-1 font-medium">
-            Centro de Mando Unificado para las aplicaciones del Repositorio Maestro en el estado: <strong className="text-[#002b49] dark:text-[#ffd700]">{currentStateObj.name} ({currentStateObj.code})</strong>
+          <h2 className="text-xl sm:text-2xl font-black text-white mt-1">Dashboards de Procesos y Gestión Nube</h2>
+          <p className="text-xs text-cyan-100/90 mt-1 font-medium">
+            Centro de Mando Unificado para las aplicaciones del Repositorio Maestro en: <strong className="text-[#00f2fe] font-black">{currentStateObj.name} ({currentStateObj.code})</strong>
           </p>
         </div>
 
-        <div className="flex items-center space-x-2 rounded-xl bg-emerald-100 dark:bg-[#081427] px-3.5 py-1.5 border border-emerald-300 dark:border-emerald-500/40 text-emerald-900 dark:text-emerald-300 shadow-xs">
-          <CloudCheck className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />
+        <div className="relative z-10 flex items-center space-x-2 rounded-xl bg-white/10 backdrop-blur-md px-3.5 py-1.5 border border-white/20 text-emerald-300 shadow-xs">
+          <CloudCheck className="h-4 w-4 text-emerald-400" />
           <span className="text-xs font-bold font-mono">ECOSISTEMA INTEGRADO</span>
         </div>
       </div>

@@ -22,26 +22,40 @@ export const MinutarioSection: React.FC = () => {
     <div className="space-y-6">
       
       {/* Header Banner */}
-      <div className="rounded-3xl bg-white dark:bg-gradient-to-r dark:from-[#112240] dark:via-[#0a192f] dark:to-[#112240] p-6 border border-slate-200 dark:border-[#00f2fe]/30 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
+      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#072146] via-[#002b49] to-[#041426] text-white p-6 sm:p-7 shadow-xl border border-blue-900/60 dark:border-[#00f2fe]/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group hover:border-[#00f2fe]/80 transition-all duration-300">
+        <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#00f2fe_1.5px,transparent_1.5px)] [background-size:16px_16px]" />
+        
+        <div className="absolute -right-6 -bottom-6 opacity-10 pointer-events-none text-[#00f2fe] select-none">
+          <svg width="180" height="180" viewBox="0 0 100 100" fill="currentColor">
+            <path d="M10 20 L35 50 L10 80 L25 80 L50 50 L25 20 Z" />
+            <path d="M40 20 L65 50 L40 80 L55 80 L80 50 L55 20 Z" />
+          </svg>
+        </div>
+
+        <div className="relative z-10">
           <div className="flex items-center space-x-2">
-            <FileText className="h-5 w-5 text-[#002b49] dark:text-[#00f2fe]" />
-            <h2 className="text-xl font-black text-slate-900 dark:text-white">Eje 2: Minutario e Historial de Reuniones Institucionales</h2>
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#00f2fe] font-bold flex items-center space-x-1.5">
+              <FileText className="h-4 w-4" />
+              <span>Eje 2 · Gobernanza y Acuerdos</span>
+            </span>
           </div>
-          <p className="text-xs text-slate-700 dark:text-slate-300 mt-1 font-medium">
+          <h2 className="text-xl sm:text-2xl font-black text-white mt-1">Minutario e Historial de Reuniones Institucionales</h2>
+          <p className="text-xs text-cyan-100/90 mt-1 font-medium">
             Registro auditable de minutas, acuerdos y compromisos operativos de planificación por estado geográfico.
           </p>
         </div>
 
         {/* Action Button (Role Aware) */}
         {['ANALISTA', 'GERENCIA'].includes(session.role) && (
-          <button
-            onClick={() => alert('Función de registro de minutas activada. Redirigiendo a formulario en la Nube...')}
-            className="flex items-center space-x-2 rounded-xl bg-[#002b49] text-white dark:bg-gradient-to-r dark:from-[#00f2fe] dark:to-[#00b4d8] dark:text-[#0a192f] px-4 py-2.5 text-xs font-black uppercase shadow-md hover:scale-105 transition-all"
-          >
-            <Plus className="h-4 w-4" />
-            <span>Registrar Nueva Minuta</span>
-          </button>
+          <div className="relative z-10">
+            <button
+              onClick={() => alert('Función de registro de minutas activada. Redirigiendo a formulario en la Nube...')}
+              className="flex items-center space-x-2 rounded-2xl bg-white hover:bg-cyan-50 text-[#072146] px-5 py-3 text-xs font-black uppercase shadow-md hover:scale-105 transition-all"
+            >
+              <Plus className="h-4 w-4 text-[#002b49]" />
+              <span>Registrar Nueva Minuta</span>
+            </button>
+          </div>
         )}
       </div>
 

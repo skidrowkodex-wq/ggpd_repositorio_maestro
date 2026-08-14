@@ -36,41 +36,53 @@ export const DocumentViewer: React.FC = () => {
     <div className="space-y-6">
       
       {/* Header Banner */}
-      <div className="rounded-3xl bg-white dark:bg-gradient-to-r dark:from-[#112240] dark:via-[#0a192f] dark:to-[#112240] p-6 border border-slate-200 dark:border-[#00f2fe]/30 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
+      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#072146] via-[#002b49] to-[#041426] text-white p-6 sm:p-7 shadow-xl border border-blue-900/60 dark:border-[#00f2fe]/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 group hover:border-[#00f2fe]/80 transition-all duration-300">
+        <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#00f2fe_1.5px,transparent_1.5px)] [background-size:16px_16px]" />
+        
+        <div className="absolute -right-6 -bottom-6 opacity-10 pointer-events-none text-[#00f2fe] select-none">
+          <svg width="180" height="180" viewBox="0 0 100 100" fill="currentColor">
+            <path d="M10 20 L35 50 L10 80 L25 80 L50 50 L25 20 Z" />
+            <path d="M40 20 L65 50 L40 80 L55 80 L80 50 L55 20 Z" />
+          </svg>
+        </div>
+
+        <div className="relative z-10">
           <div className="flex items-center space-x-2">
-            <Cloud className="h-5 w-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-            <h2 className="text-xl font-black text-slate-900 dark:text-white">Eje 4: Visor Incrustado de Documentación Nube</h2>
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#00f2fe] font-bold flex items-center space-x-1.5">
+              <Cloud className="h-4 w-4 text-emerald-400" />
+              <span>Eje 4 · Repositorio & Documentación</span>
+            </span>
           </div>
-          <p className="text-xs text-slate-700 dark:text-slate-300 mt-1 font-medium">
+          <h2 className="text-xl sm:text-2xl font-black text-white mt-1">Visor Incrustado de Documentación Nube</h2>
+          <p className="text-xs text-cyan-100/90 mt-1 font-medium">
             Visualización integrada de archivos Google Drive / Repositorios con control granular de descargas por perfil.
           </p>
         </div>
 
         {/* User Actions & Privilege Badge */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="relative z-10 flex flex-wrap items-center gap-2.5">
           {hasDrivePermission ? (
             <button
               onClick={handleOpenDriveFolder}
-              className="flex items-center space-x-1.5 rounded-xl px-3.5 py-2 bg-cyan-50 text-cyan-900 border border-cyan-300 dark:bg-cyan-950/80 dark:text-cyan-300 dark:border-cyan-800 text-xs font-bold shadow-xs hover:scale-105 transition-all"
+              className="flex items-center space-x-1.5 rounded-2xl px-4 py-2.5 bg-white hover:bg-cyan-50 text-[#072146] text-xs font-black shadow-md hover:scale-105 transition-all"
             >
-              <Cloud className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+              <Cloud className="h-4 w-4 text-[#002b49]" />
               <span>Carpeta Raíz Drive (Nube)</span>
-              <ExternalLink className="h-3 w-3 ml-0.5" />
+              <ExternalLink className="h-3.5 w-3.5 ml-0.5 text-[#002b49]" />
             </button>
           ) : (
-            <span className="flex items-center space-x-1.5 rounded-xl px-3 py-1.5 bg-slate-100 text-slate-500 border border-slate-200 dark:bg-slate-800 dark:text-slate-400 text-xs font-bold">
+            <span className="flex items-center space-x-1.5 rounded-2xl px-3.5 py-2 bg-white/10 text-cyan-200 border border-white/20 text-xs font-mono font-bold">
               <Lock className="h-3.5 w-3.5" />
               <span>Drive Restringido</span>
             </span>
           )}
 
-          <div className={`flex items-center space-x-2 rounded-xl px-3.5 py-2 border text-xs font-bold shadow-xs shrink-0 ${
+          <div className={`flex items-center space-x-2 rounded-2xl px-4 py-2.5 border text-xs font-mono font-bold shadow-xs shrink-0 ${
             canDownload
-              ? 'bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/30'
-              : 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/30'
+              ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400/40'
+              : 'bg-amber-500/20 text-amber-300 border-amber-400/40'
           }`}>
-            {canDownload ? <CheckCircle2 className="h-4 w-4 text-emerald-700 dark:text-emerald-400 shrink-0" /> : <Lock className="h-4 w-4 text-amber-700 dark:text-amber-400 shrink-0" />}
+            {canDownload ? <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" /> : <Lock className="h-4 w-4 text-amber-400 shrink-0" />}
             <span>{canDownload ? 'Descarga Permitida (Rol Nivel 2/3)' : 'Modo Lectura Protegida'}</span>
           </div>
         </div>

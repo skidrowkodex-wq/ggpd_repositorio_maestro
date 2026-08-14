@@ -264,28 +264,39 @@ export const AssetsMapDashboard: React.FC = () => {
     <div className="space-y-8 animate-in fade-in zoom-in duration-300">
       
       {/* Header Info Banner */}
-      <div className="rounded-3xl bg-white dark:bg-gradient-to-r dark:from-[#0b182e] dark:via-[#112240] dark:to-[#0b182e] p-6 border border-slate-200 dark:border-[#00f2fe]/30 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
+      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#072146] via-[#002b49] to-[#041426] text-white p-6 sm:p-7 shadow-xl border border-blue-900/60 dark:border-[#00f2fe]/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 group hover:border-[#00f2fe]/80 transition-all duration-300">
+        <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#00f2fe_1.5px,transparent_1.5px)] [background-size:16px_16px]" />
+        <div className="absolute -right-6 -bottom-6 opacity-10 pointer-events-none text-[#00f2fe] select-none">
+          <svg width="180" height="180" viewBox="0 0 100 100" fill="currentColor">
+            <path d="M10 20 L35 50 L10 80 L25 80 L50 50 L25 20 Z" />
+            <path d="M40 20 L65 50 L40 80 L55 80 L80 50 L55 20 Z" />
+          </svg>
+        </div>
+
+        <div className="relative z-10">
           <div className="flex items-center space-x-2">
-            <MapPin className="h-6 w-6 text-amber-500 dark:text-[#ffd700]" />
-            <h3 className="text-xl font-black text-slate-900 dark:text-white">
-              Visor Geográfico Cartográfico Oficial SEN — Venezuela 🇻🇪
-            </h3>
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#00f2fe] font-bold flex items-center space-x-1.5">
+              <MapPin className="h-4 w-4 text-amber-400" />
+              <span>GIS Georreferenciación & Topología SEN</span>
+            </span>
           </div>
-          <p className="text-xs text-slate-700 dark:text-slate-300 mt-1 max-w-3xl font-medium">
-            Mapas GIS interactivos de ancho completo con trazado real de 25 entidades federales (incluyendo la <strong className="text-[#002b49] dark:text-[#00f2fe]">Guayana Esequiba 🇻🇪</strong>) e integración directa con <code className="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded font-mono text-amber-700 dark:text-amber-400">samc.activos_red</code>.
+          <h3 className="text-xl sm:text-2xl font-black text-white mt-1">
+            Visor Geográfico Cartográfico Oficial SEN — Venezuela 🇻🇪
+          </h3>
+          <p className="text-xs text-cyan-100/90 mt-1 max-w-3xl font-medium">
+            Mapas GIS interactivos de ancho completo con trazado real de 25 entidades federales (incluyendo la <strong className="text-[#00f2fe]">Guayana Esequiba 🇻🇪</strong>) e integración directa con <code className="bg-black/30 text-amber-300 px-1.5 py-0.5 rounded font-mono">samc.activos_red</code>.
           </p>
         </div>
 
         {/* Global Asset Badges */}
-        <div className="flex flex-col sm:flex-row items-center gap-3">
+        <div className="relative z-10 flex flex-col sm:flex-row items-center gap-3">
           {/* Selector de Origen Global */}
-          <div className="bg-amber-50 dark:bg-amber-900/30 p-2 rounded-xl border border-amber-200 dark:border-amber-700/50">
-            <span className="text-[10px] font-bold text-amber-800 dark:text-amber-400 block mb-1 uppercase text-center sm:text-left">Filtro Global por Origen de Datos (ISO 8000)</span>
+          <div className="bg-white/10 backdrop-blur-md p-2.5 rounded-2xl border border-white/20">
+            <span className="text-[10px] font-mono font-bold text-cyan-200 block mb-1 uppercase text-center sm:text-left">Filtro Global por Origen de Datos (ISO 8000)</span>
             <select 
               value={filterOrigin}
               onChange={(e) => setFilterOrigin(e.target.value as any)}
-              className="text-xs font-bold bg-white dark:bg-[#0b182e] border border-amber-300 dark:border-amber-600 rounded px-2 py-1 text-slate-800 dark:text-white outline-none focus:ring-1 focus:ring-amber-500 w-full"
+              className="text-xs font-bold bg-[#072146] text-white border border-cyan-500/40 rounded-xl px-2.5 py-1.5 outline-none focus:ring-1 focus:ring-[#00f2fe] w-full"
             >
               <option value="ALL">Todos los Orígenes</option>
               <option value="CARACTERIZACION_SE">Solo Caracterización SE (415 Oficiales)</option>
@@ -295,13 +306,13 @@ export const AssetsMapDashboard: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="rounded-xl bg-red-50 dark:bg-red-950/40 p-2 border border-red-200 dark:border-red-500/30 text-center min-w-[100px]">
-              <div className="text-[9px] font-bold text-red-700 dark:text-red-300 uppercase">Total SE</div>
-              <div className="text-lg font-black text-red-600 dark:text-red-400">{filteredSubstationsCount}</div>
+            <div className="rounded-2xl bg-red-500/20 backdrop-blur-md p-2.5 border border-red-400/40 text-center min-w-[90px]">
+              <div className="text-[9px] font-mono font-bold text-red-300 uppercase">Total SE</div>
+              <div className="text-lg font-black text-red-200">{filteredSubstationsCount}</div>
             </div>
-            <div className="rounded-xl bg-cyan-50 dark:bg-cyan-950/40 p-2 border border-cyan-200 dark:border-cyan-500/30 text-center min-w-[100px]">
-              <div className="text-[9px] font-bold text-cyan-700 dark:text-cyan-300 uppercase">Total CT</div>
-              <div className="text-lg font-black text-cyan-600 dark:text-[#00f2fe]">{filteredCircuitsCount.toLocaleString()}</div>
+            <div className="rounded-2xl bg-cyan-500/20 backdrop-blur-md p-2.5 border border-cyan-400/40 text-center min-w-[90px]">
+              <div className="text-[9px] font-mono font-bold text-cyan-200 uppercase">Total CT</div>
+              <div className="text-lg font-black text-cyan-100">{filteredCircuitsCount.toLocaleString()}</div>
             </div>
           </div>
         </div>

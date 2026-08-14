@@ -190,6 +190,18 @@ export const INITIAL_METRICS: ProcessMetric[] = [
 
 export const INITIAL_DOCUMENTS: DocumentItem[] = [
   {
+    id: 'doc-000',
+    code: 'NAC_2026_GGPD_INFORME_ARQUITECTURA_GOBERNANZA_ACCESOS_SIGI_V01',
+    title: 'Informe Técnico: Arquitectura de Autenticación No Invasiva y Gobernanza de Accesos SIGI',
+    category: 'Normativa e ISO 8000',
+    stateCode: 'NAC',
+    fileType: 'pdf',
+    driveEmbedUrl: 'https://docs.google.com/document/d/e/2PACX-1vT_dummy_informe_gobernanza_sigi/pub?embedded=true',
+    downloadAllowedRoles: ['OPERADOR', 'ANALISTA', 'GERENCIA', 'ADMINISTRADOR'],
+    updatedAt: '2026-08-14',
+    author: 'Área de Tecnología y Desarrollo (GGPD)'
+  },
+  {
     id: 'doc-001',
     code: 'NAC_2026_GGPD_MANUAL_GOBIERNO_DATOS_DISTRIBUCION_V01',
     title: 'Manual de Normas de Gobierno de Datos e Ingesta Nube GGPD 2026',

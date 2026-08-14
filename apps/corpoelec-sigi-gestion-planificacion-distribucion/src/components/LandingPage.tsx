@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Shield, 
   Zap, 
@@ -22,17 +22,22 @@ import {
   Clock,
   Radio,
   Eye,
-  Check
+  Check,
+  Info,
+  Network
 } from 'lucide-react';
 import { VENEZUELAN_STATES } from '../mockData/portalData';
+import { IndustrialActionBanners } from './IndustrialActionBanners';
+import { SigiAcronymModal } from './SigiAcronymModal';
 
 interface LandingPageProps {
   onOpenAuth: (stateCode?: string) => void;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
+  const [isSigiModalOpen, setIsSigiModalOpen] = useState(false);
   return (
-    <div className="relative overflow-hidden space-y-20 py-6 transition-colors">
+    <div className="relative overflow-hidden space-y-12 sm:space-y-16 pt-1 pb-10 transition-colors">
       
       {/* Background Decorative Ambient Illumination */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[450px] bg-gradient-to-r from-blue-400/20 via-cyan-400/15 to-amber-400/15 dark:from-[#00f2fe]/10 dark:via-[#4facfe]/10 dark:to-[#ffd700]/10 blur-[150px] pointer-events-none -z-10" />
@@ -40,22 +45,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
       {/* =========================================================================
           SECTION 1: HERO EJECUTIVO — PITCH CORPORATIVO Y CENTRO DE MANDO SEN
           ========================================================================= */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 pt-4">
+      <section className="mx-auto max-w-7xl px-2 sm:px-4 pt-2">
         
-        {/* Top Institutional Header Ribbon */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-6 mb-8 border-b border-slate-200 dark:border-slate-800/80">
-          <div className="flex items-center space-x-2 text-xs font-mono font-bold text-slate-700 dark:text-slate-300">
-            <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="uppercase tracking-wider">Red Eléctrica Nacional: 60.00 Hz (Estabilidad Óptima)</span>
-          </div>
-          <div className="flex items-center space-x-3 text-[11px] font-bold text-slate-500 dark:text-slate-400">
-            <span className="hidden sm:inline">MPPEE · CORPOELEC GGPD</span>
-            <span className="rounded bg-blue-100 text-[#002b49] dark:bg-[#00f2fe]/20 dark:text-[#00f2fe] px-2 py-0.5 font-mono">
-              PORTAL MAESTRO v3.0 ISO
-            </span>
-          </div>
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           
           {/* Left Column: Executive Value Proposition */}
@@ -220,6 +211,114 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
       </section>
 
       {/* =========================================================================
+          SPECIAL SECTION: ¿QUÉ ES EL SIGI? — IDENTIDAD Y SIGNIFICADO ESTRATÉGICO
+          ========================================================================= */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#072146] via-[#002b49] to-[#041426] text-white p-7 sm:p-9 shadow-2xl border border-blue-900/60 dark:border-[#00f2fe]/40 group hover:border-[#00f2fe]/80 transition-all duration-300">
+          
+          {/* Background Matrix & Watermark */}
+          <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#00f2fe_1.5px,transparent_1.5px)] [background-size:16px_16px]" />
+          <div className="absolute -right-8 -bottom-8 opacity-10 pointer-events-none text-[#00f2fe] select-none">
+            <svg width="220" height="220" viewBox="0 0 100 100" fill="currentColor">
+              <path d="M10 20 L35 50 L10 80 L25 80 L50 50 L25 20 Z" />
+              <path d="M40 20 L65 50 L40 80 L55 80 L80 50 L55 20 Z" />
+            </svg>
+          </div>
+
+          <div className="relative z-10 space-y-6">
+            
+            {/* Header with Title and Action */}
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-white/10 pb-6">
+              <div>
+                <div className="flex items-center space-x-2">
+                  <span className="px-3 py-1 rounded-full bg-[#00f2fe]/20 text-[#00f2fe] border border-[#00f2fe]/40 text-[10px] font-mono font-black uppercase tracking-wider flex items-center space-x-1.5">
+                    <Info className="h-3.5 w-3.5" />
+                    <span>Identidad Corporativa · GGPD CORPOELEC</span>
+                  </span>
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-black text-white mt-2 tracking-tight">
+                  ¿Qué significa <span className="text-[#00f2fe]">SIGI</span> y cuál es su rol estratégico?
+                </h2>
+                <p className="text-sm font-semibold text-cyan-100/90 mt-1">
+                  <strong>SIGI</strong> = <strong>S</strong>istema <strong>I</strong>ntegrado de <strong>G</strong>estión de la <strong>I</strong>nformación
+                </p>
+              </div>
+
+              <button
+                onClick={() => setIsSigiModalOpen(true)}
+                className="flex items-center space-x-2 px-5 py-3 rounded-2xl bg-white hover:bg-cyan-50 text-[#072146] font-black text-xs uppercase shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0"
+              >
+                <Info className="h-4 w-4 text-[#002b49]" />
+                <span>Ver Arquitectura Completa</span>
+              </button>
+            </div>
+
+            {/* 4 Interactive Semantic Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              
+              {/* Card S */}
+              <div className="p-5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 hover:border-[#00f2fe]/60 transition-all space-y-2 group/card text-left">
+                <div className="flex items-center justify-between">
+                  <span className="h-10 w-10 rounded-xl bg-white text-[#072146] font-black text-xl flex items-center justify-center shadow-md">
+                    S
+                  </span>
+                  <span className="text-[10px] font-mono font-bold text-cyan-200 uppercase">Pilar 01</span>
+                </div>
+                <h3 className="text-base font-black text-white group-hover/card:text-[#00f2fe] transition-colors">Sistema</h3>
+                <p className="text-xs text-cyan-100/80 leading-relaxed">
+                  Infraestructura unificada de microservicios y bases de datos relacionales PostgreSQL que interconecta todo el SEN.
+                </p>
+              </div>
+
+              {/* Card I */}
+              <div className="p-5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 hover:border-[#00f2fe]/60 transition-all space-y-2 group/card text-left">
+                <div className="flex items-center justify-between">
+                  <span className="h-10 w-10 rounded-xl bg-[#00f2fe] text-[#072146] font-black text-xl flex items-center justify-center shadow-md">
+                    I
+                  </span>
+                  <span className="text-[10px] font-mono font-bold text-cyan-200 uppercase">Pilar 02</span>
+                </div>
+                <h3 className="text-base font-black text-white group-hover/card:text-[#00f2fe] transition-colors">Integrado</h3>
+                <p className="text-xs text-cyan-100/80 leading-relaxed">
+                  Conexión sinérgica de telemetría de fallas (SCTIS), inversiones (SCEIN), caracterización de activos y minutas técnicas.
+                </p>
+              </div>
+
+              {/* Card G */}
+              <div className="p-5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 hover:border-[#00f2fe]/60 transition-all space-y-2 group/card text-left">
+                <div className="flex items-center justify-between">
+                  <span className="h-10 w-10 rounded-xl bg-amber-400 text-[#072146] font-black text-xl flex items-center justify-center shadow-md">
+                    G
+                  </span>
+                  <span className="text-[10px] font-mono font-bold text-cyan-200 uppercase">Pilar 03</span>
+                </div>
+                <h3 className="text-base font-black text-white group-hover/card:text-[#00f2fe] transition-colors">Gestión</h3>
+                <p className="text-xs text-cyan-100/80 leading-relaxed">
+                  Supervisión y control en tiempo real de indicadores KGI/KPI (SAIDI, SAIFI, ENS en MWh) para decisiones tácticas certeras.
+                </p>
+              </div>
+
+              {/* Card I */}
+              <div className="p-5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 hover:border-[#00f2fe]/60 transition-all space-y-2 group/card text-left">
+                <div className="flex items-center justify-between">
+                  <span className="h-10 w-10 rounded-xl bg-purple-400 text-[#072146] font-black text-xl flex items-center justify-center shadow-md">
+                    I
+                  </span>
+                  <span className="text-[10px] font-mono font-bold text-cyan-200 uppercase">Pilar 04</span>
+                </div>
+                <h3 className="text-base font-black text-white group-hover/card:text-[#00f2fe] transition-colors">Información</h3>
+                <p className="text-xs text-cyan-100/80 leading-relaxed">
+                  Soberanía de datos bajo normas ISO 8000 e ISO 27001, reemplazando canales informales por repositorios auditables.
+                </p>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================================
           SECTION 2: ECOSISTEMA DE LAS 4 APLICACIONES ESTRATÉGICAS (SHOWCASE)
           ========================================================================= */}
       <section id="ecosistema-aplicaciones" className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -338,6 +437,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
         </div>
 
       </section>
+
+      {/* =========================================================================
+          SECTION 2.5: MÓDULOS DE ACCIÓN OPERATIVA E INSTITUCIONAL (OPCIÓN A)
+          ========================================================================= */}
+      <IndustrialActionBanners onOpenAuth={onOpenAuth} />
 
       {/* =========================================================================
           SECTION 3: SPOTLIGHT SUBESTACIÓN DIGITAL TWIN & RETORNO ESTRATÉGICO
@@ -593,6 +697,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth }) => {
         </div>
 
       </section>
+
+      {/* Dedicated SIGI Explanation Modal */}
+      <SigiAcronymModal 
+        isOpen={isSigiModalOpen} 
+        onClose={() => setIsSigiModalOpen(false)} 
+      />
 
     </div>
   );
