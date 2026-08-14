@@ -14,7 +14,7 @@ function mdToWordHtml(mdContent, title) {
   // Tables
   html = html.replace(/(?:\|[^\n]+\|\r?\n)+/g, (tableMatch) => {
     const lines = tableMatch.trim().split('\n');
-    let tableHtml = '<table style="width:100%; border-collapse:collapse; margin:12pt 0; font-family:Calibri, Arial, sans-serif; font-size:10pt;">';
+    let tableHtml = '<table style="width:100%; border-collapse:collapse; margin:10pt 0; font-family:Calibri, Arial, sans-serif; font-size:9.5pt;">';
     
     let isHeader = true;
     for (const line of lines) {
@@ -28,9 +28,9 @@ function mdToWordHtml(mdContent, title) {
       tableHtml += '<tr>';
       cells.forEach(cell => {
         if (isHeader) {
-          tableHtml += `<th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #003366; text-align:left;">${cell}</th>`;
+          tableHtml += `<th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;">${cell}</th>`;
         } else {
-          tableHtml += `<td style="padding:5pt 8pt; border:1px solid #D3D3D3; color:#334155; background-color:#FAFCFF;">${cell}</td>`;
+          tableHtml += `<td style="padding:4.5pt 7pt; border:1px solid #CBD5E1; color:#1E293B; background-color:#FAFCFF; font-size:9pt; vertical-align:top;">${cell}</td>`;
         }
       });
       tableHtml += '</tr>';
@@ -40,7 +40,10 @@ function mdToWordHtml(mdContent, title) {
   });
 
   // Code blocks
-  html = html.replace(/```([\s\S]*?)```/g, '<div style="background-color:#F4F6F8; border:1px solid #E2E8F0; padding:10pt; font-family:Courier New, monospace; font-size:9.5pt; color:#1E293B; margin:10pt 0; white-space:pre-wrap;">$1</div>');
+  html = html.replace(/```([\s\S]*?)```/g, '<div style="background-color:#F4F6F8; border:1px solid #CBD5E1; padding:8pt; font-family:Consolas, Courier New, monospace; font-size:8.5pt; color:#1E293B; margin:8pt 0; white-space:pre-wrap;">$1</div>');
+
+  // Inline code `code`
+  html = html.replace(/`([^`]+)`/g, '<code style="font-family:Consolas, Courier New, monospace; font-size:8.5pt; background-color:#E2E8F0; padding:1pt 3pt; color:#0F172A; border-radius:2pt;">$1</code>');
 
   // Paragraphs & lists
   html = html.split('\n\n').map(p => {
@@ -50,10 +53,10 @@ function mdToWordHtml(mdContent, title) {
       return p;
     }
     if (p.startsWith('* ') || p.startsWith('- ')) {
-      const items = p.split('\n').map(li => `<li style="margin-bottom:3pt; color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:11pt;">${li.replace(/^[\*\-]\s+/, '')}</li>`).join('');
-      return `<ul style="margin:6pt 0 10pt 20pt; padding:0;">${items}</ul>`;
+      const items = p.split('\n').map(li => `<li style="margin-bottom:2pt; color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:10pt;">${li.replace(/^[\*\-]\s+/, '')}</li>`).join('');
+      return `<ul style="margin:4pt 0 8pt 18pt; padding:0;">${items}</ul>`;
     }
-    return `<p style="font-family:Calibri, Arial, sans-serif; font-size:11pt; line-height:1.4; color:#1E293B; margin:4pt 0 8pt 0;">${p.replace(/\n/g, '<br/>')}</p>`;
+    return `<p style="font-family:Calibri, Arial, sans-serif; font-size:10.5pt; line-height:1.35; color:#1E293B; margin:3pt 0 6pt 0;">${p.replace(/\n/g, '<br/>')}</p>`;
   }).join('\n');
 
   return `<!DOCTYPE html>
@@ -61,10 +64,31 @@ function mdToWordHtml(mdContent, title) {
 <head>
 <meta charset="utf-8">
 <title>${title}</title>
+<!--[if gte mso 9]>
+<xml>
+ <w:WordDocument>
+  <w:View>Print</w:View>
+  <w:Zoom>100</w:Zoom>
+  <w:DoNotOptimizeForBrowser/>
+ </w:WordDocument>
+</xml>
+<![endif]-->
 <style>
 @page {
-  size: letter portrait;
-  margin: 1.0in;
+  size: letter landscape;
+  margin: 0.6in 0.7in 0.6in 0.7in;
+  mso-page-orientation: landscape;
+}
+@page Section1 {
+  size: 11.0in 8.5in;
+  mso-page-orientation: landscape;
+  margin: 0.6in 0.7in 0.6in 0.7in;
+  mso-header-margin: 0.4in;
+  mso-footer-margin: 0.4in;
+  mso-paper-source: 0;
+}
+div.Section1 {
+  page: Section1;
 }
 body {
   font-family: Calibri, Arial, sans-serif;
@@ -75,7 +99,9 @@ body {
 </style>
 </head>
 <body>
+<div class="Section1">
 ${html}
+</div>
 </body>
 </html>`;
 }
