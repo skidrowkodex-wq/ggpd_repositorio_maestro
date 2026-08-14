@@ -80,6 +80,16 @@ $$\text{Formato: } \mathbf{[NombreEstadoSinAcentos]2026!.} \quad \text{o} \quad 
 
 ---
 
+### 4.1 MATRIZ DE CUENTAS EJECUTIVAS Y ADMINISTRATIVAS CENTRALES (GGPD NACIONAL)
+
+| # | Nivel | Usuario (`username`) | Nombre Completo Institucional | Cargo / Rol | Correo Corporativo | Cuenta Google | Contraseña de Acceso | Alcance de Permisos |
+| :-: | :---: | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **A1** | Central | `ggpd_admin` | Administrador General GGPD | `ADMINISTRADOR` | `admin.ggpd@corpoelec.gob.ve` | `bk.ggpd.corpoelec@gmail.com` | `admin2026!.` | Acceso Total (SCTIS, SCEIN, SCPPE, SCMTP, GDrive, Usuarios) |
+| **A2** | Central | `a_correa` | Ing. Adrian Correa | `GERENCIA` (Gerente General) | `a.correa@corpoelec.gob.ve` | `adrian.correa.ggpd@gmail.com` | `Correa2026!.` | Control Ejecutivo, Minutas, Aprobación de Viáticos y Proyectos |
+| **A3** | Central | `j_pacheco` | Ing. Josue Pacheco | `ADMINISTRADOR` (Dev & Data) | `j.pacheco@corpoelec.gob.ve` | `josue.pacheco.ggpd@gmail.com` | `Pacheco2026!.` | Administración Tecnológica, Arquitectura BD y Seguridad |
+
+---
+
 ## 5. INDICADORES VISIBLES EN MODO SALA SITUACIONAL (KGI vs KPI)
 
 | Categoría | Indicador Principal | Tipo | Fuente / Aplicación Maestra |
