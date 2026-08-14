@@ -70,6 +70,19 @@ export default function App() {
 
   const [currentProfile, setCurrentProfile] = useState<UserProfile>(() => {
     try {
+      const params = new URLSearchParams(window.location.search);
+      const isSso = params.get('sso') === 'true' || params.get('sso_auth') === 'true';
+      const ssoUser = params.get('user') || params.get('sso_user');
+      if (isSso) {
+        const clean = (ssoUser || 'ggpd_admin').trim().toLowerCase();
+        const found = USER_PROFILES.find(u => u.username.toLowerCase() === clean) || USER_PROFILES[0];
+        localStorage.setItem('ggpd_current_profile_v1', JSON.stringify(found));
+        localStorage.setItem('ggpd_auth_v1', 'true');
+        return found;
+      }
+    } catch {}
+
+    try {
       const saved = localStorage.getItem('ggpd_current_profile_v1');
       if (saved) return JSON.parse(saved);
       return USER_PROFILES[0];
@@ -80,6 +93,10 @@ export default function App() {
 
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('sso') === 'true' || params.get('sso_auth') === 'true') {
+        return true;
+      }
       return localStorage.getItem('ggpd_auth_v1') === 'true';
     } catch {
       return false;

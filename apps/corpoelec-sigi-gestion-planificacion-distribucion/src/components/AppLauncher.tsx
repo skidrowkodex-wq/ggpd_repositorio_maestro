@@ -37,6 +37,27 @@ export const AppLauncher: React.FC<AppLauncherProps> = ({ setActiveSection }) =>
     return true;
   });
 
+  const getAppLaunchUrl = (app: AppItem) => {
+    if (app.isCloud || app.id === 'gdrive-ggpd' || !app.url.startsWith('http')) {
+      return app.url;
+    }
+    try {
+      const urlObj = new URL(app.url);
+      if (session.authenticated) {
+        urlObj.searchParams.set('sso', 'true');
+        urlObj.searchParams.set('sso_auth', 'true');
+        const effectiveUser = session.userCode === 'usr-001' ? 'ggpd_admin' : (matchedUser?.username || session.userCode || 'ggpd_admin');
+        urlObj.searchParams.set('user', effectiveUser);
+        urlObj.searchParams.set('role', session.role);
+        urlObj.searchParams.set('state', session.stateCode);
+      }
+      return urlObj.toString();
+    } catch {
+      const sep = app.url.includes('?') ? '&' : '?';
+      return `${app.url}${sep}sso=true&sso_auth=true&user=${encodeURIComponent(session.userCode || 'ggpd_admin')}&role=${encodeURIComponent(session.role)}&state=${encodeURIComponent(session.stateCode)}`;
+    }
+  };
+
   const handleAppLaunch = (app: AppItem, e: React.MouseEvent) => {
     // 1. Google Drive Card Permission Control
     if (app.id === 'gdrive-ggpd') {
@@ -335,7 +356,7 @@ export const AppLauncher: React.FC<AppLauncherProps> = ({ setActiveSection }) =>
 
                 {isAllowed ? (
                   <a
-                    href={app.url}
+                    href={getAppLaunchUrl(app)}
                     onClick={(e) => handleAppLaunch(app, e)}
                     target="_blank"
                     rel="noopener noreferrer"

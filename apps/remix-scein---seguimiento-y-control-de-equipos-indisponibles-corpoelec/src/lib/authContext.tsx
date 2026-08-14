@@ -22,6 +22,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const checkAuth = async () => {
+    // 1. Check Single Sign-On (SSO) from Portal Maestro SIGI
+    if (typeof window !== 'undefined') {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const isSso = params.get('sso') === 'true' || params.get('sso_auth') === 'true';
+        const ssoUser = params.get('user') || params.get('sso_user');
+        if (isSso) {
+          const clean = (ssoUser || 'ggpd_admin').trim().toLowerCase();
+          const ssoProfile: User = {
+            id: 'usr-001',
+            username: clean,
+            fullName: clean === 'ggpd_admin' ? 'Administrador General GGPD' : clean,
+            role: (params.get('role') as UserRole) || 'ADMIN',
+            stateCode: params.get('state') || 'NAC',
+            isActive: true,
+          };
+          setUser(ssoProfile);
+          setLoading(false);
+          return;
+        }
+      } catch (e) {
+        console.warn('Error reading SSO in SCEIN', e);
+      }
+    }
+
     try {
       const res = await fetch('/api/auth/me');
       const data = await res.json();
