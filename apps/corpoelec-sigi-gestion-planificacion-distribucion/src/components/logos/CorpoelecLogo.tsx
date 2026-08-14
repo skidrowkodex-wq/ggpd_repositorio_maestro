@@ -7,13 +7,13 @@ interface CorpoelecLogoProps {
 }
 
 export const CorpoelecLogo: React.FC<CorpoelecLogoProps> = ({ 
-  className = "h-8 w-auto", 
+  className = "h-7 sm:h-8 w-auto", 
 }) => {
   return (
     <img 
       src="/images/corpoelec-logo.png" 
       alt="CORPOELEC - Corporación Eléctrica Nacional" 
-      className={`object-contain select-none ${className}`}
+      className={`object-contain select-none scale-x-[1.05] origin-center ${className}`}
     />
   );
 };
