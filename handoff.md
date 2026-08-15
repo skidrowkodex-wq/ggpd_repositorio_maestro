@@ -118,6 +118,12 @@ Todos los microservicios y el portal central se encuentran **activos y respondie
         - Creado el **Manual Técnico y de Arquitectura SIGI** bajo norma `GGPD-SGM-INS-005 v3.0 ISO`: [`docs/NAC_2026_GGPD_MANUAL_SISTEMA_ARQUITECTURA_SIGI_V01.md`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/NAC_2026_GGPD_MANUAL_SISTEMA_ARQUITECTURA_SIGI_V01.md) y su respectivo `.doc`.
         - Creada la **Guía de Diseño Industrial y Prompt Maestro Google AI Studio**: [`docs/CORPOELEC_AI_STUDIO_DESIGN_SYSTEM_PROMPT.md`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/CORPOELEC_AI_STUDIO_DESIGN_SYSTEM_PROMPT.md) y `.doc`.
         - Actualizado el **Memorándum Ejecutivo de Despliegue QA**: [`docs/despliegues_qa/NAC_2026_GGPD_RESUMEN_EJECUTIVO_DESPLIEGUE_USUARIOS_QA_V01.md`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/despliegues_qa/NAC_2026_GGPD_RESUMEN_EJECUTIVO_DESPLIEGUE_USUARIOS_QA_V01.md) y `.doc` incorporando la 5ta aplicación (SIGI), las 5 reglas de negocio formalizadas y la matriz integral de credenciales (25 cuentas estadales + 11 cuentas ejecutivas/especialistas).
+        - **Generador DOCX Nativo OpenXML:** Desarrollado [`docs/build_native_iso_docx.js`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/build_native_iso_docx.js) para compilar archivos binarios `.docx` nativos con encabezados, pies de página con paginación automática (`Página X de Y`), márgenes y tablas ISO 9001 / 27001 apaisadas (Landscape).
+        - **Optimización Integral Móvil y Tablets:**
+          - Creación de contenedor de logotipo compacto exclusivo para smartphones y tablets (`<lg`), preservando la versión destacada para escritorio (`lg+`).
+          - Reducción del alto del Navbar en móviles (`h-12` / 48px) y rediseño de botones de acción (`h-7.5`), toggle de tema cuadrado e insignias proporcionales.
+          - Barra superior institucional compacta (`py-1`) con logotipo MPPEE y telemetría SEN de bajo impacto visual.
+          - Lienzos Leaflet de mapas GIS de Subestaciones y Circuitos con alturas adaptativas (`360px` móvil, `460px` tablet, `520px` desktop).
 6. **Retrospectiva Técnica Integral:**
    - Creación de [retrospective.MD](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/retrospective.MD) detallando éxitos, incidencias, causas raíz, soluciones aplicadas, elementos pendientes y análisis de tiempos de resolución.
 
