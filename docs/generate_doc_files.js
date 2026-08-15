@@ -110,6 +110,7 @@ const docsDir = '/home/skidrowkodex/Documentos/Repositorio_Maestro/docs';
 const qaDir = path.join(docsDir, 'despliegues_qa');
 
 const allFiles = [
+  { dir: docsDir, name: 'NAC_2026_GGPD_PLAN_ESTRATEGICO_MODULO_INGESTA_CALIDAD_SIGI_V01' },
   { dir: docsDir, name: 'NAC_2026_GGPD_AUDITORIA_ESTATUS_CUATRO_APLICACIONES_V01' },
   { dir: docsDir, name: 'NAC_2026_GGPD_AUDITORIA_TECNICA_GOBERNANZA_BD_V01' },
   { dir: docsDir, name: 'NAC_2026_GGPD_AUDITORIA_FUNCIONAL_GOBIERNO_DATOS_V01' },
