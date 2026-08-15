@@ -20,7 +20,9 @@ import {
   Menu,
   X,
   Info,
-  HelpCircle
+  HelpCircle,
+  UploadCloud,
+  FolderTree
 } from 'lucide-react';
 
 interface SidebarNavProps {
@@ -46,10 +48,12 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
 
   const rawNavItems = [
     { id: 'apps', label: '1. Lanzador de Apps', icon: LayoutGrid, desc: '4 Apps Maestras GGPD', hideForVisor: true },
-    { id: 'minutas', label: '2. Minutario Técnico', icon: FileText, desc: 'Acuerdos e Inventarios', hideForVisor: false },
-    { id: 'dashboards', label: '3. Tableros KGI/KPI', icon: BarChart3, desc: 'Centro de Mando & Telemetría', hideForVisor: false },
-    { id: 'drive', label: '4. Visor Google Drive', icon: Cloud, desc: 'Documentos Nube', hideForVisor: true },
-    { id: 'usuarios', label: '5. Gestión Usuarios SSO', icon: Users, desc: 'Directorio & Permisos', hideForVisor: true },
+    { id: 'ingesta', label: '2. Módulo de Carga', icon: UploadCloud, desc: 'Validación ISO 8000 & Calidad', hideForVisor: false },
+    { id: 'minutas', label: '3. Minutario Técnico', icon: FileText, desc: 'Acuerdos e Inventarios', hideForVisor: false },
+    { id: 'dashboards', label: '4. Tableros KGI/KPI', icon: BarChart3, desc: 'Centro de Mando & Telemetría', hideForVisor: false },
+    { id: 'procesos_drive', label: '5. Procesos & Data Lake', icon: FolderTree, desc: 'Aprovisionamiento Nube', hideForVisor: true },
+    { id: 'drive', label: '6. Visor Google Drive', icon: Cloud, desc: 'Documentos Nube', hideForVisor: true },
+    { id: 'usuarios', label: '7. Gestión Usuarios SSO', icon: Users, desc: 'Directorio & Permisos', hideForVisor: true },
   ];
 
   const navItems = rawNavItems.filter(item => !isVisorEstadal || !item.hideForVisor);

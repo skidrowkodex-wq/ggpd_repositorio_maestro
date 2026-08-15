@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutGrid, FileText, BarChart3, Cloud, Users } from 'lucide-react';
+import { LayoutGrid, FileText, BarChart3, Cloud, Users, UploadCloud } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface MobileBottomNavProps {
@@ -15,6 +15,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ activeSection,
 
   const rawItems = [
     { id: 'apps', label: 'Apps', icon: LayoutGrid, hideForVisor: true },
+    { id: 'ingesta', label: 'Carga ⚡', icon: UploadCloud, hideForVisor: false },
     { id: 'minutas', label: 'Minutas', icon: FileText, hideForVisor: false },
     { id: 'dashboards', label: 'Tableros', icon: BarChart3, hideForVisor: false },
     { id: 'drive', label: 'Drive', icon: Cloud, hideForVisor: true },
