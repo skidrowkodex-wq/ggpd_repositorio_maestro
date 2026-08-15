@@ -7,7 +7,7 @@ interface CorpoelecLogoProps {
 }
 
 export const CorpoelecLogo: React.FC<CorpoelecLogoProps> = ({ 
-  className = "h-7 sm:h-8 w-auto", 
+  className = "h-4 sm:h-5 w-auto", 
 }) => {
   return (
     <img 

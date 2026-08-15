@@ -48,15 +48,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className="flex items-center space-x-1.5 sm:space-x-3 cursor-pointer select-none group min-w-0" 
                 onClick={() => setActiveSection(session.role === 'VISOR_ESTADAL' ? 'dashboards' : 'apps')}
               >
-                {/* Official CORPOELEC Logo Card */}
-                {/* 1. Mobile & Tablet Compact Container (<lg): Discrete, small proportional logo */}
-                <div className="flex lg:hidden h-6.5 sm:h-8 px-1.5 sm:px-2 py-0.5 rounded-md bg-white border border-slate-200 dark:border-slate-700/80 shadow-2xs items-center justify-center shrink-0">
-                  <CorpoelecLogo className="h-3.5 sm:h-5 w-auto max-w-[48px] sm:max-w-[80px]" />
-                </div>
-
-                {/* 2. Desktop Standard Container (lg+): Full prominent desktop logo */}
-                <div className="hidden lg:flex h-10 px-3.5 py-1 rounded-xl bg-white border border-slate-200 dark:border-slate-700/80 shadow-2xs items-center justify-center shrink-0 group-hover:border-[#002b49] dark:group-hover:border-[#00f2fe]/60 transition-colors">
-                  <CorpoelecLogo className="h-7.5 w-auto" />
+                {/* Official CORPOELEC Logo Card - Scaled elegantly for all screen sizes */}
+                <div className="h-7 sm:h-7.5 lg:h-8 px-2 sm:px-2.5 lg:px-3 py-0.5 sm:py-1 rounded-lg lg:rounded-xl bg-white border border-slate-200 dark:border-slate-700/80 shadow-2xs flex items-center justify-center shrink-0 group-hover:border-[#002b49] dark:group-hover:border-[#00f2fe]/60 transition-colors">
+                  <CorpoelecLogo className="h-3.5 sm:h-4 lg:h-5 w-auto max-w-[50px] sm:max-w-[70px] lg:max-w-[88px]" />
                 </div>
 
                 {/* Vertical Separator */}
