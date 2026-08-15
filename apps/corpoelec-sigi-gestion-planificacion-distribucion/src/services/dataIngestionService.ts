@@ -14,10 +14,14 @@ import {
   DataLakeFolderNode 
 } from '../types/ingestion';
 import { VENEZUELAN_STATES } from '../mockData/portalData';
+import { supabase } from '../lib/supabase';
+import { getMasterCatalogs } from './instrumentAuditorService';
 
 const STORAGE_KEY_PROCESSES = 'CORPOELEC_SIGI_PROCESSES_V1';
 const STORAGE_KEY_SUBMISSIONS = 'CORPOELEC_SIGI_SUBMISSIONS_V1';
 const GDRIVE_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxonVU31GBXuVCfu_5G8hmADkYFB7yriPJVt2nS9w7uMjsERu5_WPzpQSVbuB2kvtQkqA/exec';
+
+
 
 export const DEFAULT_PROCESSES: ProcessDefinition[] = [
   {
@@ -207,6 +211,61 @@ export const getStoredProcesses = (): ProcessDefinition[] => {
   return DEFAULT_PROCESSES;
 };
 
+/**
+ * Sincroniza procesos desde Supabase hacia la caché local
+ */
+export const syncProcessesFromSupabase = async (): Promise<ProcessDefinition[]> => {
+  try {
+    if (!supabase) return getStoredProcesses();
+
+    // Intentar consultar esquema sigi o public
+    let response = await supabase
+      .schema('sigi')
+      .from('cat_procesos_ingesta')
+      .select('*');
+
+    if (response.error) {
+      response = await supabase
+        .from('cat_procesos_ingesta')
+        .select('*');
+    }
+
+    if (response.data && response.data.length > 0) {
+      const mapped: ProcessDefinition[] = response.data.map((row: any) => ({
+        id: row.id,
+        code: row.code,
+        name: row.name,
+        shortName: row.short_name,
+        description: row.description || '',
+        category: row.category || 'MANTENIMIENTO_CONTROL',
+        targetApp: row.target_app || 'Módulo Dinámico SIGI',
+        frequency: row.frequency || 'SEMANAL',
+        namingPattern: row.naming_pattern || `${row.code}_[ESTADO]_[YYYYMMDD]_V01.xlsx`,
+        icon: row.icon || 'Layers',
+        color: row.color || '#00f2fe',
+        createdAt: row.created_at || new Date().toISOString(),
+        isDynamic: row.is_dynamic ?? true,
+        provisionedStatesCount: row.provisioned_states_count || 25,
+        requiredColumns: Array.isArray(row.required_columns) ? row.required_columns : []
+      }));
+
+      // Unir con los procesos base
+      const local = getStoredProcesses();
+      const mergedMap = new Map<string, ProcessDefinition>();
+      DEFAULT_PROCESSES.forEach(p => mergedMap.set(p.id, p));
+      local.forEach(p => mergedMap.set(p.id, p));
+      mapped.forEach(p => mergedMap.set(p.id, p));
+
+      const mergedList = Array.from(mergedMap.values());
+      localStorage.setItem(STORAGE_KEY_PROCESSES, JSON.stringify(mergedList));
+      return mergedList;
+    }
+  } catch (err) {
+    console.warn('Supabase offline o tabla aún no creada, utilizando caché local:', err);
+  }
+  return getStoredProcesses();
+};
+
 export const saveProcessDefinition = (process: ProcessDefinition): void => {
   const current = getStoredProcesses();
   const existingIdx = current.findIndex(p => p.id === process.id || p.code === process.code);
@@ -218,12 +277,59 @@ export const saveProcessDefinition = (process: ProcessDefinition): void => {
     updated = [...current, process];
   }
   localStorage.setItem(STORAGE_KEY_PROCESSES, JSON.stringify(updated));
+
+  // Sincronización en segundo plano con Supabase si está disponible
+  if (supabase) {
+    const payload = {
+      id: process.id,
+      code: process.code,
+      name: process.name,
+      short_name: process.shortName,
+      description: process.description,
+      category: process.category,
+      target_app: process.targetApp,
+      frequency: process.frequency,
+      naming_pattern: process.namingPattern,
+      icon: process.icon,
+      color: process.color,
+      is_dynamic: process.isDynamic,
+      provisioned_states_count: process.provisionedStatesCount,
+      required_columns: process.requiredColumns,
+      updated_at: new Date().toISOString()
+    };
+
+    (async () => {
+      try {
+        if (!supabase) return;
+        const resSigi = await supabase.schema('sigi').from('cat_procesos_ingesta').upsert(payload);
+        if (resSigi.error) {
+          await supabase.from('cat_procesos_ingesta').upsert(payload);
+        }
+      } catch (err) {
+        console.warn('Error sincronizando proceso con Supabase:', err);
+      }
+    })();
+  }
 };
 
 export const deleteProcessDefinition = (id: string): void => {
   const current = getStoredProcesses();
   const updated = current.filter(p => p.id !== id);
   localStorage.setItem(STORAGE_KEY_PROCESSES, JSON.stringify(updated));
+
+  if (supabase) {
+    (async () => {
+      try {
+        if (!supabase) return;
+        const resSigi = await supabase.schema('sigi').from('cat_procesos_ingesta').delete().eq('id', id);
+        if (resSigi.error) {
+          await supabase.from('cat_procesos_ingesta').delete().eq('id', id);
+        }
+      } catch (err) {
+        console.warn('Error eliminando proceso en Supabase:', err);
+      }
+    })();
+  }
 };
 
 export const getStoredSubmissions = (): IngestionSubmission[] => {
@@ -239,11 +345,138 @@ export const getStoredSubmissions = (): IngestionSubmission[] => {
   return [];
 };
 
-export const saveSubmissionRecord = (submission: IngestionSubmission): void => {
+export const saveSubmissionRecord = (submission: IngestionSubmission, recordsPayload: Record<string, any>[] = []): void => {
   const current = getStoredSubmissions();
   const updated = [submission, ...current];
   localStorage.setItem(STORAGE_KEY_SUBMISSIONS, JSON.stringify(updated.slice(0, 100)));
+
+  // Sincronizar lote con Supabase
+  if (supabase) {
+    const dbRecord = {
+      batch_id: submission.batchId,
+      process_id: submission.processId,
+      state_code: submission.stateCode,
+      uploaded_by: submission.uploadedBy,
+      timestamp: submission.timestamp,
+      original_file_name: submission.originalFileName,
+      normalized_file_name: submission.normalizedFileName,
+      gdrive_folder_path: submission.gdriveFolderPath,
+      conforme_count: submission.conformeCount,
+      no_conforme_count: submission.noConformeCount,
+      status: submission.status,
+      remediation_task_id: submission.remediationTaskId || null,
+      records_payload: recordsPayload,
+      metadata_auditoria: {
+        source: 'PORTAL_SIGI_INGESTA_HUB',
+        userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'Node/Agent',
+        savedAt: new Date().toISOString()
+      }
+    };
+
+    (async () => {
+      try {
+        if (!supabase) return;
+        const resSigi = await supabase.schema('sigi').from('ingesta_registros_dinamicos').insert(dbRecord);
+        if (resSigi.error) {
+          await supabase.from('ingesta_registros_dinamicos').insert(dbRecord);
+        }
+      } catch (err) {
+        console.warn('Error guardando lote en Supabase:', err);
+      }
+    })();
+  }
 };
+
+/**
+ * Validador de registro individual para formulario manual reactivo
+ */
+export const validateManualRecord = (
+  record: Record<string, any>,
+  process: ProcessDefinition,
+  stateCode: string
+): { isValid: boolean; errors: string[] } => {
+  const errors: string[] = [];
+  const masterCatalogs = getMasterCatalogs();
+
+  process.requiredColumns.forEach(col => {
+    const val = record[col.name];
+
+    if (col.required && (val === undefined || val === null || val === '')) {
+      errors.push(`El campo obligatorio '${col.name}' no puede estar vacío.`);
+    }
+
+    if (col.type === 'number' && val !== undefined && val !== null && val !== '') {
+      const num = Number(val);
+      if (isNaN(num)) {
+        errors.push(`El campo '${col.name}' debe ser un número válido.`);
+      } else if (num < 0 && (col.name.includes('MW') || col.name.includes('KM') || col.name.includes('HECTAREA') || col.name.includes('CAPACIDAD') || col.name.includes('CANTIDAD'))) {
+        errors.push(`El campo '${col.name}' no puede ser negativo.`);
+      }
+    }
+
+    // Validación contra Catálogo Maestro (MDM)
+    if (col.type === 'catalog' && col.masterCatalogId && val) {
+      const catalog = masterCatalogs.find(c => c.id === col.masterCatalogId);
+      if (catalog) {
+        const valStr = String(val).trim().toUpperCase();
+        const found = catalog.items.some(item => 
+          item.name.toUpperCase() === valStr || 
+          item.code.toUpperCase() === valStr ||
+          valStr.includes(item.name.toUpperCase())
+        );
+        if (!found) {
+          errors.push(`El valor '${val}' en '${col.name}' no pertenece al catálogo oficial ${catalog.name}.`);
+        }
+      }
+    }
+  });
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
+
+/**
+ * Generador de DDL SQL para tabla dedicada en PostgreSQL / Supabase
+ */
+export const generateProcessDDL = (process: ProcessDefinition): string => {
+  const cleanTable = `ingesta_${process.code.toLowerCase().replace(/\s+/g, '_')}`;
+  
+  const colLines = process.requiredColumns.map(col => {
+    let pgType = 'TEXT';
+    if (col.type === 'number') pgType = 'NUMERIC(12,2)';
+    if (col.type === 'date') pgType = 'TIMESTAMPTZ';
+    if (col.type === 'boolean') pgType = 'BOOLEAN';
+
+    const notNull = col.required ? ' NOT NULL' : '';
+    return `  ${col.name.toLowerCase()} ${pgType}${notNull} -- ${col.description}`;
+  });
+
+  return `-- ============================================================================
+-- DDL GENERADO AUTOMÁTICAMENTE PARA: ${process.name.toUpperCase()}
+-- Código Proceso: ${process.code} | Esquema: sigi
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS sigi.${cleanTable} (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  batch_id TEXT NOT NULL,
+  cod_estado TEXT NOT NULL,
+${colLines.join(',\n')},
+  fecha_carga TIMESTAMPTZ DEFAULT now(),
+  cargado_por TEXT NOT NULL,
+  otqr_status TEXT DEFAULT 'CONFORME' CHECK (otqr_status IN ('CONFORME', 'EN_REMEDIACION'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_${cleanTable}_estado ON sigi.${cleanTable}(cod_estado);
+CREATE INDEX IF NOT EXISTS idx_${cleanTable}_batch ON sigi.${cleanTable}(batch_id);
+
+GRANT ALL ON sigi.${cleanTable} TO postgres, service_role;
+GRANT SELECT, INSERT ON sigi.${cleanTable} TO authenticated, anon;
+`;
+};
+
 
 /**
  * ==============================================================================
@@ -313,6 +546,8 @@ export const validateExcelContent = async (
   const validRecords: Record<string, any>[] = [];
   const invalidRecords: InvalidRecordDetail[] = [];
 
+  const masterCatalogs = getMasterCatalogs();
+
   rows.forEach((row, index) => {
     const rowNum = index + 2; // +1 cabecera, +1 base 1
     const rowErrors: string[] = [];
@@ -333,6 +568,22 @@ export const validateExcelContent = async (
           rowErrors.push(`El campo '${col.name}' debe ser numérico.`);
         } else if (num < 0 && (col.name.includes('MW') || col.name.includes('KM') || col.name.includes('HECTAREA') || col.name.includes('CAPACIDAD'))) {
           rowErrors.push(`El campo '${col.name}' no puede ser negativo (${num}).`);
+        }
+      }
+
+      // Validación contra Catálogo Maestro en Excel
+      if (col.type === 'catalog' && col.masterCatalogId && val) {
+        const catalog = masterCatalogs.find(c => c.id === col.masterCatalogId);
+        if (catalog) {
+          const valStr = String(val).trim().toUpperCase();
+          const found = catalog.items.some(item => 
+            item.name.toUpperCase() === valStr || 
+            item.code.toUpperCase() === valStr ||
+            valStr.includes(item.name.toUpperCase())
+          );
+          if (!found) {
+            rowErrors.push(`El valor '${val}' en '${col.name}' no pertenece al catálogo oficial ${catalog.name}.`);
+          }
         }
       }
     });
@@ -408,12 +659,22 @@ export const exportRemediationExcel = (
  * ==============================================================================
  */
 export const exportOfficialTemplateExcel = (process: ProcessDefinition): void => {
-  const headersObj: Record<string, any> = {};
+  const masterCatalogs = getMasterCatalogs();
   const sampleObj: Record<string, any> = {};
 
   process.requiredColumns.forEach(col => {
-    headersObj[col.name] = '';
-    sampleObj[col.name] = col.sampleValue || (col.type === 'number' ? 0 : 'EJEMPLO');
+    if (col.sampleValue) {
+      sampleObj[col.name] = col.sampleValue;
+    } else if (col.type === 'catalog' && col.masterCatalogId) {
+      const catalog = masterCatalogs.find(c => c.id === col.masterCatalogId);
+      sampleObj[col.name] = catalog?.items[0]?.name || 'OPCION_CATALOGO';
+    } else if (col.type === 'number') {
+      sampleObj[col.name] = 0;
+    } else if (col.type === 'date') {
+      sampleObj[col.name] = '2026-08-15';
+    } else {
+      sampleObj[col.name] = 'EJEMPLO';
+    }
   });
 
   const templateData = [sampleObj];
@@ -426,6 +687,7 @@ export const exportOfficialTemplateExcel = (process: ProcessDefinition): void =>
 
   XLSX.writeFile(workbook, outFileName);
 };
+
 
 /**
  * ==============================================================================

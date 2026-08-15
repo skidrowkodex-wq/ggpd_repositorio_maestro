@@ -3,10 +3,12 @@
 ---
 
 ## 📌 1. Registro de Última Actualización
-- **Fecha y Hora:** 2026-08-14 22:50 (VET / UTC-4) — Cierre de Jornada
+- **Fecha y Hora:** 2026-08-15 11:58 (VET / UTC-4) — Sesión Activa
 - **Plataforma / Entorno:** Antigravity IDE 2.0 (Google Gemini 3.7 Flash) ➡️ Relevo hacia CLI/TUI (`agy`) y QA
 - **Responsable / Usuario:** skidrowkodex (Yvan Ciprián / Josue Pacheco)
-- **Estado General:** 🟢 **Data Lake Google Drive 2026 Aprovisionado & Módulos de Ingesta y Procesos Operativos**
+- **Estado General:** 🟢 **Asistente Wizard ISO 8000, Catálogos Maestros (MDM) y Auditor Heurístico 100% Operativo y Compilado**
+
+
 
 ---
 
@@ -131,8 +133,23 @@ Todos los microservicios y el portal central se encuentran **activos y respondie
           - Lienzos Leaflet de mapas GIS de Subestaciones y Circuitos con alturas adaptativas (`360px` móvil, `460px` tablet, `520px` desktop).
 6. **Retrospectiva Técnica Integral:**
    - Creación de [retrospective.MD](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/retrospective.MD) detallando éxitos, incidencias, causas raíz, soluciones aplicadas, elementos pendientes y análisis de tiempos de resolución.
+7. **Robustecimiento del Módulo de Carga e Ingesta Multimodal (Excel + Formulario Web + Supabase Sync):**
+   - **Persistencia en la Nube con Supabase:** Esquema DDL en [sql/02_tablas_ingesta_procesos_dinamicos.sql](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/sql/02_tablas_ingesta_procesos_dinamicos.sql) y [docs/database/sigi_schema_ddl.sql](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/database/sigi_schema_ddl.sql) con tablas `sigi.cat_procesos_ingesta` e `sigi.ingesta_registros_dinamicos` (soporte `JSONB`).
+   - **Formulario Web Reactivo de Carga Manual Directa:** Añadida la pestaña en [`DataIngestionHub.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/src/components/ingestion/DataIngestionHub.tsx) con validación en caliente, grilla interactiva y envío masivo sin requerir Excel.
+   - **Visor DDL SQL en Tiempo Real:** Integrado modal en [`ProcessDirectoryManager.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/src/components/ingestion/ProcessDirectoryManager.tsx) para consultar y copiar el DDL PostgreSQL generado dinámicamente (`generateProcessDDL`).
+   - **Biblioteca Central de Plantillas:** Actualizado [scripts/google_apps_script_provisioner_2026.gs](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/scripts/google_apps_script_provisioner_2026.gs) con la carpeta `/00_PLANTILLAS_OFICIALES/`.
+   - **Compilación Exitosa:** Ejecutado `npm run build` en SIGI con código 0 y 0 errores.
+8. **Asistente Wizard ISO 8000 de Diseño, Auditoría Heurística & Catálogos Maestros (MDM):**
+   - **Motor Heurístico de Auditoría ([`instrumentAuditorService.ts`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/src/services/instrumentAuditorService.ts)):** Detección Regex de grupos repetitivos horizontales (1NF: `TP1, TP2...`), métricas agregadas en tablas transaccionales (3NF: `TOTAL_`, `CANTIDAD_TOTAL`), verificación de grano y cálculo del índice de madurez del instrumento (0-100%).
+   - **Registro de Catálogos Maestros Compartidos (MDM):** Precargados catálogos normalizados (`CAT_SUBESTACIONES_SEN`, `CAT_CIRCUITOS_DISTRIBUCION`, `CAT_NIVELES_TENSION`, `CAT_TIPOS_EQUIPO_SCEIN`, `CAT_MATERIALES_REPUESTOS`, `CAT_CONDICIONES_OPERATIVAS`, `CAT_CAUSAS_INTERRUPCION`).
+   - **Asistente Wizard Guiado en 4 Pasos ([`InstrumentDesignWizard.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/src/components/ingestion/InstrumentDesignWizard.tsx)):** Soporte para carga de Excel borrador, construcción desde cero o rediseño evolutivo de procesos existentes (`V01` -> `V02`).
+   - **Dictamen Pedagógico Opcional con Google Gemini IA:** Conector REST para justificaciones ejecutivas y pedagógicas de normalización.
+   - **Renderizado de Dropdowns en Formulario Web ([`DataIngestionHub.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/src/components/ingestion/DataIngestionHub.tsx)):** Campos tipo catálogo renderizados como `<select>` vinculados a catálogos maestros.
+   - **Compilación Limpia:** `npm run build` ejecutado exitosamente con 1,756 módulos y 0 errores.
 
 ---
+
+
 
 ## 📋 6. Tareas Pendientes / Próximos Pasos Prioritarios
 - [x] **Integración y Gobernanza Google Drive:** Implementado control RBAC, doble cuenta de correo, bandeja de aprobaciones y Webhook con `bk.ggpd.corpoelec@gmail.com`.

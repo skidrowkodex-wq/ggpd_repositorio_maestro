@@ -99,6 +99,10 @@ function runFastProvisioning(startIdx, endIdx) {
     });
   });
 
+  // Crear carpeta central de plantillas oficiales
+  const plantillasFolder = fastGetOrCreate(dataLakeRoot, '00_PLANTILLAS_OFICIALES');
+  fastGetOrCreate(plantillasFolder, 'PLANTILLAS_EXCEL_NORMALIZADAS_2026');
+
   // Crear consolidados nacionales si llega al final
   if (endIdx >= SEN_ESTADOS.length) {
     Logger.log('📊 Creando 99_CONSOLIDADOS_NACIONALES...');
@@ -109,7 +113,7 @@ function runFastProvisioning(startIdx, endIdx) {
   }
 
   Logger.log('✅ ¡Ejecución completada con éxito!');
-  return 'SUCCESS: Estados ' + (startIdx + 1) + ' al ' + endIdx + ' aprovisionados.';
+  return 'SUCCESS: Estados ' + (startIdx + 1) + ' al ' + endIdx + ' aprovisionados con Plantillas y Consolidados.';
 }
 
 /**
@@ -133,6 +137,7 @@ function provisionNewProcess(processCode, processName) {
   const dataLakeRoot = fastGetOrCreate(root, 'GGPD_DATA_LAKE_OFICIAL');
   const fullProcName = `${processCode}_${processName}`;
   
+  // 1. Crear en los 25 Estados
   SEN_ESTADOS.forEach(estado => {
     const estadoName = `${estado.code}_${estado.name}`;
     const estadoFolder = fastGetOrCreate(dataLakeRoot, estadoName);
@@ -141,8 +146,13 @@ function provisionNewProcess(processCode, processName) {
     fastGetOrCreate(yearFolder, MONTH);
   });
   
-  return 'SUCCESS: Proceso ' + fullProcName + ' creado en los 25 Estados.';
+  // 2. Crear registro en la biblioteca central de plantillas
+  const plantillasFolder = fastGetOrCreate(dataLakeRoot, '00_PLANTILLAS_OFICIALES');
+  fastGetOrCreate(plantillasFolder, fullProcName);
+
+  return 'SUCCESS: Proceso ' + fullProcName + ' creado en los 25 Estados y en 00_PLANTILLAS_OFICIALES.';
 }
+
 
 /**
  * ==============================================================================

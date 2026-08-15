@@ -142,3 +142,62 @@ SELECT u.id, app.key, true, 'OPERADOR_LOCAL', 'Aprovisionamiento inicial de cuen
 FROM sigi.usuarios u
 CROSS JOIN (VALUES ('sctis'), ('tareasMinutas'), ('planificacion'), ('scein')) AS app(key)
 ON CONFLICT (user_id, app_key) DO NOTHING;
+
+-- ============================================================================
+-- 9. TABLAS DE INGESTA DINÁMICA Y CALIDAD ISO 8000
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS sigi.cat_procesos_ingesta (
+  id TEXT PRIMARY KEY,
+  code TEXT UNIQUE NOT NULL,
+  name TEXT NOT NULL,
+  short_name TEXT NOT NULL,
+  description TEXT,
+  category TEXT NOT NULL DEFAULT 'MANTENIMIENTO_CONTROL' CHECK (category IN ('CORE_ESTRATEGICO', 'MANTENIMIENTO_CONTROL', 'ACTIVOS_RED', 'ADMINISTRATIVO_FINANCIERO')),
+  target_app TEXT NOT NULL DEFAULT 'Módulo Dinámico SIGI',
+  frequency TEXT NOT NULL DEFAULT 'SEMANAL' CHECK (frequency IN ('DIARIO', 'SEMANAL', 'QUINCENAL', 'MENSUAL', 'EVENTUAL')),
+  naming_pattern TEXT NOT NULL,
+  icon TEXT DEFAULT 'Layers',
+  color TEXT DEFAULT '#00f2fe',
+  is_dynamic BOOLEAN NOT NULL DEFAULT true,
+  provisioned_states_count INTEGER NOT NULL DEFAULT 25,
+  required_columns JSONB NOT NULL DEFAULT '[]'::jsonb,
+  created_by TEXT DEFAULT 'gerencia_nacional',
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_cat_procesos_code ON sigi.cat_procesos_ingesta(code);
+
+CREATE TABLE IF NOT EXISTS sigi.ingesta_registros_dinamicos (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  batch_id TEXT NOT NULL,
+  process_id TEXT NOT NULL REFERENCES sigi.cat_procesos_ingesta(id) ON DELETE CASCADE,
+  state_code TEXT NOT NULL,
+  uploaded_by TEXT NOT NULL,
+  timestamp TIMESTAMPTZ NOT NULL DEFAULT now(),
+  original_file_name TEXT,
+  normalized_file_name TEXT NOT NULL,
+  gdrive_folder_path TEXT NOT NULL,
+  conforme_count INTEGER NOT NULL DEFAULT 0,
+  no_conforme_count INTEGER NOT NULL DEFAULT 0,
+  otqr_score NUMERIC(5,2) DEFAULT 100.00,
+  status TEXT NOT NULL DEFAULT 'EXITOSO' CHECK (status IN ('EXITOSO', 'PARCIAL_CON_REMEDIACION', 'EN_REVISION', 'RECHAZADO')),
+  remediation_task_id TEXT,
+  records_payload JSONB NOT NULL DEFAULT '[]'::jsonb,
+  metadata_auditoria JSONB DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_ingesta_batch_id ON sigi.ingesta_registros_dinamicos(batch_id);
+CREATE INDEX IF NOT EXISTS idx_ingesta_process_id ON sigi.ingesta_registros_dinamicos(process_id);
+CREATE INDEX IF NOT EXISTS idx_ingesta_state_code ON sigi.ingesta_registros_dinamicos(state_code);
+
+ALTER TABLE sigi.cat_procesos_ingesta ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sigi.ingesta_registros_dinamicos ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Lectura Catálogo Procesos" ON sigi.cat_procesos_ingesta FOR SELECT TO authenticated, anon USING (true);
+CREATE POLICY "Inserción Catálogo Procesos" ON sigi.cat_procesos_ingesta FOR INSERT TO authenticated, anon WITH CHECK (true);
+CREATE POLICY "Lectura Ingesta Dinámica" ON sigi.ingesta_registros_dinamicos FOR SELECT TO authenticated, anon USING (true);
+CREATE POLICY "Inserción Ingesta Dinámica" ON sigi.ingesta_registros_dinamicos FOR INSERT TO authenticated, anon WITH CHECK (true);
+
