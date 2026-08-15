@@ -147,25 +147,22 @@ Todos los microservicios y el portal central se encuentran **activos y respondie
    - **Renderizado de Dropdowns en Formulario Web ([`DataIngestionHub.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/src/components/ingestion/DataIngestionHub.tsx)):** Campos tipo catálogo renderizados como `<select>` vinculados a catálogos maestros.
    - **Compilación Limpia:** `npm run build` ejecutado exitosamente con 1,756 módulos y 0 errores.
    - **Documentación Normativa Estandarizada:** Creado [`docs/NAC_2026_GGPD_MANUAL_ASISTENTE_WIZARD_AUDITORIA_INSTRUMENTOS_ISO8000_V01.md`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/NAC_2026_GGPD_MANUAL_ASISTENTE_WIZARD_AUDITORIA_INSTRUMENTOS_ISO8000_V01.md) (`GGPD-SGM-INS-006 v1.0 ISO`) y compilados todos los binarios nativos `.docx` y `.doc`.
-   - **Despliegue GitHub Exitoso:** Sincronizado y publicado con éxito en `origin/main` (`ggpd_repositorio_maestro` - commit `d012145`) y en `github-innovacion/main` (`corpoelec-sigi-gestion-planificacion-distribucion` - commit `10a1263`).
+   - **Diagrama de Flujo Vectorial SVG (2400x1450):** Creado [`docs/NAC_2026_GGPD_DIAGRAMA_FLUJO_ASISTENTE_WIZARD_ISO8000.svg`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/NAC_2026_GGPD_DIAGRAMA_FLUJO_ASISTENTE_WIZARD_ISO8000.svg) con 6 swimlanes de actores para impresión en gigantografía.
+   - **Despliegue GitHub Exitoso:** Sincronizado y publicado con éxito en `origin/main` (`ggpd_repositorio_maestro` - commit `a72888b`) y en `github-innovacion/main` (`corpoelec-sigi-gestion-planificacion-distribucion` - commit `c63b570`).
 
 ---
 
-
-
-
-## 📋 6. Tareas Pendientes / Próximos Pasos Prioritarios
+## 📋 6. Tareas Pendientes / Próximos Pasos Prioritarios (Reanudación en 5 Horas)
 - [x] **Integración y Gobernanza Google Drive:** Implementado control RBAC, doble cuenta de correo, bandeja de aprobaciones y Webhook con `bk.ggpd.corpoelec@gmail.com`.
 - [x] **Aprovisionamiento de Árbol de Directorios del Data Lake 2026:** Ejecutado y desplegado en Google Drive para los 25 Estados de Venezuela (`01_DCA` a `25_GEQ`), los 4 macro-procesos (`SCTIS`, `SCEIN`, `SCPPE`, `SCMTP`), carpetas del año `2026`, meses operativos y `99_CONSOLIDADOS_NACIONALES`.
 - [x] **Módulo de Ingesta Inteligente & Calidad ISO 8000 (`DataIngestionHub.tsx`):** Validación en caliente de nomenclatura, inspección sintáctica fila por fila, cálculo de índice OTQR, segregación de registros conformes / no conformes, generación de planillas de remediación `.xlsx` y registro de tareas en SCMTP.
 - [x] **Módulo de Catálogo de Procesos & Aprovisionamiento Dinámico (`ProcessDirectoryManager.tsx`):** Registro de nuevos procesos operativos, definición de esquema de columnas, generador de plantillas y sincronización vía Webhook.
-- [x] **Despliegue de 25 Cuentas Estadales y Perfil Visor:** Implementado perfil `VISOR_ESTADAL`, State-Lock, acceso directo al módulo de carga y memorándum normativo QA `.md` / `.docx` / `.doc`.
-- [x] **Single Sign-On (SSO) y Handshake Inter-Aplicación:** Implementado paso de sesión transparente desde SIGI hacia las 4 aplicaciones maestras (SCPPE, SCMTP, SCEIN, SCTIS).
-- [x] **Calibración Visual y Responsive:** Logo oficial CORPOELEC ajustado en alta resolución y navegación optimizada para Smartphones, Tablets y Desktop.
-- [x] **Compilación de Producción Verificada:** `npm run build` en SIGI ejecutado con éxito total y 0 errores.
+- [x] **Asistente Wizard ISO 8000 & Auditoría Heurística (`InstrumentDesignWizard.tsx`):** Motor de detección de antipatrones (1NF/3NF), Catálogos Maestros (MDM Registry), dictamen pedagógico Google Gemini IA y opción de rediseño evolutivo de procesos.
+- [x] **Documentación y Diagrama SVG de Alta Resolución:** Manual ISO `GGPD-SGM-INS-006` (.md, .docx, .doc) y Diagrama `GGPD-SGM-DIA-001` (SVG 2400x1450).
+- [x] **Despliegue y Sincronización en GitHub:** Repositorio maestro y standalone 100% sincronizados.
 - [ ] **Jornada de Pruebas de Calidad (QA) con Usuarios Estadales:** Validar en vivo el flujo de login con las 25 cuentas territoriales y la carga de archivos de prueba en el nuevo Módulo de Ingesta Inteligente.
 - [ ] **Validación de Conexión Supabase:** Probar el botón "Probar Conexión" y explorador de tablas en la consola web.
-- [ ] **Carga Centralizada de Data Piloto:** Ejecutar la primera prueba de ingesta masiva nacional para consolidar datos en las 4 aplicaciones maestras.
+- [ ] **Carga Piloto de Nuevos Procesos:** Probar en caliente la creación y carga de un proceso real (ej. Diagnóstico de Subestaciones `08_SCDXS` o Termografía `09_SCTER`).
 
 ---
 
@@ -173,3 +170,4 @@ Todos los microservicios y el portal central se encuentran **activos y respondie
 - **Políticas de Seguridad:** RLS obligatorio en todas las tablas de Supabase; nunca exponer `service_role_key` en el frontend.
 - **Nomenclatura Normativa:** Todos los documentos institucionales deben mantener el estándar `NAC_2026_GGPD_*` y código GGPD-SGM-INS-*.
 - **Compatibilidad con Agentes:** Este archivo debe ser actualizado por cada agente de IA antes de finalizar su turno de trabajo.
+
