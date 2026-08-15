@@ -110,6 +110,7 @@ const docsDir = '/home/skidrowkodex/Documentos/Repositorio_Maestro/docs';
 const qaDir = path.join(docsDir, 'despliegues_qa');
 
 const allFiles = [
+  { dir: docsDir, name: 'NAC_2026_GGPD_MANUAL_ASISTENTE_WIZARD_AUDITORIA_INSTRUMENTOS_ISO8000_V01' },
   { dir: docsDir, name: 'NAC_2026_GGPD_GUIA_DESPLIEGUE_DATA_LAKE_GOOGLE_DRIVE_V01' },
   { dir: docsDir, name: 'NAC_2026_GGPD_PLAN_ESTRATEGICO_MODULO_INGESTA_CALIDAD_SIGI_V01' },
   { dir: docsDir, name: 'NAC_2026_GGPD_AUDITORIA_ESTATUS_CUATRO_APLICACIONES_V01' },
@@ -125,6 +126,8 @@ const allFiles = [
   { dir: qaDir, name: 'NAC_2026_GGPD_MATRIZ_25_CUENTAS_VISOR_ESTADAL_SIGI_V01' },
 ];
 
+const sigiDocsDir = '/home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/docs';
+
 for (const { dir, name } of allFiles) {
   const mdPath = path.join(dir, `${name}.md`);
   const docPath = path.join(dir, `${name}.doc`);
@@ -133,5 +136,9 @@ for (const { dir, name } of allFiles) {
     const docHtml = mdToWordHtml(mdContent, name);
     fs.writeFileSync(docPath, docHtml, 'utf-8');
     console.log(`Generated Word .doc: ${docPath}`);
+
+    const sigiDocPath = path.join(sigiDocsDir, `${name}.doc`);
+    fs.writeFileSync(sigiDocPath, docHtml, 'utf-8');
   }
 }
+

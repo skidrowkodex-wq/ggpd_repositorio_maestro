@@ -466,10 +466,12 @@ async function buildAllNativeDocx() {
   const sigiDocsDir = '/home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/docs';
 
   const files = [
+    { dir: docsDir, name: 'NAC_2026_GGPD_MANUAL_ASISTENTE_WIZARD_AUDITORIA_INSTRUMENTOS_ISO8000_V01' },
     { dir: docsDir, name: 'NAC_2026_GGPD_GUIA_DESPLIEGUE_DATA_LAKE_GOOGLE_DRIVE_V01' },
     { dir: docsDir, name: 'NAC_2026_GGPD_PLAN_ESTRATEGICO_MODULO_INGESTA_CALIDAD_SIGI_V01' },
     { dir: docsDir, name: 'NAC_2026_GGPD_MANUAL_SISTEMA_ARQUITECTURA_SIGI_V01' },
     { dir: docsDir, name: 'CORPOELEC_AI_STUDIO_DESIGN_SYSTEM_PROMPT' },
+
     { dir: docsDir, name: 'NAC_2026_GGPD_AUDITORIA_ESTATUS_CUATRO_APLICACIONES_V01' },
     { dir: docsDir, name: 'NAC_2026_GGPD_AUDITORIA_TECNICA_GOBERNANZA_BD_V01' },
     { dir: docsDir, name: 'NAC_2026_GGPD_AUDITORIA_FUNCIONAL_GOBIERNO_DATOS_V01' },

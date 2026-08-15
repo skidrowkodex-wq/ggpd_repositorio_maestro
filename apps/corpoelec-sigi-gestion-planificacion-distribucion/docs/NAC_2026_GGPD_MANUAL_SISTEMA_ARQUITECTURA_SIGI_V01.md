@@ -161,3 +161,17 @@ La interfaz de usuario del SIGI incorpora un sistema de diseño adaptable de gra
 1. **Anclaje Inflexible de Controles (`shrink-0`):** Los botones de inicio de sesión, conmutador de tema y badges permanecen protegidos contra desbordamientos horizontales.
 2. **Safe-Area Insets para Móviles:** Soporte nativo para notch y barras de navegación por gestos en iOS y Android (`viewport-fit=cover`).
 3. **Mapas GIS Fluidos:** Los lienzos Leaflet de Subestaciones y Circuitos escalan su altura vertical para permitir desplazamiento natural por la pantalla del celular sin bloquear el scroll del usuario.
+
+---
+
+## 🧙‍♂️ 9. MÓDULO DE INGESTA INTELIGENTE, ASISTENTE WIZARD ISO 8000 & CATÁLOGOS MAESTROS (MDM)
+
+El SIGI incorpora el ecosistema integral de carga de datos sin necesidad de acceder individualmente a las 4 aplicaciones satélites:
+
+1. **Aduana de Doble Control:**
+   * **Aduana 1 (Pre-Ingesta / Wizard):** Asistente de diseño y auditoría heurística que detecta antipatrones relacionales (1NF / 3NF) y calcula el índice de madurez (0-100%).
+   * **Aduana 2 (Operativa Semanal):** Validador en caliente de nomenclatura y contenido fila por fila con cálculo de índice OTQR (%) y generación de planillas de remediación `.xlsx` con tareas en SCMTP (SLA 48h).
+2. **Repositorio de Catálogos Maestros (MDM Registry):**
+   * Listas compartidas del SEN (`CAT_SUBESTACIONES_SEN`, `CAT_CIRCUITOS_DISTRIBUCION`, `CAT_NIVELES_TENSION`, `CAT_TIPOS_EQUIPO_SCEIN`, `CAT_MATERIALES_REPUESTOS`, etc.) que inyectan validaciones desplegables en Excel y en el formulario web reactivo.
+3. **Persistencia Híbrida:**
+   * Almacenamiento estructurado en `sigi.cat_procesos_ingesta` y `sigi.ingesta_registros_dinamicos` con soporte `JSONB` de alta velocidad e indexación por lotes.

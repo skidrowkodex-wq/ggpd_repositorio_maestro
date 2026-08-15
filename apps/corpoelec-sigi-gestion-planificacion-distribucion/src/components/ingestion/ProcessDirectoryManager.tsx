@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   FolderPlus, 
   Layers, 
@@ -14,18 +14,29 @@ import {
   Cloud,
   ChevronRight,
   ChevronDown,
-  Info
+  Info,
+  Code,
+  Copy,
+  Check,
+  Database,
+  X,
+  Wand2,
+  Sparkles,
+  Edit3
 } from 'lucide-react';
 import { ProcessDefinition, ProcessCategory, ProcessFrequency, ColumnDefinition } from '../../types/ingestion';
 import { 
   getStoredProcesses, 
+  syncProcessesFromSupabase,
   saveProcessDefinition, 
   deleteProcessDefinition,
   exportOfficialTemplateExcel,
   triggerGoogleDriveProvisioning,
-  buildVirtualDataLakeTree
+  buildVirtualDataLakeTree,
+  generateProcessDDL
 } from '../../services/dataIngestionService';
 import { useAuth } from '../../context/AuthContext';
+import { InstrumentDesignWizard } from './InstrumentDesignWizard';
 
 export const ProcessDirectoryManager: React.FC = () => {
   const { session } = useAuth();
@@ -35,7 +46,43 @@ export const ProcessDirectoryManager: React.FC = () => {
   const [searchFilter, setSearchFilter] = useState('');
   const [isProvisioning, setIsProvisioning] = useState(false);
   const [provisionResult, setProvisionResult] = useState<{ status: 'idle' | 'success' | 'error'; message: string }>({ status: 'idle', message: '' });
+  const [isSyncingSupabase, setIsSyncingSupabase] = useState(false);
   
+  // Modal de DDL SQL
+  const [viewingDDLProcess, setViewingDDLProcess] = useState<ProcessDefinition | null>(null);
+  const [copiedDDL, setCopiedDDL] = useState(false);
+
+  // Asistente Wizard de Diseño & Rediseño ISO 8000
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const [wizardInitialProcess, setWizardInitialProcess] = useState<ProcessDefinition | null>(null);
+
+  const handleWizardSaved = (proc: ProcessDefinition) => {
+    setProcesses(getStoredProcesses());
+    setProvisionResult({
+      status: 'success',
+      message: `¡Proceso '${proc.code} - ${proc.name}' guardado y aprovisionado exitosamente!`
+    });
+  };
+
+  // Sincronización automática con Supabase al entrar
+  useEffect(() => {
+    handleSyncCloudProcesses();
+  }, []);
+
+  const handleSyncCloudProcesses = async () => {
+    setIsSyncingSupabase(true);
+    try {
+      const cloudProcs = await syncProcessesFromSupabase();
+      if (cloudProcs && cloudProcs.length > 0) {
+        setProcesses(cloudProcs);
+      }
+    } catch (err) {
+      console.warn('Error sincronizando procesos con Supabase:', err);
+    } finally {
+      setIsSyncingSupabase(false);
+    }
+  };
+
   // Árbol virtual de Google Drive
   const [expandedNodes, setExpandedNodes] = useState<Record<string, boolean>>({
     '/GGPD_DATA_LAKE_OFICIAL': true,
@@ -51,9 +98,9 @@ export const ProcessDirectoryManager: React.FC = () => {
   const [newCategory, setNewCategory] = useState<ProcessCategory>('MANTENIMIENTO_CONTROL');
   const [newFrequency, setNewFrequency] = useState<ProcessFrequency>('SEMANAL');
   const [newColumns, setNewColumns] = useState<ColumnDefinition[]>([
-    { name: 'COD_ESTADO', type: 'string', description: 'Código de Estado', required: true, sampleValue: 'DCA' },
+    { name: 'COD_ESTADO', type: 'string', description: 'Código de Estado (ej. DCA, ZUL)', required: true, sampleValue: 'DCA' },
     { name: 'UBICACION', type: 'string', description: 'Subestación o Circuito', required: true, sampleValue: 'S/E CHACAO' },
-    { name: 'CANTIDAD_EJECUTADA', type: 'number', description: 'Métrica o volumen ejecutado', required: true, sampleValue: '10' },
+    { name: 'CANTIDAD_EJECUTADA', type: 'number', description: 'Métrica o volumen ejecutado (>0)', required: true, sampleValue: '10' },
     { name: 'FECHA_REGISTRO', type: 'string', description: 'Fecha del trabajo (YYYY-MM-DD)', required: true, sampleValue: '2026-08-14' }
   ]);
 
@@ -113,12 +160,12 @@ export const ProcessDirectoryManager: React.FC = () => {
     
     // Disparar aprovisionamiento en Google Drive
     setIsProvisioning(true);
-    const res = await triggerGoogleDriveProvisioning('PROVISION_NEW_PROCESS', { code: newProc.code, name: newProc.shortName.toUpperCase().replace(/\s+/g, '_') });
+    await triggerGoogleDriveProvisioning('PROVISION_NEW_PROCESS', { code: newProc.code, name: newProc.shortName.toUpperCase().replace(/\s+/g, '_') });
     setIsProvisioning(false);
 
     setProvisionResult({
       status: 'success',
-      message: `¡Proceso '${newProc.name}' registrado exitosamente! Se han aprovisionado carpetas en los 25 Estados en Google Drive.`
+      message: `¡Proceso '${newProc.name}' registrado exitosamente! Se han aprovisionado carpetas en los 25 Estados en Google Drive y replicado en Supabase.`
     });
 
     // Reset form
@@ -134,13 +181,21 @@ export const ProcessDirectoryManager: React.FC = () => {
     
     setIsProvisioning(true);
     setProvisionResult({ status: 'idle', message: '' });
-    const res = await triggerGoogleDriveProvisioning('PROVISION_DATA_LAKE');
+    await triggerGoogleDriveProvisioning('PROVISION_DATA_LAKE');
     setIsProvisioning(false);
     
     setProvisionResult({
       status: 'success',
       message: 'Estructura oficial del Data Lake GGPD 2026 sincronizada exitosamente con Google Drive.'
     });
+  };
+
+  const handleCopyDDL = () => {
+    if (!viewingDDLProcess) return;
+    const ddl = generateProcessDDL(viewingDDLProcess);
+    navigator.clipboard.writeText(ddl);
+    setCopiedDDL(true);
+    setTimeout(() => setCopiedDDL(false), 2500);
   };
 
   const filteredProcesses = processes.filter(p => {
@@ -164,7 +219,7 @@ export const ProcessDirectoryManager: React.FC = () => {
               <span className="px-2.5 py-0.5 rounded-md bg-cyan-400/20 text-cyan-300 font-mono text-xs font-bold border border-cyan-400/30">
                 GOBERNANZA ISO 8000
               </span>
-              <span className="text-xs text-slate-300 font-medium">Google Drive Data Lake SEN</span>
+              <span className="text-xs text-slate-300 font-medium">Google Drive Data Lake SEN & Supabase</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black tracking-tight mt-1 text-white flex items-center gap-2">
               <FolderTree className="h-6 w-6 text-[#00f2fe]" />
@@ -175,8 +230,18 @@ export const ProcessDirectoryManager: React.FC = () => {
             </p>
           </div>
 
-          {/* Botón de Sincronización Global */}
+          {/* Botones de Acción */}
           <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={handleSyncCloudProcesses}
+              disabled={isSyncingSupabase}
+              className="flex items-center space-x-1.5 px-3 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/20 transition-colors cursor-pointer disabled:opacity-50"
+              title="Sincronizar procesos con Supabase PostgreSQL"
+            >
+              <RefreshCw className={`h-4 w-4 ${isSyncingSupabase ? 'animate-spin text-cyan-400' : ''}`} />
+              <span className="hidden sm:inline">Sync BD</span>
+            </button>
+
             <button
               onClick={handleGlobalProvision}
               disabled={isProvisioning}
@@ -185,6 +250,7 @@ export const ProcessDirectoryManager: React.FC = () => {
               <RefreshCw className={`h-4 w-4 ${isProvisioning ? 'animate-spin' : ''}`} />
               <span>{isProvisioning ? 'Aprovisionando...' : 'Sincronizar Data Lake'}</span>
             </button>
+
             <a
               href="https://drive.google.com/drive/folders/1mnnChue2IUqOh5Or99_v2LiJ3TaRJvy7"
               target="_blank"
@@ -193,7 +259,7 @@ export const ProcessDirectoryManager: React.FC = () => {
               title="Abrir carpeta raíz en Google Drive"
             >
               <Cloud className="h-4 w-4 text-cyan-300" />
-              <span className="hidden sm:inline">Ver en Drive</span>
+              <span className="hidden sm:inline">Ver Drive</span>
               <ExternalLink className="h-3.5 w-3.5 opacity-70" />
             </a>
           </div>
@@ -212,7 +278,7 @@ export const ProcessDirectoryManager: React.FC = () => {
       <div className="flex items-center space-x-2 border-b border-slate-200 dark:border-slate-800 pb-2">
         <button
           onClick={() => setActiveTab('catalog')}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
             activeTab === 'catalog'
               ? 'bg-[#002b49] text-white dark:bg-[#00f2fe] dark:text-[#060d1a] shadow-xs'
               : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -224,7 +290,7 @@ export const ProcessDirectoryManager: React.FC = () => {
 
         <button
           onClick={() => setActiveTab('tree')}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
             activeTab === 'tree'
               ? 'bg-[#002b49] text-white dark:bg-[#00f2fe] dark:text-[#060d1a] shadow-xs'
               : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -236,7 +302,7 @@ export const ProcessDirectoryManager: React.FC = () => {
 
         <button
           onClick={() => setActiveTab('new_process')}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
             activeTab === 'new_process'
               ? 'bg-[#002b49] text-white dark:bg-[#00f2fe] dark:text-[#060d1a] shadow-xs'
               : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -244,6 +310,17 @@ export const ProcessDirectoryManager: React.FC = () => {
         >
           <Plus className="h-4 w-4" />
           <span>Registrar Nuevo Proceso</span>
+        </button>
+
+        <button
+          onClick={() => {
+            setWizardInitialProcess(null);
+            setIsWizardOpen(true);
+          }}
+          className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:brightness-110 text-xs font-bold shadow-xs transition-all cursor-pointer"
+        >
+          <Wand2 className="h-4 w-4 text-cyan-300" />
+          <span>🧙‍♂️ Asistente Wizard ISO 8000</span>
         </button>
       </div>
 
@@ -253,13 +330,13 @@ export const ProcessDirectoryManager: React.FC = () => {
           
           {/* Filtros de Búsqueda y Categoría */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs">
-            <div className="flex items-center space-x-1.5 w-full sm:w-auto">
-              <span className="text-xs font-bold text-slate-500 dark:text-slate-400 mr-1">Filtrar:</span>
-              {(['ALL', 'CORE_ESTRATEGICO', 'MANTENIMIENTO_CONTROL', 'ACTIVOS_RED'] as const).map(cat => (
+            <div className="flex items-center space-x-1.5 w-full sm:w-auto overflow-x-auto">
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-400 mr-1 shrink-0">Filtrar:</span>
+              {(['ALL', 'CORE_ESTRATEGICO', 'MANTENIMIENTO_CONTROL', 'ACTIVOS_RED', 'ADMINISTRATIVO_FINANCIERO'] as const).map(cat => (
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors ${
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors cursor-pointer shrink-0 ${
                     selectedCategory === cat
                       ? 'bg-blue-100 text-blue-800 dark:bg-cyan-950 dark:text-cyan-300 border border-blue-300 dark:border-cyan-500/40'
                       : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -304,20 +381,30 @@ export const ProcessDirectoryManager: React.FC = () => {
                       </span>
                     </div>
 
-                    {proc.isDynamic && (
+                    <div className="flex items-center space-x-1">
                       <button
-                        onClick={() => {
-                          if (confirm(`¿Desea eliminar el proceso dinámico '${proc.name}'?`)) {
-                            deleteProcessDefinition(proc.id);
-                            setProcesses(getStoredProcesses());
-                          }
-                        }}
-                        className="text-slate-400 hover:text-red-500 p-1 rounded transition-colors"
-                        title="Eliminar proceso"
+                        onClick={() => setViewingDDLProcess(proc)}
+                        className="p-1 rounded text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors"
+                        title="Ver Código DDL SQL para PostgreSQL"
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <Code className="h-3.5 w-3.5" />
                       </button>
-                    )}
+
+                      {proc.isDynamic && (
+                        <button
+                          onClick={() => {
+                            if (confirm(`¿Desea eliminar el proceso dinámico '${proc.name}'?`)) {
+                              deleteProcessDefinition(proc.id);
+                              setProcesses(getStoredProcesses());
+                            }
+                          }}
+                          className="text-slate-400 hover:text-red-500 p-1 rounded transition-colors"
+                          title="Eliminar proceso"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   <h3 className="text-sm font-black text-slate-900 dark:text-white mt-2 group-hover:text-[#002b49] dark:group-hover:text-[#00f2fe] transition-colors">
@@ -360,6 +447,26 @@ export const ProcessDirectoryManager: React.FC = () => {
                     <Download className="h-3.5 w-3.5 text-emerald-500" />
                     <span>Descargar Plantilla</span>
                   </button>
+
+                  <button
+                    onClick={() => {
+                      setWizardInitialProcess(proc);
+                      setIsWizardOpen(true);
+                    }}
+                    className="p-1.5 rounded-xl border border-purple-300 dark:border-purple-500/40 bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 transition-colors"
+                    title="Rediseñar / Mejorar Instrumento con el Wizard"
+                  >
+                    <Wand2 className="h-4 w-4" />
+                  </button>
+
+                  <button
+                    onClick={() => setViewingDDLProcess(proc)}
+                    className="p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors"
+                    title="Ver DDL SQL"
+                  >
+                    <Database className="h-4 w-4 text-blue-500" />
+                  </button>
+
                   <a
                     href="https://drive.google.com/drive/folders/1mnnChue2IUqOh5Or99_v2LiJ3TaRJvy7"
                     target="_blank"
@@ -455,7 +562,7 @@ export const ProcessDirectoryManager: React.FC = () => {
               Formulario de Aprovisionamiento Dinámico de Nuevo Proceso
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Defina el código, nombre y esquema de columnas requeridas. El sistema creará automáticamente las carpetas en Google Drive en los 25 Estados y aplicará validación sintáctica en caliente.
+              Defina el código, nombre y esquema de columnas requeridas. El sistema creará automáticamente las carpetas en Google Drive en los 25 Estados, replicará el catálogo en Supabase y generará la plantilla Excel.
             </p>
           </div>
 
@@ -518,6 +625,7 @@ export const ProcessDirectoryManager: React.FC = () => {
                   <option value="MANTENIMIENTO_CONTROL">Mantenimiento y Control</option>
                   <option value="ACTIVOS_RED">Activos de Red</option>
                   <option value="CORE_ESTRATEGICO">Core Estratégico</option>
+                  <option value="ADMINISTRATIVO_FINANCIERO">Administrativo y Financiero</option>
                 </select>
               </div>
 
@@ -530,8 +638,11 @@ export const ProcessDirectoryManager: React.FC = () => {
                   onChange={e => setNewFrequency(e.target.value as ProcessFrequency)}
                   className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-200"
                 >
+                  <option value="DIARIO">Diario</option>
                   <option value="SEMANAL">Semanal (Miércoles a Jueves)</option>
+                  <option value="QUINCENAL">Quincenal</option>
                   <option value="MENSUAL">Mensual (3er Día Hábil posterior)</option>
+                  <option value="EVENTUAL">Eventual / Por Demanda</option>
                 </select>
               </div>
 
@@ -557,13 +668,13 @@ export const ProcessDirectoryManager: React.FC = () => {
                     Esquema de Columnas Requeridas ({newColumns.length})
                   </h4>
                   <p className="text-[11px] text-slate-500">
-                    Defina los campos que el archivo Excel debe contener obligatoriamente para ser considerado conforme.
+                    Defina los campos que el archivo Excel o formulario web debe contener obligatoriamente para ser considerado conforme.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={handleAddColumn}
-                  className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 dark:bg-cyan-950 dark:text-cyan-300 border border-blue-200 dark:border-cyan-500/30 text-xs font-bold hover:bg-blue-100 transition-colors"
+                  className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 dark:bg-cyan-950 dark:text-cyan-300 border border-blue-200 dark:border-cyan-500/30 text-xs font-bold hover:bg-blue-100 transition-colors cursor-pointer"
                 >
                   <Plus className="h-3.5 w-3.5" />
                   <span>Agregar Campo</span>
@@ -615,7 +726,7 @@ export const ProcessDirectoryManager: React.FC = () => {
                       type="button"
                       onClick={() => handleRemoveColumn(idx)}
                       disabled={newColumns.length <= 1}
-                      className="p-1 rounded text-slate-400 hover:text-red-500 disabled:opacity-30 transition-colors"
+                      className="p-1 rounded text-slate-400 hover:text-red-500 disabled:opacity-30 transition-colors cursor-pointer"
                       title="Eliminar campo"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -641,6 +752,68 @@ export const ProcessDirectoryManager: React.FC = () => {
         </div>
       )}
 
+      {/* MODAL DE VISUALIZACIÓN DDL SQL */}
+      {viewingDDLProcess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-2xl w-full p-6 space-y-4 relative">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="flex items-center space-x-2">
+                <Database className="h-5 w-5 text-blue-600 dark:text-cyan-400" />
+                <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                  DDL PostgreSQL para: {viewingDDLProcess.name}
+                </h3>
+              </div>
+              <button
+                onClick={() => setViewingDDLProcess(null)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-500">
+              Esquema relacional generado para instanciación en Supabase / PostgreSQL con tipos de datos tipados y permisos RLS.
+            </p>
+
+            <div className="relative">
+              <pre className="bg-slate-950 text-cyan-300 font-mono text-[11px] p-4 rounded-xl overflow-x-auto max-h-72 border border-slate-800">
+                {generateProcessDDL(viewingDDLProcess)}
+              </pre>
+
+              <button
+                onClick={handleCopyDDL}
+                className="absolute top-2.5 right-2.5 flex items-center space-x-1 px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all cursor-pointer"
+              >
+                {copiedDDL ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+                <span>{copiedDDL ? '¡Copiado!' : 'Copiar SQL'}</span>
+              </button>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                onClick={() => setViewingDDLProcess(null)}
+                className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-200 cursor-pointer"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL ASISTENTE WIZARD ISO 8000 */}
+      {isWizardOpen && (
+        <InstrumentDesignWizard
+          initialProcess={wizardInitialProcess}
+          onClose={() => {
+            setIsWizardOpen(false);
+            setWizardInitialProcess(null);
+          }}
+          onProcessSaved={handleWizardSaved}
+        />
+      )}
+
     </div>
   );
 };
+
