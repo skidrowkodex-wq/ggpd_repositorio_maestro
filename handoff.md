@@ -3,10 +3,11 @@
 ---
 
 ## 📌 1. Registro de Última Actualización
-- **Fecha y Hora:** 2026-08-15 11:58 (VET / UTC-4) — Sesión Activa
+- **Fecha y Hora:** 2026-08-15 19:57 (VET / UTC-4) — Sesión Activa
 - **Plataforma / Entorno:** Antigravity IDE 2.0 (Google Gemini 3.7 Flash) ➡️ Relevo hacia CLI/TUI (`agy`) y QA
 - **Responsable / Usuario:** skidrowkodex (Yvan Ciprián / Josue Pacheco)
-- **Estado General:** 🟢 **Asistente Wizard ISO 8000, Catálogos Maestros (MDM) y Auditor Heurístico 100% Operativo y Compilado**
+- **Estado General:** 🟢 **Exclusión de 2.2GB (`docs/010 REGISTROS 2026`) en `.gitignore`, Wizard ISO 8000 + MDM y 0 Errores de Compilación**
+
 
 
 
@@ -157,7 +158,7 @@ Todos los microservicios y el portal central se encuentran **activos y respondie
 - [x] **Aprovisionamiento de Árbol de Directorios del Data Lake 2026:** Ejecutado y desplegado en Google Drive para los 25 Estados de Venezuela (`01_DCA` a `25_GEQ`), los 4 macro-procesos (`SCTIS`, `SCEIN`, `SCPPE`, `SCMTP`), carpetas del año `2026`, meses operativos y `99_CONSOLIDADOS_NACIONALES`.
 - [x] **Módulo de Ingesta Inteligente & Calidad ISO 8000 (`DataIngestionHub.tsx`):** Validación en caliente de nomenclatura, inspección sintáctica fila por fila, cálculo de índice OTQR, segregación de registros conformes / no conformes, generación de planillas de remediación `.xlsx` y registro de tareas en SCMTP.
 - [x] **Módulo de Catálogo de Procesos & Aprovisionamiento Dinámico (`ProcessDirectoryManager.tsx`):** Registro de nuevos procesos operativos, definición de esquema de columnas, generador de plantillas y sincronización vía Webhook.
-- [x] **Asistente Wizard ISO 8000 & Auditoría Heurística (`InstrumentDesignWizard.tsx`):** Motor de detección de antipatrones (1NF/3NF), Catálogos Maestros (MDM Registry), dictamen pedagógico Google Gemini IA y opción de rediseño evolutivo de procesos.
+- [x] **Asistente Wizard ISO 8000 & Auditoría Heurística (`InstrumentDesignWizard.tsx`):** Motor de detección de antipatrones (1NF/3NF), Catálogos Maestros (MDM Registry) con integración dinámica de catálogos Legacy extraídos (48 listas, 997+ items vía `legacyCatalogService.ts`), dictamen pedagógico Google Gemini IA y opción de rediseño evolutivo de procesos.
 - [x] **Documentación y Diagrama SVG de Alta Resolución:** Manual ISO `GGPD-SGM-INS-006` (.md, .docx, .doc) y Diagrama `GGPD-SGM-DIA-001` (SVG 2400x1450).
 - [x] **Despliegue y Sincronización en GitHub:** Repositorio maestro y standalone 100% sincronizados.
 - [ ] **Jornada de Pruebas de Calidad (QA) con Usuarios Estadales:** Validar en vivo el flujo de login con las 25 cuentas territoriales y la carga de archivos de prueba en el nuevo Módulo de Ingesta Inteligente.
