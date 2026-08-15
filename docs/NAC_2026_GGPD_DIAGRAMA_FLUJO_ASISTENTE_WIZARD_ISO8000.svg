@@ -1,0 +1,372 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 1450" width="100%" height="100%" style="background-color: #040d1a; font-family: 'Segoe UI', Inter, Helvetica, Arial, sans-serif;">
+  <defs>
+    <!-- Gradientes Institucionales -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#040d1a"/>
+      <stop offset="50%" stop-color="#071b33"/>
+      <stop offset="100%" stop-color="#020813"/>
+    </linearGradient>
+
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#002b49"/>
+      <stop offset="50%" stop-color="#072146"/>
+      <stop offset="100%" stop-color="#004b79"/>
+    </linearGradient>
+
+    <linearGradient id="lane1Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0a2540" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#051329" stop-opacity="0.3"/>
+    </linearGradient>
+
+    <linearGradient id="lane2Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0e3359" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#071d38" stop-opacity="0.3"/>
+    </linearGradient>
+
+    <linearGradient id="cyanCardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0e3a5d"/>
+      <stop offset="100%" stop-color="#07233b"/>
+    </linearGradient>
+
+    <linearGradient id="purpleCardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2d1b4e"/>
+      <stop offset="100%" stop-color="#190e30"/>
+    </linearGradient>
+
+    <linearGradient id="greenCardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f3d2e"/>
+      <stop offset="100%" stop-color="#08241b"/>
+    </linearGradient>
+
+    <linearGradient id="amberCardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4a3410"/>
+      <stop offset="100%" stop-color="#2b1c06"/>
+    </linearGradient>
+
+    <linearGradient id="redCardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4a151b"/>
+      <stop offset="100%" stop-color="#2b0a0e"/>
+    </linearGradient>
+
+    <!-- Filtros de Sombra y Brillo Neón -->
+    <filter id="dropShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+
+    <filter id="neonGlowCyan" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#00f2fe" flood-opacity="0.6"/>
+    </filter>
+
+    <!-- Marcadores de Flechas -->
+    <marker id="arrowCyan" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#00f2fe"/>
+    </marker>
+
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#10b981"/>
+    </marker>
+
+    <marker id="arrowPurple" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#a855f7"/>
+    </marker>
+
+    <marker id="arrowAmber" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#f59e0b"/>
+    </marker>
+
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#ef4444"/>
+    </marker>
+
+    <marker id="arrowWhite" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <!-- FONDO GENERAL -->
+  <rect width="2400" height="1450" fill="url(#bgGradient)"/>
+
+  <!-- GRID DE FONDO DE INGENIERÍA -->
+  <g opacity="0.07">
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#00f2fe" stroke-width="1"/>
+    </pattern>
+    <rect width="2400" height="1450" fill="url(#grid)"/>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- HEADER INSTITUCIONAL CORPOELEC                                             -->
+  <!-- ========================================================================= -->
+  <g transform="translate(30, 20)">
+    <rect width="2340" height="90" rx="16" fill="url(#headerGrad)" stroke="#00f2fe" stroke-width="1.5" filter="url(#dropShadow)"/>
+    
+    <!-- Logo Badge -->
+    <rect x="25" y="18" width="160" height="54" rx="10" fill="#ffffff" filter="url(#dropShadow)"/>
+    <text x="105" y="44" font-size="16" font-weight="900" fill="#002b49" text-anchor="middle" letter-spacing="1">CORPOELEC</text>
+    <text x="105" y="60" font-size="9" font-weight="800" fill="#0072ce" text-anchor="middle">MPPEE · GGPD</text>
+
+    <!-- Título Central -->
+    <text x="210" y="45" font-size="22" font-weight="900" fill="#ffffff" letter-spacing="0.5">
+      DIAGRAMA DE FLUJO INTEGRAL: ASISTENTE WIZARD ISO 8000 &amp; DOBLE ADUANA DE INGESTA SEN
+    </text>
+    <text x="210" y="68" font-size="13" font-weight="600" fill="#38bdf8">
+      Arquitectura de Calidad de Datos (ISO 8000-110), Gestión de Activos (ISO 55000), Catálogos MDM e Inteligencia Artificial Híbrida
+    </text>
+
+    <!-- Badges de Normas a la derecha -->
+    <g transform="translate(1920, 22)">
+      <rect x="0" y="0" width="120" height="22" rx="6" fill="#00f2fe" fill-opacity="0.15" stroke="#00f2fe" stroke-width="1"/>
+      <text x="60" y="15" font-size="10" font-weight="800" fill="#00f2fe" text-anchor="middle">ISO 8000-110</text>
+      
+      <rect x="130" y="0" width="120" height="22" rx="6" fill="#10b981" fill-opacity="0.15" stroke="#10b981" stroke-width="1"/>
+      <text x="190" y="15" font-size="10" font-weight="800" fill="#34d399" text-anchor="middle">ISO 55000:2014</text>
+      
+      <rect x="260" y="0" width="130" height="22" rx="6" fill="#a855f7" fill-opacity="0.15" stroke="#a855f7" stroke-width="1"/>
+      <text x="325" y="15" font-size="10" font-weight="800" fill="#c084fc" text-anchor="middle">COBIT 2019 MEA02</text>
+
+      <text x="195" y="42" font-size="11" font-weight="700" fill="#94a3b8" text-anchor="middle">CÓDIGO: GGPD-SGM-DIA-001 v1.0 ISO</text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- CARRILES / SWIMLANES (POOLS DE ACTORES)                                    -->
+  <!-- ========================================================================= -->
+
+  <!-- POOL 1: ESPECIALISTA / ANALISTA GGPD (y: 125, h: 200) -->
+  <g transform="translate(30, 125)">
+    <rect width="2340" height="195" rx="12" fill="url(#lane1Grad)" stroke="#1e3a5f" stroke-width="1"/>
+    <!-- Encabezado Carril -->
+    <rect width="280" height="195" rx="12" fill="#071d38" stroke="#1e3a5f" stroke-width="1"/>
+    <text x="140" y="80" font-size="16" font-weight="900" fill="#ffffff" text-anchor="middle">👤 ESPECIALISTA /</text>
+    <text x="140" y="105" font-size="16" font-weight="900" fill="#ffffff" text-anchor="middle">ANALISTA GGPD</text>
+    <text x="140" y="130" font-size="11" font-weight="600" fill="#38bdf8" text-anchor="middle">Diseño y Formulación</text>
+    <text x="140" y="145" font-size="10" font-weight="500" fill="#94a3b8" text-anchor="middle">(Gerencia Nacional)</text>
+  </g>
+
+  <!-- POOL 2: ASISTENTE WIZARD SIGI (UI REACT) (y: 330, h: 200) -->
+  <g transform="translate(30, 330)">
+    <rect width="2340" height="195" rx="12" fill="url(#lane2Grad)" stroke="#1e3a5f" stroke-width="1"/>
+    <rect width="280" height="195" rx="12" fill="#0a284e" stroke="#1e3a5f" stroke-width="1"/>
+    <text x="140" y="80" font-size="16" font-weight="900" fill="#ffffff" text-anchor="middle">🖥️ ASISTENTE WIZARD</text>
+    <text x="140" y="105" font-size="16" font-weight="900" fill="#00f2fe" text-anchor="middle">SIGI (UI REACT)</text>
+    <text x="140" y="130" font-size="11" font-weight="600" fill="#94a3b8" text-anchor="middle">Wizard 4 Pasos &amp; Feedback</text>
+    <text x="140" y="145" font-size="10" font-weight="500" fill="#38bdf8" text-anchor="middle">InstrumentDesignWizard.tsx</text>
+  </g>
+
+  <!-- POOL 3: MOTOR HEURÍSTICO ISO 8000 & MDM (y: 535, h: 205) -->
+  <g transform="translate(30, 535)">
+    <rect width="2340" height="200" rx="12" fill="url(#lane1Grad)" stroke="#1e3a5f" stroke-width="1"/>
+    <rect width="280" height="200" rx="12" fill="#08203d" stroke="#1e3a5f" stroke-width="1"/>
+    <text x="140" y="75" font-size="15" font-weight="900" fill="#ffffff" text-anchor="middle">⚙️ MOTOR HEURÍSTICO</text>
+    <text x="140" y="100" font-size="15" font-weight="900" fill="#34d399" text-anchor="middle">ISO 8000 &amp; MDM</text>
+    <text x="140" y="125" font-size="11" font-weight="600" fill="#94a3b8" text-anchor="middle">Auditoría 1NF / 3NF / Grano</text>
+    <text x="140" y="140" font-size="10" font-weight="500" fill="#34d399" text-anchor="middle">instrumentAuditorService.ts</text>
+  </g>
+
+  <!-- POOL 4: GOOGLE GEMINI IA (MOTOR GENERATIVO) (y: 745, h: 185) -->
+  <g transform="translate(30, 745)">
+    <rect width="2340" height="180" rx="12" fill="url(#lane2Grad)" stroke="#1e3a5f" stroke-width="1"/>
+    <rect width="280" height="180" rx="12" fill="#1b1130" stroke="#a855f7" stroke-width="1"/>
+    <text x="140" y="75" font-size="15" font-weight="900" fill="#ffffff" text-anchor="middle">🤖 GOOGLE GEMINI IA</text>
+    <text x="140" y="100" font-size="15" font-weight="900" fill="#c084fc" text-anchor="middle">(MOTOR GENERATIVO)</text>
+    <text x="140" y="125" font-size="11" font-weight="600" fill="#94a3b8" text-anchor="middle">Dictamen Pedagógico &amp; Síntesis</text>
+    <text x="140" y="140" font-size="10" font-weight="500" fill="#c084fc" text-anchor="middle">Google AI Studio / Pro</text>
+  </g>
+
+  <!-- POOL 5: NUBE & PERSISTENCIA (DRIVE + SUPABASE) (y: 935, h: 195) -->
+  <g transform="translate(30, 935)">
+    <rect width="2340" height="190" rx="12" fill="url(#lane1Grad)" stroke="#1e3a5f" stroke-width="1"/>
+    <rect width="280" height="190" rx="12" fill="#071b33" stroke="#1e3a5f" stroke-width="1"/>
+    <text x="140" y="75" font-size="15" font-weight="900" fill="#ffffff" text-anchor="middle">☁️ NUBE &amp; PERSISTENCIA</text>
+    <text x="140" y="100" font-size="15" font-weight="900" fill="#38bdf8" text-anchor="middle">(DRIVE + SUPABASE)</text>
+    <text x="140" y="125" font-size="11" font-weight="600" fill="#94a3b8" text-anchor="middle">Data Lake 2026 &amp; JSONB</text>
+    <text x="140" y="140" font-size="10" font-weight="500" fill="#38bdf8" text-anchor="middle">Google Apps Script + Postgres</text>
+  </g>
+
+  <!-- POOL 6: SALAS SITUACIONALES ESTADALES (y: 1135, h: 200) -->
+  <g transform="translate(30, 1135)">
+    <rect width="2340" height="195" rx="12" fill="url(#lane2Grad)" stroke="#1e3a5f" stroke-width="1"/>
+    <rect width="280" height="195" rx="12" fill="#092444" stroke="#1e3a5f" stroke-width="1"/>
+    <text x="140" y="75" font-size="15" font-weight="900" fill="#ffffff" text-anchor="middle">🏢 SALAS SITUACIONALES</text>
+    <text x="140" y="100" font-size="15" font-weight="900" fill="#f59e0b" text-anchor="middle">25 ESTADOS (OPERACIÓN)</text>
+    <text x="140" y="125" font-size="11" font-weight="600" fill="#94a3b8" text-anchor="middle">Aduana 2: Carga Semanal</text>
+    <text x="140" y="140" font-size="10" font-weight="500" fill="#f59e0b" text-anchor="middle">DataIngestionHub.tsx</text>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- BLOQUES DE PROCESO Y NODOS DE DECISIÓN (COLUMNAS 1 A 6)                    -->
+  <!-- ========================================================================= -->
+
+  <!-- COLUMNA 1: PASO 1 - ORIGEN DEL INSTRUMENTO (X: 330) -->
+  <g transform="translate(330, 140)">
+    <!-- Nodo 1.1: Inicio / Elección de Modalidad -->
+    <rect width="240" height="100" rx="12" fill="url(#cyanCardGrad)" stroke="#00f2fe" stroke-width="1.5" filter="url(#dropShadow)"/>
+    <text x="120" y="28" font-size="11" font-weight="800" fill="#00f2fe" text-anchor="middle">PASO 1: SELECCIÓN DE ENTRADA</text>
+    <text x="120" y="50" font-size="13" font-weight="900" fill="#ffffff" text-anchor="middle">Define Origen Instrumento</text>
+    <text x="120" y="70" font-size="10.5" fill="#94a3b8" text-anchor="middle">A: Excel Borrador (.xlsx)</text>
+    <text x="120" y="85" font-size="10.5" fill="#94a3b8" text-anchor="middle">B: Desde Cero | C: Rediseño</text>
+  </g>
+
+  <!-- COLUMNA 1 -> WIZARD UI: CARGA Y LECTURA (X: 330, Y: 350) -->
+  <g transform="translate(330, 355)">
+    <rect width="240" height="95" rx="12" fill="url(#cyanCardGrad)" stroke="#38bdf8" stroke-width="1" filter="url(#dropShadow)"/>
+    <text x="120" y="25" font-size="11" font-weight="800" fill="#38bdf8" text-anchor="middle">INTERFAZ WIZARD (UI)</text>
+    <text x="120" y="48" font-size="12.5" font-weight="800" fill="#ffffff" text-anchor="middle">Extracción de Encabezados</text>
+    <text x="120" y="68" font-size="10" fill="#cbd5e1" text-anchor="middle">Lee columnas XLSX / Inputs</text>
+    <text x="120" y="82" font-size="10" fill="#cbd5e1" text-anchor="middle">Pasa estructura al Auditor</text>
+  </g>
+
+  <!-- COLUMNA 2: PASO 2 - AUDITORÍA HEURÍSTICA (X: 620, Y: 550) -->
+  <g transform="translate(620, 555)">
+    <rect width="280" height="135" rx="12" fill="url(#cyanCardGrad)" stroke="#34d399" stroke-width="1.5" filter="url(#dropShadow)"/>
+    <text x="140" y="25" font-size="11" font-weight="800" fill="#34d399" text-anchor="middle">PASO 2: MOTOR AUDITOR ISO 8000</text>
+    <text x="140" y="48" font-size="13" font-weight="900" fill="#ffffff" text-anchor="middle">Inspección de Antipatrones</text>
+    <text x="20" y="70" font-size="10" fill="#cbd5e1">1. Regex 1NF: Detecta TP1, TP2, CIR_1...</text>
+    <text x="20" y="87" font-size="10" fill="#cbd5e1">2. 3NF: Detecta TOTAL_, CANTIDAD_TOTAL</text>
+    <text x="20" y="104" font-size="10" fill="#cbd5e1">3. MDM: Cruce con Catálogos SEN</text>
+    <text x="20" y="121" font-size="10" fill="#cbd5e1">4. Grano: Valida COD_ESTADO y FECHA</text>
+  </g>
+
+  <!-- DECISIÓN DE FACTIBILIDAD Y SCORE (X: 950, Y: 565) -->
+  <g transform="translate(950, 570)">
+    <!-- Rombo de Decisión -->
+    <polygon points="120,0 240,65 120,130 0,65" fill="#072b4a" stroke="#00f2fe" stroke-width="2" filter="url(#dropShadow)"/>
+    <text x="120" y="55" font-size="11" font-weight="800" fill="#00f2fe" text-anchor="middle">¿SCORE MADUREZ?</text>
+    <text x="120" y="73" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">Índice 0 - 100%</text>
+    <text x="120" y="90" font-size="9" fill="#94a3b8" text-anchor="middle">1NF / 3NF / MDM</text>
+  </g>
+
+  <!-- COLUMNA 3: CAPA IA GEMINI (X: 930, Y: 760) -->
+  <g transform="translate(930, 765)">
+    <rect width="280" height="110" rx="12" fill="url(#purpleCardGrad)" stroke="#a855f7" stroke-width="1.5" filter="url(#dropShadow)"/>
+    <text x="140" y="24" font-size="11" font-weight="800" fill="#c084fc" text-anchor="middle">ENRIQUECIMIENTO GOOGLE GEMINI</text>
+    <text x="140" y="46" font-size="12.5" font-weight="900" fill="#ffffff" text-anchor="middle">Dictamen Pedagógico Formal</text>
+    <text x="140" y="66" font-size="10" fill="#e9d5ff" text-anchor="middle">Redacta justificación para analista</text>
+    <text x="140" y="80" font-size="10" fill="#e9d5ff" text-anchor="middle">Explica riesgos de sobreconteo</text>
+    <text x="140" y="96" font-size="9.5" font-weight="700" fill="#a855f7" text-anchor="middle">Fallback Determinista si no hay API</text>
+  </g>
+
+  <!-- COLUMNA 4: WIZARD FEEDBACK & REFACTORIZACIÓN (X: 1250, Y: 350) -->
+  <g transform="translate(1250, 350)">
+    <rect width="290" height="145" rx="12" fill="url(#cyanCardGrad)" stroke="#00f2fe" stroke-width="1.5" filter="url(#dropShadow)"/>
+    <text x="145" y="24" font-size="11" font-weight="800" fill="#00f2fe" text-anchor="middle">PASO 3: REFACTORIZACIÓN Y MDM</text>
+    <text x="145" y="46" font-size="13" font-weight="900" fill="#ffffff" text-anchor="middle">Propuesta Normalizada a 1 Clic</text>
+    <text x="15" y="68" font-size="10" fill="#cbd5e1">✨ Convierte TP1..n en vertical (TAG_EQ)</text>
+    <text x="15" y="85" font-size="10" fill="#cbd5e1">🗑️ Remueve métricas agregadas</text>
+    <text x="15" y="102" font-size="10" fill="#cbd5e1">🔗 Vincula CAT_SUBESTACIONES / CIR</text>
+    <text x="15" y="119" font-size="10" fill="#cbd5e1">➕ Asigna Frecuencia y Categoría SEN</text>
+    <text x="145" y="136" font-size="9.5" font-weight="800" fill="#38bdf8" text-anchor="middle">Aprobación del Especialista</text>
+  </g>
+
+  <!-- COLUMNA 5: PASO 4 - CERTIFICACIÓN & APROVISIONAMIENTO (X: 1590, Y: 140) -->
+  <g transform="translate(1590, 140)">
+    <rect width="270" height="100" rx="12" fill="url(#greenCardGrad)" stroke="#10b981" stroke-width="1.5" filter="url(#dropShadow)"/>
+    <text x="135" y="26" font-size="11" font-weight="800" fill="#34d399" text-anchor="middle">PASO 4: CERTIFICACIÓN PROCESO</text>
+    <text x="135" y="48" font-size="13" font-weight="900" fill="#ffffff" text-anchor="middle">Aprobación Final Proceso 0N_</text>
+    <text x="135" y="68" font-size="10" fill="#a7f3d0" text-anchor="middle">Auto-secuenciador (08_SCDXS)</text>
+    <text x="135" y="84" font-size="10" fill="#a7f3d0" text-anchor="middle">Firma Digital Hash SHA-256</text>
+  </g>
+
+  <!-- COLUMNA 5 -> NUBE: APROVISIONAMIENTO DRIVE & SUPABASE (X: 1590, Y: 950) -->
+  <g transform="translate(1590, 950)">
+    <rect width="280" height="140" rx="12" fill="url(#cyanCardGrad)" stroke="#38bdf8" stroke-width="1.5" filter="url(#dropShadow)"/>
+    <text x="140" y="24" font-size="11" font-weight="800" fill="#38bdf8" text-anchor="middle">APROVISIONAMIENTO MULTI-NUBE</text>
+    <text x="140" y="46" font-size="13" font-weight="900" fill="#ffffff" text-anchor="middle">Despliegue en 25 Estados</text>
+    <text x="15" y="68" font-size="10" fill="#cbd5e1">☁️ Drive: Carpetas en 25 Estados SEN</text>
+    <text x="15" y="85" font-size="10" fill="#cbd5e1">📁 Drive: /00_PLANTILLAS_OFICIALES/</text>
+    <text x="15" y="102" font-size="10" fill="#cbd5e1">🗄️ Supabase: cat_procesos_ingesta</text>
+    <text x="15" y="119" font-size="10" fill="#cbd5e1">📊 Genera Plantilla XLSX con Dropdowns</text>
+    <text x="15" y="132" font-size="9" font-weight="700" fill="#38bdf8">Webhook: bk.ggpd.corpoelec@gmail.com</text>
+  </g>
+
+  <!-- COLUMNA 6: ADUANA 2 - CARGA OPERATIVA SEMANAL (X: 1920, Y: 1150) -->
+  <g transform="translate(1920, 1150)">
+    <rect width="400" height="150" rx="12" fill="url(#amberCardGrad)" stroke="#f59e0b" stroke-width="1.5" filter="url(#dropShadow)"/>
+    <text x="200" y="25" font-size="12" font-weight="900" fill="#fbbf24" text-anchor="middle">ADUANA 2: INGESTA SEMANAL (25 ESTADOS)</text>
+    <text x="200" y="46" font-size="13" font-weight="900" fill="#ffffff" text-anchor="middle">Salas Situacionales Estadales</text>
+    
+    <g transform="translate(15, 60)">
+      <rect x="0" y="0" width="175" height="75" rx="8" fill="#059669" fill-opacity="0.2" stroke="#10b981" stroke-width="1"/>
+      <text x="87" y="18" font-size="10" font-weight="800" fill="#34d399" text-anchor="middle">🟢 REGISTROS CONFORMES</text>
+      <text x="87" y="36" font-size="9" fill="#e2e8f0" text-anchor="middle">Ingesta en Supabase</text>
+      <text x="87" y="50" font-size="9" fill="#e2e8f0" text-anchor="middle">JSONB + Lote BATCH-ID</text>
+      <text x="87" y="65" font-size="9" font-weight="700" fill="#34d399" text-anchor="middle">Data Lake Google Drive</text>
+    </g>
+
+    <g transform="translate(200, 60)">
+      <rect x="0" y="0" width="185" height="75" rx="8" fill="#dc2626" fill-opacity="0.2" stroke="#ef4444" stroke-width="1"/>
+      <text x="92" y="18" font-size="10" font-weight="800" fill="#f87171" text-anchor="middle">🔴 SEGREGACIÓN NO CONFORME</text>
+      <text x="92" y="36" font-size="9" fill="#e2e8f0" text-anchor="middle">Descarga Excel Remediación</text>
+      <text x="92" y="50" font-size="9" fill="#e2e8f0" text-anchor="middle">Tarea en SCMTP (SLA 48h)</text>
+      <text x="92" y="65" font-size="9" font-weight="700" fill="#f87171" text-anchor="middle">Bloqueo de Infección BD</text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- FLECHAS Y CONECTORES DE FLUJO                                              -->
+  <!-- ========================================================================= -->
+
+  <!-- 1. Especialista -> Wizard UI -->
+  <path d="M 450 240 L 450 355" fill="none" stroke="#00f2fe" stroke-width="2.5" marker-end="url(#arrowCyan)"/>
+
+  <!-- 2. Wizard UI -> Motor Heurístico -->
+  <path d="M 570 400 L 760 400 L 760 555" fill="none" stroke="#00f2fe" stroke-width="2.5" marker-end="url(#arrowCyan)"/>
+
+  <!-- 3. Motor Heurístico -> Rombo Decisión -->
+  <path d="M 900 635 L 950 635" fill="none" stroke="#34d399" stroke-width="2.5" marker-end="url(#arrowGreen)"/>
+
+  <!-- 4. Rombo -> Google Gemini IA (Pide dictamen) -->
+  <path d="M 1070 700 L 1070 765" fill="none" stroke="#a855f7" stroke-width="2" marker-end="url(#arrowPurple)"/>
+  <text x="1080" y="735" font-size="10" font-weight="700" fill="#c084fc">Genera Dictamen</text>
+
+  <!-- 5. Gemini IA -> Wizard UI (Muestra feedback) -->
+  <path d="M 1210 820 L 1395 820 L 1395 495" fill="none" stroke="#a855f7" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrowPurple)"/>
+
+  <!-- 6. Rombo Decisión -> Wizard UI (Refactorización a 1 Clic) -->
+  <path d="M 1190 635 L 1395 635 L 1395 495" fill="none" stroke="#00f2fe" stroke-width="2.5" marker-end="url(#arrowCyan)"/>
+  <text x="1270" y="625" font-size="10" font-weight="800" fill="#00f2fe">Propone Refactor</text>
+
+  <!-- 7. Wizard UI -> Aprobación Especialista -->
+  <path d="M 1400 350 L 1400 190 L 1590 190" fill="none" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrowGreen)"/>
+  <text x="1480" y="180" font-size="10" font-weight="800" fill="#34d399">Certifica Proceso</text>
+
+  <!-- 8. Certificación -> Nube Aprovisionamiento -->
+  <path d="M 1730 240 L 1730 950" fill="none" stroke="#38bdf8" stroke-width="3" marker-end="url(#arrowCyan)"/>
+  <text x="1740" y="600" font-size="11" font-weight="900" fill="#38bdf8">Dispara Webhook Drive &amp; BD</text>
+
+  <!-- 9. Nube -> Salas Situacionales (Aduana 2) -->
+  <path d="M 1870 1020 L 2120 1020 L 2120 1150" fill="none" stroke="#f59e0b" stroke-width="3" marker-end="url(#arrowAmber)"/>
+  <text x="1950" y="1010" font-size="11" font-weight="900" fill="#fbbf24">Distribuye Plantillas y Formularios</text>
+
+  <!-- ========================================================================= -->
+  <!-- LEYENDA Y CONTROL DE CONFORMIDAD (PIE DE PÁGINA)                           -->
+  <!-- ========================================================================= -->
+  <g transform="translate(30, 1345)">
+    <rect width="2340" height="85" rx="12" fill="#030b17" stroke="#1e3a5f" stroke-width="1.5"/>
+    
+    <text x="30" y="30" font-size="12" font-weight="900" fill="#ffffff">LEYENDA METODOLÓGICA &amp; REGLAS DE NEGOCIO SEN:</text>
+    
+    <g transform="translate(30, 42)">
+      <!-- Item 1: 1NF -->
+      <circle cx="10" cy="15" r="7" fill="#ef4444"/>
+      <text x="25" y="19" font-size="10" font-weight="700" fill="#fca5a5">Violación 1NF (Grupos Repetitivos TP1..n):</text>
+      <text x="245" y="19" font-size="10" fill="#94a3b8">Prohibido en diseño; refactorizado a registros verticales.</text>
+
+      <!-- Item 2: 3NF -->
+      <circle cx="560" cy="15" r="7" fill="#f59e0b"/>
+      <text x="575" y="19" font-size="10" font-weight="700" fill="#fcd34d">Violación 3NF (Métricas Agregadas):</text>
+      <text x="765" y="19" font-size="10" fill="#94a3b8">Totales no se almacenan en detalle; se calculan vía SQL.</text>
+
+      <!-- Item 3: MDM -->
+      <circle cx="1080" cy="15" r="7" fill="#10b981"/>
+      <text x="1095" y="19" font-size="10" font-weight="700" fill="#6ee7b7">Catálogos Maestros (MDM SEN):</text>
+      <text x="1275" y="19" font-size="10" fill="#94a3b8">Subestaciones, Circuitos y Equipos vinculados como listas desplegables.</text>
+
+      <!-- Item 4: IA -->
+      <circle cx="1690" cy="15" r="7" fill="#a855f7"/>
+      <text x="1705" y="19" font-size="10" font-weight="700" fill="#d8b4fe">Capa Híbrida IA (Gemini):</text>
+      <text x="1845" y="19" font-size="10" fill="#94a3b8">Dictamen pedagógico persuasivo + Motor determinista local autónomo.</text>
+    </g>
+  </g>
+
+</svg>
