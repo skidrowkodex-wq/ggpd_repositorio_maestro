@@ -7,8 +7,10 @@ import { DocumentViewer } from './DocumentViewer';
 import { UserManagementModule } from './UserManagementModule';
 import { SupabaseStatusWidget } from './SupabaseStatusWidget';
 import { FloatingSecurityWidget } from './FloatingSecurityWidget';
+import { DataIngestionHub } from './ingestion/DataIngestionHub';
+import { ProcessDirectoryManager } from './ingestion/ProcessDirectoryManager';
 import { VENEZUELAN_STATES } from '../mockData/portalData';
-import { MapPin, LayoutGrid, FileText, BarChart3, Cloud, Users } from 'lucide-react';
+import { MapPin, LayoutGrid, FileText, BarChart3, Cloud, Users, UploadCloud, FolderTree } from 'lucide-react';
 
 interface DashboardPortalProps {
   activeSection: string;
@@ -98,73 +100,103 @@ export const DashboardPortal: React.FC<DashboardPortalProps> = ({ activeSection,
         {/* Section Navigation Tabs */}
         <div className="relative z-10 mt-6 flex flex-wrap items-center gap-2 border-t border-white/10 pt-4">
           
-          {/* Tab 1: Dashboards KGI/KPI */}
+          {/* Tab 1: Lanzador Nube (For Admin/Specialist) */}
+          {!isVisorEstadal && (
+            <button
+              onClick={() => setActiveSection('apps')}
+              className={`flex items-center space-x-2 rounded-xl px-4 py-2.5 text-xs font-black transition-all cursor-pointer ${
+                activeSection === 'apps'
+                  ? 'bg-white text-[#072146] shadow-md ring-2 ring-[#00f2fe]'
+                  : 'bg-white/10 text-cyan-100 border border-white/20 hover:bg-white/20'
+              }`}
+            >
+              <LayoutGrid className="h-4 w-4 text-sky-300" />
+              <span>1. Lanzador Nube</span>
+            </button>
+          )}
+
+          {/* Tab 2: Módulo de Ingesta & Calidad (For Everyone, including Visor Estadal) */}
           <button
-            onClick={() => setActiveSection('dashboards')}
-            className={`flex items-center space-x-2 rounded-xl px-4 py-2.5 text-xs font-black transition-all ${
-              activeSection === 'dashboards'
+            onClick={() => setActiveSection('ingesta')}
+            className={`flex items-center space-x-2 rounded-xl px-4 py-2.5 text-xs font-black transition-all cursor-pointer ${
+              activeSection === 'ingesta'
                 ? 'bg-white text-[#072146] shadow-md ring-2 ring-[#00f2fe]'
                 : 'bg-white/10 text-cyan-100 border border-white/20 hover:bg-white/20'
             }`}
           >
-            <BarChart3 className="h-4 w-4 text-amber-400" />
-            <span>{isVisorEstadal ? '1. Tableros KGI/KPI & Mapa 🗺️' : '3. Dashboards & Mapa Activos 🗺️'}</span>
+            <UploadCloud className="h-4 w-4 text-[#00f2fe]" />
+            <span>{isVisorEstadal ? '1. Módulo de Carga (ISO 8000) ⚡' : '2. Módulo de Carga ⚡'}</span>
           </button>
 
-          {/* Tab 2: Minutario */}
+          {/* Tab 3: Minutario */}
           <button
             onClick={() => setActiveSection('minutas')}
-            className={`flex items-center space-x-2 rounded-xl px-4 py-2.5 text-xs font-black transition-all ${
+            className={`flex items-center space-x-2 rounded-xl px-4 py-2.5 text-xs font-black transition-all cursor-pointer ${
               activeSection === 'minutas'
                 ? 'bg-white text-[#072146] shadow-md ring-2 ring-[#00f2fe]'
                 : 'bg-white/10 text-cyan-100 border border-white/20 hover:bg-white/20'
             }`}
           >
             <FileText className="h-4 w-4 text-cyan-300" />
-            <span>{isVisorEstadal ? '2. Minutario y Acuerdos' : '2. Minutario'}</span>
+            <span>{isVisorEstadal ? '2. Minutario y Acuerdos' : '3. Minutario'}</span>
           </button>
 
-          {/* Regular Modules for Admin/Analista */}
+          {/* Tab 4: Dashboards KGI/KPI */}
+          <button
+            onClick={() => setActiveSection('dashboards')}
+            className={`flex items-center space-x-2 rounded-xl px-4 py-2.5 text-xs font-black transition-all cursor-pointer ${
+              activeSection === 'dashboards'
+                ? 'bg-white text-[#072146] shadow-md ring-2 ring-[#00f2fe]'
+                : 'bg-white/10 text-cyan-100 border border-white/20 hover:bg-white/20'
+            }`}
+          >
+            <BarChart3 className="h-4 w-4 text-amber-400" />
+            <span>{isVisorEstadal ? '3. Tableros KGI/KPI & Mapa 🗺️' : '4. Dashboards & Mapa 🗺️'}</span>
+          </button>
+
+          {/* Tab 5: Procesos & Data Lake Nube (Admin/Gerencia/Especialista) */}
           {!isVisorEstadal && (
-            <>
-              <button
-                onClick={() => setActiveSection('apps')}
-                className={`flex items-center space-x-2 rounded-xl px-4 py-2.5 text-xs font-black transition-all ${
-                  activeSection === 'apps'
-                    ? 'bg-white text-[#072146] shadow-md ring-2 ring-[#00f2fe]'
-                    : 'bg-white/10 text-cyan-100 border border-white/20 hover:bg-white/20'
-                }`}
-              >
-                <LayoutGrid className="h-4 w-4 text-sky-300" />
-                <span>1. Lanzador Nube</span>
-              </button>
+            <button
+              onClick={() => setActiveSection('procesos_drive')}
+              className={`flex items-center space-x-2 rounded-xl px-4 py-2.5 text-xs font-black transition-all cursor-pointer ${
+                activeSection === 'procesos_drive'
+                  ? 'bg-white text-[#072146] shadow-md ring-2 ring-[#00f2fe]'
+                  : 'bg-white/10 text-cyan-100 border border-white/20 hover:bg-white/20'
+              }`}
+            >
+              <FolderTree className="h-4 w-4 text-teal-300" />
+              <span>5. Procesos & Data Lake</span>
+            </button>
+          )}
 
-              <button
-                onClick={() => setActiveSection('drive')}
-                className={`flex items-center space-x-2 rounded-xl px-4 py-2.5 text-xs font-black transition-all ${
-                  activeSection === 'drive'
-                    ? 'bg-white text-[#072146] shadow-md ring-2 ring-[#00f2fe]'
-                    : 'bg-white/10 text-cyan-100 border border-white/20 hover:bg-white/20'
-                }`}
-              >
-                <Cloud className="h-4 w-4 text-emerald-400" />
-                <span>4. Visor Drive</span>
-              </button>
+          {/* Tab 6: Visor Drive */}
+          {!isVisorEstadal && (
+            <button
+              onClick={() => setActiveSection('drive')}
+              className={`flex items-center space-x-2 rounded-xl px-4 py-2.5 text-xs font-black transition-all cursor-pointer ${
+                activeSection === 'drive'
+                  ? 'bg-white text-[#072146] shadow-md ring-2 ring-[#00f2fe]'
+                  : 'bg-white/10 text-cyan-100 border border-white/20 hover:bg-white/20'
+              }`}
+            >
+              <Cloud className="h-4 w-4 text-emerald-400" />
+              <span>6. Visor Drive</span>
+            </button>
+          )}
 
-              {isAdminOrGerencia && (
-                <button
-                  onClick={() => setActiveSection('usuarios')}
-                  className={`flex items-center space-x-2 rounded-xl px-4 py-2.5 text-xs font-black transition-all ${
-                    activeSection === 'usuarios'
-                      ? 'bg-white text-[#072146] shadow-md ring-2 ring-[#00f2fe]'
-                      : 'bg-white/10 text-cyan-100 border border-white/20 hover:bg-white/20'
-                  }`}
-                >
-                  <Users className="h-4 w-4 text-purple-300" />
-                  <span>5. Gestión Usuarios SSO</span>
-                </button>
-              )}
-            </>
+          {/* Tab 7: Usuarios */}
+          {isAdminOrGerencia && (
+            <button
+              onClick={() => setActiveSection('usuarios')}
+              className={`flex items-center space-x-2 rounded-xl px-4 py-2.5 text-xs font-black transition-all cursor-pointer ${
+                activeSection === 'usuarios'
+                  ? 'bg-white text-[#072146] shadow-md ring-2 ring-[#00f2fe]'
+                  : 'bg-white/10 text-cyan-100 border border-white/20 hover:bg-white/20'
+              }`}
+            >
+              <Users className="h-4 w-4 text-purple-300" />
+              <span>7. Gestión Usuarios SSO</span>
+            </button>
           )}
 
         </div>
@@ -177,8 +209,10 @@ export const DashboardPortal: React.FC<DashboardPortalProps> = ({ activeSection,
       {/* Render Active Section */}
       <main>
         {activeSection === 'apps' && <AppLauncher setActiveSection={setActiveSection} />}
+        {activeSection === 'ingesta' && <DataIngestionHub />}
         {activeSection === 'minutas' && <MinutarioSection />}
         {activeSection === 'dashboards' && <ProcessDashboard />}
+        {activeSection === 'procesos_drive' && <ProcessDirectoryManager />}
         {activeSection === 'drive' && <DocumentViewer />}
         {activeSection === 'usuarios' && <UserManagementModule />}
       </main>

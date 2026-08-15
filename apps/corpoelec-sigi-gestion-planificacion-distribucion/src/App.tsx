@@ -24,11 +24,11 @@ const MainLayout: React.FC = () => {
     setIsAuthModalOpen(true);
   };
 
-  // If user is VISOR_ESTADAL, lock them out of apps, drive and users, defaulting to dashboards
+  // If user is VISOR_ESTADAL, restrict them to ingesta, minutas and dashboards
   React.useEffect(() => {
     if (session.authenticated && session.role === 'VISOR_ESTADAL') {
-      if (activeSection === 'apps' || activeSection === 'drive' || activeSection === 'usuarios') {
-        setActiveSection('dashboards');
+      if (activeSection === 'apps' || activeSection === 'drive' || activeSection === 'usuarios' || activeSection === 'procesos_drive') {
+        setActiveSection('ingesta');
       }
     }
   }, [session.authenticated, session.role, activeSection]);
