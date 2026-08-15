@@ -456,7 +456,7 @@ export const AssetsMapDashboard: React.FC = () => {
         {/* Full-Width Leaflet Canvas SE */}
         <div 
           ref={mapContainerRefSE} 
-          className="w-full h-[520px] rounded-2xl border border-slate-200 dark:border-slate-800 z-10 shadow-inner"
+          className="w-full h-[360px] sm:h-[460px] lg:h-[520px] rounded-2xl border border-slate-200 dark:border-slate-800 z-10 shadow-inner"
         />
 
         <div className="flex items-center justify-between text-[11px] text-slate-500 font-semibold px-2">
@@ -469,7 +469,7 @@ export const AssetsMapDashboard: React.FC = () => {
       {/* ========================================================================= */}
       {/* SECCIÓN 2: MAPA 2 DE CIRCUITOS (CT) - FULL CONTAINER WIDTH (DEBAJO)       */}
       {/* ========================================================================= */}
-      <div className="rounded-3xl bg-white dark:bg-[#070f1e] p-6 border border-slate-200 dark:border-slate-800 shadow-xl space-y-4">
+      <div className="rounded-3xl bg-white dark:bg-[#070f1e] p-4 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-xl space-y-4">
         
         {/* Header & Filter Bar for Circuitos */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
@@ -555,7 +555,7 @@ export const AssetsMapDashboard: React.FC = () => {
         {/* Full-Width Leaflet Canvas CT */}
         <div 
           ref={mapContainerRefCT} 
-          className="w-full h-[520px] rounded-2xl border border-slate-200 dark:border-slate-800 z-10 shadow-inner"
+          className="w-full h-[360px] sm:h-[460px] lg:h-[520px] rounded-2xl border border-slate-200 dark:border-slate-800 z-10 shadow-inner"
         />
 
         <div className="flex items-center justify-between text-[11px] text-slate-500 font-semibold px-2">
