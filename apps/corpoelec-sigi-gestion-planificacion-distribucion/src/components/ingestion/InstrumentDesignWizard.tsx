@@ -21,7 +21,8 @@ import {
   X,
   FileCheck,
   Bot,
-  HelpCircle
+  HelpCircle,
+  Edit3
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { 
@@ -58,7 +59,7 @@ export const InstrumentDesignWizard: React.FC<InstrumentDesignWizardProps> = ({
   const existingProcesses = getStoredProcesses();
 
   // Paso del Wizard: 1 (Origen) -> 2 (Auditoría) -> 3 (Ajuste / Esquema) -> 4 (Certificación)
-  const [currentStep, setCurrentStep] = useState<number>(initialProcess ? 2 : 1);
+  const [currentStep, setCurrentStep] = useState<number>(1);
   const [inputMode, setInputMode] = useState<'excel' | 'scratch' | 'redesign'>(
     initialProcess ? 'redesign' : 'excel'
   );
@@ -93,7 +94,7 @@ export const InstrumentDesignWizard: React.FC<InstrumentDesignWizardProps> = ({
   const [isLoadingAI, setIsLoadingAI] = useState(false);
   const [isProvisioning, setIsProvisioning] = useState(false);
 
-  // Autocalcular el código sugerido al iniciar
+  // Autocalcular el código sugerido al iniciar si es un proceso nuevo
   useEffect(() => {
     if (!initialProcess && !code) {
       const nextNum = existingProcesses.length + 1;
@@ -102,9 +103,9 @@ export const InstrumentDesignWizard: React.FC<InstrumentDesignWizardProps> = ({
     }
   }, [existingProcesses, initialProcess, code]);
 
-  // Ejecutar auditoría cada vez que se llega al paso 2
+  // Ejecutar auditoría cada vez que se llega al paso 2 o cambian las columnas
   useEffect(() => {
-    if (currentStep === 2 && columns.length > 0) {
+    if ((currentStep === 2 || currentStep === 3) && columns.length > 0) {
       const report = auditInstrumentColumns(columns);
       setAuditReport(report);
     }
@@ -149,10 +150,23 @@ export const InstrumentDesignWizard: React.FC<InstrumentDesignWizardProps> = ({
           };
         });
 
+        // Asegurar que COD_ESTADO esté presente
+        if (!extractedColumns.some(c => c.name === 'COD_ESTADO')) {
+          extractedColumns.unshift({
+            name: 'COD_ESTADO',
+            type: 'string',
+            description: 'Código del Estado',
+            required: true,
+            sampleValue: 'DCA'
+          });
+        }
+
         setColumns(extractedColumns);
-        setName(file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, ' '));
-        setShortName(file.name.slice(0, 15).toUpperCase());
-        setCurrentStep(2); // Avanzar a auditoría
+        if (!initialProcess) {
+          setName(file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, ' '));
+          setShortName(file.name.slice(0, 15).toUpperCase());
+        }
+        setCurrentStep(2); // Avanzar a auditoría con el nuevo esquema
       } else {
         alert('El archivo Excel seleccionado no contiene filas o encabezados detectables.');
       }
@@ -178,6 +192,8 @@ export const InstrumentDesignWizard: React.FC<InstrumentDesignWizardProps> = ({
     if (auditReport && auditReport.refactoredColumns) {
       setColumns(auditReport.refactoredColumns);
       setCurrentStep(3); // Pasar al editor de esquema
+    } else {
+      setCurrentStep(3);
     }
   };
 
@@ -224,13 +240,13 @@ export const InstrumentDesignWizard: React.FC<InstrumentDesignWizardProps> = ({
       shortName,
       description: description || `Proceso normalizado para ${name}.`,
       category,
-      targetApp: 'Módulo Dinámico SIGI',
+      targetApp: initialProcess?.targetApp || 'Módulo Dinámico SIGI',
       frequency,
-      namingPattern: `${cleanPrefix}_[ESTADO]_[YYYYMMDD]_V01.xlsx`,
-      icon: 'Layers',
-      color: '#00f2fe',
-      createdAt: new Date().toISOString(),
-      isDynamic: true,
+      namingPattern: initialProcess?.namingPattern || `${cleanPrefix}_[ESTADO]_[YYYYMMDD]_V01.xlsx`,
+      icon: initialProcess?.icon || 'Layers',
+      color: initialProcess?.color || '#00f2fe',
+      createdAt: initialProcess?.createdAt || new Date().toISOString(),
+      isDynamic: initialProcess ? initialProcess.isDynamic : true,
       provisionedStatesCount: 25,
       version: initialProcess?.version ? `V0${Number(initialProcess.version.replace('V0', '')) + 1}` : 'V01',
       requiredColumns: columns
@@ -254,6 +270,15 @@ export const InstrumentDesignWizard: React.FC<InstrumentDesignWizardProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/70 backdrop-blur-xs animate-fadeIn overflow-y-auto">
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-4xl w-full max-h-[92vh] flex flex-col overflow-hidden">
         
+        {/* Input Oculto Global para Carga de Excel en cualquier paso */}
+        <input 
+          ref={fileInputRef} 
+          type="file" 
+          accept=".xlsx, .xls, .csv" 
+          onChange={handleExcelFileChange} 
+          className="hidden" 
+        />
+
         {/* HEADER DEL WIZARD */}
         <div className="p-5 sm:p-6 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-r from-[#002b49] via-[#072146] to-[#0a3560] text-white flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -281,27 +306,39 @@ export const InstrumentDesignWizard: React.FC<InstrumentDesignWizardProps> = ({
           </button>
         </div>
 
-        {/* BARRA DE PROGRESO DE 4 PASOS */}
+        {/* BARRA DE PROGRESO DE 4 PASOS INTERACTIVA */}
         <div className="bg-slate-50 dark:bg-slate-800/80 px-6 py-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs font-bold">
-          <div className={`flex items-center space-x-2 ${currentStep >= 1 ? 'text-blue-600 dark:text-cyan-400' : 'text-slate-400'}`}>
-            <span className="h-6 w-6 rounded-full flex items-center justify-center border border-current text-[11px]">1</span>
-            <span>Origen</span>
-          </div>
+          <button
+            onClick={() => setCurrentStep(1)}
+            className={`flex items-center space-x-2 transition-all cursor-pointer hover:opacity-80 ${currentStep >= 1 ? 'text-blue-600 dark:text-cyan-400' : 'text-slate-400'}`}
+          >
+            <span className={`h-6 w-6 rounded-full flex items-center justify-center border text-[11px] ${currentStep === 1 ? 'bg-blue-600 dark:bg-cyan-400 text-white dark:text-slate-900 border-transparent font-black' : 'border-current'}`}>1</span>
+            <span>1. Origen</span>
+          </button>
           <ArrowRight className="h-3.5 w-3.5 text-slate-300" />
-          <div className={`flex items-center space-x-2 ${currentStep >= 2 ? 'text-blue-600 dark:text-cyan-400' : 'text-slate-400'}`}>
-            <span className="h-6 w-6 rounded-full flex items-center justify-center border border-current text-[11px]">2</span>
-            <span>Auditoría & Diagnóstico</span>
-          </div>
+          <button
+            onClick={() => setCurrentStep(2)}
+            className={`flex items-center space-x-2 transition-all cursor-pointer hover:opacity-80 ${currentStep >= 2 ? 'text-blue-600 dark:text-cyan-400' : 'text-slate-400'}`}
+          >
+            <span className={`h-6 w-6 rounded-full flex items-center justify-center border text-[11px] ${currentStep === 2 ? 'bg-blue-600 dark:bg-cyan-400 text-white dark:text-slate-900 border-transparent font-black' : 'border-current'}`}>2</span>
+            <span>2. Auditoría & Diagnóstico</span>
+          </button>
           <ArrowRight className="h-3.5 w-3.5 text-slate-300" />
-          <div className={`flex items-center space-x-2 ${currentStep >= 3 ? 'text-blue-600 dark:text-cyan-400' : 'text-slate-400'}`}>
-            <span className="h-6 w-6 rounded-full flex items-center justify-center border border-current text-[11px]">3</span>
-            <span>Esquema & Catálogos</span>
-          </div>
+          <button
+            onClick={() => setCurrentStep(3)}
+            className={`flex items-center space-x-2 transition-all cursor-pointer hover:opacity-80 ${currentStep >= 3 ? 'text-blue-600 dark:text-cyan-400' : 'text-slate-400'}`}
+          >
+            <span className={`h-6 w-6 rounded-full flex items-center justify-center border text-[11px] ${currentStep === 3 ? 'bg-blue-600 dark:bg-cyan-400 text-white dark:text-slate-900 border-transparent font-black' : 'border-current'}`}>3</span>
+            <span>3. Esquema & Catálogos</span>
+          </button>
           <ArrowRight className="h-3.5 w-3.5 text-slate-300" />
-          <div className={`flex items-center space-x-2 ${currentStep >= 4 ? 'text-blue-600 dark:text-cyan-400' : 'text-slate-400'}`}>
-            <span className="h-6 w-6 rounded-full flex items-center justify-center border border-current text-[11px]">4</span>
-            <span>Certificación</span>
-          </div>
+          <button
+            onClick={() => setCurrentStep(4)}
+            className={`flex items-center space-x-2 transition-all cursor-pointer hover:opacity-80 ${currentStep >= 4 ? 'text-blue-600 dark:text-cyan-400' : 'text-slate-400'}`}
+          >
+            <span className={`h-6 w-6 rounded-full flex items-center justify-center border text-[11px] ${currentStep === 4 ? 'bg-blue-600 dark:bg-cyan-400 text-white dark:text-slate-900 border-transparent font-black' : 'border-current'}`}>4</span>
+            <span>4. Certificación</span>
+          </button>
         </div>
 
         {/* CONTENIDO SCROLLABLE DEL WIZARD */}
@@ -312,12 +349,40 @@ export const InstrumentDesignWizard: React.FC<InstrumentDesignWizardProps> = ({
           {/* ========================================================================= */}
           {currentStep === 1 && (
             <div className="space-y-6 animate-fadeIn">
+              
+              {initialProcess && (
+                <div className="p-4 rounded-2xl bg-cyan-50 dark:bg-cyan-950/40 border border-cyan-200 dark:border-cyan-800/60 flex items-center justify-between gap-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="h-10 w-10 rounded-xl bg-cyan-500/20 text-cyan-600 dark:text-cyan-300 flex items-center justify-center font-mono font-bold text-xs">
+                      {initialProcess.code.split('_')[1] || initialProcess.code}
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-cyan-700 dark:text-cyan-400 tracking-wider">
+                        Rediseño Evolutivo de Proceso Existente
+                      </span>
+                      <h4 className="text-sm font-black text-slate-900 dark:text-white">
+                        {initialProcess.code} — {initialProcess.name}
+                      </h4>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        Actualmente cuenta con <strong>{columns.length} columnas</strong> definidas. Puede subir un nuevo archivo Excel para reemplazarlas o continuar modificándolas.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setCurrentStep(2)}
+                    className="px-4 py-2 rounded-xl bg-[#002b49] dark:bg-cyan-400 text-white dark:text-slate-900 font-bold text-xs shrink-0 cursor-pointer hover:opacity-90"
+                  >
+                    Auditar Esquema Actual ({columns.length} cols) ➔
+                  </button>
+                </div>
+              )}
+
               <div className="text-center max-w-lg mx-auto">
                 <h3 className="text-base font-black text-slate-900 dark:text-white">
-                  ¿Cómo desea iniciar el diseño del nuevo instrumento?
+                  {initialProcess ? '¿Cómo desea reformular este instrumento?' : '¿Cómo desea iniciar el diseño del nuevo instrumento?'}
                 </h3>
                 <p className="text-xs text-slate-500 mt-1">
-                  Seleccione si cuenta con una plantilla borrador en Excel o si prefiere construirlo paso a paso desde cero con asistencia metodológica.
+                  Cargue el archivo Excel borrador que utilizan en campo para auditarlo automáticamente, o continúe con la edición directa del esquema.
                 </p>
               </div>
 
@@ -336,55 +401,67 @@ export const InstrumentDesignWizard: React.FC<InstrumentDesignWizardProps> = ({
                       <FileSpreadsheet className="h-5 w-5" />
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-slate-900 dark:text-white">Tengo un Excel Borrador (.xlsx)</h4>
-                      <p className="text-xs text-slate-500">Cargue el archivo que hoy usan y el asistente auditará sus columnas.</p>
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-white">Subir Nuevo Excel Borrador (.xlsx)</h4>
+                      <p className="text-xs text-slate-500">Cargue el archivo que hoy usan y el asistente extraerá y auditará sus columnas.</p>
                     </div>
                   </div>
 
-                  {inputMode === 'excel' && (
-                    <div
-                      onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
-                      onDragLeave={() => setDragActive(false)}
-                      onDrop={handleExcelDrop}
-                      onClick={() => fileInputRef.current?.click()}
-                      className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-4 text-center hover:bg-white dark:hover:bg-slate-800 transition-colors"
-                    >
-                      <input 
-                        ref={fileInputRef} 
-                        type="file" 
-                        accept=".xlsx, .xls, .csv" 
-                        onChange={handleExcelFileChange} 
-                        className="hidden" 
-                      />
-                      <UploadCloud className="h-6 w-6 text-blue-600 dark:text-cyan-400 mx-auto" />
-                      <span className="text-xs font-bold text-slate-700 dark:text-slate-200 block mt-1">
-                        Arrastre su Excel aquí o haga clic para explorar
-                      </span>
-                    </div>
-                  )}
+                  <div
+                    onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
+                    onDragLeave={() => setDragActive(false)}
+                    onDrop={handleExcelDrop}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      fileInputRef.current?.click();
+                    }}
+                    className={`border-2 border-dashed rounded-xl p-4 text-center transition-colors cursor-pointer ${
+                      dragActive ? 'border-cyan-500 bg-cyan-50 dark:bg-cyan-950/50' : 'border-slate-300 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <UploadCloud className="h-6 w-6 text-blue-600 dark:text-cyan-400 mx-auto" />
+                    <span className="text-xs font-bold text-slate-700 dark:text-slate-200 block mt-1">
+                      Arrastre su nuevo Excel aquí o haga clic para explorar
+                    </span>
+                    <span className="text-[10px] text-slate-400 block mt-0.5">Soporta .xlsx, .xls y .csv</span>
+                  </div>
                 </div>
 
-                {/* Opción B: Crear desde cero */}
+                {/* Opción B: Crear desde cero o continuar con columnas actuales */}
                 <div 
-                  onClick={() => setInputMode('scratch')}
+                  onClick={() => {
+                    setInputMode('scratch');
+                    if (!initialProcess) {
+                      setColumns([
+                        { name: 'COD_ESTADO', type: 'string', description: 'Código del Estado', required: true, sampleValue: 'DCA' },
+                        { name: 'UBICACION', type: 'string', description: 'Subestación o Circuito', required: true, sampleValue: 'S/E CHACAO' },
+                        { name: 'FECHA', type: 'date', description: 'Fecha de ejecución', required: true, sampleValue: '2026-08-15' }
+                      ]);
+                    }
+                  }}
                   className={`p-5 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between space-y-3 ${
-                    inputMode === 'scratch'
+                    inputMode === 'scratch' || inputMode === 'redesign'
                       ? 'border-[#002b49] dark:border-[#00f2fe] bg-blue-50/50 dark:bg-cyan-950/30 ring-2 ring-[#002b49]/10'
                       : 'border-slate-200 dark:border-slate-800 hover:border-slate-300'
                   }`}
                 >
                   <div className="flex items-center space-x-3">
                     <div className="h-10 w-10 rounded-xl bg-cyan-100 text-cyan-800 flex items-center justify-center">
-                      <Plus className="h-5 w-5" />
+                      {initialProcess ? <Edit3 className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-slate-900 dark:text-white">Construir Nuevo desde Cero</h4>
-                      <p className="text-xs text-slate-500">Diseñe el instrumento campo a campo con sugerencias de Catálogos Maestros.</p>
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                        {initialProcess ? 'Editar Columnas Actuales en Pantalla' : 'Construir Nuevo desde Cero'}
+                      </h4>
+                      <p className="text-xs text-slate-500">
+                        {initialProcess 
+                          ? `Conservar los ${columns.length} campos actuales y afinarlos en el editor guiado.`
+                          : 'Diseñe el instrumento campo a campo con sugerencias de Catálogos Maestros.'}
+                      </p>
                     </div>
                   </div>
 
                   <p className="text-xs text-slate-500 bg-white/50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-200/50 dark:border-slate-700/50">
-                    💡 Recomendado para nuevos procesos (ej. Diagnóstico de Subestaciones, Termografía, Inspección de Líneas).
+                    💡 Podrá agregar campos, cambiar tipos de datos (número, fecha, texto) y enlazar Catálogos Maestros (MDM).
                   </p>
                 </div>
               </div>
@@ -457,6 +534,41 @@ export const InstrumentDesignWizard: React.FC<InstrumentDesignWizardProps> = ({
                 </div>
               )}
 
+              {/* Comparativa Evolutiva de Versión (Anterior vs Actualizado) */}
+              {initialProcess && (
+                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2.5">
+                  <div className="flex items-center justify-between text-xs font-bold">
+                    <span className="text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                      <Layers className="h-4 w-4 text-cyan-500" />
+                      Evolución de Versión: {initialProcess.version || 'V01'} ➔ {`V0${Number((initialProcess.version || 'V01').replace('V0', '')) + 1}`}
+                    </span>
+                    <span className="font-mono text-[11px] text-cyan-600 dark:text-cyan-400">
+                      {initialProcess.requiredColumns.length} cols anteriores ➔ {columns.length} cols nuevas
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    Campos del nuevo instrumento (<span className="text-emerald-600 dark:text-emerald-400 font-bold">+ Verde</span> indica campos nuevos incorporados):
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {columns.map((c, idx) => {
+                      const isNew = !initialProcess.requiredColumns.some(old => old.name === c.name);
+                      return (
+                        <span
+                          key={idx}
+                          className={`px-2 py-0.5 rounded text-[10.5px] font-mono font-bold border ${
+                            isNew
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-700/60'
+                              : 'bg-white text-slate-700 border-slate-200 dark:bg-slate-900 dark:text-slate-300 dark:border-slate-700'
+                          }`}
+                        >
+                          {isNew ? `+ ${c.name}` : c.name}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* Lista de Hallazgos Detectados */}
               <div className="space-y-3">
                 <h4 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
@@ -488,13 +600,23 @@ export const InstrumentDesignWizard: React.FC<InstrumentDesignWizardProps> = ({
 
               {/* Botones de Navegación */}
               <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
-                <button
-                  onClick={() => setCurrentStep(1)}
-                  className="flex items-center space-x-1 px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  <span>Atrás</span>
-                </button>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setCurrentStep(1)}
+                    className="flex items-center space-x-1 px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                    <span>Atrás</span>
+                  </button>
+
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700/60 hover:bg-emerald-100 transition-colors cursor-pointer"
+                  >
+                    <UploadCloud className="h-4 w-4" />
+                    <span>Cargar Otro Excel (.xlsx)</span>
+                  </button>
+                </div>
 
                 <button
                   onClick={handleApplyRefactoring}
@@ -569,13 +691,22 @@ export const InstrumentDesignWizard: React.FC<InstrumentDesignWizardProps> = ({
                     </p>
                   </div>
 
-                  <button
-                    onClick={handleAddCustomColumn}
-                    className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 dark:bg-cyan-950 dark:text-cyan-300 text-xs font-bold border border-blue-200 dark:border-cyan-500/30 hover:bg-blue-100 transition-colors cursor-pointer"
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                    <span>Agregar Campo</span>
-                  </button>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-500/30 hover:bg-emerald-100 transition-colors cursor-pointer"
+                    >
+                      <UploadCloud className="h-3.5 w-3.5" />
+                      <span>Reemplazar con Excel</span>
+                    </button>
+                    <button
+                      onClick={handleAddCustomColumn}
+                      className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 dark:bg-cyan-950 dark:text-cyan-300 text-xs font-bold border border-blue-200 dark:border-cyan-500/30 hover:bg-blue-100 transition-colors cursor-pointer"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      <span>Agregar Campo</span>
+                    </button>
+                  </div>
                 </div>
 
                 <div className="space-y-2 max-h-64 overflow-y-auto pr-1">

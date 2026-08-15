@@ -14,6 +14,7 @@ import {
   MasterCatalogItem 
 } from '../types/ingestion';
 import { supabase } from '../lib/supabase';
+import { getLegacyCatalogs } from './legacyCatalogService';
 
 const STORAGE_KEY_CATALOGS = 'CORPOELEC_SIGI_MDM_CATALOGS_V1';
 
@@ -161,12 +162,22 @@ export const getMasterCatalogs = (): MasterCatalog[] => {
     const raw = localStorage.getItem(STORAGE_KEY_CATALOGS);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        // Merge stored catalogs with legacy, avoiding duplicate IDs
+        const legacyCats = getLegacyCatalogs();
+        const storedIds = new Set(parsed.map((c: MasterCatalog) => c.id));
+        const newLegacy = legacyCats.filter(lc => !storedIds.has(lc.id));
+        return [...parsed, ...newLegacy];
+      }
     }
   } catch (e) {
     console.error('Error reading master catalogs:', e);
   }
-  return DEFAULT_MASTER_CATALOGS;
+  // Merge defaults with legacy catalogs
+  const legacyCats = getLegacyCatalogs();
+  const defaultIds = new Set(DEFAULT_MASTER_CATALOGS.map(c => c.id));
+  const newLegacy = legacyCats.filter(lc => !defaultIds.has(lc.id));
+  return [...DEFAULT_MASTER_CATALOGS, ...newLegacy];
 };
 
 export const saveMasterCatalogItem = (catalogId: string, item: { code: string; name: string; stateCode?: string }): MasterCatalog[] => {
