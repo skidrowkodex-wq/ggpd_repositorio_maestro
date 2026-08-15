@@ -4,7 +4,7 @@
  * SCRIPT MAESTRO DE APROVISIONAMIENTO Y GOBIERNO DE DATOS EN GOOGLE DRIVE
  * ==============================================================================
  * Archivo: google_apps_script_provisioner_2026.gs
- * Versión: 1.0.0 (Norma GGPD-SGM-INS-005 v3.0 ISO / ISO 8000-110)
+ * Versión: 2.0.0 (Optimizado con ejecución por lotes y reanudación automática)
  * Cuenta Oficial: bk.ggpd.corpoelec@gmail.com
  * Carpeta Raíz ID: 1mnnChue2IUqOh5Or99_v2LiJ3TaRJvy7
  * ==============================================================================
@@ -71,53 +71,71 @@ const PROCESOS_MAESTROS = [
   }
 ];
 
-const MESES = [
-  '01_ENERO', '02_FEBRERO', '03_MARZO', '04_ABRIL', '05_MAYO', '06_JUNIO',
-  '07_JULIO', '08_AGOSTO', '09_SEPTIEMBRE', '10_OCTUBRE', '11_NOVIEMBRE', '12_DICIEMBRE'
-];
-
 const ROOT_FOLDER_ID = '1mnnChue2IUqOh5Or99_v2LiJ3TaRJvy7';
 const YEAR = '2026';
 
 /**
  * ==============================================================================
- * FUNCIÓN PRINCIPAL DE APROVISIONAMIENTO (Ejecución 1-Click en Google Apps Script)
+ * OPCIÓN 1: CONTINUAR DESDE TÁCHIRA (ESTADOS 13 AL 25 + CONSOLIDADOS)
+ * Ejecutar esta función si la anterior se detuvo en Táchira
+ * ==============================================================================
+ */
+function provisionDataLakePart2_FromTachira() {
+  Logger.log('🔄 Reanudando aprovisionamiento desde el Estado 13 (Táchira) hasta el 25 (Guayana Esequiba)...');
+  return provisionStateRange(12, 25); // Índice 12 = 13_TAC (base 0)
+}
+
+/**
+ * ==============================================================================
+ * OPCIÓN 2: EJECUTAR PRIMERA PARTE (ESTADOS 01 AL 12)
+ * ==============================================================================
+ */
+function provisionDataLakePart1_DCA_to_Merida() {
+  Logger.log('🚀 Aprovisionando Lote 1: Distrito Capital a Mérida (01 al 12)...');
+  return provisionStateRange(0, 12);
+}
+
+/**
+ * ==============================================================================
+ * FUNCIÓN GLOBAL (EJECUTAR CON BOTÓN "EJECUTAR", NO CON "DEPURAR")
  * ==============================================================================
  */
 function provisionCompleteDataLake2026() {
-  Logger.log('🚀 Iniciando aprovisionamiento del Data Lake GGPD 2026 en Google Drive...');
-  
+  Logger.log('🚀 Iniciando aprovisionamiento completo del Data Lake GGPD 2026 en Google Drive...');
+  return provisionStateRange(0, SEN_ESTADOS.length);
+}
+
+/**
+ * Función interna de aprovisionamiento por rango
+ */
+function provisionStateRange(startIndex, endIndex) {
   let rootFolder;
   try {
     rootFolder = DriveApp.getFolderById(ROOT_FOLDER_ID);
   } catch (e) {
-    Logger.log('⚠️ No se encontró la carpeta raíz por ID, usando la raíz de la cuenta.');
+    Logger.log('⚠️ Usando carpeta raíz de la cuenta.');
     rootFolder = DriveApp.getRootFolder();
   }
   
-  // 1. Crear o recuperar la carpeta GGPD_DATA_LAKE_OFICIAL
   const dataLakeRoot = getOrCreateSubFolder(rootFolder, 'GGPD_DATA_LAKE_OFICIAL');
-  
-  // 2. Iterar los 25 estados de Venezuela
-  SEN_ESTADOS.forEach((estado, idx) => {
+  const targetEstados = SEN_ESTADOS.slice(startIndex, endIndex);
+
+  targetEstados.forEach((estado, idx) => {
+    const globalIdx = startIndex + idx + 1;
     const estadoFolderName = `${estado.code}_${estado.name}`;
-    Logger.log(`📁 [${idx + 1}/25] Procesando Estado: ${estadoFolderName}`);
+    Logger.log(`📁 [${globalIdx}/25] Procesando: ${estadoFolderName}`);
+    
     const estadoFolder = getOrCreateSubFolder(dataLakeRoot, estadoFolderName);
     
-    // Crear los 4 procesos dentro de cada estado
     PROCESOS_MAESTROS.forEach((proc) => {
       const procFolder = getOrCreateSubFolder(estadoFolder, proc.folderName);
-      
-      // Crear carpeta del Año
       const yearFolder = getOrCreateSubFolder(procFolder, YEAR);
+      getOrCreateSubFolder(yearFolder, '08_AGOSTO');
+      getOrCreateSubFolder(yearFolder, '09_SEPTIEMBRE');
       
-      // Crear carpeta del mes en curso y próximos meses
-      const mesActual = getOrCreateSubFolder(yearFolder, '08_AGOSTO');
-      const mesSiguiente = getOrCreateSubFolder(yearFolder, '09_SEPTIEMBRE');
-      
-      // Crear archivo README normativo si no existe
       const readmeName = `NORMA_NOMENCLATURA_${proc.prefix}.txt`;
-      if (!yearFolder.getFilesByName(readmeName).hasNext()) {
+      const files = yearFolder.getFilesByName(readmeName);
+      if (!files.hasNext()) {
         const readmeContent = 
 `==============================================================================
 CORPOELEC - GERENCIA GENERAL DE PLANIFICACIÓN DE DISTRIBUCIÓN (GGPD)
@@ -143,20 +161,20 @@ PLAZOS DE ENTREGA NORMATIVOS:
       }
     });
   });
-  
-  // 3. Crear Carpeta de Consolidados Nacionales
-  Logger.log('📊 Creando carpeta 99_CONSOLIDADOS_NACIONALES...');
-  const consolidadoFolder = getOrCreateSubFolder(dataLakeRoot, '99_CONSOLIDADOS_NACIONALES');
-  const consYearFolder = getOrCreateSubFolder(consolidadoFolder, YEAR);
-  getOrCreateSubFolder(consYearFolder, 'REPORTES_EJECUTIVOS_MPPEE');
-  getOrCreateSubFolder(consYearFolder, 'MATRICES_DEDUPLICADAS_ISO8000');
-  
-  Logger.log('✅ ¡Aprovisionamiento del Data Lake GGPD 2026 completado con éxito!');
+
+  // Si llegamos al final, asegurar la carpeta nacional
+  if (endIndex >= SEN_ESTADOS.length) {
+    Logger.log('📊 Creando carpeta 99_CONSOLIDADOS_NACIONALES...');
+    const consolidadoFolder = getOrCreateSubFolder(dataLakeRoot, '99_CONSOLIDADOS_NACIONALES');
+    const consYearFolder = getOrCreateSubFolder(consolidadoFolder, YEAR);
+    getOrCreateSubFolder(consYearFolder, 'REPORTES_EJECUTIVOS_MPPEE');
+    getOrCreateSubFolder(consYearFolder, 'MATRICES_DEDUPLICADAS_ISO8000');
+  }
+
+  Logger.log(`✅ ¡Lote (${startIndex + 1} al ${endIndex}) completado con éxito!`);
   return {
     status: 'SUCCESS',
-    mensaje: 'Data Lake SEN 2026 aprovisionado para los 25 Estados y 4 Procesos Maestros.',
-    totalEstados: SEN_ESTADOS.length,
-    totalProcesos: PROCESOS_MAESTROS.length,
+    mensaje: `Estados ${startIndex + 1} al ${endIndex} procesados correctamente.`,
     timestamp: new Date().toISOString()
   };
 }
@@ -167,7 +185,7 @@ PLAZOS DE ENTREGA NORMATIVOS:
  * ==============================================================================
  */
 function provisionNewProcess(processCode, processName, description) {
-  Logger.log(`⚡ Aprovisionando dinámicamente nuevo proceso: ${processCode}_${processName}`);
+  Logger.log(`⚡ Aprovisionando nuevo proceso: ${processCode}_${processName}`);
   
   let rootFolder = DriveApp.getFolderById(ROOT_FOLDER_ID);
   const dataLakeRoot = getOrCreateSubFolder(rootFolder, 'GGPD_DATA_LAKE_OFICIAL');
@@ -189,7 +207,7 @@ function provisionNewProcess(processCode, processName, description) {
 }
 
 /**
- * Función auxiliar para obtener o crear carpetas de forma segura
+ * Función auxiliar para obtener o crear carpetas de forma segura y rápida
  */
 function getOrCreateSubFolder(parentFolder, subFolderName) {
   const folders = parentFolder.getFoldersByName(subFolderName);
@@ -219,7 +237,6 @@ function doGet(e) {
     return ContentService.createTextOutput(JSON.stringify(res)).setMimeType(ContentService.MimeType.JSON);
   }
   
-  // Status por defecto
   const status = {
     status: "ONLINE",
     servicio: "CORPOELEC GGPD Google Drive Webhook & Data Lake Hub",
