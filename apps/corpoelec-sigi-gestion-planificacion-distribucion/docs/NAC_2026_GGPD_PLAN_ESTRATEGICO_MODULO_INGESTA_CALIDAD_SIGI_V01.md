@@ -150,7 +150,55 @@ $$OTQR = \left( \frac{\text{Registros Conformes a Tiempo}}{\text{Total Registros
 
 ---
 
-## 7. PLAN DE IMPLEMENTACIÓN Y FASES DE DESARROLLO
+## 7. ESTRATEGIA DE TRANSICIÓN Y "PUENTE INTELIGENTE" (REDIRECCIÓN ASISTIDA)
+
+Para evitar la resistencia al cambio y garantizar una adopción fluida sin fricción en los operadores estadales, la transición no se basará en un "bloqueo ciego", sino en un **Puente Inteligente Institucional**:
+
+1. **Banner de Redirección Asistida en Apps Satélites:**
+   * Al presionar "Cargar Datos" en SCTIS, SCEIN o SCPPE, la app desplegará una notificación moderna: *"La carga oficial del SEN ha sido centralizada y certificada en el SIGI bajo norma ISO 8000"*.
+   * Un botón directo `[Validar y Cargar en SIGI]` redirige al operador mediante **Deep-Link SSO**, pre-seleccionando automáticamente su estado y el proceso correspondiente sin requerir re-autenticación.
+2. **Separación de Responsabilidades:**
+   * **SIGI:** Ingesta masiva semanal/mensual, validación sintáctica ISO 8000, respaldo en Google Drive y tareas de remediación.
+   * **Apps Satélites:** Análisis de indicadores, mapas geográficos especializados y **edición fina de registros individuales** autorizados.
+3. **Interruptor de Contingencia (*Feature Flag*):**
+   * Variable `VITE_CENTRALIZED_INGESTION_ENABLED=true` que permite a la Gerencia General habilitar la carga de emergencia local en menos de 5 segundos ante cualquier eventualidad de red.
+
+---
+
+## 8. APROVISIONAMIENTO AUTOMATIZADO DE NUEVOS PROCESOS EN GOOGLE DRIVE (DYNAMIC PROVISIONING)
+
+El SIGI implementará un **Meta-Catálogo Dinámico de Procesos y Esquemas** (ej. *SC de Pica y Poda*, *SC de Desmalezamiento*, *SC de Transformadores Fallados*):
+
+```mermaid
+graph LR
+    A[Admin registra Nuevo Proceso en SIGI ej. SCPYP] --> B[Guarda JSON Schema y Reglas ISO]
+    B --> C[Dispara Webhook Google Apps Script]
+    C --> D[Crea carpetas 05_SCPYP en los 25 Estados en Google Drive en <3 seg]
+    D --> E[Renderiza automáticamente Tarjeta de Carga y Dashboards en SIGI]
+```
+
+### Capacidades del Aprovisionamiento Dinámico:
+1. **Creación Automática del Árbol en Google Drive:** Al registrar el código de proceso (ej. `SCPYP`), el webhook de Google Drive genera en lote las subcarpetas para los 25 estados (`/01_DCA/.../05_SCPYP_PICA_Y_PODA/2026/08_AGOSTO`) de forma inmediata.
+2. **Definición de Reglas de Negocio sin Código (No-Code Schemas):** El administrador define en un formulario visual las columnas requeridas (ej. Kms podados, Hectáreas desmalezadas, Capacidad KVA, Serial) y el validador ISO 8000 las aplica en caliente.
+3. **Zero-Downtime:** No requiere recompilar ni redesplegar la aplicación.
+
+---
+
+## 9. RECOMENDACIÓN ARQUITECTÓNICA: ¿APPS INDEPENDIENTES O MÓDULOS EN SIGI?
+
+### Veredicto y Recomendación de Especialistas:
+**RECOMENDAMOS EL MODELO HÍBRIDO "4 COLUMNAS ESTRATÉGICAS + MÓDULOS DINÁMICOS EN SIGI"**.
+
+| Criterio | Opción A: Crear 1 App Separada por cada Proceso (20+ Apps) | Opción B: Módulos Dinámicos Nativos en SIGI (Recomendada) |
+| :--- | :--- | :--- |
+| **Experiencia de Usuario** | Fragmentada ("Carnaval de URLs y Logins"). | **Unificada:** Un solo punto de acceso y control. |
+| **Mantenimiento Técnico** | Elevadísimo (20 servidores, 20 repositorios, 20 despliegues). | **Óptimo:** Un solo núcleo con dashboards configurables. |
+| **Velocidad de Salida (Time-to-Market)** | Semanas por cada proceso nuevo. | **Minutos:** Solo definir el esquema de datos y el proceso queda activo. |
+| **Escalabilidad Futura** | Difícil de gobernar. | Si un módulo crece y requiere simulación compleja (ej. topología GIS avanzada), se promueve a app satélite. |
+
+---
+
+## 10. PLAN DE IMPLEMENTACIÓN Y FASES DE DESARROLLO
 
 Para no interferir con el inicio programado de la fase de QA de las aplicaciones existentes, el desarrollo del Módulo de Ingesta Inteligente se estructurará en cuatro (4) sprints:
 
@@ -158,8 +206,8 @@ Para no interferir con el inicio programado de la fase de QA de las aplicaciones
 CRONOGRAMA DE IMPLEMENTACIÓN:
 Sprint 1: UI del Módulo de Carga en SIGI (Tarjetas por Proceso y Drag & Drop)
 Sprint 2: Motor de Validación Sintáctica ISO 8000 y Generador de Excel de Remediación
-Sprint 3: Integración Bidireccional con Google Drive y Creación Automática de Tareas SCMTP
-Sprint 4: Tablero de Desempeño Estadal (OTQR) y Conectores de Consumo en Apps Satélites
+Sprint 3: Integración Google Apps Script (Árbol 25 Estados) y Webhook de Tareas SCMTP
+Sprint 4: Aprovisionamiento Dinámico de Nuevos Procesos y Puentes Inteligentes en Apps Satélites
 ```
 
 | Fase | Entregable Principal | Duración |
@@ -167,11 +215,11 @@ Sprint 4: Tablero de Desempeño Estadal (OTQR) y Conectores de Consumo en Apps S
 | **Fase I: Interfaz & Schemas** | Componente `DataIngestionHub.tsx` en SIGI con validación de esquemas JSON/Excel. | 3 Días |
 | **Fase II: Motor de Calidad** | Separador Conforme/No Conforme + Exportador Excel de Remediación con columnas de error. | 4 Días |
 | **Fase III: Storage & Tareas** | Script Google Apps Script con estructura de 25 estados + Webhook de creación de tareas en SCMTP. | 3 Días |
-| **Fase IV: Auditoría & Telemetría** | Matriz de cumplimiento en vivo y consumo desde SCTIS, SCEIN, SCPPE. | 3 Días |
+| **Fase IV: Aprovisionamiento & Puentes** | Constructor de Nuevos Procesos + Banners de Redirección Inteligente en SCTIS/SCEIN/SCPPE. | 3 Días |
 
 ---
 
-## 8. CONCLUSIÓN Y RECOMENDACIÓN
+## 11. CONCLUSIÓN Y RECOMENDACIÓN
 
 La implementación de este módulo convierte al **SIGI en la aduana digital única y definitiva de CORPOELEC (GGPD)**, cerrando la brecha de errores humanos, estandarizando la calidad del dato antes de su almacenamiento y automatizando el seguimiento de compromisos a nivel territorial.
 
