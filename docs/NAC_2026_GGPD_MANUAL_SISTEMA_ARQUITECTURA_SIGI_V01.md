@@ -144,3 +144,20 @@ Las aplicaciones receptoras (`SCPPE V3.0`, `SCMTP V2.0`, `SCEIN V3.0`, `SCTIS V2
 * **Repositorio Maestro GGPD:** [`https://github.com/skidrowkodex-wq/ggpd_repositorio_maestro.git`](https://github.com/skidrowkodex-wq/ggpd_repositorio_maestro.git)
 * **Repositorio Standalone de Innovación:** [`https://github.com/distribucion-corpoelec-automatizacion/corpoelec-sigi-gestion-planificacion-distribucion.git`](https://github.com/distribucion-corpoelec-automatizacion/corpoelec-sigi-gestion-planificacion-distribucion.git)
 * **Autor Git Oficial:** `distribucion-corpoelec-automatizacion <ggpd.automatizacion.corpoelec@gmail.com>`
+
+---
+
+## 📱 8. ARQUITECTURA RESPONSIVA Y ERGONOMÍA MULTI-DISPOSITIVO
+
+La interfaz de usuario del SIGI incorpora un sistema de diseño adaptable de grado industrial optimizado para tres perfiles de pantalla:
+
+| Perfil de Dispositivo | Rango de Resolución | Dimensiones Logo CORPOELEC | Header / Navbar | Experiencia de Navegación |
+| :--- | :--- | :--- | :--- | :--- |
+| **Escritorio / PC** | `lg+` (1024px – 4K) | `h-5` (20px alto / 88px ancho max) | `h-16` con títulos completos | Sidebar fijo expandible + Mapas `520px` |
+| **Tablets** | `sm:` a `md:` (640px – 1023px) | `h-4` (16px alto / 70px ancho max) | `h-14` con título abreviado | Sidebar colapsable + Mapas `460px` |
+| **Smartphones Móviles** | `<sm` (320px – 639px) | `h-3.5` (14px alto / 50px ancho max) | `h-12` con SIGI/GGPD badges | Drawer lateral táctil + Bottom Nav fija (`pb-safe`) + Mapas `360px` |
+
+### Principios de Adaptabilidad Implementados:
+1. **Anclaje Inflexible de Controles (`shrink-0`):** Los botones de inicio de sesión, conmutador de tema y badges permanecen protegidos contra desbordamientos horizontales.
+2. **Safe-Area Insets para Móviles:** Soporte nativo para notch y barras de navegación por gestos en iOS y Android (`viewport-fit=cover`).
+3. **Mapas GIS Fluidos:** Los lienzos Leaflet de Subestaciones y Circuitos escalan su altura vertical para permitir desplazamiento natural por la pantalla del celular sin bloquear el scroll del usuario.
