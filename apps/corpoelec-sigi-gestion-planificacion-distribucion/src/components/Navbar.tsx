@@ -49,8 +49,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onClick={() => setActiveSection(session.role === 'VISOR_ESTADAL' ? 'dashboards' : 'apps')}
               >
                 {/* Official CORPOELEC Logo Card - Scaled elegantly for all screen sizes */}
-                <div className="h-7 sm:h-7.5 lg:h-8 px-2 sm:px-2.5 lg:px-3 py-0.5 sm:py-1 rounded-lg lg:rounded-xl bg-white border border-slate-200 dark:border-slate-700/80 shadow-2xs flex items-center justify-center shrink-0 group-hover:border-[#002b49] dark:group-hover:border-[#00f2fe]/60 transition-colors">
-                  <CorpoelecLogo className="h-3.5 sm:h-4 lg:h-5 w-auto max-w-[50px] sm:max-w-[70px] lg:max-w-[88px]" />
+                <div className="h-8 max-h-8 w-auto px-2 sm:px-2.5 py-1 rounded-lg bg-white border border-slate-200 dark:border-slate-700/80 shadow-2xs flex items-center justify-center shrink-0 overflow-hidden group-hover:border-[#002b49] dark:group-hover:border-[#00f2fe]/60 transition-colors">
+                  <CorpoelecLogo 
+                    className="h-4 sm:h-5 max-h-5 w-auto max-w-[65px] sm:max-w-[80px] object-contain" 
+                    style={{ maxHeight: '20px', maxWidth: '80px' }}
+                  />
                 </div>
 
                 {/* Vertical Separator */}
