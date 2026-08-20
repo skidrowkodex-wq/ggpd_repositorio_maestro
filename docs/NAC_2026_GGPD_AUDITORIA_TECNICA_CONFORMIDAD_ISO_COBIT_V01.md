@@ -6,7 +6,7 @@
 **FECHA DE AUDITORÍA:** 13 de Agosto de 2026  
 **ENTIDAD:** Corporación Eléctrica Nacional S.A. (CORPOELEC) — MPPEE  
 **DESPACHO RECEPTOR:** Gerencia General de Planificación de Distribución (GGPD)  
-**EQUIPO AUDITOR:** Yvan Ciprián | T.S.U. Josue Pacheco (Desarrollo & QA)  
+**EQUIPO AUDITOR:** Yvan Cipiran | T.S.U. Josue Pacheco (Desarrollo & QA)  
 **MOTOR DE AUDITORÍA AGÉNTICA:** Antigravity 2.0 — Google Gemini 3.7 Flash (High Thinking)  
 **ESTADO DE CONFORMIDAD:** **100% CUMPLIDO (Aprobación Nivel Industrial)**  
 
@@ -163,7 +163,7 @@ El sistema se encuentra **TÉCNICAMENTE APROBADO Y APTO PARA DESPLIEGUE OPERATIV
 ---
 
 **Elaborado y Certificado por:**  
-* **Yvan Ciprián** — Especialista en Sistemas / GGPD CORPOELEC  
+* **Yvan Cipiran** — Especialista en Sistemas / GGPD CORPOELEC  
 * **T.S.U. Josue Pacheco** — Especialista en Desarrollo & Tecnología / GGPD CORPOELEC  
 * *Asistencia técnica de auditoría: Plataforma **Google Antigravity 2.0** — Motor **Gemini 3.7 Flash (High Thinking)***  
 

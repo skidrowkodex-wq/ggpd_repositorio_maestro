@@ -1,105 +1,120 @@
 {% extends "base.html" %}
-{% block title %}Dashboard Multi-Perspectiva{% endblock %}
+{% block title %}Dashboard Multi-Perspectiva — SCTIS{% endblock %}
+{% block header_title %}Analítica & Monitoreo Multi-Perspectiva{% endblock %}
+
 {% block content %}
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.0.min.js"></script>
 
-<div class="mb-6">
-  <div class="flex items-center justify-between">
+<!-- Filter Toolbar Banner -->
+<div class="industrial-card p-4 sm:p-5 mb-6">
+  <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold text-blue-900 flex items-center gap-2">
-        <i class="fas fa-chart-line"></i> Dashboard Multi-Perspectiva
-      </h1>
-      <p class="text-sm text-gray-500 mt-1">Análisis integral de interrupciones — 4 visiones de experto</p>
+      <div class="flex items-center gap-2 mb-1">
+        <span class="text-[10px] font-mono font-bold uppercase bg-cyan-500/10 text-[#0284c7] dark:text-[#00f2fe] border border-cyan-500/30 px-2 py-0.5 rounded-md">
+          SCTIS ANALYTICS
+        </span>
+        <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">IEEE 1366 / ISO 8000</span>
+      </div>
+      <h2 class="text-lg sm:text-xl font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-2">
+        <i class="fas fa-chart-line text-[#00f2fe]"></i> Dashboard Multi-Perspectiva
+      </h2>
     </div>
-    <div class="flex gap-2">
-      <select id="filtro-estado" class="border rounded px-3 py-1.5 text-sm bg-white shadow-sm">
+    <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+      <select id="filtro-estado" class="industrial-input px-3 py-2 text-xs font-semibold flex-1 sm:flex-initial">
         <option value="">Todos los estados</option>
       </select>
-      <input type="date" id="filtro-desde" class="border rounded px-3 py-1.5 text-sm bg-white shadow-sm">
-      <input type="date" id="filtro-hasta" class="border rounded px-3 py-1.5 text-sm bg-white shadow-sm">
-      <button onclick="cargarDashboard()" class="bg-blue-900 text-white px-4 py-1.5 rounded text-sm hover:bg-blue-800 shadow-sm">
-        <i class="fas fa-sync-alt"></i> Actualizar
+      <input type="date" id="filtro-desde" class="industrial-input px-3 py-2 text-xs font-mono">
+      <input type="date" id="filtro-hasta" class="industrial-input px-3 py-2 text-xs font-mono">
+      <button onclick="cargarDashboard()" class="px-4 py-2 bg-gradient-to-r from-[#0033A0] to-[#0284c7] hover:to-[#00f2fe] text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center gap-2 border border-cyan-400/30">
+        <i class="fas fa-arrows-rotate"></i> Actualizar
       </button>
     </div>
   </div>
 </div>
 
 <!-- KPIs Principales -->
-<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8" id="kpis-container">
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8" id="kpis-container">
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════ -->
 <!-- SECCIÓN 1: INGENIERO ELÉCTRICO -->
 <!-- ═══════════════════════════════════════════════════════════ -->
 <div class="mb-8">
-  <div class="flex items-center gap-2 mb-4 border-l-4 border-yellow-500 pl-3">
-    <i class="fas fa-bolt text-yellow-500 text-xl"></i>
-    <h2 class="text-xl font-bold text-gray-800">Perspectiva del Ingeniero Eléctrico</h2>
-    <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full ml-2">Confiabilidad del Sistema</span>
+  <div class="flex items-center gap-2.5 mb-4 border-l-4 border-[#00f2fe] pl-3">
+    <div class="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center text-[#00f2fe]">
+      <i class="fas fa-bolt text-lg"></i>
+    </div>
+    <h2 class="text-base sm:text-lg font-black text-slate-800 dark:text-white tracking-tight">Perspectiva del Ingeniero Eléctrico</h2>
+    <span class="text-[10px] font-mono font-bold bg-cyan-500/10 text-[#0284c7] dark:text-[#00f2fe] border border-cyan-500/30 px-2 py-0.5 rounded-full ml-2">Confiabilidad del Sistema</span>
   </div>
+  
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <div class="bg-white rounded-lg shadow p-5">
+    <div class="industrial-card p-5">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="font-semibold text-gray-700 flex items-center gap-2">
-          <i class="fas fa-chart-pie text-yellow-500"></i> Interrupciones por Causa
+        <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+          <i class="fas fa-chart-pie text-[#00f2fe]"></i> Interrupciones por Causa
         </h3>
-        <button onclick="descargarChart('chartCausas', 'causas_interrupcion')" class="text-xs bg-yellow-50 text-yellow-700 px-3 py-1 rounded hover:bg-yellow-100 border border-yellow-200">
+        <button onclick="descargarChart('chartCausas', 'causas_interrupcion')" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-lg hover:text-[#00f2fe] border border-slate-200 dark:border-slate-700 transition">
           <i class="fas fa-download"></i>
         </button>
       </div>
       <canvas id="chartCausas" height="250"></canvas>
     </div>
-    <div class="bg-white rounded-lg shadow p-5">
+    
+    <div class="industrial-card p-5">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="font-semibold text-gray-700 flex items-center gap-2">
-          <i class="fas fa-chart-bar text-yellow-500"></i> Horas de Interrupción por Causa
+        <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+          <i class="fas fa-chart-simple text-[#00f2fe]"></i> Horas de Interrupción por Causa
         </h3>
-        <button onclick="descargarChart('chartCausasHoras', 'horas_por_causa')" class="text-xs bg-yellow-50 text-yellow-700 px-3 py-1 rounded hover:bg-yellow-100 border border-yellow-200">
+        <button onclick="descargarChart('chartCausasHoras', 'horas_por_causa')" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-lg hover:text-[#00f2fe] border border-slate-200 dark:border-slate-700 transition">
           <i class="fas fa-download"></i>
         </button>
       </div>
       <canvas id="chartCausasHoras" height="250"></canvas>
     </div>
   </div>
+  
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-    <div class="bg-white rounded-lg shadow p-5">
+    <div class="industrial-card p-5">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="font-semibold text-gray-700 flex items-center gap-2">
-          <i class="fas fa-chart-line text-yellow-500"></i> Tendencia Mensual
+        <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+          <i class="fas fa-chart-line text-[#00f2fe]"></i> Tendencia Mensual
         </h3>
-        <button onclick="descargarChart('chartTendencia', 'tendencia_mensual')" class="text-xs bg-yellow-50 text-yellow-700 px-3 py-1 rounded hover:bg-yellow-100 border border-yellow-200">
+        <button onclick="descargarChart('chartTendencia', 'tendencia_mensual')" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-lg hover:text-[#00f2fe] border border-slate-200 dark:border-slate-700 transition">
           <i class="fas fa-download"></i>
         </button>
       </div>
       <canvas id="chartTendencia" height="200"></canvas>
     </div>
-    <div class="bg-white rounded-lg shadow p-5">
+    
+    <div class="industrial-card p-5">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="font-semibold text-gray-700 flex items-center gap-2">
-          <i class="fas fa-layer-group text-yellow-500"></i> Distribución por Sistema
+        <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+          <i class="fas fa-layer-group text-[#00f2fe]"></i> Distribución por Sistema
         </h3>
-        <button onclick="descargarChart('chartSistema', 'distribucion_sistema')" class="text-xs bg-yellow-50 text-yellow-700 px-3 py-1 rounded hover:bg-yellow-100 border border-yellow-200">
+        <button onclick="descargarChart('chartSistema', 'distribucion_sistema')" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-lg hover:text-[#00f2fe] border border-slate-200 dark:border-slate-700 transition">
           <i class="fas fa-download"></i>
         </button>
       </div>
       <canvas id="chartSistema" height="200"></canvas>
     </div>
   </div>
+
   <!-- Sankey: Desglose de causas OTRAS -->
-  <div class="bg-white rounded-lg shadow p-5 mt-6">
+  <div class="industrial-card p-5 mt-6">
     <div class="flex items-center justify-between mb-3">
-      <h3 class="font-semibold text-gray-700 flex items-center gap-2">
-        <i class="fas fa-project-diagram text-yellow-500"></i> Desglose de Causas "OTRAS" — Flujo Homologada → Original
+      <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+        <i class="fas fa-diagram-project text-[#00f2fe]"></i> Desglose de Causas "OTRAS" — Flujo Homologada → Original
       </h3>
-      <button onclick="descargarPlotly('chartDesgloseOtras', 'desglose_otras')" class="text-xs bg-yellow-50 text-yellow-700 px-3 py-1 rounded hover:bg-yellow-100 border border-yellow-200">
-        <i class="fas fa-download mr-1"></i>Descargar PNG
+      <button onclick="descargarPlotly('chartDesgloseOtras', 'desglose_otras')" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-lg hover:text-[#00f2fe] border border-slate-200 dark:border-slate-700 transition">
+        <i class="fas fa-download mr-1"></i>PNG
       </button>
     </div>
     <div id="chartDesgloseOtras" style="width:100%;height:400px;"></div>
-    <p id="chartDesgloseOtras-empty" class="text-center text-gray-400 py-8 hidden">
-      <i class="fas fa-check-circle text-green-400 mr-1"></i>Todas las causas están perfectamente homologadas (sin "OTRAS").
+    <p id="chartDesgloseOtras-empty" class="text-center text-slate-400 py-8 hidden font-mono text-xs">
+      <i class="fas fa-circle-check text-emerald-400 mr-1"></i>Todas las causas están perfectamente homologadas (sin "OTRAS").
     </p>
   </div>
 </div>
@@ -108,71 +123,77 @@
 <!-- SECCIÓN 2: INGENIERO DE MANTENIMIENTO -->
 <!-- ═══════════════════════════════════════════════════════════ -->
 <div class="mb-8">
-  <div class="flex items-center gap-2 mb-4 border-l-4 border-red-500 pl-3">
-    <i class="fas fa-wrench text-red-500 text-xl"></i>
-    <h2 class="text-xl font-bold text-gray-800">Perspectiva del Ingeniero de Mantenimiento</h2>
-    <span class="text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded-full ml-2">Equipos y Subestaciones</span>
+  <div class="flex items-center gap-2.5 mb-4 border-l-4 border-rose-500 pl-3">
+    <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-500">
+      <i class="fas fa-wrench text-lg"></i>
+    </div>
+    <h2 class="text-base sm:text-lg font-black text-slate-800 dark:text-white tracking-tight">Perspectiva del Ingeniero de Mantenimiento</h2>
+    <span class="text-[10px] font-mono font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30 px-2 py-0.5 rounded-full ml-2">Equipos y Subestaciones</span>
   </div>
+  
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <div class="bg-white rounded-lg shadow p-5">
+    <div class="industrial-card p-5">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="font-semibold text-gray-700 flex items-center gap-2">
-          <i class="fas fa-exclamation-triangle text-red-500"></i> Circuitos Más Afectados
+        <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+          <i class="fas fa-triangle-exclamation text-rose-500"></i> Circuitos Más Afectados
         </h3>
-        <button onclick="descargarChart('chartCircuitos', 'circuitos_afectados')" class="text-xs bg-red-50 text-red-700 px-3 py-1 rounded hover:bg-red-100 border border-red-200">
+        <button onclick="descargarChart('chartCircuitos', 'circuitos_afectados')" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-lg hover:text-rose-400 border border-slate-200 dark:border-slate-700 transition">
           <i class="fas fa-download"></i>
         </button>
       </div>
       <canvas id="chartCircuitos" height="250"></canvas>
     </div>
-    <div class="bg-white rounded-lg shadow p-5">
+    
+    <div class="industrial-card p-5">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="font-semibold text-gray-700 flex items-center gap-2">
-          <i class="fas fa-industry text-red-500"></i> Subestaciones con Más Fallas
+        <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+          <i class="fas fa-industry text-rose-500"></i> Subestaciones con Más Fallas
         </h3>
-        <button onclick="descargarChart('chartSubestaciones', 'subestaciones_fallas')" class="text-xs bg-red-50 text-red-700 px-3 py-1 rounded hover:bg-red-100 border border-red-200">
+        <button onclick="descargarChart('chartSubestaciones', 'subestaciones_fallas')" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-lg hover:text-rose-400 border border-slate-200 dark:border-slate-700 transition">
           <i class="fas fa-download"></i>
         </button>
       </div>
       <canvas id="chartSubestaciones" height="250"></canvas>
     </div>
   </div>
+  
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-    <div class="bg-white rounded-lg shadow p-5">
-      <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
-        <i class="fas fa-clock text-red-500"></i> Top 5 Interrupciones Más Largas
+    <div class="industrial-card p-5 overflow-hidden">
+      <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
+        <i class="fas fa-clock text-rose-500"></i> Top 5 Interrupciones Más Largas
       </h3>
       <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="bg-red-50 text-red-800">
-              <th class="p-2 text-left">Fecha</th>
-              <th class="p-2 text-left">Estado</th>
-              <th class="p-2 text-left">Circuito</th>
-              <th class="p-2 text-left">Causa</th>
-              <th class="p-2 text-right">Horas</th>
+        <table class="w-full text-xs text-left table-industrial">
+          <thead class="bg-rose-500/10 text-rose-800 dark:text-rose-300 font-bold border-b border-rose-500/20">
+            <tr>
+              <th class="p-2.5">Fecha</th>
+              <th class="p-2.5">Estado</th>
+              <th class="p-2.5">Circuito</th>
+              <th class="p-2.5">Causa</th>
+              <th class="p-2.5 text-right">Horas</th>
             </tr>
           </thead>
-          <tbody id="tabla-top-largas"></tbody>
+          <tbody id="tabla-top-largas" class="divide-y divide-slate-100 dark:divide-slate-800 font-mono"></tbody>
         </table>
       </div>
     </div>
-    <div class="bg-white rounded-lg shadow p-5">
-      <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
-        <i class="fas fa-redo text-red-500"></i> Circuitos con Fallas Repetidas
-        <span class="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full">Alerta</span>
+    
+    <div class="industrial-card p-5 overflow-hidden">
+      <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
+        <i class="fas fa-arrows-rotate text-rose-500"></i> Circuitos con Fallas Repetidas
+        <span class="text-[10px] font-mono bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30 px-2 py-0.5 rounded-full">Alerta</span>
       </h3>
       <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="bg-red-50 text-red-800">
-              <th class="p-2 text-left">Circuito</th>
-              <th class="p-2 text-left">Estado</th>
-              <th class="p-2 text-right">Repeticiones</th>
-              <th class="p-2 text-left">Período</th>
+        <table class="w-full text-xs text-left table-industrial">
+          <thead class="bg-rose-500/10 text-rose-800 dark:text-rose-300 font-bold border-b border-rose-500/20">
+            <tr>
+              <th class="p-2.5">Circuito</th>
+              <th class="p-2.5">Estado</th>
+              <th class="p-2.5 text-right">Repeticiones</th>
+              <th class="p-2.5">Período</th>
             </tr>
           </thead>
-          <tbody id="tabla-repetidos"></tbody>
+          <tbody id="tabla-repetidos" class="divide-y divide-slate-100 dark:divide-slate-800 font-mono"></tbody>
         </table>
       </div>
     </div>
@@ -183,29 +204,32 @@
 <!-- SECCIÓN 3: PROJECT MANAGER -->
 <!-- ═══════════════════════════════════════════════════════════ -->
 <div class="mb-8">
-  <div class="flex items-center gap-2 mb-4 border-l-4 border-blue-500 pl-3">
-    <i class="fas fa-tasks text-blue-500 text-xl"></i>
-    <h2 class="text-xl font-bold text-gray-800">Perspectiva del Project Manager</h2>
-    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full ml-2">KPIs y Seguimiento</span>
+  <div class="flex items-center gap-2.5 mb-4 border-l-4 border-[#0284c7] pl-3">
+    <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-[#0284c7]">
+      <i class="fas fa-list-check text-lg"></i>
+    </div>
+    <h2 class="text-base sm:text-lg font-black text-slate-800 dark:text-white tracking-tight">Perspectiva del Project Manager</h2>
+    <span class="text-[10px] font-mono font-bold bg-blue-500/10 text-[#0033A0] dark:text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded-full ml-2">KPIs y Seguimiento</span>
   </div>
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <div class="bg-white rounded-lg shadow p-5">
+    <div class="industrial-card p-5">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="font-semibold text-gray-700 flex items-center gap-2">
-          <i class="fas fa-map-marked-alt text-blue-500"></i> Distribución por Estado
+        <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+          <i class="fas fa-map-location-dot text-[#0284c7]"></i> Distribución por Estado
         </h3>
-        <button onclick="descargarChart('chartEstados', 'distribucion_estados')" class="text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded hover:bg-blue-100 border border-blue-200">
+        <button onclick="descargarChart('chartEstados', 'distribucion_estados')" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-lg hover:text-[#0284c7] border border-slate-200 dark:border-slate-700 transition">
           <i class="fas fa-download"></i>
         </button>
       </div>
       <canvas id="chartEstados" height="250"></canvas>
     </div>
-    <div class="bg-white rounded-lg shadow p-5">
+    
+    <div class="industrial-card p-5">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="font-semibold text-gray-700 flex items-center gap-2">
-          <i class="fas fa-clock text-blue-500"></i> Patrón Horario de Interrupciones
+        <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+          <i class="fas fa-clock text-[#0284c7]"></i> Patrón Horario de Interrupciones
         </h3>
-        <button onclick="descargarChart('chartHorario', 'patron_horario')" class="text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded hover:bg-blue-100 border border-blue-200">
+        <button onclick="descargarChart('chartHorario', 'patron_horario')" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-lg hover:text-[#0284c7] border border-slate-200 dark:border-slate-700 transition">
           <i class="fas fa-download"></i>
         </button>
       </div>
@@ -218,31 +242,35 @@
 <!-- SECCIÓN 4: CIENTÍFICO DE DATOS -->
 <!-- ═══════════════════════════════════════════════════════════ -->
 <div class="mb-8">
-  <div class="flex items-center gap-2 mb-4 border-l-4 border-purple-500 pl-3">
-    <i class="fas fa-brain text-purple-500 text-xl"></i>
-    <h2 class="text-xl font-bold text-gray-800">Perspectiva del Científico de Datos</h2>
-    <span class="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full ml-2">Análisis y Anomalías</span>
+  <div class="flex items-center gap-2.5 mb-4 border-l-4 border-purple-500 pl-3">
+    <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-500">
+      <i class="fas fa-brain text-lg"></i>
+    </div>
+    <h2 class="text-base sm:text-lg font-black text-slate-800 dark:text-white tracking-tight">Perspectiva del Científico de Datos</h2>
+    <span class="text-[10px] font-mono font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/30 px-2 py-0.5 rounded-full ml-2">Análisis y Anomalías</span>
   </div>
+  
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <div class="bg-white rounded-lg shadow p-5">
+    <div class="industrial-card p-5">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="font-semibold text-gray-700 flex items-center gap-2">
+        <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
           <i class="fas fa-chart-area text-purple-500"></i> Calidad ISO 8000
         </h3>
-        <button onclick="descargarChart('chartCalidad', 'calidad_iso8000')" class="text-xs bg-purple-50 text-purple-700 px-3 py-1 rounded hover:bg-purple-100 border border-purple-200">
+        <button onclick="descargarChart('chartCalidad', 'calidad_iso8000')" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-lg hover:text-purple-400 border border-slate-200 dark:border-slate-700 transition">
           <i class="fas fa-download"></i>
         </button>
       </div>
       <div id="calidad-container" class="flex flex-col items-center">
         <canvas id="chartCalidad" width="250" height="250"></canvas>
-        <div id="calidad-leyenda" class="mt-3 text-sm text-gray-600"></div>
+        <div id="calidad-leyenda" class="mt-3 text-xs font-mono text-slate-500 dark:text-slate-400"></div>
       </div>
     </div>
-    <div class="bg-white rounded-lg shadow p-5">
-      <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+    
+    <div class="industrial-card p-5">
+      <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
         <i class="fas fa-database text-purple-500"></i> Integridad de Datos
       </h3>
-      <div class="space-y-3">
+      <div class="space-y-3 font-mono text-xs">
         <div id="alertas-calidad" class="space-y-2"></div>
         <div id="alertas-duplicados" class="space-y-2"></div>
       </div>
@@ -341,20 +369,23 @@ async function cargarDashboard() {
 function renderKPIs(k) {
   const container = document.getElementById('kpis-container');
   const kpis = [
-    { label: 'Total Interrupciones', value: k.total_interrupciones, icon: 'fa-bolt', color: 'blue' },
-    { label: 'Total Horas', value: parseFloat(k.total_horas).toFixed(1), icon: 'fa-clock', color: 'yellow' },
-    { label: 'Horas Promedio', value: parseFloat(k.horas_promedio).toFixed(2), icon: 'fa-stopwatch', color: 'red' },
-    { label: 'MW Afectados', value: parseFloat(k.total_mw).toFixed(1), icon: 'fa-chart-area', color: 'green' },
-    { label: 'Clientes Afectados', value: k.total_clientes_afectados, icon: 'fa-users', color: 'purple' },
+    { label: 'Total Interrupciones', value: k.total_interrupciones, icon: 'fa-bolt', color: '#00f2fe', bg: 'bg-cyan-500/10' },
+    { label: 'Total Horas Falla', value: parseFloat(k.total_horas).toFixed(1), icon: 'fa-clock', color: '#F2A900', bg: 'bg-amber-500/10' },
+    { label: 'Horas Promedio (TTR)', value: parseFloat(k.horas_promedio).toFixed(2), icon: 'fa-stopwatch', color: '#f43f5e', bg: 'bg-rose-500/10' },
+    { label: 'MW Afectados', value: parseFloat(k.total_mw).toFixed(1), icon: 'fa-chart-area', color: '#10b981', bg: 'bg-emerald-500/10' },
+    { label: 'Clientes Impactados', value: Number(k.total_clientes_afectados).toLocaleString('es-VE'), icon: 'fa-users', color: '#a855f7', bg: 'bg-purple-500/10' },
   ];
   container.innerHTML = kpis.map(kpi => `
-    <div class="bg-white rounded-lg shadow p-4 border-t-4 border-${kpi.color}-500">
-      <div class="flex items-center gap-3">
-        <i class="fas ${kpi.icon} text-${kpi.color}-500 text-2xl"></i>
-        <div>
-          <div class="text-2xl font-bold text-gray-800">${kpi.value}</div>
-          <div class="text-xs text-gray-500">${kpi.label}</div>
+    <div class="kpi-card p-4 transition-all">
+      <div class="flex items-center justify-between gap-2 mb-2">
+        <span class="text-[10px] font-mono uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider truncate">${kpi.label}</span>
+        <div class="w-7 h-7 rounded-lg ${kpi.bg} flex items-center justify-center text-xs flex-shrink-0" style="color: ${kpi.color};">
+          <i class="fas ${kpi.icon}"></i>
         </div>
+      </div>
+      <div class="text-xl sm:text-2xl font-black font-mono tracking-tight text-slate-900 dark:text-white mt-1">${kpi.value}</div>
+      <div class="h-0.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full mt-3 overflow-hidden">
+        <div class="h-full rounded-full" style="background-color: ${kpi.color}; width: 100%;"></div>
       </div>
     </div>
   `).join('');

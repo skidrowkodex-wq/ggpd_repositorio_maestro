@@ -24,31 +24,31 @@ export interface StateAssetGIS {
 
 // Catálogo Geográfico Consolidado con Origen de Datos (samc.activos_red)
 export const VENEZUELA_GIS_CATALOG: StateAssetGIS[] = [
-  { code: 'DC', name: 'Distrito Capital', lat: 10.4806, lng: -66.9036, substations: 85, circuits: 470, transmissionSE: 22, distributionSE: 63, circuits13kV: 360, circuits34kV: 110, origen_se_carac_se: 60, origen_se_carac_ct: 10, origen_se_tiras: 15, origen_ct_carac_ct: 454, origen_ct_tiras: 16 },
-  { code: 'ZUL', name: 'Zulia', lat: 10.6427, lng: -71.6125, substations: 95, circuits: 540, transmissionSE: 28, distributionSE: 67, circuits13kV: 410, circuits34kV: 130, origen_se_carac_se: 52, origen_se_carac_ct: 17, origen_se_tiras: 26, origen_ct_carac_ct: 509, origen_ct_tiras: 31 },
-  { code: 'MIR', name: 'Miranda', lat: 10.3444, lng: -67.0428, substations: 70, circuits: 430, transmissionSE: 18, distributionSE: 52, circuits13kV: 340, circuits34kV: 90, origen_se_carac_se: 38, origen_se_carac_ct: 12, origen_se_tiras: 20, origen_ct_carac_ct: 405, origen_ct_tiras: 25 },
-  { code: 'CAR', name: 'Carabobo', lat: 10.1620, lng: -68.0077, substations: 60, circuits: 330, transmissionSE: 16, distributionSE: 44, circuits13kV: 260, circuits34kV: 70, origen_se_carac_se: 33, origen_se_carac_ct: 10, origen_se_tiras: 17, origen_ct_carac_ct: 311, origen_ct_tiras: 19 },
-  { code: 'BOL', name: 'Bolívar', lat: 8.1200, lng: -63.5500, substations: 55, circuits: 280, transmissionSE: 20, distributionSE: 35, circuits13kV: 210, circuits34kV: 70, origen_se_carac_se: 30, origen_se_carac_ct: 10, origen_se_tiras: 15, origen_ct_carac_ct: 264, origen_ct_tiras: 16 },
-  { code: 'ARA', name: 'Aragua', lat: 10.2469, lng: -67.5958, substations: 42, circuits: 250, transmissionSE: 12, distributionSE: 30, circuits13kV: 200, circuits34kV: 50, origen_se_carac_se: 23, origen_se_carac_ct: 7, origen_se_tiras: 12, origen_ct_carac_ct: 235, origen_ct_tiras: 15 },
-  { code: 'LAR', name: 'Lara', lat: 10.0647, lng: -69.3570, substations: 38, circuits: 220, transmissionSE: 10, distributionSE: 28, circuits13kV: 170, circuits34kV: 50, origen_se_carac_se: 21, origen_se_carac_ct: 6, origen_se_tiras: 11, origen_ct_carac_ct: 207, origen_ct_tiras: 13 },
-  { code: 'ANZ', name: 'Anzoátegui', lat: 10.1360, lng: -64.6860, substations: 35, circuits: 200, transmissionSE: 10, distributionSE: 25, circuits13kV: 160, circuits34kV: 40, origen_se_carac_se: 19, origen_se_carac_ct: 6, origen_se_tiras: 10, origen_ct_carac_ct: 188, origen_ct_tiras: 12 },
-  { code: 'TAC', name: 'Táchira', lat: 7.7669, lng: -72.2250, substations: 30, circuits: 190, transmissionSE: 8, distributionSE: 22, circuits13kV: 150, circuits34kV: 40, origen_se_carac_se: 16, origen_se_carac_ct: 5, origen_se_tiras: 9, origen_ct_carac_ct: 179, origen_ct_tiras: 11 },
-  { code: 'FAL', name: 'Falcón', lat: 11.4045, lng: -69.6734, substations: 25, circuits: 170, transmissionSE: 6, distributionSE: 19, circuits13kV: 130, circuits34kV: 40, origen_se_carac_se: 13, origen_se_carac_ct: 4, origen_se_tiras: 8, origen_ct_carac_ct: 160, origen_ct_tiras: 10 },
-  { code: 'MER', name: 'Mérida', lat: 8.5983, lng: -71.1450, substations: 22, circuits: 160, transmissionSE: 6, distributionSE: 16, circuits13kV: 130, circuits34kV: 30, origen_se_carac_se: 12, origen_se_carac_ct: 4, origen_se_tiras: 6, origen_ct_carac_ct: 150, origen_ct_tiras: 10 },
-  { code: 'MON', name: 'Monagas', lat: 9.7469, lng: -63.1833, substations: 20, circuits: 150, transmissionSE: 6, distributionSE: 14, circuits13kV: 120, circuits34kV: 30, origen_se_carac_se: 11, origen_se_carac_ct: 3, origen_se_tiras: 6, origen_ct_carac_ct: 141, origen_ct_tiras: 9 },
-  { code: 'SUC', name: 'Sucre', lat: 10.4636, lng: -64.1775, substations: 19, circuits: 140, transmissionSE: 5, distributionSE: 14, circuits13kV: 110, circuits34kV: 30, origen_se_carac_se: 10, origen_se_carac_ct: 3, origen_se_tiras: 6, origen_ct_carac_ct: 132, origen_ct_tiras: 8 },
-  { code: 'NES', name: 'Nueva Esparta', lat: 10.9575, lng: -63.8697, substations: 18, circuits: 120, transmissionSE: 4, distributionSE: 14, circuits13kV: 100, circuits34kV: 20, origen_se_carac_se: 9, origen_se_carac_ct: 3, origen_se_tiras: 6, origen_ct_carac_ct: 113, origen_ct_tiras: 7 },
-  { code: 'BAR', name: 'Barinas', lat: 8.6226, lng: -70.2075, substations: 18, circuits: 125, transmissionSE: 5, distributionSE: 13, circuits13kV: 100, circuits34kV: 25, origen_se_carac_se: 9, origen_se_carac_ct: 3, origen_se_tiras: 6, origen_ct_carac_ct: 117, origen_ct_tiras: 8 },
-  { code: 'TRU', name: 'Trujillo', lat: 9.3708, lng: -70.4347, substations: 17, circuits: 115, transmissionSE: 4, distributionSE: 13, circuits13kV: 95, circuits34kV: 20, origen_se_carac_se: 9, origen_se_carac_ct: 3, origen_se_tiras: 5, origen_ct_carac_ct: 108, origen_ct_tiras: 7 },
-  { code: 'POR', name: 'Portuguesa', lat: 9.0418, lng: -69.7421, substations: 16, circuits: 110, transmissionSE: 4, distributionSE: 12, circuits13kV: 90, circuits34kV: 20, origen_se_carac_se: 8, origen_se_carac_ct: 3, origen_se_tiras: 5, origen_ct_carac_ct: 103, origen_ct_tiras: 7 },
-  { code: 'YAR', name: 'Yaracuy', lat: 10.3394, lng: -68.7425, substations: 15, circuits: 100, transmissionSE: 4, distributionSE: 11, circuits13kV: 85, circuits34kV: 15, origen_se_carac_se: 8, origen_se_carac_ct: 2, origen_se_tiras: 5, origen_ct_carac_ct: 94, origen_ct_tiras: 6 },
-  { code: 'GUA', name: 'Guárico', lat: 9.9115, lng: -67.3538, substations: 15, circuits: 105, transmissionSE: 4, distributionSE: 11, circuits13kV: 85, circuits34kV: 20, origen_se_carac_se: 8, origen_se_carac_ct: 2, origen_se_tiras: 5, origen_ct_carac_ct: 99, origen_ct_tiras: 6 },
-  { code: 'LAG', name: 'La Guaira', lat: 10.6010, lng: -66.9324, substations: 14, circuits: 95, transmissionSE: 4, distributionSE: 10, circuits13kV: 75, circuits34kV: 20, origen_se_carac_se: 7, origen_se_carac_ct: 2, origen_se_tiras: 5, origen_ct_carac_ct: 89, origen_ct_tiras: 6 },
-  { code: 'APU', name: 'Apure', lat: 7.8878, lng: -67.4724, substations: 12, circuits: 80, transmissionSE: 3, distributionSE: 9, circuits13kV: 65, circuits34kV: 15, origen_se_carac_se: 6, origen_se_carac_ct: 2, origen_se_tiras: 4, origen_ct_carac_ct: 75, origen_ct_tiras: 5 },
-  { code: 'COJ', name: 'Cojedes', lat: 9.6612, lng: -68.5827, substations: 10, circuits: 70, transmissionSE: 3, distributionSE: 7, circuits13kV: 55, circuits34kV: 15, origen_se_carac_se: 5, origen_se_carac_ct: 2, origen_se_tiras: 3, origen_ct_carac_ct: 66, origen_ct_tiras: 4 },
-  { code: 'ESE', name: 'Guayana Esequiba 🇻🇪', lat: 6.8000, lng: -59.8000, substations: 8, circuits: 50, transmissionSE: 2, distributionSE: 6, circuits13kV: 40, circuits34kV: 10, origen_se_carac_se: 4, origen_se_carac_ct: 1, origen_se_tiras: 3, origen_ct_carac_ct: 47, origen_ct_tiras: 3 },
-  { code: 'DEL', name: 'Delta Amacuro', lat: 9.0620, lng: -62.0538, substations: 5, circuits: 40, transmissionSE: 1, distributionSE: 4, circuits13kV: 35, circuits34kV: 5, origen_se_carac_se: 2, origen_se_carac_ct: 1, origen_se_tiras: 2, origen_ct_carac_ct: 37, origen_ct_tiras: 3 },
-  { code: 'AMA', name: 'Amazonas', lat: 5.6639, lng: -67.6236, substations: 4, circuits: 30, transmissionSE: 1, distributionSE: 3, circuits13kV: 25, circuits34kV: 5, origen_se_carac_se: 2, origen_se_carac_ct: 0, origen_se_tiras: 2, origen_ct_carac_ct: 28, origen_ct_tiras: 2 },
+  { code: 'DC', name: 'Distrito Capital', lat: 10.4806, lng: -66.9036, substations: 110, circuits: 873, transmissionSE: 49, distributionSE: 61, circuits13kV: 797, circuits34kV: 76, origen_se_carac_se: 61, origen_se_carac_ct: 49, origen_se_tiras: 0, origen_ct_carac_ct: 873, origen_ct_tiras: 0 }, 
+  { code: 'ZUL', name: 'Zulia', lat: 10.6427, lng: -71.6125, substations: 94, circuits: 391, transmissionSE: 75, distributionSE: 19, circuits13kV: 180, circuits34kV: 211, origen_se_carac_se: 19, origen_se_carac_ct: 75, origen_se_tiras: 0, origen_ct_carac_ct: 391, origen_ct_tiras: 0 }, 
+  { code: 'CAR', name: 'Carabobo', lat: 10.162, lng: -68.0077, substations: 52, circuits: 327, transmissionSE: 31, distributionSE: 21, circuits13kV: 289, circuits34kV: 38, origen_se_carac_se: 21, origen_se_carac_ct: 31, origen_se_tiras: 0, origen_ct_carac_ct: 327, origen_ct_tiras: 0 }, 
+  { code: 'ANZ', name: 'Anzoátegui', lat: 10.136, lng: -64.686, substations: 58, circuits: 266, transmissionSE: 32, distributionSE: 26, circuits13kV: 236, circuits34kV: 30, origen_se_carac_se: 25, origen_se_carac_ct: 33, origen_se_tiras: 0, origen_ct_carac_ct: 266, origen_ct_tiras: 0 }, 
+  { code: 'MIR', name: 'Miranda', lat: 10.3444, lng: -67.0428, substations: 47, circuits: 241, transmissionSE: 27, distributionSE: 20, circuits13kV: 216, circuits34kV: 25, origen_se_carac_se: 20, origen_se_carac_ct: 27, origen_se_tiras: 0, origen_ct_carac_ct: 241, origen_ct_tiras: 0 }, 
+  { code: 'BOL', name: 'Bolívar', lat: 8.12, lng: -63.55, substations: 75, circuits: 213, transmissionSE: 42, distributionSE: 33, circuits13kV: 212, circuits34kV: 1, origen_se_carac_se: 33, origen_se_carac_ct: 42, origen_se_tiras: 0, origen_ct_carac_ct: 213, origen_ct_tiras: 0 }, 
+  { code: 'ARA', name: 'Aragua', lat: 10.2469, lng: -67.5958, substations: 31, circuits: 206, transmissionSE: 22, distributionSE: 9, circuits13kV: 199, circuits34kV: 7, origen_se_carac_se: 9, origen_se_carac_ct: 22, origen_se_tiras: 0, origen_ct_carac_ct: 206, origen_ct_tiras: 0 }, 
+  { code: 'MON', name: 'Monagas', lat: 9.7469, lng: -63.1833, substations: 44, circuits: 159, transmissionSE: 20, distributionSE: 24, circuits13kV: 132, circuits34kV: 27, origen_se_carac_se: 24, origen_se_carac_ct: 20, origen_se_tiras: 0, origen_ct_carac_ct: 159, origen_ct_tiras: 0 }, 
+  { code: 'TAC', name: 'Táchira', lat: 7.7669, lng: -72.225, substations: 38, circuits: 156, transmissionSE: 12, distributionSE: 26, circuits13kV: 136, circuits34kV: 20, origen_se_carac_se: 26, origen_se_carac_ct: 12, origen_se_tiras: 0, origen_ct_carac_ct: 156, origen_ct_tiras: 0 }, 
+  { code: 'FAL', name: 'Falcón', lat: 11.4045, lng: -69.6734, substations: 38, circuits: 154, transmissionSE: 15, distributionSE: 23, circuits13kV: 125, circuits34kV: 29, origen_se_carac_se: 23, origen_se_carac_ct: 15, origen_se_tiras: 0, origen_ct_carac_ct: 154, origen_ct_tiras: 0 }, 
+  { code: 'POR', name: 'Portuguesa', lat: 9.0418, lng: -69.7421, substations: 24, circuits: 133, transmissionSE: 12, distributionSE: 12, circuits13kV: 115, circuits34kV: 18, origen_se_carac_se: 12, origen_se_carac_ct: 12, origen_se_tiras: 0, origen_ct_carac_ct: 133, origen_ct_tiras: 0 }, 
+  { code: 'SUC', name: 'Sucre', lat: 10.4636, lng: -64.1775, substations: 36, circuits: 120, transmissionSE: 16, distributionSE: 20, circuits13kV: 108, circuits34kV: 12, origen_se_carac_se: 20, origen_se_carac_ct: 16, origen_se_tiras: 0, origen_ct_carac_ct: 120, origen_ct_tiras: 0 }, 
+  { code: 'NES', name: 'Nueva Esparta', lat: 10.9575, lng: -63.8697, substations: 15, circuits: 119, transmissionSE: 7, distributionSE: 8, circuits13kV: 119, circuits34kV: 0, origen_se_carac_se: 8, origen_se_carac_ct: 7, origen_se_tiras: 0, origen_ct_carac_ct: 119, origen_ct_tiras: 0 }, 
+  { code: 'GUA', name: 'Guárico', lat: 9.9115, lng: -67.3538, substations: 30, circuits: 113, transmissionSE: 12, distributionSE: 18, circuits13kV: 94, circuits34kV: 19, origen_se_carac_se: 18, origen_se_carac_ct: 12, origen_se_tiras: 0, origen_ct_carac_ct: 113, origen_ct_tiras: 0 }, 
+  { code: 'TRU', name: 'Trujillo', lat: 9.3708, lng: -70.4347, substations: 23, circuits: 110, transmissionSE: 6, distributionSE: 17, circuits13kV: 98, circuits34kV: 12, origen_se_carac_se: 17, origen_se_carac_ct: 6, origen_se_tiras: 0, origen_ct_carac_ct: 110, origen_ct_tiras: 0 }, 
+  { code: 'APU', name: 'Apure', lat: 7.8878, lng: -67.4724, substations: 24, circuits: 107, transmissionSE: 8, distributionSE: 16, circuits13kV: 87, circuits34kV: 20, origen_se_carac_se: 16, origen_se_carac_ct: 8, origen_se_tiras: 0, origen_ct_carac_ct: 107, origen_ct_tiras: 0 }, 
+  { code: 'BAR', name: 'Barinas', lat: 8.6226, lng: -70.2075, substations: 24, circuits: 106, transmissionSE: 13, distributionSE: 11, circuits13kV: 93, circuits34kV: 13, origen_se_carac_se: 11, origen_se_carac_ct: 13, origen_se_tiras: 0, origen_ct_carac_ct: 106, origen_ct_tiras: 0 }, 
+  { code: 'LAR', name: 'Lara', lat: 10.0647, lng: -69.357, substations: 29, circuits: 101, transmissionSE: 15, distributionSE: 14, circuits13kV: 37, circuits34kV: 64, origen_se_carac_se: 13, origen_se_carac_ct: 16, origen_se_tiras: 0, origen_ct_carac_ct: 101, origen_ct_tiras: 0 }, 
+  { code: 'MER', name: 'Mérida', lat: 8.5983, lng: -71.145, substations: 29, circuits: 94, transmissionSE: 11, distributionSE: 18, circuits13kV: 82, circuits34kV: 12, origen_se_carac_se: 18, origen_se_carac_ct: 11, origen_se_tiras: 0, origen_ct_carac_ct: 94, origen_ct_tiras: 0 }, 
+  { code: 'LAG', name: 'La Guaira', lat: 10.601, lng: -66.9324, substations: 21, circuits: 71, transmissionSE: 10, distributionSE: 11, circuits13kV: 67, circuits34kV: 4, origen_se_carac_se: 11, origen_se_carac_ct: 10, origen_se_tiras: 0, origen_ct_carac_ct: 71, origen_ct_tiras: 0 }, 
+  { code: 'YAR', name: 'Yaracuy', lat: 10.3394, lng: -68.7425, substations: 11, circuits: 57, transmissionSE: 10, distributionSE: 1, circuits13kV: 54, circuits34kV: 3, origen_se_carac_se: 1, origen_se_carac_ct: 10, origen_se_tiras: 0, origen_ct_carac_ct: 57, origen_ct_tiras: 0 }, 
+  { code: 'COJ', name: 'Cojedes', lat: 9.6612, lng: -68.5827, substations: 13, circuits: 53, transmissionSE: 4, distributionSE: 9, circuits13kV: 45, circuits34kV: 8, origen_se_carac_se: 8, origen_se_carac_ct: 5, origen_se_tiras: 0, origen_ct_carac_ct: 53, origen_ct_tiras: 0 }, 
+  { code: 'DEL', name: 'Delta Amacuro', lat: 9.062, lng: -62.0538, substations: 3, circuits: 19, transmissionSE: 1, distributionSE: 2, circuits13kV: 16, circuits34kV: 3, origen_se_carac_se: 2, origen_se_carac_ct: 1, origen_se_tiras: 0, origen_ct_carac_ct: 19, origen_ct_tiras: 0 }, 
+  { code: 'AMA', name: 'Amazonas', lat: 5.6639, lng: -67.6236, substations: 2, circuits: 18, transmissionSE: 1, distributionSE: 1, circuits13kV: 17, circuits34kV: 1, origen_se_carac_se: 1, origen_se_carac_ct: 1, origen_se_tiras: 0, origen_ct_carac_ct: 18, origen_ct_tiras: 0 }, 
+  { code: 'ESE', name: 'Guayana Esequiba 🇻🇪', lat: 6.8000, lng: -59.8000, substations: 8, circuits: 50, transmissionSE: 2, distributionSE: 6, circuits13kV: 40, circuits34kV: 10, origen_se_carac_se: 6, origen_se_carac_ct: 2, origen_se_tiras: 0, origen_ct_carac_ct: 50, origen_ct_tiras: 0 },
 ];
 
 export const AssetsMapDashboard: React.FC = () => {
@@ -494,44 +494,69 @@ export const AssetsMapDashboard: React.FC = () => {
           </div>
 
           {/* Circuitos Filter Pill Buttons */}
-          <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 dark:bg-[#081427] p-1.5 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-inner">
-            <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 px-2 flex items-center space-x-1">
-              <Filter className="h-3 w-3" />
-              <span>Filtro Tensión:</span>
-            </span>
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 dark:bg-[#081427] p-1.5 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-inner">
+              <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 px-2 flex items-center space-x-1">
+                <Filter className="h-3 w-3" />
+                <span>Filtro Tensión:</span>
+              </span>
 
-            <button
-              onClick={() => setFilterCT('ALL')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
-                filterCT === 'ALL'
-                  ? 'bg-cyan-600 text-white shadow-md'
-                  : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              Todos los CT ({totalCircuitsAll.toLocaleString()})
-            </button>
+              <button
+                onClick={() => setFilterCT('ALL')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
+                  filterCT === 'ALL'
+                    ? 'bg-cyan-600 text-white shadow-md'
+                    : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                Todos los CT ({totalCircuitsAll.toLocaleString()})
+              </button>
 
-            <button
-              onClick={() => setFilterCT('13.8KV')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
-                filterCT === '13.8KV'
-                  ? 'bg-sky-500 text-white shadow-md'
-                  : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              MT 13.8 kV ({totalCircuits13All.toLocaleString()})
-            </button>
+              <button
+                onClick={() => setFilterCT('13.8KV')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
+                  filterCT === '13.8KV'
+                    ? 'bg-sky-500 text-white shadow-md'
+                    : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                MT 13.8 kV ({totalCircuits13All.toLocaleString()})
+              </button>
 
-            <button
-              onClick={() => setFilterCT('34.5KV')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
-                filterCT === '34.5KV'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              MT 34.5 kV ({totalCircuits34All.toLocaleString()})
-            </button>
+              <button
+                onClick={() => setFilterCT('34.5KV')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
+                  filterCT === '34.5KV'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                MT 34.5 kV ({totalCircuits34All.toLocaleString()})
+              </button>
+            </div>
+
+            {/* Sub-filtro Especialista: Norma NS-P-105 CADAFE / EDELCA */}
+            <div className="flex flex-wrap items-center gap-1.5 bg-cyan-950/30 p-1.5 rounded-2xl border border-cyan-500/30">
+              <span className="text-[9px] font-mono font-bold text-cyan-300 px-2 uppercase flex items-center space-x-1">
+                <ShieldCheck className="h-3 w-3 text-cyan-400" />
+                <span>Norma NS-P-105 (Especialistas):</span>
+              </span>
+              <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-cyan-500/20 text-cyan-200 border border-cyan-500/40">
+                ⚡ 4,022 Alimentadores
+              </span>
+              <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                🔌 140 Seccionadores (S)
+              </span>
+              <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                ⚡ 10 Barras (B)
+              </span>
+              <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                🔗 9 Líneas MT (L)
+              </span>
+              <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-slate-500/20 text-slate-300 border border-slate-500/40">
+                🔒 25 Reservas
+              </span>
+            </div>
           </div>
 
         </div>
@@ -547,7 +572,7 @@ export const AssetsMapDashboard: React.FC = () => {
           <div className="flex items-center space-x-4">
             <span>Total Filtrado: <strong className="text-base font-black font-mono">{filteredCircuitsCount.toLocaleString()}</strong> CTs</span>
             <span className="text-[10px] font-mono bg-cyan-200 text-cyan-900 dark:bg-cyan-900/60 dark:text-cyan-200 px-2 py-0.5 rounded">
-              📌 Origen: samc.activos_red (Caracterización CT)
+              📌 Origen: samc.activos_red (Norma CADAFE NS-P-105)
             </span>
           </div>
         </div>

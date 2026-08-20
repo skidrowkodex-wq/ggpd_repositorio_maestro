@@ -4,7 +4,7 @@
 **CÓDIGO INSTRUCTIVO INSTITUCIONAL:** GGPD-SGM-INS-005 (v3.0 ISO)  
 **FECHA DE EMISIÓN:** 14 de Agosto de 2026  
 **PARA:** Gerente General de Distribución | Coordinadores Estadales de Planificación | Salas Situacionales Regionales  
-**DE:** Área de Innovación, Tecnología y Gobernanza de Datos (GGPD)  
+**DE:** Equipo de Automatización e Ingeniería de Productos con IA, de Planificación de Distribución  
 **ASUNTO:** Asignación controlada de credenciales, patrón de contraseñas y marco de gobernanza para las 25 Cuentas Estadales (Visor Ejecutivo KGI/KPI) en el Sistema Integral de Gestión de Información (SIGI).
 
 ---
@@ -117,6 +117,6 @@ $$\text{Formato: } \mathbf{[NombreEstadoSinAcentos]2026!.} \quad \text{o} \quad 
 
 **Atentamente,**
 
-**Área de Innovación, Tecnología y Gobernanza de Datos**  
+**Equipo de Automatización e Ingeniería de Productos con IA, de Planificación de Distribución**  
 Gerencia General de Planificación de Distribución (GGPD) — CORPOELEC  
 *Norma de Documentación Institucional GGPD-SGM-INS-005 (v3.0 ISO)*

@@ -45,7 +45,7 @@ body {
 <strong>ENTIDAD:</strong> Corporación Eléctrica Nacional S.A. (CORPOELEC) — Ministerio del Poder Popular para la Energía Eléctrica (MPPEE)  
 <strong>DESPACHO DESTINO:</strong> Gerencia General de Distribución  
 <strong>DIRIGIDO A:</strong> Ing. Adrian Correa | Ing. Carlos Reyes  
-<strong>ELABORADO Y GENERADO POR:</strong> Yvan Ciprián | T.S.U. Josue Pacheco  
+<strong>ELABORADO Y GENERADO POR:</strong> Yvan Cipiran | T.S.U. Josue Pacheco  
 <strong>PLATAFORMA Y MODELO DE IA:</strong> Antigravity Platform — Google Gemini 3.6 Flash (High)  
 <strong>ALCANCE DEL SISTEMA:</strong> Consolidado Nacional — Las 4 Aplicaciones del Repositorio Maestro de Distribución  
   1. <code style="font-family:Consolas, Courier New, monospace; font-size:8.5pt; background-color:#E2E8F0; padding:1pt 3pt; color:#0F172A; border-radius:2pt;">corpoelec<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" />gestor-de-tareas-y-minutas</code> (SGTA - AI Studio Google)  
@@ -126,7 +126,7 @@ body {
 </div>
 <ul style="margin:4pt 0 8pt 18pt; padding:0;"><li style="margin-bottom:2pt; color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:10pt;"><strong>Impacto:</strong> Reducción del ciclo global de desarrollo e integración de <strong>6 meses a menos de 72 horas</strong>, con cumplimiento del 100% de los criterios de calidad y auditoría institucionales.</li></ul>
 <hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" />
-<p style="font-family:Calibri, Arial, sans-serif; font-size:10.5pt; line-height:1.35; color:#1E293B; margin:3pt 0 6pt 0;"><strong>Elaborado y Auditado por:</strong> Yvan Ciprián y T.S.U. Josue Pacheco (vía Antigravity Platform — Google Gemini 3.6 Flash)  <br/><strong>Revisado y Destinado a:</strong> Ing. Adrian Correa | Ing. Carlos Reyes (Gerencia General de Distribución — CORPOELEC)  <br/><strong>Control Normativo:</strong> GGPD-SGM-INS-005 v3.0 ISO | Fecha: 10 de Agosto de 2026</p>
+<p style="font-family:Calibri, Arial, sans-serif; font-size:10.5pt; line-height:1.35; color:#1E293B; margin:3pt 0 6pt 0;"><strong>Elaborado y Auditado por:</strong> Yvan Cipiran y T.S.U. Josue Pacheco (vía Antigravity Platform — Google Gemini 3.6 Flash)  <br/><strong>Revisado y Destinado a:</strong> Ing. Adrian Correa | Ing. Carlos Reyes (Gerencia General de Distribución — CORPOELEC)  <br/><strong>Control Normativo:</strong> GGPD-SGM-INS-005 v3.0 ISO | Fecha: 10 de Agosto de 2026</p>
 </div>
 </body>
 </html>

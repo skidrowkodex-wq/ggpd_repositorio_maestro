@@ -170,8 +170,9 @@ def crear_interrupcion():
         data['despachador_id'] = desp_id
         data['despachador'] = normalizar_nombre(nombre_desp)
 
-    if not data.get('fecha_falla') and data.get('fecha_inicio'):
-        data['fecha_falla'] = str(data['fecha_inicio'])[:10]
+    # Aplicar regla universal de extracción y reformato de fecha y hora
+    from app.import_routes import normalizar_y_extraer_registro
+    normalizar_y_extraer_registro(data)
 
     cols = ['estado_codigo','fecha_falla','sistema','subestacion','subestacion_id',
             'circuito','circuito_id','jefatura','fecha_inicio','fecha_fin',
@@ -214,6 +215,10 @@ def actualizar_interrupcion(tira_id):
 
     data['subestacion'] = subestacion_nombre
     data['circuito'] = circuito_nombre
+
+    # Aplicar regla universal de extracción y reformato de fecha y hora
+    from app.import_routes import normalizar_y_extraer_registro
+    normalizar_y_extraer_registro(data)
 
     sql = """
         UPDATE sctis.tira_interrupcion SET
