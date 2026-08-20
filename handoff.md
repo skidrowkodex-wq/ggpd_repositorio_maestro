@@ -205,13 +205,20 @@ Todos los microservicios y el portal central se encuentran **activos y respondie
     - **Sincronización de Frontend SIGI Distribución:**
       - Actualizado [`masterCatalogsLegacy.json`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/src/data/masterCatalogsLegacy.json) y [`AssetsMapDashboard.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/src/components/dashboards/AssetsMapDashboard.tsx) con las estadísticas exactas por estado.
       - Validación de compilación exitosa (`npm run build` con código 0 y 0 errores).
+13. **Motor Universal de Pre-Procesamiento e Ingesta Inteligente en SIGI (ISO 8000-110):**
+    - **Homologación de Lógica SCTIS v2.0 $\to$ SIGI:**
+      - **Detección Dinámica de Cabeceras (`detectHeaderRowAndMapColumns`):** Escaneo hasta la fila 25 para tolerar membretes institucionales, logos y filas combinadas.
+      - **Selección Inteligente de Hoja (`detectBestWorksheet`):** Detección y selección automática de hojas operativas en libros multi-hoja (`DISTRIBUCION`, `TIRAS`, `EVENTOS`, etc.), ignorando portadas vacías.
+      - **Diccionario Universal de Sinónimos (`UNIVERSAL_COLUMN_SYNONYMS`):** Mapeo automático de variaciones estadales (`S/E` $\to$ `SUBESTACION`, `ALIMENTADOR` $\to$ `CIRCUITO`, `EDO` $\to$ `COD_ESTADO`, `MW` $\to$ `MW_INTERRUMPIDOS`, `POA` $\to$ `COD_PROYECTO`, `HA` $\to$ `HECTAREAS`, etc.) para los 7 macro-procesos.
+      - **Sanitización Universal de Datos (`sanitizeNumberValue` & `sanitizeDateOrTimeString`):** Limpieza de comas en horas (`08,:54:00,` $\to$ `08:54:00`), formato de moneda (`Bs.`, `$`, `%`, comas decimales) y fechas ISO.
     - **Despliegue y Sincronización GitHub / Vercel:**
-      - Publicado con éxito en `origin/main` (`ggpd_repositorio_maestro` — commit `8274fa8`).
-      - Publicado con éxito vía `git subtree` en `github-innovacion/main` (`corpoelec-sigi-gestion-planificacion-distribucion` — commit `d1ed3fb`), activando el despliegue automático en **Vercel**.
+      - Publicado con éxito en `origin/main` (`ggpd_repositorio_maestro` — commit `cd420fe`).
+      - Publicado con éxito vía `git subtree` en `github-innovacion/main` (`corpoelec-sigi-gestion-planificacion-distribucion` — commit `8550e44`), activando el despliegue automático en **Vercel**.
 
 ---
 
 ## 📋 6. Tareas Pendientes / Próximos Pasos Prioritarios
+- [x] **Motor Universal de Ingesta Inteligente en SIGI:** Homologado con el escudo de tolerancia de SCTIS v2.0 para todos los procesos.
 - [x] **Auditoría, Remediación y Normalización de Activos de Red:** Integrados 871 SEs y 4,207 CTs en BD Supabase, Catálogos Spark, SIGI y reportes Word.
 - [x] **Despliegue y Sincronización en GitHub / Vercel:** Repositorio maestro y standalone 100% sincronizados.
 - [x] **Integración y Gobernanza Google Drive:** Implementado control RBAC, doble cuenta de correo, bandeja de aprobaciones y Webhook con `bk.ggpd.corpoelec@gmail.com`.
@@ -222,6 +229,7 @@ Todos los microservicios y el portal central se encuentran **activos y respondie
 - [ ] **Jornada de Pruebas de Calidad (QA) con Usuarios Estadales:** Validar en vivo el flujo de login con las 25 cuentas territoriales y la carga de archivos de prueba en el nuevo Módulo de Ingesta Inteligente.
 - [ ] **Validación de Conexión Supabase:** Probar el botón "Probar Conexión" y explorador de tablas en la consola web.
 - [ ] **Carga Piloto de Nuevos Procesos:** Probar en caliente la creación y carga de un proceso real (ej. Diagnóstico de Subestaciones `08_SCDXS` o Termografía `09_SCTER`).
+
 
 
 ---
