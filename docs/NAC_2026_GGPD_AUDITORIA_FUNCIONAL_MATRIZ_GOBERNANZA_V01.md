@@ -7,7 +7,7 @@
 **ENTIDAD:** Corporación Eléctrica Nacional S.A. (CORPOELEC) — MPPEE  
 **DESPACHO DESTINO:** Gerencia General de Planificación de Distribución (GGPD)  
 **DIRIGIDO A:** Ing. Adrian Correa | Ing. Carlos Reyes  
-**ELABORADO POR:** Yvan Ciprián | T.S.U. Josue Pacheco  
+**ELABORADO POR:** Yvan Cipiran | T.S.U. Josue Pacheco  
 **PLATAFORMA Y MOTOR DE AUDITORÍA:** Google Antigravity 2.0 — Gemini 3.7 Flash  
 
 ---

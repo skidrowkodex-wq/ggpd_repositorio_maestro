@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIGI GGPD 2026 — Presentación Corporativa para Decisores</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #002b49;
+    --navy-deep: #041426;
+    --navy-mid: #072146;
+    --cyan: #00f2fe;
+    --cyan-dim: rgba(0,242,254,0.15);
+    --gold: #FFD700;
+    --gold-dim: rgba(255,215,0,0.15);
+    --white: #FFFFFF;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-600: #475569;
+    --red: #ef4444;
+    --green: #10b981;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', 'Outfit', sans-serif; background: #0a0a0a; color: var(--white); }
+  
+  /* ====== SLIDE SYSTEM ====== */
+  .slide {
+    width: 1280px; height: 720px;
+    position: relative; overflow: hidden;
+    page-break-after: always;
+    margin: 20px auto;
+    border-radius: 8px;
+    box-shadow: 0 25px 80px rgba(0,0,0,0.6);
+  }
+  
+  /* ====== COVER SLIDE ====== */
+  .slide-cover {
+    background: linear-gradient(135deg, var(--navy-deep) 0%, var(--navy) 40%, var(--navy-mid) 100%);
+  }
+  .slide-cover .bg-image {
+    position: absolute; inset: 0;
+    background-size: cover; background-position: center;
+    opacity: 0.55;
+  }
+  .slide-cover .overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, rgba(4,20,38,0.95) 0%, rgba(4,20,38,0.7) 45%, rgba(4,20,38,0.3) 100%);
+  }
+  .slide-cover .content {
+    position: relative; z-index: 2;
+    padding: 60px 70px;
+    height: 100%; display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .slide-cover .top-bar {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .slide-cover .logo-area { display: flex; align-items: center; gap: 16px; }
+  .slide-cover .logo-area svg { height: 44px; width: auto; }
+  .slide-cover .tribanda {
+    height: 4px; width: 80px; border-radius: 2px;
+    background: linear-gradient(90deg, #F7C000 33%, #002B66 33% 66%, #CF142B 66%);
+  }
+  .slide-cover .badges { display: flex; gap: 10px; }
+  .slide-cover .badge {
+    padding: 5px 14px; border-radius: 20px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(8px);
+  }
+  .slide-cover .main-title {
+    max-width: 680px;
+  }
+  .slide-cover .main-title .pre-title {
+    font-size: 13px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--cyan); margin-bottom: 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .slide-cover .main-title .pre-title::before {
+    content: ''; display: block; width: 40px; height: 2px; background: var(--cyan);
+  }
+  .slide-cover .main-title h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 42px; font-weight: 900; line-height: 1.1;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, var(--white) 0%, var(--cyan) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .slide-cover .main-title .subtitle {
+    font-size: 16px; font-weight: 500; color: rgba(255,255,255,0.75);
+    margin-top: 16px; line-height: 1.5; max-width: 560px;
+  }
+  .slide-cover .footer-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 16px;
+  }
+  .slide-cover .footer-bar span {
+    font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.5); letter-spacing: 0.5px;
+  }
+  .slide-cover .footer-bar .gold { color: var(--gold); }
+  
+  /* ====== CONTENT SLIDES ====== */
+  .slide-content {
+    background: linear-gradient(180deg, var(--navy-deep) 0%, var(--navy) 100%);
+  }
+  .slide-content .slide-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 28px 60px 20px 60px;
+    border-bottom: 1px solid rgba(0,242,254,0.12);
+  }
+  .slide-content .slide-header .section-tag {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .slide-content .slide-header .section-num {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--cyan), #38bdf8);
+    color: var(--navy); font-weight: 900; font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .slide-content .slide-header h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 22px; font-weight: 800; color: var(--white);
+    letter-spacing: -0.3px;
+  }
+  .slide-content .slide-header .page-num {
+    font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.35);
+    background: rgba(255,255,255,0.05); padding: 6px 14px; border-radius: 20px;
+  }
+  .slide-content .slide-body {
+    padding: 30px 60px;
+    height: calc(720px - 85px);
+    overflow: hidden;
+  }
+  
+  /* ====== SECTION DIVIDER SLIDES ====== */
+  .slide-divider {
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+  }
+  .slide-divider .bg-image {
+    position: absolute; inset: 0;
+    background-size: cover; background-position: center;
+    opacity: 0.6;
+  }
+  .slide-divider .overlay {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, rgba(4,20,38,0.6) 0%, rgba(4,20,38,0.92) 100%);
+  }
+  .slide-divider .divider-content {
+    position: relative; z-index: 2;
+  }
+  .slide-divider .divider-content .module-num {
+    font-size: 80px; font-weight: 900; font-family: 'Outfit', sans-serif;
+    background: linear-gradient(135deg, var(--cyan), var(--gold));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+  .slide-divider .divider-content h2 {
+    font-size: 36px; font-weight: 800; font-family: 'Outfit', sans-serif;
+    color: var(--white); margin-top: 8px; letter-spacing: -0.5px;
+  }
+  .slide-divider .divider-content .divider-desc {
+    font-size: 16px; font-weight: 500; color: rgba(255,255,255,0.6);
+    margin-top: 12px; max-width: 500px; margin-left: auto; margin-right: auto;
+  }
+  
+  /* ====== REUSABLE COMPONENTS ====== */
+  .card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(0,242,254,0.12);
+    border-radius: 16px; padding: 24px;
+    backdrop-filter: blur(10px);
+  }
+  .card-accent { border-left: 3px solid var(--cyan); }
+  .card-gold { border-left: 3px solid var(--gold); }
+  .card-red { border-left: 3px solid var(--red); }
+  .card-green { border-left: 3px solid var(--green); }
+  
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .stat-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(0,242,254,0.1);
+    border-radius: 14px; padding: 20px; text-align: center;
+  }
+  .stat-card .stat-value {
+    font-family: 'Outfit', sans-serif;
+    font-size: 36px; font-weight: 900;
+    background: linear-gradient(135deg, var(--cyan), var(--gold));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .stat-card .stat-label {
+    font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.5);
+    text-transform: uppercase; letter-spacing: 0.8px; margin-top: 6px;
+  }
+  
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .compare-before {
+    background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2);
+    border-radius: 14px; padding: 22px;
+  }
+  .compare-after {
+    background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.2);
+    border-radius: 14px; padding: 22px;
+  }
+  .compare-before .compare-tag, .compare-after .compare-tag {
+    font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+    padding: 4px 12px; border-radius: 20px; display: inline-block; margin-bottom: 12px;
+  }
+  .compare-before .compare-tag { background: rgba(239,68,68,0.15); color: #f87171; }
+  .compare-after .compare-tag { background: rgba(16,185,129,0.15); color: #34d399; }
+  
+  .feature-item {
+    display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px;
+  }
+  .feature-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 900; flex-shrink: 0;
+  }
+  .feature-icon.cyan { background: var(--cyan-dim); color: var(--cyan); }
+  .feature-icon.gold { background: var(--gold-dim); color: var(--gold); }
+  .feature-title { font-size: 14px; font-weight: 700; color: var(--white); }
+  .feature-desc { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.55); line-height: 1.5; margin-top: 2px; }
+  
+  .img-container {
+    border-radius: 14px; overflow: hidden;
+    border: 1px solid rgba(0,242,254,0.1);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+  .img-container img { width: 100%; height: auto; display: block; }
+  
+  .text-cyan { color: var(--cyan); }
+  .text-gold { color: var(--gold); }
+  .text-green { color: var(--green); }
+  .text-red { color: var(--red); }
+  .text-dim { color: rgba(255,255,255,0.55); }
+  .text-xs { font-size: 11px; }
+  .text-sm { font-size: 13px; }
+  .text-base { font-size: 14px; }
+  .text-lg { font-size: 16px; }
+  .font-bold { font-weight: 700; }
+  .font-black { font-weight: 900; }
+  .mt-1 { margin-top: 8px; }
+  .mt-2 { margin-top: 16px; }
+  .mt-3 { margin-top: 24px; }
+  .mb-1 { margin-bottom: 8px; }
+  .mb-2 { margin-bottom: 16px; }
+  .gap-16 { gap: 16px; }
+  .flex { display: flex; }
+  .flex-col { flex-direction: column; }
+  .items-center { align-items: center; }
+  .justify-between { justify-content: space-between; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  
+  .table-corporate {
+    width: 100%; border-collapse: collapse; font-size: 12px;
+  }
+  .table-corporate th {
+    background: var(--navy-mid); color: var(--cyan);
+    padding: 8px 12px; text-align: left; font-weight: 700;
+    border-bottom: 2px solid var(--cyan);
+    font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase;
+  }
+  .table-corporate td {
+    padding: 7px 12px; border-bottom: 1px solid rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.8); font-weight: 500;
+  }
+  .table-corporate tr:hover { background: rgba(0,242,254,0.03); }
+  
+  .step-flow { display: flex; align-items: center; gap: 12px; }
+  .step-circle {
+    width: 44px; height: 44px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 18px; flex-shrink: 0;
+  }
+  .step-arrow { font-size: 24px; color: var(--cyan); flex-shrink: 0; }
+  
+  .timeline-item {
+    display: flex; gap: 14px; margin-bottom: 12px;
+  }
+  .timeline-time {
+    font-size: 11px; font-weight: 800; color: var(--cyan);
+    font-family: 'Outfit', monospace; min-width: 64px; flex-shrink: 0;
+    padding-top: 3px;
+  }
+  .timeline-dot {
+    width: 10px; height: 10px; border-radius: 50%; background: var(--gold);
+    flex-shrink: 0; margin-top: 5px;
+    box-shadow: 0 0 12px rgba(255,215,0,0.4);
+  }
+  .timeline-text { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.8); line-height: 1.4; }
+  .timeline-text strong { color: var(--white); font-weight: 700; }
+  
+  .decalogo-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .decalogo-num {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--cyan), #38bdf8);
+    color: var(--navy); font-weight: 900; font-size: 13px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .decalogo-text { font-size: 12.5px; font-weight: 600; color: rgba(255,255,255,0.85); }
+  
+  /* ====== PRINT STYLES ====== */
+  @media print {
+    body { background: white; }
+    .slide {
+      margin: 0; border-radius: 0;
+      box-shadow: none;
+      page-break-after: always;
+      page-break-inside: avoid;
+    }
+  }
+  @page {
+    size: 1280px 720px landscape;
+    margin: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- ================================================================
+     SLIDE 1: COVER
+     ================================================================ -->
+<div class="slide slide-cover">
+  <div class="bg-image" style="background-image: url('img_cover.jpg');"></div>
+  <div class="overlay"></div>
+  <div class="content">
+    <div class="top-bar">
+      <div class="logo-area">
+        <svg viewBox="0 0 280 64" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="corpoRedGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#E53935"/><stop offset="100%" stop-color="#B71C1C"/></linearGradient></defs>
+          <g transform="translate(6,4)"><path d="M 12,52 C 2,42 0,26 8,14 C 12,8 20,4 28,2 C 22,10 20,22 24,32 C 26,38 30,44 38,48 C 28,52 18,54 12,52 Z" fill="url(#corpoRedGrad)"/><path d="M 28,2 L 18,24 L 28,24 L 14,54 L 38,28 L 26,28 Z" fill="#FFD700"/><path d="M 22,6 C 34,2 46,8 50,20 C 52,28 48,38 42,46 C 44,38 44,28 38,20 C 34,14 28,10 22,6 Z" fill="#FFFFFF"/></g>
+          <g transform="translate(64,0)"><text x="0" y="36" font-family="Outfit, sans-serif" font-size="30" font-weight="900" letter-spacing="0.5" fill="#FFFFFF">CORPOELEC</text><text x="1" y="52" font-family="Inter, sans-serif" font-size="7.5" font-weight="700" letter-spacing="1.2" fill="rgba(255,255,255,0.6)">CORPORACIÓN ELÉCTRICA NACIONAL</text></g>
+        </svg>
+        <div class="tribanda"></div>
+      </div>
+      <div class="badges">
+        <span class="badge">ISO 8000</span>
+        <span class="badge">ISO/IEC 27001</span>
+        <span class="badge">COBIT 2019</span>
+        <span class="badge">ISO 55000</span>
+      </div>
+    </div>
+    <div class="main-title">
+      <div class="pre-title">Presentación Ejecutiva · GGPD 2026</div>
+      <h1>Sistema Integrado de Gestión de la Información</h1>
+      <p class="subtitle">Data Lake Corporativo en Google Drive, Aprovisionamiento Dinámico de Procesos y Diseño Inteligente de Instrumentos con Calidad ISO 8000 para la Gerencia General de Distribución.</p>
+    </div>
+    <div class="footer-bar">
+      <span>Gerencia General de Planificación de Distribución (GGPD)</span>
+      <span>República Bolivariana de Venezuela · Ministerio del Poder Popular para la Energía Eléctrica</span>
+      <span class="gold">AGOSTO 2026 · CONFIDENCIAL</span>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     SLIDE 2: EL RETO ESTRATÉGICO
+     ================================================================ -->
+<div class="slide slide-content">
+  <div class="slide-header">
+    <div class="section-tag"><div class="section-num">01</div><h2>El Reto Estratégico: Diagnóstico del SEN 2026</h2></div>
+    <div class="page-num">02 / 12</div>
+  </div>
+  <div class="slide-body">
+    <div class="stat-grid mb-2">
+      <div class="stat-card"><div class="stat-value">2,480+</div><div class="stat-label">Circuitos de Distribución</div></div>
+      <div class="stat-card"><div class="stat-value">838</div><div class="stat-label">Subestaciones Eléctricas</div></div>
+      <div class="stat-card"><div class="stat-value">25</div><div class="stat-label">Entidades Federales</div></div>
+      <div class="stat-card"><div class="stat-value">-45%</div><div class="stat-label">Reducción MTTR Objetivo</div></div>
+    </div>
+    <div class="compare-grid mt-2">
+      <div class="compare-before">
+        <span class="compare-tag">❌ Modelo Anterior — "Ecosistema WhatsApp"</span>
+        <div class="feature-item"><div class="feature-icon" style="background:rgba(239,68,68,0.15);color:#f87171;">⚠</div><div><div class="feature-title">Consolidación: 2 a 3 Semanas</div><div class="feature-desc">Recopilar datos manuales de 25 estados por chat y correo.</div></div></div>
+        <div class="feature-item"><div class="feature-icon" style="background:rgba(239,68,68,0.15);color:#f87171;">⚠</div><div><div class="feature-title">25 Criterios Dispares</div><div class="feature-desc">Cada estado nombraba subestaciones y circuitos a su estilo.</div></div></div>
+        <div class="feature-item"><div class="feature-icon" style="background:rgba(239,68,68,0.15);color:#f87171;">⚠</div><div><div class="feature-title">Custodia Vulnerable</div><div class="feature-desc">Datos del SEN en teléfonos personales sin respaldo.</div></div></div>
+      </div>
+      <div class="compare-after">
+        <span class="compare-tag">✅ Modelo SIGI GGPD 2026</span>
+        <div class="feature-item"><div class="feature-icon cyan">⚡</div><div><div class="feature-title">Consolidación: &lt; 5 Segundos</div><div class="feature-desc">Telemetría en tiempo real en tableros KGI/KPI.</div></div></div>
+        <div class="feature-item"><div class="feature-icon cyan">⚡</div><div><div class="feature-title">Catálogos Maestros Únicos (MDM)</div><div class="feature-desc">Nomenclatura unificada en todo el territorio nacional.</div></div></div>
+        <div class="feature-item"><div class="feature-icon cyan">⚡</div><div><div class="feature-title">Cifrado ISO 27001 + Firma SHA-256</div><div class="feature-desc">Custodia inmutable con bitácora de auditoría.</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     SLIDE 3: DIVIDER — DATA LAKE
+     ================================================================ -->
+<div class="slide slide-cover slide-divider">
+  <div class="bg-image" style="background-image: url('img_divider.jpg');"></div>
+  <div class="overlay"></div>
+  <div class="divider-content">
+    <div class="module-num">02</div>
+    <h2>Data Lake Estructurado en Google Drive</h2>
+    <div class="divider-desc">De carpetas caóticas a almacenamiento auditado, estandarizado y gobernado para 25 Estados y 4 macroprocesos del SEN.</div>
+  </div>
+</div>
+
+<!-- ================================================================
+     SLIDE 4: DATA LAKE ARCHITECTURE
+     ================================================================ -->
+<div class="slide slide-content">
+  <div class="slide-header">
+    <div class="section-tag"><div class="section-num">02</div><h2>Arquitectura del Data Lake Corporativo 2026</h2></div>
+    <div class="page-num">04 / 12</div>
+  </div>
+  <div class="slide-body">
+    <div class="grid-2">
+      <div>
+        <div class="card card-accent mb-2">
+          <div class="text-sm font-bold text-cyan mb-1">📁 Topología Canónica del Data Lake</div>
+          <div style="font-family:monospace;font-size:11px;color:rgba(255,255,255,0.7);line-height:1.8;padding:8px 0;">
+            📁 <span class="text-gold font-bold">DATA LAKE GGPD 2026</span><br>
+            ├── 📁 00_PLANTILLAS_OFICIALES/<br>
+            ├── 📁 <span class="text-cyan">01_DCA/</span> (Distrito Capital)<br>
+            │&nbsp;&nbsp;&nbsp;└── 📁 2026/<br>
+            │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── 📁 01_SCTIS/ <span class="text-dim">(Interrupciones)</span><br>
+            │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── 📁 02_SCEIN/ <span class="text-dim">(Equipos)</span><br>
+            │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── 📁 03_SCPPE/ <span class="text-dim">(Proyectos)</span><br>
+            │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── 📁 04_SCMTP/ <span class="text-dim">(Minutas)</span><br>
+            ├── 📁 <span class="text-cyan">02_ANZ/</span> ... 📁 <span class="text-cyan">24_ZUL/</span><br>
+            ├── 📁 <span class="text-cyan">25_GEQ/</span> (Guayana Esequiba)<br>
+            └── 📁 <span class="text-gold">99_CONSOLIDADOS_NACIONALES/</span>
+          </div>
+        </div>
+        <div class="card card-gold">
+          <div class="text-sm font-bold text-gold mb-1">🔐 Doble Identidad de Seguridad</div>
+          <div class="feature-item" style="margin-bottom:8px;"><div class="feature-icon gold" style="width:28px;height:28px;font-size:13px;">1</div><div><div class="feature-title text-sm">Correo Institucional</div><div class="feature-desc">nombre@corpoelec.gob.ve — autenticación en SIGI.</div></div></div>
+          <div class="feature-item" style="margin-bottom:0;"><div class="feature-icon cyan" style="width:28px;height:28px;font-size:13px;">2</div><div><div class="feature-title text-sm">Cuenta Google</div><div class="feature-desc">usuario@gmail.com — permisos en Google Drive.</div></div></div>
+        </div>
+      </div>
+      <div class="img-container" style="height:100%;"><img src="img_datalake.jpg" alt="Data Lake Architecture" style="height:100%;object-fit:cover;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     SLIDE 5: FLUJO DE APROBACIÓN DRIVE
+     ================================================================ -->
+<div class="slide slide-content">
+  <div class="slide-header">
+    <div class="section-tag"><div class="section-num">02</div><h2>Flujo de Aprobación y Seguridad de Acceso al Data Lake</h2></div>
+    <div class="page-num">05 / 12</div>
+  </div>
+  <div class="slide-body">
+    <div class="step-flow mb-2" style="justify-content:center;gap:8px;">
+      <div style="text-align:center;">
+        <div class="step-circle" style="background:var(--cyan-dim);color:var(--cyan);margin:0 auto;">1</div>
+        <div class="text-xs font-bold mt-1" style="max-width:120px;">Coordinador solicita acceso en SIGI</div>
+      </div>
+      <div class="step-arrow">→</div>
+      <div style="text-align:center;">
+        <div class="step-circle" style="background:var(--gold-dim);color:var(--gold);margin:0 auto;">2</div>
+        <div class="text-xs font-bold mt-1" style="max-width:120px;">Admin recibe solicitud en Bandeja</div>
+      </div>
+      <div class="step-arrow">→</div>
+      <div style="text-align:center;">
+        <div class="step-circle" style="background:rgba(16,185,129,0.15);color:var(--green);margin:0 auto;">3</div>
+        <div class="text-xs font-bold mt-1" style="max-width:120px;">Aprobación en 1 Clic con Webhook</div>
+      </div>
+      <div class="step-arrow">→</div>
+      <div style="text-align:center;">
+        <div class="step-circle" style="background:var(--cyan-dim);color:var(--cyan);margin:0 auto;">4</div>
+        <div class="text-xs font-bold mt-1" style="max-width:120px;">Apps Script otorga permisos en Drive</div>
+      </div>
+      <div class="step-arrow">→</div>
+      <div style="text-align:center;">
+        <div class="step-circle" style="background:var(--gold-dim);color:var(--gold);margin:0 auto;">5</div>
+        <div class="text-xs font-bold mt-1" style="max-width:120px;">Bitácora SHA-256 registra el evento</div>
+      </div>
+    </div>
+    <div class="grid-3 mt-2">
+      <div class="card card-accent">
+        <div class="text-sm font-bold text-cyan mb-1">🛡️ Control RBAC Granular</div>
+        <div class="text-sm text-dim" style="line-height:1.6;">Cada usuario recibe permisos exclusivamente sobre las carpetas de su Estado asignado. Un usuario de Zulia <strong class="text-red">nunca</strong> puede ver datos de Táchira.</div>
+      </div>
+      <div class="card card-gold">
+        <div class="text-sm font-bold text-gold mb-1">⚙️ Offboarding Automático</div>
+        <div class="text-sm text-dim" style="line-height:1.6;">Al desactivar un usuario en SIGI o revocar sus permisos, el sistema <strong class="text-gold">automáticamente</strong> retira los accesos de Google Drive en tiempo real.</div>
+      </div>
+      <div class="card card-green">
+        <div class="text-sm font-bold text-green mb-1">📋 Bitácora Inmutable ISO 27001</div>
+        <div class="text-sm text-dim" style="line-height:1.6;">Cada acceso, aprobación o denegación queda registrado con <strong class="text-green">firma SHA-256</strong>, timestamp y usuario. Exportable a JSON para auditorías externas.</div>
+      </div>
+    </div>
+    <div class="card mt-2" style="background:rgba(0,242,254,0.03);border-color:rgba(0,242,254,0.2);">
+      <div class="flex items-center gap-16">
+        <div style="font-size:32px;">📧</div>
+        <div>
+          <div class="text-sm font-bold">Cuenta Administradora del Data Lake: <span class="text-gold">bk.ggpd.corpoelec@gmail.com</span></div>
+          <div class="text-xs text-dim mt-1">Todos los webhooks de aprovisionamiento y permisos se despachan a través de esta cuenta corporativa vía Google Apps Script.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     SLIDE 6: DIVIDER — PROCESOS
+     ================================================================ -->
+<div class="slide slide-cover slide-divider">
+  <div class="bg-image" style="background-image: url('img_divider.jpg');"></div>
+  <div class="overlay"></div>
+  <div class="divider-content">
+    <div class="module-num">03</div>
+    <h2>Creación Dinámica de Procesos</h2>
+    <div class="divider-desc">De la idea al despliegue en 3 minutos. Sin desarrolladores. Sin esperas. Capacidad de respuesta inmediata ante cualquier Plan Nacional.</div>
+  </div>
+</div>
+
+<!-- ================================================================
+     SLIDE 7: CREACIÓN DE PROCESOS
+     ================================================================ -->
+<div class="slide slide-content">
+  <div class="slide-header">
+    <div class="section-tag"><div class="section-num">03</div><h2>Aprovisionamiento Dinámico en 3 Pasos</h2></div>
+    <div class="page-num">07 / 12</div>
+  </div>
+  <div class="slide-body">
+    <div class="grid-2">
+      <div>
+        <div class="img-container mb-2"><img src="img_process.jpg" alt="Proceso en 3 Pasos"></div>
+        <div class="grid-3">
+          <div class="card" style="padding:14px;text-align:center;">
+            <div style="font-size:24px;">📋</div>
+            <div class="text-xs font-bold mt-1 text-cyan">Paso 1: Definir</div>
+            <div class="text-xs text-dim">Código, nombre y macroproceso.</div>
+          </div>
+          <div class="card" style="padding:14px;text-align:center;">
+            <div style="font-size:24px;">🗄️</div>
+            <div class="text-xs font-bold mt-1 text-gold">Paso 2: Esquema</div>
+            <div class="text-xs text-dim">Columnas, tipos y catálogos MDM.</div>
+          </div>
+          <div class="card" style="padding:14px;text-align:center;">
+            <div style="font-size:24px;">🚀</div>
+            <div class="text-xs font-bold mt-1 text-green">Paso 3: Desplegar</div>
+            <div class="text-xs text-dim">Drive + SQL + Plantilla .xlsx.</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card card-accent mb-2">
+          <div class="text-sm font-bold text-cyan mb-1">📌 Ejemplo: Proceso <code style="background:var(--navy-mid);padding:2px 8px;border-radius:4px;">08_SCDXS</code></div>
+          <div class="text-xs text-dim mb-1">Diagnóstico Nacional de Transformadores de Potencia en 838 Subestaciones</div>
+          <table class="table-corporate mt-1">
+            <thead><tr><th>Columna</th><th>Tipo</th><th>Catálogo MDM</th></tr></thead>
+            <tbody>
+              <tr><td>ESTADO</td><td>Catálogo</td><td class="text-cyan">CAT_ESTADOS_VE</td></tr>
+              <tr><td>SUBESTACION</td><td>Catálogo</td><td class="text-cyan">CAT_SUBESTACIONES</td></tr>
+              <tr><td>TENSION_KV</td><td>Catálogo</td><td class="text-cyan">CAT_NIVELES_TENSION</td></tr>
+              <tr><td>NIVEL_ACEITE</td><td>Numérico</td><td class="text-dim">0-100%</td></tr>
+              <tr><td>TEMPERATURA</td><td>Numérico</td><td class="text-dim">20-150°C</td></tr>
+              <tr><td>ESTATUS</td><td>Catálogo</td><td class="text-cyan">CAT_CONDICIONES</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card card-gold">
+          <div class="text-sm font-bold text-gold mb-1">✨ Resultado Inmediato del Despliegue</div>
+          <div class="feature-item" style="margin-bottom:6px;"><div class="feature-icon gold" style="width:24px;height:24px;font-size:12px;border-radius:6px;">📁</div><div><div class="text-xs font-bold">25 Carpetas en Drive</div></div></div>
+          <div class="feature-item" style="margin-bottom:6px;"><div class="feature-icon cyan" style="width:24px;height:24px;font-size:12px;border-radius:6px;">🗄</div><div><div class="text-xs font-bold">Tabla Relacional SQL en Supabase</div></div></div>
+          <div class="feature-item" style="margin-bottom:0;"><div class="feature-icon" style="width:24px;height:24px;font-size:12px;border-radius:6px;background:rgba(16,185,129,0.15);color:var(--green);">📊</div><div><div class="text-xs font-bold">Plantilla Oficial .xlsx con Validaciones</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     SLIDE 8: DIVIDER — WIZARD
+     ================================================================ -->
+<div class="slide slide-cover slide-divider">
+  <div class="bg-image" style="background-image: url('img_divider.jpg');"></div>
+  <div class="overlay"></div>
+  <div class="divider-content">
+    <div class="module-num">04</div>
+    <h2>Asistente Wizard ISO 8000</h2>
+    <div class="divider-desc">Auditoría heurística inteligente que transforma formularios Excel deficientes en instrumentos de captura normalizados, auditados y vinculados a Catálogos Maestros.</div>
+  </div>
+</div>
+
+<!-- ================================================================
+     SLIDE 9: WIZARD ISO 8000
+     ================================================================ -->
+<div class="slide slide-content">
+  <div class="slide-header">
+    <div class="section-tag"><div class="section-num">04</div><h2>Asistente Wizard: De Excel Caótico a Datos Normalizados</h2></div>
+    <div class="page-num">09 / 12</div>
+  </div>
+  <div class="slide-body">
+    <div class="grid-2">
+      <div class="img-container"><img src="img_wizard.jpg" alt="Wizard ISO 8000"></div>
+      <div>
+        <div class="card card-red mb-2" style="padding:16px;">
+          <div class="text-sm font-bold text-red mb-1">❌ Antipatrones Detectados Automáticamente</div>
+          <div class="feature-item" style="margin-bottom:6px;"><div class="feature-icon" style="width:24px;height:24px;font-size:11px;border-radius:6px;background:rgba(239,68,68,0.15);color:#f87171;">1</div><div><div class="text-xs"><strong>Violación 1NF:</strong> Columnas repetitivas (FALLA_ENE, FALLA_FEB...)</div></div></div>
+          <div class="feature-item" style="margin-bottom:6px;"><div class="feature-icon" style="width:24px;height:24px;font-size:11px;border-radius:6px;background:rgba(239,68,68,0.15);color:#f87171;">2</div><div><div class="text-xs"><strong>Violación 3NF:</strong> Totales manuales (TOTAL_MWH, PROMEDIO)</div></div></div>
+          <div class="feature-item" style="margin-bottom:0;"><div class="feature-icon" style="width:24px;height:24px;font-size:11px;border-radius:6px;background:rgba(239,68,68,0.15);color:#f87171;">3</div><div><div class="text-xs"><strong>Texto Libre:</strong> Sin catálogos vinculados (datos inconsistentes)</div></div></div>
+        </div>
+        <div class="card card-green" style="padding:16px;">
+          <div class="text-sm font-bold text-green mb-1">✅ Los 4 Pasos del Wizard</div>
+          <div class="feature-item" style="margin-bottom:6px;"><div class="feature-icon" style="width:24px;height:24px;font-size:11px;border-radius:6px;background:rgba(16,185,129,0.15);color:#34d399;">1</div><div><div class="text-xs"><strong>Diagnóstico:</strong> Cargar Excel borrador o diseñar desde cero.</div></div></div>
+          <div class="feature-item" style="margin-bottom:6px;"><div class="feature-icon" style="width:24px;height:24px;font-size:11px;border-radius:6px;background:rgba(16,185,129,0.15);color:#34d399;">2</div><div><div class="text-xs"><strong>Auditoría Heurística:</strong> Motor Regex + IA detecta defectos.</div></div></div>
+          <div class="feature-item" style="margin-bottom:6px;"><div class="feature-icon" style="width:24px;height:24px;font-size:11px;border-radius:6px;background:rgba(16,185,129,0.15);color:#34d399;">3</div><div><div class="text-xs"><strong>Vinculación MDM:</strong> Enlazar a 48 catálogos del SEN.</div></div></div>
+          <div class="feature-item" style="margin-bottom:0;"><div class="feature-icon" style="width:24px;height:24px;font-size:11px;border-radius:6px;background:rgba(16,185,129,0.15);color:#34d399;">4</div><div><div class="text-xs"><strong>Publicación:</strong> DDL SQL + Plantilla oficial certificada.</div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="grid-3 mt-2">
+      <div class="card" style="text-align:center;padding:14px;">
+        <div style="font-size:28px;font-weight:900;color:#f87171;">🔴 &lt; 70%</div>
+        <div class="text-xs font-bold mt-1 text-red">NO CONFORME</div>
+        <div class="text-xs text-dim">Bloqueo de publicación</div>
+      </div>
+      <div class="card" style="text-align:center;padding:14px;">
+        <div style="font-size:28px;font-weight:900;color:var(--gold);">🟡 70-89%</div>
+        <div class="text-xs font-bold mt-1 text-gold">REQUIERE AJUSTES</div>
+        <div class="text-xs text-dim">Vincular catálogos MDM</div>
+      </div>
+      <div class="card" style="text-align:center;padding:14px;">
+        <div style="font-size:28px;font-weight:900;color:#34d399;">🟢 90-100%</div>
+        <div class="text-xs font-bold mt-1 text-green">CONFORME ISO 8000</div>
+        <div class="text-xs text-dim">Aprobado para producción</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     SLIDE 10: HUB DE INGESTA
+     ================================================================ -->
+<div class="slide slide-content">
+  <div class="slide-header">
+    <div class="section-tag"><div class="section-num">05</div><h2>Hub de Ingesta Inteligente & Motor de Remediación</h2></div>
+    <div class="page-num">10 / 12</div>
+  </div>
+  <div class="slide-body">
+    <div class="grid-2">
+      <div>
+        <div class="img-container mb-2"><img src="img_ingestion.jpg" alt="Hub de Ingesta Inteligente"></div>
+        <div class="card card-accent" style="padding:16px;">
+          <div class="text-sm font-bold text-cyan mb-1">📐 Índice OTQR (Overall Technical Quality Rate)</div>
+          <div class="text-sm text-dim" style="line-height:1.6;">
+            <strong class="text-white">OTQR = (Filas Válidas / Total Filas) × 100%</strong><br>
+            Si OTQR = 100%: archivo procesado íntegramente.<br>
+            Si OTQR &lt; 100%: se segregan errores con planilla descargable de corrección celda por celda.
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="grid-2" style="gap:12px;">
+          <div class="card card-gold" style="padding:16px;">
+            <div style="font-size:28px;margin-bottom:8px;">📝</div>
+            <div class="text-sm font-bold text-gold">Formulario Web Reactivo</div>
+            <div class="text-xs text-dim mt-1" style="line-height:1.5;">Carga manual directa desde navegador o móvil con listas desplegables institucionales vinculadas a catálogos MDM.</div>
+          </div>
+          <div class="card card-accent" style="padding:16px;">
+            <div style="font-size:28px;margin-bottom:8px;">📊</div>
+            <div class="text-sm font-bold text-cyan">Ingesta Masiva Excel</div>
+            <div class="text-xs text-dim mt-1" style="line-height:1.5;">Carga de la plantilla oficial .xlsx descargada del sistema con validación sintáctica fila por fila.</div>
+          </div>
+        </div>
+        <div class="card card-green mt-2" style="padding:16px;">
+          <div class="text-sm font-bold text-green mb-1">🟢 Bandeja de Conformidad</div>
+          <div class="text-xs text-dim" style="line-height:1.5;">Las filas válidas se persisten inmediatamente en la base de datos Supabase y se archivan en la carpeta correspondiente del Data Lake Google Drive.</div>
+        </div>
+        <div class="card card-red mt-1" style="padding:16px;">
+          <div class="text-sm font-bold text-red mb-1">🔴 Bandeja de Remediación</div>
+          <div class="text-xs text-dim" style="line-height:1.5;">Las filas con errores generan una planilla Excel de corrección con comentarios en rojo indicando celda y motivo. Se crea tarea automática en SCMTP para seguimiento.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     SLIDE 11: CASO PRÁCTICO END-TO-END
+     ================================================================ -->
+<div class="slide slide-content">
+  <div class="slide-header">
+    <div class="section-tag"><div class="section-num">06</div><h2>Caso Práctico: Del Requerimiento a la Telemetría Nacional</h2></div>
+    <div class="page-num">11 / 12</div>
+  </div>
+  <div class="slide-body">
+    <div class="card" style="background:rgba(0,242,254,0.02);border-color:rgba(0,242,254,0.15);padding:14px 20px;margin-bottom:16px;">
+      <div class="text-sm"><span class="text-gold font-bold">📢 REQUERIMIENTO:</span> <span class="text-dim">"Monitorear diariamente los kilómetros de distribución desmalezados y circuitos intervenidos en los 25 Estados."</span></div>
+    </div>
+    <div class="grid-2">
+      <div>
+        <div class="timeline-item"><div class="timeline-time">08:00</div><div class="timeline-dot"></div><div class="timeline-text"><strong>Requerimiento Directivo</strong> — La Gerencia General instruye el seguimiento del Plan Nacional de Pica y Poda 2026.</div></div>
+        <div class="timeline-item"><div class="timeline-time">08:05</div><div class="timeline-dot" style="background:var(--cyan);box-shadow:0 0 12px rgba(0,242,254,0.4);"></div><div class="timeline-text"><strong>Creación en SIGI</strong> — El Administrador registra el proceso <code style="background:var(--navy-mid);padding:1px 6px;border-radius:3px;font-size:11px;">05_SCPYP</code> con 6 columnas y 3 catálogos MDM.</div></div>
+        <div class="timeline-item"><div class="timeline-time">08:08</div><div class="timeline-dot" style="background:var(--green);box-shadow:0 0 12px rgba(16,185,129,0.4);"></div><div class="timeline-text"><strong>Wizard ISO 8000</strong> — Auditoría heurística: Índice de Madurez <span class="text-green font-bold">100%</span>. Aprobado para producción.</div></div>
+        <div class="timeline-item"><div class="timeline-time">08:09</div><div class="timeline-dot"></div><div class="timeline-text"><strong>Despliegue Nacional</strong> — Drive: 25 carpetas creadas. Supabase: tabla instanciada. Plantilla .xlsx publicada.</div></div>
+      </div>
+      <div>
+        <div class="timeline-item"><div class="timeline-time">09:30</div><div class="timeline-dot" style="background:var(--cyan);box-shadow:0 0 12px rgba(0,242,254,0.4);"></div><div class="timeline-text"><strong>Carga Territorial</strong> — El operador de <span class="text-gold">Carabobo</span> descarga la plantilla, registra 15 circuitos y la sube al Hub de Ingesta.</div></div>
+        <div class="timeline-item"><div class="timeline-time">09:31</div><div class="timeline-dot" style="background:var(--green);box-shadow:0 0 12px rgba(16,185,129,0.4);"></div><div class="timeline-text"><strong>Validación en Caliente</strong> — SIGI certifica <span class="text-green font-bold">15/15 filas válidas</span> (OTQR: 100%). Archivo archivado en Drive.</div></div>
+        <div class="timeline-item"><div class="timeline-time">09:32</div><div class="timeline-dot"></div><div class="timeline-text"><strong class="text-cyan">Telemetría Gerencial</strong> — El Gerente General en Caracas visualiza los kilómetros consolidados de Carabobo en su Tablero KGI/KPI en <strong class="text-gold">tiempo real</strong>.</div></div>
+      </div>
+    </div>
+    <div class="stat-grid mt-2">
+      <div class="stat-card"><div class="stat-value" style="font-size:24px;">9 min</div><div class="stat-label">Del requerimiento al despliegue</div></div>
+      <div class="stat-card"><div class="stat-value" style="font-size:24px;">25</div><div class="stat-label">Estados aprovisionados</div></div>
+      <div class="stat-card"><div class="stat-value" style="font-size:24px;">100%</div><div class="stat-label">Conformidad OTQR</div></div>
+      <div class="stat-card"><div class="stat-value" style="font-size:24px;">&lt; 5s</div><div class="stat-label">Telemetría en tiempo real</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     SLIDE 12: DECÁLOGO Y CIERRE
+     ================================================================ -->
+<div class="slide slide-cover" style="background: linear-gradient(135deg, var(--navy-deep) 0%, var(--navy) 50%, var(--navy-mid) 100%);">
+  <div class="bg-image" style="background-image: url('img_cover.jpg'); opacity: 0.15;"></div>
+  <div class="overlay" style="background: linear-gradient(180deg, rgba(4,20,38,0.85) 0%, rgba(4,20,38,0.95) 100%);"></div>
+  <div class="content" style="padding: 40px 60px;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <svg viewBox="0 0 280 64" xmlns="http://www.w3.org/2000/svg" style="height:32px;">
+        <defs><linearGradient id="corpoRedGrad2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#E53935"/><stop offset="100%" stop-color="#B71C1C"/></linearGradient></defs>
+        <g transform="translate(6,4)"><path d="M 12,52 C 2,42 0,26 8,14 C 12,8 20,4 28,2 C 22,10 20,22 24,32 C 26,38 30,44 38,48 C 28,52 18,54 12,52 Z" fill="url(#corpoRedGrad2)"/><path d="M 28,2 L 18,24 L 28,24 L 14,54 L 38,28 L 26,28 Z" fill="#FFD700"/><path d="M 22,6 C 34,2 46,8 50,20 C 52,28 48,38 42,46 C 44,38 44,28 38,20 C 34,14 28,10 22,6 Z" fill="#FFFFFF"/></g>
+        <g transform="translate(64,0)"><text x="0" y="36" font-family="Outfit, sans-serif" font-size="30" font-weight="900" letter-spacing="0.5" fill="#FFFFFF">CORPOELEC</text></g>
+      </svg>
+      <div class="text-xs text-dim" style="letter-spacing:1px;">DECÁLOGO DE GOBERNANZA DE DATOS GGPD 2026</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 40px;margin-top:20px;">
+      <div class="decalogo-item"><div class="decalogo-num">1</div><div class="decalogo-text"><strong class="text-gold">ZERO-WHATSAPP:</strong> Ningún dato operativo se reporta por canales informales.</div></div>
+      <div class="decalogo-item"><div class="decalogo-num">6</div><div class="decalogo-text"><strong class="text-gold">REMEDIACIÓN 24H:</strong> Toda no conformidad debe subsanarse en 24 horas.</div></div>
+      <div class="decalogo-item"><div class="decalogo-num">2</div><div class="decalogo-text"><strong class="text-gold">FUENTE ÚNICA:</strong> Si un dato no está en SIGI, oficialmente no existe.</div></div>
+      <div class="decalogo-item"><div class="decalogo-num">7</div><div class="decalogo-text"><strong class="text-gold">DOBLE IDENTIDAD:</strong> @corpoelec.gob.ve + cuenta Google vinculada.</div></div>
+      <div class="decalogo-item"><div class="decalogo-num">3</div><div class="decalogo-text"><strong class="text-gold">MDM HOMOLOGADO:</strong> Todos los procesos heredan Catálogos Maestros del SEN.</div></div>
+      <div class="decalogo-item"><div class="decalogo-num">8</div><div class="decalogo-text"><strong class="text-gold">AUDITORÍA 360°:</strong> Toda carga y modificación firmada criptográficamente.</div></div>
+      <div class="decalogo-item"><div class="decalogo-num">4</div><div class="decalogo-text"><strong class="text-gold">GRANO ATÓMICO:</strong> Cada registro = un evento físico individual (1NF).</div></div>
+      <div class="decalogo-item"><div class="decalogo-num">9</div><div class="decalogo-text"><strong class="text-gold">MEJORA CONTINUA:</strong> Nuevos requerimientos vía ProcessDirectoryManager.</div></div>
+      <div class="decalogo-item"><div class="decalogo-num">5</div><div class="decalogo-text"><strong class="text-gold">CERO TOTALES MANUALES:</strong> Las sumatorias son calculadas por software.</div></div>
+      <div class="decalogo-item"><div class="decalogo-num">10</div><div class="decalogo-text"><strong class="text-gold">SOBERANÍA TECNOLÓGICA:</strong> El SEN se gestiona con herramientas propias.</div></div>
+    </div>
+    <div style="flex:1;"></div>
+    <div style="text-align:center; border-top: 1px solid rgba(255,255,255,0.08); padding-top:20px;">
+      <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--white),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
+        Comprometidos con la Soberanía Tecnológica, la Calidad ISO y la Eficiencia del SEN.
+      </div>
+      <div class="text-xs text-dim mt-1" style="letter-spacing:1px;">
+        CORPOELEC — Gerencia General de Planificación de Distribución (GGPD) · República Bolivariana de Venezuela · Agosto 2026
+      </div>
+      <div class="tribanda" style="height:4px;width:120px;border-radius:2px;background:linear-gradient(90deg,#F7C000 33%,#002B66 33% 66%,#CF142B 66%);margin:12px auto 0;"></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -466,6 +466,7 @@ async function buildAllNativeDocx() {
   const sigiDocsDir = '/home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/docs';
 
   const files = [
+    { dir: docsDir, name: 'NAC_2026_GGPD_PRESENTACION_EJECUTIVA_SIGI_DATA_LAKE_ISO8000_V01' },
     { dir: docsDir, name: 'NAC_2026_GGPD_MANUAL_ASISTENTE_WIZARD_AUDITORIA_INSTRUMENTOS_ISO8000_V01' },
     { dir: docsDir, name: 'NAC_2026_GGPD_AUDITORIA_SISTEMICA_INSTRUMENTOS_OPERATIVOS_LEGACY_V01' },
     { dir: docsDir, name: 'NAC_2026_GGPD_ANALISIS_INTERCONEXION_SOLAPAMIENTOS_PROCESOS_V01' },
@@ -483,6 +484,7 @@ async function buildAllNativeDocx() {
     { dir: qaDir, name: 'NAC_2026_GGPD_INVENTARIO_ARQUITECTURA_RUTAS_DESPLIEGUE_V01' },
     { dir: qaDir, name: 'NAC_2026_GGPD_RESUMEN_EJECUTIVO_DESPLIEGUE_USUARIOS_QA_V01' },
     { dir: qaDir, name: 'NAC_2026_GGPD_MATRIZ_25_CUENTAS_VISOR_ESTADAL_SIGI_V01' },
+    { dir: docsDir, name: 'INF-STI-2026-008-V3_INFORME_TECNICO_ECONOMICO_SERVICIOS_CLOUD_ISO' },
   ];
 
   for (const { dir, name } of files) {

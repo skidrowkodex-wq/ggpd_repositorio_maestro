@@ -3,10 +3,43 @@
 ---
 
 ## 📌 1. Registro de Última Actualización
-- **Fecha y Hora:** 2026-08-17 07:15 (VET / UTC-4) — Ajuste de UI / Visualización de Logo CORPOELEC
+- **Fecha y Hora:** 2026-08-18 12:12 (VET / UTC-4) — Auditoría Integral de 25 Archivos Estadales y Optimización de Carga SCTIS v2.0
 - **Plataforma / Entorno:** Antigravity IDE 2.0 (Google Gemini 3.7 Flash)
-- **Responsable / Usuario:** skidrowkodex (Yvan Ciprián / Josue Pacheco)
-- **Estado General:** 🟢 **Ajuste de Escala y Confinamiento Estricto de Logo CORPOELEC en Navbar SIGI, Compilación Limpia**
+- **Responsable / Emisores:** Yván M. Cipiran N. | T.S.U. Josué Pacheco (**Equipo de Automatización e Ingeniería de Productos con IA, de Planificación de Distribución**)
+- **Estado General:** 🟢 **SCTIS v2.0 en Puerto `3002`: 100% de Compatibilidad Verificada (25 de 25 estados procesados sin errores ni ralentización). Soporte a Monagas Crystal Reports y aceleración nativa in-memory de archivos `.xls`.**
+
+### 📊 Entregables Recientes:
+1. **Auditoría Técnica Exhaustiva de los 25 Archivos Estadales en `/carga_qa`:**
+   - **Resultado:** **25 / 25 archivos evaluados con 100% de compatibilidad operativa.** Cero caídas, cero congelamientos de memoria.
+   - **Soporte Nativo Monagas (`MONAGAS26.xls`):** Detección automática del formato Crystal Reports (membretes de 14 filas, cabecera en fila 15, comas tipográficas en horas ej. `08,:54:00,` limpiadas automáticamente a `08:54:00`). Extraídas 2,491 filas limpias en 1.24s.
+   - **Optimización Ultrarrápida In-Memory de Archivos `.xls` (`HojaMemoria` + `xlrd`):** Se eliminó la conversión lenta `.xls` $\to$ `.xlsx` a disco. Archivos pesados como Zulia (10.1 MB) y Aragua (3.5 MB) pasaron de 41s y 28s a **<3.7s y 2.0s**.
+   - **Tolerancia a Libros Multi-Hoja (ej. Lara):** Auto-selección y confirmación inteligente de la hoja operativa principal (`DISTRIBUCION`).
+2. **Blindaje Integral del Módulo de Importación SCTIS v2.0 (`import_routes.py` & `db.py`):**
+   - **Prevención de Fuga OOM / Congelamiento:** `HojaMemoria` con tope a 60 columnas (`min(ws.max_column, 60)`), descarte inteligente de filas vacías y tope seguro de filas (`MAX_ROWS = 2500`).
+   - **Normalización Estricta a 24 Horas (`normalizar_hora_24h`):** Conversión precisa de formatos 12h con am/pm, horas flotantes y datetimes.
+   - **Separación de Fechas y Horas (`separar_fecha_hora`):** Extracción de `fecha_inicio`/`fecha_fin` en componentes ISO `YYYY-MM-DD` y `HH:MM:SS`, derivando `fecha_falla` automáticamente.
+   - **Eliminación Inteligente de Encabezados/Títulos (`detectar_encabezados_y_filtro`):** Escaneo hasta fila 25 con scoring de palabras clave.
+   - **Catálogo de Formatos Integrado & Fallback en Memoria (`FORMATOS_ESTANDAR`):** Soporte nativo para formatos estadales (`AMAZONAS`, `MONAGAS`, `TIRAS`, `CAPITAL`, `ANZOATEGUI`, `CARABOBO`, etc.).
+   - **Optimización de Transacciones por Lotes & Caché de Despachadores:** Inserciones en lotes con `commit_db()` y caché O(1) de despachadores.
+3. **Informe Oficial de Auditoría de Interrupciones Estadales (`INF-GGPD-SCTIS-2026-009-V1`):**
+   - **Markdown:** [NAC_2026_GGPD_AUDITORIA_DATA_INTERRUPCIONES_ESTADALES_SCTIS_V01.md](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/NAC_2026_GGPD_AUDITORIA_DATA_INTERRUPCIONES_ESTADALES_SCTIS_V01.md)
+   - **Word DOCX:** [NAC_2026_GGPD_AUDITORIA_DATA_INTERRUPCIONES_ESTADALES_SCTIS_V01.docx](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/NAC_2026_GGPD_AUDITORIA_DATA_INTERRUPCIONES_ESTADALES_SCTIS_V01.docx)
+   - **Word DOC:** [NAC_2026_GGPD_AUDITORIA_DATA_INTERRUPCIONES_ESTADALES_SCTIS_V01.doc](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/NAC_2026_GGPD_AUDITORIA_DATA_INTERRUPCIONES_ESTADALES_SCTIS_V01.doc)
+   - **Contenido:** Matriz de 25 estados, diagnóstico crítico en origen, arquitectura del escudo de ingesta SCTIS v2.0, análisis cuantitativo de horas-hombre y hoja de ruta de gobernanza ISO 8000 / ISO 9001 / ISO 55000.
+4. **Presentación Ejecutiva del Informe Económico Cloud & IA (`INF-STI-2026-008-V3`):**
+   - **HTML:** [NAC_2026_GGPD_PRESENTACION_INFORME_ECONOMICO_SERVICIOS_CLOUD_IA_2026.html](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/NAC_2026_GGPD_PRESENTACION_INFORME_ECONOMICO_SERVICIOS_CLOUD_IA_2026.html)
+   - **PDF:** [NAC_2026_GGPD_PRESENTACION_INFORME_ECONOMICO_SERVICIOS_CLOUD_IA_2026.pdf](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/NAC_2026_GGPD_PRESENTACION_INFORME_ECONOMICO_SERVICIOS_CLOUD_IA_2026.pdf) (4.4 MB, 12 slides)
+   - **Foco:** Finanzas, Presupuesto, Justificación de la Unidad de IA, ROI > 5,000% y 3 escenarios ($64.98, $54.99 y $19.99/mes).
+5. **Presentación Corporativa SIGI GGPD 2026:**
+   - **HTML:** [NAC_2026_GGPD_PRESENTACION_CORPORATIVA_SIGI_2026.html](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/NAC_2026_GGPD_PRESENTACION_CORPORATIVA_SIGI_2026.html)
+   - **PDF:** [NAC_2026_GGPD_PRESENTACION_CORPORATIVA_SIGI_2026.pdf](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/NAC_2026_GGPD_PRESENTACION_CORPORATIVA_SIGI_2026.pdf) (4.8 MB, 12 slides)
+6. **Informe Técnico-Económico de Servicios Cloud & IA (INF-STI-2026-008-V3):**
+   - **Markdown:** [INF-STI-2026-008-V3_INFORME_TECNICO_ECONOMICO_SERVICIOS_CLOUD_ISO.md](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/INF-STI-2026-008-V3_INFORME_TECNICO_ECONOMICO_SERVICIOS_CLOUD_ISO.md)
+   - **Word DOCX:** [INF-STI-2026-008-V3_INFORME_TECNICO_ECONOMICO_SERVICIOS_CLOUD_ISO.docx](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/INF-STI-2026-008-V3_INFORME_TECNICO_ECONOMICO_SERVICIOS_CLOUD_ISO.docx)
+   - **Word DOC:** [INF-STI-2026-008-V3_INFORME_TECNICO_ECONOMICO_SERVICIOS_CLOUD_ISO.doc](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/INF-STI-2026-008-V3_INFORME_TECNICO_ECONOMICO_SERVICIOS_CLOUD_ISO.doc)
+7. **Estandarización Institucional:**
+   - Unidad Emisora unificada: **"Equipo de Automatización e Ingeniería de Productos con IA, de Planificación de Distribución"**
+   - Autoría y corrección ortográfica del apellido: **Yván M. Cipiran N.** y **T.S.U. Josué Pacheco**.
 
 
 
@@ -154,22 +187,36 @@ Todos los microservicios y el portal central se encuentran **activos y respondie
 9. **Auditoría Forense de 1.377 Archivos, Mapa de Procesos en Pools y Campaña de Simplificación:**
    - **Exclusión Segura en Git:** Subdirectorio `docs/010 REGISTROS 2026/` (2.2 GB / 1.377 archivos) excluido en `.gitignore` y purgado del índice para evitar sobrecarga de I/O y memoria en la máquina local.
    - **Dictamen e Informe de Auditoría Sistémica:** Creado [`docs/NAC_2026_GGPD_AUDITORIA_SISTEMICA_INSTRUMENTOS_OPERATIVOS_LEGACY_V01.md`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/NAC_2026_GGPD_AUDITORIA_SISTEMICA_INSTRUMENTOS_OPERATIVOS_LEGACY_V01.md) (`GGPD-SGM-AUD-001 v1.0 ISO`) con sus respectivos `.docx` y `.doc`.
-   - **Mapa de Interconexión, Solapamientos y Decálogo de Simplificación:** Creado [`docs/NAC_2026_GGPD_ANALISIS_INTERCONEXION_SOLAPAMIENTOS_PROCESOS_V01.md`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/NAC_2026_GGPD_ANALISIS_INTERCONEXION_SOLAPAMIENTOS_PROCESOS_V01.md) (`GGPD-SGM-PRC-001 v2.0 ISO`), `.docx` y `.doc`.
    - **Lámina Vectorial SVG en Carriles (2600x1600):** Creado [`docs/NAC_2026_GGPD_MAPA_INTERCONEXION_SOLAPAMIENTO_PROCESOS_2026.svg`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/NAC_2026_GGPD_MAPA_INTERCONEXION_SOLAPAMIENTO_PROCESOS_2026.svg).
    - **Gobernanza MDM & Homologación:** Definida la arquitectura de sugerencias de 1-clic en 3 niveles de confianza y linaje inmutable ISO 8000 / ISO 27001.
+10. **Presentación Corporativa & Guía Pedagógica para Decisores (SIGI, Data Lake & Wizard ISO 8000):**
+    - Creado documento maestro [`docs/NAC_2026_GGPD_PRESENTACION_EJECUTIVA_SIGI_DATA_LAKE_ISO8000_V01.md`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/NAC_2026_GGPD_PRESENTACION_EJECUTIVA_SIGI_DATA_LAKE_ISO8000_V01.md) (`GGPD-SGM-PRE-001 v1.0 ISO`).
+    - Compilados los binarios nativos imprimibles [`NAC_2026_GGPD_PRESENTACION_EJECUTIVA_SIGI_DATA_LAKE_ISO8000_V01.docx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/NAC_2026_GGPD_PRESENTACION_EJECUTIVA_SIGI_DATA_LAKE_ISO8000_V01.docx) y [`NAC_2026_GGPD_PRESENTACION_EJECUTIVA_SIGI_DATA_LAKE_ISO8000_V01.doc`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/NAC_2026_GGPD_PRESENTACION_EJECUTIVA_SIGI_DATA_LAKE_ISO8000_V01.doc).
+12. **Auditoría, Remediación y Normalización de Activos de Red (871 SEs y 4,207 CTs) — Gemini SPARK:**
+    - **Origen:** Procesamiento del archivo `apps/caracterizacion_distribucion/data/caracterizacion_distribucion_normalizado.xlsx`.
+    - **Remediación ISO 8000-110:**
+      - Normalización de la cabecera `YARACAL II` en Falcón (subsanando OCR `LL` $\to$ `II` y vinculando `CT-FAL-01467..01469` al nodo `SE-FAL-0320`).
+      - Saneamiento de 11 circuitos con cabecera en blanco vinculados a sus nodos padre (Carabobo y Zulia).
+      - **100% de Integridad Referencial** comprobada (0 huérfanos entre CTs y SEs).
+    - **Persistencia en Base de Datos Supabase:**
+      - Generado el script SQL idempotente [`sql/03_poblar_activos_red_caracterizacion.sql`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/sql/03_poblar_activos_red_caracterizacion.sql) con 5,078 sentencias UPSERT enriqueciendo `metadata_tecnica JSONB`.
+    - **Actualización de Catálogos Maestros de Data Lake Spark:**
+      - Actualizado [`scripts/generate_spark_catalogs.py`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/scripts/generate_spark_catalogs.py) y regenerados los 7 libros Excel en `docs/catalogos_maestros_spark/`.
+    - **Sincronización de Frontend SIGI Distribución:**
+      - Actualizado [`masterCatalogsLegacy.json`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/src/data/masterCatalogsLegacy.json) y [`AssetsMapDashboard.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/src/components/dashboards/AssetsMapDashboard.tsx) con las estadísticas exactas por estado.
+      - Validación de compilación exitosa (`npm run build` con código 0 y 0 errores).
+    - **Documentación Técnica y Normativa ISO:**
+      - Creado el informe [`apps/caracterizacion_distribucion/docs/NAC_2026_GGPD_AUDITORIA_CARACTERIZACION_ACTIVOS_RED_V01.md`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/caracterizacion_distribucion/docs/NAC_2026_GGPD_AUDITORIA_CARACTERIZACION_ACTIVOS_RED_V01.md) (`GGPD-SGM-AUD-002 v1.0 ISO`) y compilados sus binarios nativos `.docx` y `.doc`.
 
 ---
 
-## 📋 6. Tareas Pendientes / Próximos Pasos Prioritarios (Reanudación en 5 Horas)
+## 📋 6. Tareas Pendientes / Próximos Pasos Prioritarios
+- [x] **Auditoría, Remediación y Normalización de Activos de Red:** Integrados 871 SEs y 4,207 CTs en BD Supabase, Catálogos Spark, SIGI y reportes Word.
 - [x] **Integración y Gobernanza Google Drive:** Implementado control RBAC, doble cuenta de correo, bandeja de aprobaciones y Webhook con `bk.ggpd.corpoelec@gmail.com`.
-- [x] **Aprovisionamiento de Árbol de Directorios del Data Lake 2026:** Ejecutado y desplegado en Google Drive para los 25 Estados de Venezuela (`01_DCA` a `25_GEQ`), los 4 macro-procesos (`SCTIS`, `SCEIN`, `SCPPE`, `SCMTP`), carpetas del año `2026`, meses operativos y `99_CONSOLIDADOS_NACIONALES`.
-- [x] **Módulo de Ingesta Inteligente & Calidad ISO 8000 (`DataIngestionHub.tsx`):** Validación en caliente de nomenclatura, inspección sintáctica fila por fila, cálculo de índice OTQR, segregación de registros conformes / no conformes, generación de planillas de remediación `.xlsx` y registro de tareas en SCMTP.
-- [x] **Módulo de Catálogo de Procesos & Aprovisionamiento Dinámico (`ProcessDirectoryManager.tsx`):** Registro de nuevos procesos operativos, definición de esquema de columnas, generador de plantillas y sincronización vía Webhook.
-- [x] **Asistente Wizard ISO 8000 & Auditoría Heurística (`InstrumentDesignWizard.tsx`):** Motor de detección de antipatrones (1NF/3NF), Catálogos Maestros (MDM Registry) con integración dinámica de catálogos Legacy extraídos (48 listas, 997+ items vía `legacyCatalogService.ts`), dictamen pedagógico Google Gemini IA y opción de rediseño evolutivo de procesos.
-- [x] **Informe y Dictamen de Auditoría Sistémica de Instrumentos Legacy:** Generado [`docs/NAC_2026_GGPD_AUDITORIA_SISTEMICA_INSTRUMENTOS_OPERATIVOS_LEGACY_V01.md`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/NAC_2026_GGPD_AUDITORIA_SISTEMICA_INSTRUMENTOS_OPERATIVOS_LEGACY_V01.md) (`GGPD-SGM-AUD-001 v1.0 ISO`) con sus respectivos `.docx` y `.doc` para presentación gerencial.
-- [x] **Mapa de Interconexión y Solapamiento de Procesos (O&M):** Creado [`docs/NAC_2026_GGPD_ANALISIS_INTERCONEXION_SOLAPAMIENTOS_PROCESOS_V01.md`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/NAC_2026_GGPD_ANALISIS_INTERCONEXION_SOLAPAMIENTOS_PROCESOS_V01.md) (`GGPD-SGM-PRC-001 v1.0 ISO`) y Diagrama SVG de Alta Resolución en Pools/Carriles [`docs/NAC_2026_GGPD_MAPA_INTERCONEXION_SOLAPAMIENTO_PROCESOS_2026.svg`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/NAC_2026_GGPD_MAPA_INTERCONEXION_SOLAPAMIENTO_PROCESOS_2026.svg) (2600x1600).
-- [x] **Documentación y Diagrama SVG de Alta Resolución:** Manual ISO `GGPD-SGM-INS-006` (.md, .docx, .doc) y Diagrama `GGPD-SGM-DIA-001` (SVG 2400x1450).
-- [x] **Despliegue y Sincronización en GitHub:** Repositorio maestro y standalone 100% sincronizados.
+- [x] **Aprovisionamiento de Árbol de Directorios del Data Lake 2026:** Desplegado en Google Drive para 25 Estados y 4 macro-procesos.
+- [x] **Módulo de Ingesta Inteligente & Calidad ISO 8000 (`DataIngestionHub.tsx`):** Validación en caliente, índice OTQR, segregación y planillas de remediación.
+- [x] **Asistente Wizard ISO 8000 & Catálogos Maestros (MDM):** Detección heurística de antipatrones y rediseño evolutivo.
+- [x] **Generación de Catálogos Maestros y Prompt Google Spark:** 7 libros `.xlsx` y prompt de ingeniería de datos.
 - [ ] **Jornada de Pruebas de Calidad (QA) con Usuarios Estadales:** Validar en vivo el flujo de login con las 25 cuentas territoriales y la carga de archivos de prueba en el nuevo Módulo de Ingesta Inteligente.
 - [ ] **Validación de Conexión Supabase:** Probar el botón "Probar Conexión" y explorador de tablas en la consola web.
 - [ ] **Carga Piloto de Nuevos Procesos:** Probar en caliente la creación y carga de un proceso real (ej. Diagnóstico de Subestaciones `08_SCDXS` o Termografía `09_SCTER`).
@@ -180,4 +227,5 @@ Todos los microservicios y el portal central se encuentran **activos y respondie
 - **Políticas de Seguridad:** RLS obligatorio en todas las tablas de Supabase; nunca exponer `service_role_key` en el frontend.
 - **Nomenclatura Normativa:** Todos los documentos institucionales deben mantener el estándar `NAC_2026_GGPD_*` y código GGPD-SGM-INS-*.
 - **Compatibilidad con Agentes:** Este archivo debe ser actualizado por cada agente de IA antes de finalizar su turno de trabajo.
+
 

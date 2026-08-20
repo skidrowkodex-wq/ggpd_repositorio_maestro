@@ -6,7 +6,7 @@
 **ENTIDAD:** Corporación Eléctrica Nacional S.A. (CORPOELEC) — Ministerio del Poder Popular para la Energía Eléctrica (MPPEE)  
 **DESPACHO DESTINO:** Gerencia General de Distribución  
 **DIRIGIDO A:** Ing. Adrian Correa | Ing. Carlos Reyes  
-**ELABORADO Y GENERADO POR:** Yvan Ciprián | T.S.U. Josue Pacheco  
+**ELABORADO Y GENERADO POR:** Yvan Cipiran | T.S.U. Josue Pacheco  
 **PLATAFORMA Y MODELO DE IA:** Antigravity Platform — Google Gemini 3.6 Flash (High)  
 **MARCOS NORMATIVOS Y ESTÁNDARES:** ISO 8000:2022 | ISO 9001:2015 | ISO/IEC 27001:2022 | ISO 55000/55001 | ISACA COBIT 2019 | IEC 81346-10 (RDS-PS)  
 
@@ -129,7 +129,7 @@ El informe destaca la eficiencia sin precedentes alcanzada mediante la combinaci
 ---
 
 **Elaborado y Auditado por:**  
-* **Yvan Ciprián** — Repositorio Maestro / GGPD  
+* **Yvan Cipiran** — Repositorio Maestro / GGPD  
 * **T.S.U. Josue Pacheco** — Repositorio Maestro / GGPD  
 * *Con la asistencia técnica de la plataforma **Antigravity** y el modelo **Gemini 3.6 Flash (High)***  
 

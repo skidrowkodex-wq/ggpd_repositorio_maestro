@@ -8,6 +8,14 @@
 # Node dependencies
 node_modules/
 
+# Build artifacts
+dist/
+build/
+*.pyc
+__pycache__/
+
 # Registros y documentos masivos locales
 docs/010 REGISTROS 2026/
+apps/sctis-v-2.0-distribucion/carga_qa/
+apps/sctis-v-2.0-distribucion/interrupciones/uploads/
 

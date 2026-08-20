@@ -3,6 +3,7 @@ import psycopg2.extras
 import sqlite3
 import os
 import re
+import json
 import logging
 from flask import g
 from werkzeug.security import generate_password_hash
@@ -251,12 +252,410 @@ def _init_sqlite_tables(conn):
             asset_code TEXT,
             asset_name TEXT NOT NULL,
             asset_name_normalizado TEXT,
-            asset_type TEXT,
+            asset_type TEXT NOT NULL,
+            asset_subtype TEXT DEFAULT 'DISTRIBUCION',
             state_code TEXT,
-            parent_id INTEGER
+            parent_id INTEGER,
+            parent_asset_id INTEGER,
+            voltage_kv REAL,
+            classification TEXT DEFAULT 'INTERNO',
+            source_process TEXT DEFAULT 'sctis_seed',
+            status TEXT DEFAULT 'OPERATIVO',
+            is_active INTEGER DEFAULT 1,
+            elemento_tipo TEXT,
+            elemento_codigo TEXT,
+            created_by TEXT DEFAULT 'system',
+            updated_by TEXT DEFAULT 'system',
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT DEFAULT CURRENT_TIMESTAMP
         );
     """)
     _ensure_sqlite_column(cur, "common.assets", "asset_name_normalizado", "TEXT")
+    _ensure_sqlite_column(cur, "common.assets", "asset_subtype", "TEXT DEFAULT 'DISTRIBUCION'")
+    _ensure_sqlite_column(cur, "common.assets", "parent_asset_id", "INTEGER")
+    _ensure_sqlite_column(cur, "common.assets", "voltage_kv", "REAL")
+    _ensure_sqlite_column(cur, "common.assets", "classification", "TEXT DEFAULT 'INTERNO'")
+    _ensure_sqlite_column(cur, "common.assets", "source_process", "TEXT DEFAULT 'sctis_seed'")
+    _ensure_sqlite_column(cur, "common.assets", "status", "TEXT DEFAULT 'OPERATIVO'")
+    _ensure_sqlite_column(cur, "common.assets", "is_active", "INTEGER DEFAULT 1")
+    _ensure_sqlite_column(cur, "common.assets", "elemento_tipo", "TEXT")
+    _ensure_sqlite_column(cur, "common.assets", "elemento_codigo", "TEXT")
+
+    # 6. sctis.asset_alias
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS "sctis.asset_alias" (
+            alias_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            estado_codigo TEXT NOT NULL,
+            asset_type TEXT NOT NULL,
+            alias_nombre TEXT NOT NULL,
+            se_referencia TEXT DEFAULT '',
+            asset_id INTEGER,
+            usuario TEXT,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(estado_codigo, asset_type, alias_nombre, se_referencia)
+        );
+    """)
+
+    # 7. sctis.asset_request
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS "sctis.asset_request" (
+            request_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            estado_codigo TEXT NOT NULL,
+            asset_type TEXT NOT NULL,
+            nombre_reportado TEXT NOT NULL,
+            nombre_normalizado TEXT,
+            se_referencia TEXT DEFAULT '',
+            se_request_id INTEGER,
+            voltage_kv REAL,
+            filas_afectadas INTEGER DEFAULT 1,
+            clasificacion TEXT,
+            sugerencia_alias INTEGER,
+            estado_request TEXT DEFAULT 'PENDIENTE',
+            asset_creado_id INTEGER,
+            submission_id INTEGER,
+            requested_by TEXT,
+            decided_by TEXT,
+            decided_at TEXT,
+            comentario TEXT,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(estado_codigo, asset_type, nombre_reportado, se_referencia)
+        );
+    """)
+
+    # 8. sctis.formato_catalogo
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS "sctis.formato_catalogo" (
+            formato_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            formato_codigo TEXT NOT NULL UNIQUE,
+            formato_nombre TEXT NOT NULL,
+            estado_codigo TEXT,
+            header_keywords TEXT,
+            header_row INTEGER DEFAULT 1,
+            data_start_row INTEGER DEFAULT 2,
+            mapeo_columnas TEXT,
+            reglas TEXT,
+            campos_faltantes TEXT,
+            activo INTEGER DEFAULT 1,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+
+    # Seed initial formato_catalogo
+    if True:
+        catalog_formats = [
+            (
+                'F328', 'Formato F328 - Sistema Eléctrico', None,
+                json.dumps(['NUM F328', 'FECHA INICIO', 'HORA INICIO', 'S/E', 'CIRCUITO', 'T.ASIG.', 'T.REP.', 'T.TOTAL', 'MVAMIN', 'REGION']),
+                1, 2,
+                json.dumps({
+                    "S/E": {"target": "subestacion", "tipo": "texto"},
+                    "CIRCUITO": {"target": "circuito", "tipo": "texto"},
+                    "BARRA / CIRCUITO": {"target": "circuito", "tipo": "texto"},
+                    "SUBESTACION": {"target": "subestacion", "tipo": "texto"},
+                    "FECHA INICIO": {"target": "fecha_inicio", "tipo": "fecha"},
+                    "HORA INICIO": {"target": "hora_inicio", "tipo": "hora"},
+                    "FECHA REP.": {"target": "fecha_fin", "tipo": "fecha"},
+                    "HORA REP.": {"target": "hora_fin", "tipo": "hora"},
+                    "T. REP.": {"target": "horas", "tipo": "duracion_a_horas"},
+                    "T.TOTAL": {"target": "horas", "tipo": "duracion_a_horas"},
+                    "MVAMIN REP.": {"target": "kva", "tipo": "mvamin_a_kva"},
+                    "KVA PROM": {"target": "kva", "tipo": "numerico"},
+                    "REGION": {"target": "sectores", "tipo": "texto"},
+                    "ESTADO": {"target": "ciudad", "tipo": "texto"},
+                    "MUNICIPIO": {"target": "sectores", "tipo": "texto"}
+                }),
+                json.dumps({
+                    "sistema": "default=DISTRIBUCION",
+                    "causa": "default=SIN CAUSA - F328",
+                    "sub_causa": "default=NULL",
+                    "observacion": "default=Formato F328 - sin observaciones",
+                    "fecha_falla": "derivar_de_fecha_inicio"
+                }),
+                json.dumps(['causa', 'sub_causa', 'observacion'])
+            ),
+            (
+                'TIRAS', 'Formato TIRAS Estándar', None,
+                json.dumps(['FECHA', 'SISTEMA', 'S/E', 'CIRCUITO', 'CAUSA', 'SUB CAUSA', 'OBSERVACION', 'KVA']),
+                1, 2,
+                json.dumps({
+                    "S/E": {"target": "subestacion", "tipo": "texto"},
+                    "SUBESTACION": {"target": "subestacion", "tipo": "texto"},
+                    "CIRCUITO": {"target": "circuito", "tipo": "texto"},
+                    "FECHA": {"target": "fecha_inicio", "tipo": "fecha"},
+                    "FECHA INI": {"target": "fecha_inicio", "tipo": "fecha_hora"},
+                    "FECHA FIN": {"target": "fecha_fin", "tipo": "fecha_hora"},
+                    "SISTEMA": {"target": "sistema", "tipo": "texto"},
+                    "CAUSA": {"target": "causa", "tipo": "texto"},
+                    "SUB CAUSA": {"target": "sub_causa", "tipo": "texto"},
+                    "OBSERVACION": {"target": "observacion", "tipo": "texto"},
+                    "KVA": {"target": "kva", "tipo": "numerico"},
+                    "DISTRITO": {"target": "ciudad", "tipo": "texto"},
+                    "JEFATURA": {"target": "jefatura", "tipo": "texto"},
+                    "C. SERVICIO": {"target": "jefatura", "tipo": "texto"},
+                    "SECTORES": {"target": "sectores", "tipo": "texto"},
+                    "CIUDAD": {"target": "ciudad", "tipo": "texto"},
+                    "T. hh:mm: ss": {"target": "horas", "tipo": "duracion_a_horas"},
+                    "T.HORAS": {"target": "horas", "tipo": "numerico"}
+                }),
+                json.dumps({"fecha_falla": "derivar_de_fecha_inicio"}),
+                json.dumps([])
+            ),
+            (
+                'AMAZONAS', 'Formato Tiras Amazonas', 'AMA',
+                json.dumps(['CIRCUITO', 'DISTRITO', 'JEFATURA', 'FECHA INI', 'FECHA FIN', 'CAUSA', 'SUB CAUSA']),
+                1, 2,
+                json.dumps({
+                    "S/E": {"target": "subestacion", "tipo": "texto"},
+                    "SUBESTACION": {"target": "subestacion", "tipo": "texto"},
+                    "CIRCUITO": {"target": "circuito", "tipo": "texto"},
+                    "DISTRITO": {"target": "ciudad", "tipo": "texto"},
+                    "JEFATURA": {"target": "jefatura", "tipo": "texto"},
+                    "FECHA INI": {"target": "fecha_inicio", "tipo": "fecha_hora"},
+                    "FECHA FIN": {"target": "fecha_fin", "tipo": "fecha_hora"},
+                    "FECHA": {"target": "fecha_inicio", "tipo": "fecha_hora"},
+                    "CAUSA": {"target": "causa", "tipo": "texto"},
+                    "SUB CAUSA": {"target": "sub_causa", "tipo": "texto"},
+                    "OBSERVACION": {"target": "observacion", "tipo": "texto"},
+                    "KVA": {"target": "kva", "tipo": "numerico"}
+                }),
+                json.dumps({"sistema": "default=DISTRIBUCION", "fecha_falla": "derivar_de_fecha_inicio"}),
+                json.dumps([])
+            ),
+            (
+                'ANZOATEGUI', 'Formato Anzoátegui / Nesparta', None,
+                json.dumps(['NRO. REGISTRO', 'CIRCUITOS', 'SUB ESTACION', 'FECHA DE APERTURA', 'MOTIVO DEL EVENTO', 'CAUSA DE LA FALLA']),
+                1, 2,
+                json.dumps({
+                    "CIRCUITOS": {"target": "circuito", "tipo": "texto"},
+                    "SUB ESTACION": {"target": "subestacion", "tipo": "texto"},
+                    "SUBESTACION": {"target": "subestacion", "tipo": "texto"},
+                    "NOMBRE DEL CIRCUITO": {"target": "circuito", "tipo": "texto"},
+                    "NO CIRCUITO": {"target": None, "tipo": "ignore"},
+                    "FECHA DE APERTURA (DD/MM/AAAA HH:MI:SS)": {"target": "fecha_inicio", "tipo": "fecha_hora"},
+                    "FECHA DE APERTURA": {"target": "fecha_inicio", "tipo": "fecha_hora"},
+                    "MOTIVO DEL EVENTO": {"target": None, "tipo": "ignore"},
+                    "SISTEMA": {"target": "sistema", "tipo": "texto"},
+                    "DESCRIPCIÓN": {"target": "observacion", "tipo": "texto"},
+                    "NOTA DE CIERRE": {"target": None, "tipo": "ignore"},
+                    "CAUSA DE LA FALLA": {"target": "causa", "tipo": "texto"},
+                    "CLASE DE EQUIPOS": {"target": None, "tipo": "ignore"},
+                    "CONSECUENCIAS": {"target": None, "tipo": "ignore"},
+                    "HORAS DE DURACIÓN": {"target": "horas", "tipo": "duracion_a_horas"},
+                    "POBLACIÓN": {"target": "sectores", "tipo": "texto"},
+                    "MES": {"target": "mes", "tipo": "texto"}
+                }),
+                json.dumps({"jefatura": "default=NULL", "senal": "default=NULL", "fecha_falla": "derivar_de_fecha_inicio"}),
+                json.dumps(['jefatura', 'senal'])
+            ),
+            (
+                'CARABOBO', 'Formato Carabobo', None,
+                json.dumps(['ESTADO', 'FECHA', 'SISTEMA', 'SUBESTACION', 'CIRCUITO', 'AMPERIOS', 'INICIO', 'FIN', 'DURACION']),
+                2, 3,
+                json.dumps({
+                    "SUBESTACION": {"target": "subestacion", "tipo": "texto"},
+                    "CIRCUITO": {"target": "circuito", "tipo": "texto"},
+                    "CENTRO DE SERVICIO": {"target": "jefatura", "tipo": "texto"},
+                    "FECHA": {"target": "fecha_inicio", "tipo": "fecha"},
+                    "INICIO": {"target": "hora_inicio", "tipo": "hora"},
+                    "FIN": {"target": "hora_fin", "tipo": "hora"},
+                    "DURACION": {"target": "horas", "tipo": "duracion_a_horas"},
+                    "AMPERIOS": {"target": None, "tipo": "ignore"},
+                    "INS R": {"target": None, "tipo": "ignore"},
+                    "INS S": {"target": None, "tipo": "ignore"},
+                    "INS T": {"target": None, "tipo": "ignore"},
+                    "INS N": {"target": None, "tipo": "ignore"}
+                }),
+                json.dumps({"sistema": "default=DISTRIBUCION", "causa": "default=NULL", "sub_causa": "default=NULL", "observacion": "default=NULL", "fecha_falla": "derivar_de_fecha_inicio"}),
+                json.dumps(['causa', 'sub_causa', 'observacion', 'senal', 'tti_cto'])
+            ),
+            (
+                'CAPITAL', 'Formato Capital', None,
+                json.dumps(['FECHA INICIO', 'SISTEMA', 'SUBESTACION', 'GENERADOR_SUBESTACION CIRCUITO', 'DURACION', 'KVA INTERRUMP']),
+                2, 3,
+                json.dumps({
+                    "SUBESTACION": {"target": "subestacion", "tipo": "texto"},
+                    "GENERADOR_SUBESTACION CIRCUITO": {"target": "circuito", "tipo": "texto"},
+                    "FECHA INICIO": {"target": "fecha_inicio", "tipo": "fecha"},
+                    "HORA": {"target": "hora_inicio", "tipo": "hora"},
+                    "SISTEMA": {"target": "sistema", "tipo": "texto"},
+                    "DURACION": {"target": "horas", "tipo": "duracion_a_horas"},
+                    "KVA INTERRUMP": {"target": "kva", "tipo": "numerico"},
+                    "MVAMIN": {"target": None, "tipo": "ignore"},
+                    "DESCRIPCION CAUSA": {"target": "causa", "tipo": "texto"},
+                    "DESCRIPCION MATERIAL": {"target": "observacion", "tipo": "texto"},
+                    "REGION": {"target": "sectores", "tipo": "texto"},
+                    "ESTADO": {"target": "ciudad", "tipo": "texto"},
+                    "SECTOR AFECTADO": {"target": "sectores", "tipo": "texto"}
+                }),
+                json.dumps({"sub_causa": "default=NULL", "senal": "default=NULL", "fecha_falla": "derivar_de_fecha_inicio"}),
+                json.dumps(['sub_causa', 'senal'])
+            ),
+            (
+                'GUARICO_1', 'Formato Guárico (Variante 1)', None,
+                json.dumps(['FECHA', 'CS DE SERVICIO', 'SUBESTACIÓN', 'CIRCUITO', 'TIPO DE RED', 'CARGA (KVA)', 'HORA DE APERTURA', 'HORA DE CIERRE']),
+                2, 3,
+                json.dumps({
+                    "SUBESTACIÓN": {"target": "subestacion", "tipo": "texto"},
+                    "CIRCUITO": {"target": "circuito", "tipo": "texto"},
+                    "CS DE SERVICIO": {"target": "jefatura", "tipo": "texto"},
+                    "FECHA": {"target": "fecha_inicio", "tipo": "fecha"},
+                    "HORA DE APERTURA": {"target": "hora_inicio", "tipo": "hora"},
+                    "HORA DE CIERRE": {"target": "hora_fin", "tipo": "hora"},
+                    "TIEMPO INTERRUPCIÓN": {"target": "horas", "tipo": "duracion_a_horas"},
+                    "DURACION EN MIN": {"target": "horas", "tipo": "minutos_a_horas"},
+                    "CARGA (KVA)": {"target": "kva", "tipo": "numerico"}
+                }),
+                json.dumps({"sistema": "default=DISTRIBUCION", "causa": "default=NULL", "sub_causa": "default=NULL", "observacion": "default=NULL", "fecha_falla": "derivar_de_fecha_inicio"}),
+                json.dumps(['causa', 'sub_causa', 'observacion', 'sectores', 'ciudad'])
+            ),
+            (
+                'GUARICO_2', 'Formato Guárico (Variante 2)', None,
+                json.dumps(['FECHA', 'SUBESTACIÓN', 'CIRCUITO', 'NOMENCLATURA', 'NIVEL TENSIÓN', 'HORA DE APERTURA', 'HORA DE CIERRE']),
+                2, 3,
+                json.dumps({
+                    "SUBESTACIÓN": {"target": "subestacion", "tipo": "texto"},
+                    "CIRCUITO": {"target": "circuito", "tipo": "texto"},
+                    "NOMENCLATURA": {"target": None, "tipo": "ignore"},
+                    "FECHA": {"target": "fecha_inicio", "tipo": "fecha"},
+                    "HORA DE APERTURA": {"target": "hora_inicio", "tipo": "hora"},
+                    "HORA DE CIERRE": {"target": "hora_fin", "tipo": "hora"},
+                    "TIEMPO INTERRUPCIÓN": {"target": "horas", "tipo": "duracion_a_horas"},
+                    "NIVEL TENSIÓN (KV)": {"target": None, "tipo": "ignore"},
+                    "CARGA (MW)": {"target": "kva", "tipo": "mw_a_kva"}
+                }),
+                json.dumps({"sistema": "default=DISTRIBUCION", "causa": "default=NULL", "sub_causa": "default=NULL", "observacion": "default=NULL", "fecha_falla": "derivar_de_fecha_inicio"}),
+                json.dumps(['causa', 'sub_causa', 'observacion', 'sectores', 'ciudad'])
+            ),
+            (
+                'YARACUY', 'Formato Yaracuy', None,
+                json.dumps(['MES', 'FECHA', 'CENTRO DE SERVICIO', 'SUB-ESTACION', 'CIRCUITO', 'DURACION', 'CAUSA']),
+                2, 3,
+                json.dumps({
+                    "SUB-ESTACION": {"target": "subestacion", "tipo": "texto"},
+                    "SUBESTACION": {"target": "subestacion", "tipo": "texto"},
+                    "CIRCUITO": {"target": "circuito", "tipo": "texto"},
+                    "CENTRO DE SERVICIO": {"target": "jefatura", "tipo": "texto"},
+                    "FECHA": {"target": "fecha_inicio", "tipo": "fecha"},
+                    "MES": {"target": "mes", "tipo": "texto"},
+                    "DURACION": {"target": "horas", "tipo": "duracion_a_horas"},
+                    "CARGA (A)": {"target": None, "tipo": "ignore"},
+                    "CAUSA": {"target": "causa", "tipo": "texto"},
+                    "(SUB-CAUSA)": {"target": "sub_causa", "tipo": "texto"},
+                    "KV CIRCUITO": {"target": None, "tipo": "ignore"},
+                    "TTI (F)": {"target": "tti_cto", "tipo": "numerico"},
+                    "KVA-INTERR": {"target": "kva", "tipo": "numerico"},
+                    "MUNICIPIO (INDICADOR)": {"target": "sectores", "tipo": "texto"}
+                }),
+                json.dumps({"observacion": "default=NULL", "fecha_falla": "derivar_de_fecha_inicio"}),
+                json.dumps(['observacion', 'ciudad'])
+            ),
+            (
+                'ZULIA', 'Formato Zulia', None,
+                json.dumps(['SUBESTACION', 'CIRCUITO', 'NOMENCLATURA', 'TENSION', 'CARGA', 'FECHA DE', 'HORA DE', 'TIEMPO', 'MWH']),
+                1, 2,
+                json.dumps({
+                    "SUBESTACION": {"target": "subestacion", "tipo": "texto"},
+                    "CIRCUITO": {"target": "circuito", "tipo": "texto"},
+                    "NOMENCLATURA": {"target": None, "tipo": "ignore"},
+                    "TENSION": {"target": None, "tipo": "ignore"},
+                    "CARGA": {"target": "kva", "tipo": "numerico"},
+                    "FECHA DE APERTURA": {"target": "fecha_inicio", "tipo": "fecha"},
+                    "HORA DE APERTURA": {"target": "hora_inicio", "tipo": "hora"},
+                    "FECHA DE CIERRE": {"target": "fecha_fin", "tipo": "fecha"},
+                    "HORA DE CIERRE": {"target": "hora_fin", "tipo": "hora"},
+                    "TIEMPO": {"target": "horas", "tipo": "duracion_a_horas"},
+                    "MWH (TTI)": {"target": "tti_cto", "tipo": "numerico"},
+                    "TIPO": {"target": None, "tipo": "ignore"},
+                    "OBSERVACION": {"target": "observacion", "tipo": "texto"},
+                    "TIPO DE FALLA": {"target": "causa", "tipo": "texto"}
+                }),
+                json.dumps({"sistema": "default=DISTRIBUCION", "sub_causa": "default=NULL", "fecha_falla": "derivar_de_fecha_inicio"}),
+                json.dumps(['sub_causa', 'sectores', 'ciudad'])
+            ),
+            (
+                'MIRANDA_TUY', 'Formato Miranda Tuy Barlovento', None,
+                json.dumps(['S/E', 'CIRCUITO', 'NIVEL DE TENSION', 'SISTEMA', 'HORA INICIO', 'DURACION', 'CAUSA']),
+                2, 3,
+                json.dumps({
+                    "S/E": {"target": "subestacion", "tipo": "texto"},
+                    "CIRCUITO": {"target": "circuito", "tipo": "texto"},
+                    "SISTEMA": {"target": "sistema", "tipo": "texto"},
+                    "HORA INICIO": {"target": "hora_inicio", "tipo": "hora"},
+                    "HORA FINAL": {"target": "hora_fin", "tipo": "hora"},
+                    "DURACION": {"target": "horas", "tipo": "duracion_a_horas"},
+                    "DURACIÓN T-HORAS": {"target": "horas", "tipo": "numerico"},
+                    "KVA PROM": {"target": "kva", "tipo": "numerico"},
+                    "TTI": {"target": "tti_cto", "tipo": "numerico"},
+                    "SEÑAL": {"target": "senal", "tipo": "texto"},
+                    "CAUSA": {"target": "causa", "tipo": "texto"},
+                    "SUB-CAUSA": {"target": "sub_causa", "tipo": "texto"},
+                    "CARGA (MW)": {"target": "kva", "tipo": "mw_a_kva"},
+                    "SECTORES": {"target": "sectores", "tipo": "texto"},
+                    "CIUDAD": {"target": "ciudad", "tipo": "texto"},
+                    "RACIÓN (AMP)": {"target": None, "tipo": "ignore"},
+                    "NIVEL DE TENSION": {"target": None, "tipo": "ignore"}
+                }),
+                json.dumps({"jefatura": "default=NULL", "fecha_falla": "derivar_de_fecha_inicio"}),
+                json.dumps([])
+            ),
+            (
+                'LARA', 'Formato Lara', None,
+                json.dumps(['ID EVENTO', 'CENTRO DE SERVICIO', 'SUBESTACION', 'CIRCUITO', 'KVA INTERRUPIDOS', 'FECHA', 'DURACION', 'CAUSA DE LA FALLA']),
+                4, 5,
+                json.dumps({
+                    "SUBESTACION": {"target": "subestacion", "tipo": "texto"},
+                    "CIRCUITO": {"target": "circuito", "tipo": "texto"},
+                    "CENTRO DE SERVICIO": {"target": "jefatura", "tipo": "texto"},
+                    "RESPONSABLE": {"target": "sistema", "tipo": "texto"},
+                    "FECHA": {"target": "fecha_inicio", "tipo": "fecha"},
+                    "HORA": {"target": "hora_inicio", "tipo": "hora"},
+                    "DURACION": {"target": "horas", "tipo": "duracion_a_horas"},
+                    "TIEMPO EN SEGUNDOS": {"target": None, "tipo": "ignore"},
+                    "KVA INTERRUPIDOS": {"target": "kva", "tipo": "numerico"},
+                    "CAUSA DE LA FALLA": {"target": "causa", "tipo": "texto"},
+                    "KV": {"target": None, "tipo": "ignore"},
+                    "KVA*SEGUNDOS": {"target": None, "tipo": "ignore"},
+                    "MES": {"target": "mes", "tipo": "texto"}
+                }),
+                json.dumps({"sub_causa": "default=NULL", "observacion": "default=NULL", "fecha_falla": "derivar_de_fecha_inicio"}),
+                json.dumps(['sub_causa', 'observacion', 'senal', 'sectores', 'ciudad'])
+            )
+        ]
+        cur.executemany("""
+            INSERT OR REPLACE INTO "sctis.formato_catalogo"
+                (formato_codigo, formato_nombre, estado_codigo, header_keywords, header_row, data_start_row, mapeo_columnas, reglas, campos_faltantes, activo)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+        """, catalog_formats)
+
+    # 9. sctis.record_quality_scores & duplicate groups
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS "sctis.record_quality_scores" (
+            score_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            tira_id INTEGER,
+            estado_codigo TEXT,
+            score_total REAL,
+            detalles_json TEXT,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS "sctis.duplicate_groups" (
+            group_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            estado_codigo TEXT,
+            total_duplicados INTEGER DEFAULT 0,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS "sctis.duplicate_members" (
+            member_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            group_id INTEGER REFERENCES "sctis.duplicate_groups"(group_id),
+            tira_id INTEGER,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
 
     states = [
         ('ZUL', 'ZULIA'), ('CAR', 'CARABOBO'), ('MIR', 'MIRANDA'), ('ARA', 'ARAGUA'),
@@ -269,7 +668,38 @@ def _init_sqlite_tables(conn):
     for s_code, s_name in states:
         cur.execute('INSERT OR IGNORE INTO "common.states" (state_code, state_name) VALUES (?, ?)', (s_code, s_name))
 
-    # 6. audit.access_log & audit.operation_log
+    # Seed initial assets for key states including Amazonas
+    sample_substations = [
+        ('AMA', 'PUERTO AYACUCHO 115 KV', 'Puerto Ayacucho', 115.0, [
+            'CENTRO', 'AEROPUERTO', 'SUR', 'SAN ENRIQUE', 'CATANIAPO', 'HIDROLOGICA', 'MONTE CARMELO'
+        ]),
+        ('AMA', 'SANARIAPO', 'Sanariapo', 13.8, ['SANARIAPO PUEBLO', 'EJE CARRETERO']),
+        ('AMA', 'ATABAPO', 'San Fernando de Atabapo', 13.8, ['ATABAPO CENTRO', 'GUASARE']),
+        ('BOL', 'MACAGUA', 'Macagua', 115.0, ['ALTA VISTA', 'UNARE', 'GUAYANA']),
+        ('DCA', 'SANTA ROSA', 'Santa Rosa', 115.0, ['BELLAS ARTES', 'CENTRO', 'AV BARALT']),
+        ('MIR', 'GUATIRE', 'Guatire', 115.0, ['CASTILLEJO', 'VILLA HEROICA', 'INTERCOMUNAL']),
+        ('CAR', 'GUACARA', 'Guacara', 115.0, ['ZONA INDUSTRIAL', 'YAGUA', 'CIUDAD ALIANZA']),
+        ('ZUL', 'MARACAIBO', 'Maracaibo', 115.0, ['5 DE JULIO', 'DELICIAS', 'BELLA VISTA']),
+    ]
+    for st_c, se_name, se_norm, volt, ctos in sample_substations:
+        cur.execute("""
+            INSERT OR IGNORE INTO "common.assets"
+                (asset_code, asset_name, asset_name_normalizado, asset_type, asset_subtype, state_code, voltage_kv, is_active)
+            VALUES (?, ?, ?, 'SUBSTATION', 'DISTRIBUCION', ?, ?, 1)
+        """, (se_name, se_name, se_norm, st_c, volt))
+        cur.execute('SELECT asset_id FROM "common.assets" WHERE asset_name = ? AND state_code = ? AND asset_type = "SUBSTATION"', (se_name, st_c))
+        se_row = cur.fetchone()
+        if se_row:
+            se_id = se_row[0]
+            for cto in ctos:
+                cto_code = f"{se_name} :: {cto}"
+                cur.execute("""
+                    INSERT OR IGNORE INTO "common.assets"
+                        (asset_code, asset_name, asset_name_normalizado, asset_type, state_code, parent_id, parent_asset_id, elemento_tipo, is_active)
+                    VALUES (?, ?, ?, 'CIRCUITO', ?, ?, ?, 'CTO', 1)
+                """, (cto_code, cto, cto, st_c, se_id, se_id))
+
+    # 10. audit.access_log & audit.operation_log
     cur.execute("""
         CREATE TABLE IF NOT EXISTS "audit.access_log" (
             log_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -284,7 +714,7 @@ def _init_sqlite_tables(conn):
         );
     """)
 
-    # 7. sctis.configuracion
+    # 11. sctis.configuracion
     cur.execute("""
         CREATE TABLE IF NOT EXISTS "sctis.configuracion" (
             clave TEXT PRIMARY KEY,
@@ -294,13 +724,14 @@ def _init_sqlite_tables(conn):
         );
     """)
 
-    # 8. sctis.tarea_pendiente
+    # 12. sctis.tarea_pendiente
     cur.execute("""
         CREATE TABLE IF NOT EXISTS "sctis.tarea_pendiente" (
             tarea_id INTEGER PRIMARY KEY AUTOINCREMENT,
             usuario_id INTEGER,
             estado_codigo TEXT NOT NULL,
             tipo_tarea TEXT DEFAULT 'INCOMPLETOS_SANEAMIENTO',
+            submission_id INTEGER,
             descripcion TEXT,
             registros_total INTEGER DEFAULT 0,
             registros_ok INTEGER DEFAULT 0,
@@ -313,22 +744,133 @@ def _init_sqlite_tables(conn):
             completed_at TEXT
         );
     """)
+    _ensure_sqlite_column(cur, "sctis.tarea_pendiente", "submission_id", "INTEGER")
 
-    # 9. audit.submissions
+    # 13. audit.submissions
     cur.execute("""
         CREATE TABLE IF NOT EXISTS "audit.submissions" (
             submission_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            process_code TEXT,
             state_code TEXT NOT NULL,
-            ingested_at TEXT DEFAULT CURRENT_TIMESTAMP,
-            ingested_by TEXT,
+            source_filename TEXT,
+            source_sheet TEXT,
+            sheet_names TEXT,
             row_count INTEGER DEFAULT 0,
+            accepted_count INTEGER DEFAULT 0,
+            rejected_count INTEGER DEFAULT 0,
+            validation_status TEXT DEFAULT 'SUCCESS',
+            formato_codigo TEXT,
+            ingested_by TEXT,
+            ingested_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            correction_file TEXT,
+            notes TEXT,
             filename TEXT,
             status TEXT DEFAULT 'SUCCESS'
         );
     """)
+    _ensure_sqlite_column(cur, "audit.submissions", "process_code", "TEXT")
+    _ensure_sqlite_column(cur, "audit.submissions", "source_filename", "TEXT")
+    _ensure_sqlite_column(cur, "audit.submissions", "source_sheet", "TEXT")
+    _ensure_sqlite_column(cur, "audit.submissions", "sheet_names", "TEXT")
+    _ensure_sqlite_column(cur, "audit.submissions", "accepted_count", "INTEGER DEFAULT 0")
+    _ensure_sqlite_column(cur, "audit.submissions", "rejected_count", "INTEGER DEFAULT 0")
+    _ensure_sqlite_column(cur, "audit.submissions", "validation_status", "TEXT DEFAULT 'SUCCESS'")
+    _ensure_sqlite_column(cur, "audit.submissions", "formato_codigo", "TEXT")
+    _ensure_sqlite_column(cur, "audit.submissions", "correction_file", "TEXT")
+    _ensure_sqlite_column(cur, "audit.submissions", "notes", "TEXT")
 
     conn.commit()
     _sqlite_initialized = True
+
+
+def _sqlite_array_length(val, dim=1):
+    if val is None:
+        return 0
+    if isinstance(val, (list, tuple)):
+        return len(val)
+    if isinstance(val, str):
+        val = val.strip()
+        if val.startswith('[') and val.endswith(']'):
+            try:
+                parsed = json.loads(val)
+                if isinstance(parsed, list):
+                    return len(parsed)
+            except Exception:
+                pass
+        if val.startswith('{') and val.endswith('}'):
+            items = val[1:-1].split(',')
+            return len([i for i in items if i.strip()])
+        return len(val.split(','))
+    return 1
+
+
+def _sqlite_split_part(string, delimiter, position):
+    if string is None:
+        return None
+    try:
+        parts = str(string).split(delimiter)
+        pos = int(position)
+        if 1 <= pos <= len(parts):
+            return parts[pos - 1]
+    except Exception:
+        pass
+    return ''
+
+
+def _sqlite_date_part(part, date_val):
+    if not date_val:
+        return None
+    try:
+        dt_str = str(date_val)
+        part = str(part).lower()
+        if part in ('year', 'y'):
+            return int(dt_str[:4])
+        elif part in ('month', 'mon'):
+            return int(dt_str[5:7])
+        elif part in ('day', 'd'):
+            return int(dt_str[8:10])
+        elif part in ('hour', 'h'):
+            return int(dt_str[11:13]) if len(dt_str) >= 13 else 0
+        elif part in ('minute', 'm', 'min'):
+            return int(dt_str[14:16]) if len(dt_str) >= 16 else 0
+    except Exception:
+        pass
+    return 0
+
+
+def _create_sqlite_connection():
+    conn = sqlite3.connect(_sqlite_file_path, timeout=60.0, check_same_thread=False)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA journal_mode=DELETE;")
+    conn.execute("PRAGMA synchronous=NORMAL;")
+    conn.execute("PRAGMA busy_timeout=60000;")
+
+    # Register custom PostgreSQL compatibility functions in SQLite
+    conn.create_function("array_length", 1, lambda v: _sqlite_array_length(v, 1))
+    conn.create_function("array_length", 2, _sqlite_array_length)
+    conn.create_function("split_part", 3, _sqlite_split_part)
+    conn.create_function("date_part", 2, _sqlite_date_part)
+    conn.create_function("greatest", -1, lambda *args: max([a for a in args if a is not None], default=None))
+    conn.create_function("least", -1, lambda *args: min([a for a in args if a is not None], default=None))
+    conn.create_function("concat", -1, lambda *args: "".join([str(a) for a in args if a is not None]))
+
+    # Quick integrity validation
+    cur = conn.cursor()
+    cur.execute("PRAGMA quick_check;")
+    res = cur.fetchone()
+    if res and res[0] != 'ok':
+        raise sqlite3.DatabaseError(f"Integrity check failed: {res[0]}")
+    return conn
+
+
+def _clean_sqlite_files():
+    for ext in ['', '-wal', '-shm', '-journal']:
+        fpath = _sqlite_file_path + ext
+        if os.path.exists(fpath):
+            try:
+                os.remove(fpath)
+            except Exception as e:
+                logger.warning(f"No se pudo eliminar {fpath}: {e}")
 
 
 def get_db():
@@ -341,23 +883,23 @@ def get_db():
                 g.db_type = 'postgres'
                 return g.db
             except Exception as err:
-                logger.info(f"PostgreSQL host no disponible. Usando motor SQLite local.")
+                logger.info("PostgreSQL host no disponible. Usando motor SQLite local.")
                 _use_sqlite = True
 
+        conn = None
         try:
-            conn = sqlite3.connect(_sqlite_file_path)
-            conn.row_factory = sqlite3.Row
+            conn = _create_sqlite_connection()
             _init_sqlite_tables(conn)
         except (sqlite3.DatabaseError, sqlite3.OperationalError) as err:
             logger.error(f"Error en SQLite ({err}). Recreando archivo de base de datos...")
             _sqlite_initialized = False
-            try:
-                if os.path.exists(_sqlite_file_path):
-                    os.remove(_sqlite_file_path)
-            except Exception:
-                pass
-            conn = sqlite3.connect(_sqlite_file_path)
-            conn.row_factory = sqlite3.Row
+            if conn:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
+            _clean_sqlite_files()
+            conn = _create_sqlite_connection()
             _init_sqlite_tables(conn)
 
         g.db = conn
@@ -369,7 +911,17 @@ def get_db():
 def close_db(e=None):
     db = g.pop('db', None)
     if db is not None:
-        db.close()
+        try:
+            if e is not None:
+                db.rollback()
+            else:
+                db.commit()
+        except Exception:
+            pass
+        try:
+            db.close()
+        except Exception:
+            pass
 
 
 def adapt_sql_for_sqlite(sql):
@@ -381,16 +933,31 @@ def adapt_sql_for_sqlite(sql):
     sql_adapted = re.sub(r'%s', '?', sql_adapted)
     # Convert Postgres timestamps / functions
     sql_adapted = re.sub(r"timezone\('America/Caracas',\s*now\(\)\)", "CURRENT_TIMESTAMP", sql_adapted, flags=re.IGNORECASE)
-    sql_adapted = re.sub(r"\bNOW\(\)", "CURRENT_TIMESTAMP", sql_adapted, flags=re.IGNORECASE)
+    sql_adapted = re.sub(r"\bnow\(\)", "CURRENT_TIMESTAMP", sql_adapted, flags=re.IGNORECASE)
     sql_adapted = re.sub(r"\bILIKE\b", "LIKE", sql_adapted, flags=re.IGNORECASE)
-    # Remove Postgres type casts (e.g. ::timestamp, ::text)
+    # Convert PostgreSQL IS NOT DISTINCT FROM / IS DISTINCT FROM
+    sql_adapted = re.sub(r'\bIS\s+NOT\s+DISTINCT\s+FROM\b', 'IS', sql_adapted, flags=re.IGNORECASE)
+    sql_adapted = re.sub(r'\bIS\s+DISTINCT\s+FROM\b', 'IS NOT', sql_adapted, flags=re.IGNORECASE)
+    # Convert EXTRACT functions
+    sql_adapted = re.sub(r'EXTRACT\s*\(\s*YEAR\s+FROM\s+([a-zA-Z0-9_\.]+)\s*\)', r"strftime('%Y', \1)", sql_adapted, flags=re.IGNORECASE)
+    sql_adapted = re.sub(r'EXTRACT\s*\(\s*HOUR\s+FROM\s+([a-zA-Z0-9_\.]+)\s*\)', r"CAST(strftime('%H', \1) AS INTEGER)", sql_adapted, flags=re.IGNORECASE)
+    sql_adapted = re.sub(r'EXTRACT\s*\(\s*MONTH\s+FROM\s+([a-zA-Z0-9_\.]+)\s*\)', r"CAST(strftime('%m', \1) AS INTEGER)", sql_adapted, flags=re.IGNORECASE)
+    sql_adapted = re.sub(r'EXTRACT\s*\(\s*DAY\s+FROM\s+([a-zA-Z0-9_\.]+)\s*\)', r"CAST(strftime('%d', \1) AS INTEGER)", sql_adapted, flags=re.IGNORECASE)
+    # Remove Postgres type casts (e.g. ::timestamp, ::text, ::jsonb)
     sql_adapted = re.sub(r'::[a-zA-Z0-9_]+', '', sql_adapted)
-    # Remove RETURNING clauses for SQLite compatibility if simple insert
-    sql_adapted = re.sub(r'\s+RETURNING\s+[a-zA-Z0-9_,\s]+$', '', sql_adapted, flags=re.IGNORECASE)
     return sql_adapted
 
 
-def query(sql, params=None, fetch=True):
+def commit_db():
+    """Ejecuta commit explícito de la conexión activa."""
+    if 'db' in g and g.db:
+        try:
+            g.db.commit()
+        except Exception as e:
+            logger.warning(f"Error en commit_db: {e}")
+
+
+def query(sql, params=None, fetch=True, commit=True):
     conn = get_db()
     db_type = getattr(g, 'db_type', 'postgres')
 
@@ -399,9 +966,11 @@ def query(sql, params=None, fetch=True):
             cur.execute(sql, params or ())
             if fetch and cur.description:
                 rows = cur.fetchall()
-                conn.commit()
+                if commit:
+                    conn.commit()
                 return rows
-            conn.commit()
+            if commit:
+                conn.commit()
             return None
     else:
         adapted_sql = adapt_sql_for_sqlite(sql)
@@ -409,9 +978,11 @@ def query(sql, params=None, fetch=True):
         cur.execute(adapted_sql, params or ())
         if fetch:
             rows = [dict(r) for r in cur.fetchall()]
-            conn.commit()
+            if commit:
+                conn.commit()
             return rows
-        conn.commit()
+        if commit:
+            conn.commit()
         return None
 
 

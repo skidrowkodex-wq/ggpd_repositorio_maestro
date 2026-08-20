@@ -4,7 +4,7 @@
 **CÓDIGO INSTRUCTIVO INSTITUCIONAL:** GGPD-SGM-INS-005 (v3.0 ISO)  
 **FECHA DE EMISIÓN / ACTUALIZACIÓN:** 14 de Agosto de 2026  
 **PARA:** Coordinación General de Área | Jefes de División | Supervisores de Grupo | Coordinadores Estadales (25 Entidades)  
-**DE:** Área de Innovación, Tecnología y Desarrollo Backend (GGPD)  
+**DE:** Equipo de Automatización e Ingeniería de Productos con IA, de Planificación de Distribución  
 **ASUNTO:** Transmisión formal de accesos, enlaces de publicación, catálogo de credenciales, reglas de negocio estandarizadas y Single Sign-On (SSO) para el Aseguramiento de Calidad (QA)  
 
 ---
@@ -153,6 +153,6 @@ Para garantizar la integridad operativa, la segregación de funciones (*Segregat
 
 **Atentamente,**
 
-**Área de Innovación, Tecnología y Desarrollo Backend**  
+**Equipo de Automatización e Ingeniería de Productos con IA, de Planificación de Distribución**  
 Gerencia General de Planificación de Distribución (GGPD) — CORPOELEC  
 *Norma de Documentación Institucional GGPD-SGM-INS-005 (v3.0 ISO)*  

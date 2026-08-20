@@ -4,9 +4,9 @@
 **CÓDIGO INSTRUCTIVO INSTITUCIONAL:** GGPD-SGM-INS-005 (v3.0 ISO)  
 **FECHA DE EMISIÓN:** 10 de Agosto de 2026  
 **ENTIDAD:** Corporación Eléctrica Nacional S.A. (CORPOELEC) — Ministerio del Poder Popular para la Energía Eléctrica (MPPEE)  
-**DESPACHO DESTINO:** Gerencia General de Planificación de Distribución (GGPD) | Coordinación de Área de Innovación y Tecnología  
-**DIRIGIDO A:** Coordinación General de Área | Gerencia de Informática / Innovación | Líderes de QA  
-**ELABORADO POR:** Equipo de Desarrollo Backend y Arquitectura de Datos  
+**DESPACHO DESTINO:** Gerencia General de Planificación de Distribución (GGPD)  
+**DIRIGIDO A:** Coordinación General de Área | Jefatura de Planificación de Distribución | Líderes de QA  
+**ELABORADO POR:** Yvan Cipiran | T.S.U. Josue Pacheco — Equipo de Automatización e Ingeniería de Productos con IA, de Planificación de Distribución  
 **PLATAFORMA Y MODELO DE IA:** Antigravity Platform — Google Gemini 3.6 Flash (High)  
 **MARCOS NORMATIVOS:** ISO 8000-110 | ISO/IEC 27001:2022 | ISO 9001:2015 | ISO 55000/55001 | ISACA COBIT 2019  
 
@@ -16,7 +16,7 @@
 
 El presente documento formaliza el inventario completo, consolidado y auditado de la arquitectura de software, cuentas de despliegue cloud, repositorios de código fuente (GitHub), cuentas de desarrollo de Inteligencia Artificial (**Google AI Studio**), integraciones backend y usuarios preconfigurados en base de datos para las **cuatro (4) aplicaciones institucionales** del **Repositorio Maestro de Distribución** de CORPOELEC.
 
-Este informe da respuesta a los requerimientos institucionales de cara al inicio formal de la **Fase de Pruebas y Aseguramiento de Calidad (QA)** pautada para el día **15 de Agosto de 2026**, permitiendo la transferencia formal de la responsabilidad de seguimiento, soporte de usuario y validación funcional desde el equipo de Desarrollo Backend hacia la Gerencia General y la Coordinación del Área.
+Este informe da respuesta a los requerimientos institucionales de cara al inicio formal de la **Fase de Pruebas y Aseguramiento de Calidad (QA)** pautada para el día **15 de Agosto de 2026**, permitiendo la transferencia formal de la responsabilidad de seguimiento, soporte de usuario y validación funcional desde el Equipo de Automatización e Ingeniería de Productos con IA hacia la Gerencia General y las Coordinaciones Estadales.
 
 ### 1.1. Resumen Consolidado de Cuentas e Infraestructura
 * **Motor Base de Datos Unificado:** PostgreSQL 17 / Supabase Cloud Project (`owpiwacuotcaeruvonbd.supabase.co`).
@@ -207,6 +207,6 @@ Para formalizar la transición de responsabilidades y permitir que la Coordinaci
 
 ---
 
-**Documento Elaborado por:** Equipo de Desarrollo Backend y Arquitectura de Datos  
+**Documento Elaborado por:** Equipo de Automatización e Ingeniería de Productos con IA, de Planificación de Distribución  
 **Revisado para:** Coordinación de Área y Gerencia General de Planificación de Distribución (GGPD)  
 **Código Normativo:** `GGPD-SGM-INS-005 (v3.0 ISO)` | **Versión:** V01  

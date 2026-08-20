@@ -4,7 +4,7 @@
 **ENTIDAD:** Corporación Eléctrica Nacional S.A. (CORPOELEC) — Ministerio del Poder Popular para la Energía Eléctrica (MPPEE)  
 **DESPACHO DESTINO:** Gerencia General de Distribución  
 **DIRIGIDO A:** Ing. Adrian Correa | Ing. Carlos Reyes  
-**ELABORADO Y GENERADO POR:** Yvan Ciprián | T.S.U. Josue Pacheco  
+**ELABORADO Y GENERADO POR:** Yvan Cipiran | T.S.U. Josue Pacheco  
 **PLATAFORMA Y MODELO DE IA:** Antigravity Platform — Google Gemini 3.6 Flash (High)  
 **ALCANCE DEL SISTEMA:** Consolidado Nacional — Las 4 Aplicaciones del Repositorio Maestro de Distribución  
   1. `corpoelec---gestor-de-tareas-y-minutas` (SGTA - AI Studio Google)  
@@ -108,6 +108,6 @@ El desarrollo del Repositorio Maestro y la remediación de auditoría combinan I
 
 ---
 
-**Elaborado y Auditado por:** Yvan Ciprián y T.S.U. Josue Pacheco (vía Antigravity Platform — Google Gemini 3.6 Flash)  
+**Elaborado y Auditado por:** Yvan Cipiran y T.S.U. Josue Pacheco (vía Antigravity Platform — Google Gemini 3.6 Flash)  
 **Revisado y Destinado a:** Ing. Adrian Correa | Ing. Carlos Reyes (Gerencia General de Distribución — CORPOELEC)  
 **Control Normativo:** GGPD-SGM-INS-005 v3.0 ISO | Fecha: 10 de Agosto de 2026

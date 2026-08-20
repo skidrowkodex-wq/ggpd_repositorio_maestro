@@ -1,15 +1,17 @@
 import os
-from dotenv import load_dotenv
-
-# Try to load .env file if it exists, prioritizing the root .env or interrupciones/.env
-load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
-load_dotenv()
+try:
+    from dotenv import load_dotenv
+    # Try to load .env file if it exists, prioritizing the root .env or interrupciones/.env
+    load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
+    load_dotenv()
+except ImportError:
+    pass
 
 class Config:
     SECRET_KEY = os.getenv('APP_SECRET', 'sctis-secret-key')
     ENV = os.getenv('APP_ENV', 'development')
     DEBUG = os.getenv('APP_DEBUG', 'false').lower() == 'true'
-    PORT = int(os.getenv('PORT', os.getenv('APP_PORT', '5000')))
+    PORT = int(os.getenv('PORT', os.getenv('APP_PORT', '3002')))
     LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
 
     DB_HOST = os.getenv('DB_HOST', 'localhost')

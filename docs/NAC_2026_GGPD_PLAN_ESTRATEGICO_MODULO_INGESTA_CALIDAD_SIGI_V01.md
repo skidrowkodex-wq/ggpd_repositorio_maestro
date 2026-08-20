@@ -3,7 +3,7 @@
 **DOCUMENTO NORMATIVO:** `NAC_2026_GGPD_PLAN_ESTRATEGICO_MODULO_INGESTA_CALIDAD_SIGI_V01.md`  
 **NORMA INSTITUCIONAL:** GGPD-SGM-INS-005 (v3.0 ISO) / ISO 8000-110 / ISO 27001:2022 / COBIT 2019  
 **DESTINATARIOS:** Gerente General de Planificación de Distribución | Jefes de División | Líderes Funcionales  
-**ORIGEN:** Área de Innovación, Tecnología y Desarrollo Backend (GGPD)  
+**ORIGEN:** Equipo de Automatización e Ingeniería de Productos con IA, de Planificación de Distribución  
 **FECHA DE FORMULACIÓN:** 14 de Agosto de 2026  
 **ESTATUS:** Propuesta de Arquitectura y Factibilidad Técnica  
 
@@ -229,6 +229,6 @@ Recomendamos **aprobar este plan conceptual y de arquitectura** para proceder a 
 
 **Atentamente,**
 
-**Área de Innovación, Tecnología y Desarrollo Backend**  
+**Equipo de Automatización e Ingeniería de Productos con IA, de Planificación de Distribución**  
 Gerencia General de Planificación de Distribución (GGPD) — CORPOELEC  
 *Norma de Documentación Institucional GGPD-SGM-INS-005 (v3.0 ISO)*  

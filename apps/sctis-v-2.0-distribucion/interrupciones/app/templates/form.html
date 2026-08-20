@@ -70,19 +70,19 @@
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide text-red-700">Fecha Inicio *</label>
-                        <input type="date" v-model="form.fecha_inicio" required class="industrial-input w-full p-2.5 text-sm font-mono border-red-300">
+                        <input type="date" v-model="form.fecha_inicio" @change="alCambiarFechaInicio" required class="industrial-input w-full p-2.5 text-sm font-mono border-red-300">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide text-red-700">Hora Inicio *</label>
-                        <input type="time" v-model="form.hora_inicio" required class="industrial-input w-full p-2.5 text-sm font-mono border-red-300">
+                        <input type="time" v-model="form.hora_inicio" @change="calcularDuracion" required class="industrial-input w-full p-2.5 text-sm font-mono border-red-300">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Fecha Fin</label>
-                        <input type="date" v-model="form.fecha_fin" class="industrial-input w-full p-2.5 text-sm font-mono">
+                        <input type="date" v-model="form.fecha_fin" @change="calcularDuracion" class="industrial-input w-full p-2.5 text-sm font-mono">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Hora Fin</label>
-                        <input type="time" v-model="form.hora_fin" class="industrial-input w-full p-2.5 text-sm font-mono">
+                        <input type="time" v-model="form.hora_fin" @change="calcularDuracion" class="industrial-input w-full p-2.5 text-sm font-mono">
                     </div>
                     
                     <div>
@@ -212,6 +212,48 @@ createApp({
         resetForm() {
             this.form = this.getEmptyForm();
             this.mensaje = null;
+        },
+        alCambiarFechaInicio() {
+            if (this.form.fecha_inicio) {
+                // Auto-derivar mes si no está seleccionado
+                const partes = this.form.fecha_inicio.split('-');
+                if (partes.length === 3) {
+                    const meses = ['', 'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
+                    const mIdx = parseInt(partes[1], 10);
+                    if (mIdx >= 1 && mIdx <= 12 && !this.form.mes) {
+                        this.form.mes = meses[mIdx];
+                    }
+                }
+                // Si fecha_fin está vacía, sugerir la misma fecha
+                if (!this.form.fecha_fin) {
+                    this.form.fecha_fin = this.form.fecha_inicio;
+                }
+            }
+            this.calcularDuracion();
+        },
+        calcularDuracion() {
+            if (!this.form.fecha_inicio || !this.form.hora_inicio) return;
+            const fIniStr = `${this.form.fecha_inicio}T${this.form.hora_inicio}`;
+            let fFinStr = '';
+            if (this.form.fecha_fin && this.form.hora_fin) {
+                fFinStr = `${this.form.fecha_fin}T${this.form.hora_fin}`;
+            } else if (this.form.hora_fin) {
+                fFinStr = `${this.form.fecha_inicio}T${this.form.hora_fin}`;
+            }
+            if (fIniStr && fFinStr) {
+                const dtIni = new Date(fIniStr);
+                let dtFin = new Date(fFinStr);
+                if (!isNaN(dtIni.getTime()) && !isNaN(dtFin.getTime())) {
+                    if (dtFin < dtIni && !this.form.fecha_fin) {
+                        // Cruce de medianoche si solo se ingresaron horas
+                        dtFin = new Date(dtFin.getTime() + 24 * 3600 * 1000);
+                    }
+                    const diffSec = (dtFin - dtIni) / 1000;
+                    if (diffSec >= 0) {
+                        this.form.horas = (diffSec / 3600).toFixed(4);
+                    }
+                }
+            }
         },
         async cargarSubestaciones() {
             this.subestaciones = [];
