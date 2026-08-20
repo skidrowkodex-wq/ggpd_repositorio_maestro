@@ -205,13 +205,15 @@ Todos los microservicios y el portal central se encuentran **activos y respondie
     - **Sincronización de Frontend SIGI Distribución:**
       - Actualizado [`masterCatalogsLegacy.json`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/src/data/masterCatalogsLegacy.json) y [`AssetsMapDashboard.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/corpoelec-sigi-gestion-planificacion-distribucion/src/components/dashboards/AssetsMapDashboard.tsx) con las estadísticas exactas por estado.
       - Validación de compilación exitosa (`npm run build` con código 0 y 0 errores).
-    - **Documentación Técnica y Normativa ISO:**
-      - Creado el informe [`apps/caracterizacion_distribucion/docs/NAC_2026_GGPD_AUDITORIA_CARACTERIZACION_ACTIVOS_RED_V01.md`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps/caracterizacion_distribucion/docs/NAC_2026_GGPD_AUDITORIA_CARACTERIZACION_ACTIVOS_RED_V01.md) (`GGPD-SGM-AUD-002 v1.0 ISO`) y compilados sus binarios nativos `.docx` y `.doc`.
+    - **Despliegue y Sincronización GitHub / Vercel:**
+      - Publicado con éxito en `origin/main` (`ggpd_repositorio_maestro` — commit `8274fa8`).
+      - Publicado con éxito vía `git subtree` en `github-innovacion/main` (`corpoelec-sigi-gestion-planificacion-distribucion` — commit `d1ed3fb`), activando el despliegue automático en **Vercel**.
 
 ---
 
 ## 📋 6. Tareas Pendientes / Próximos Pasos Prioritarios
 - [x] **Auditoría, Remediación y Normalización de Activos de Red:** Integrados 871 SEs y 4,207 CTs en BD Supabase, Catálogos Spark, SIGI y reportes Word.
+- [x] **Despliegue y Sincronización en GitHub / Vercel:** Repositorio maestro y standalone 100% sincronizados.
 - [x] **Integración y Gobernanza Google Drive:** Implementado control RBAC, doble cuenta de correo, bandeja de aprobaciones y Webhook con `bk.ggpd.corpoelec@gmail.com`.
 - [x] **Aprovisionamiento de Árbol de Directorios del Data Lake 2026:** Desplegado en Google Drive para 25 Estados y 4 macro-procesos.
 - [x] **Módulo de Ingesta Inteligente & Calidad ISO 8000 (`DataIngestionHub.tsx`):** Validación en caliente, índice OTQR, segregación y planillas de remediación.
@@ -220,6 +222,7 @@ Todos los microservicios y el portal central se encuentran **activos y respondie
 - [ ] **Jornada de Pruebas de Calidad (QA) con Usuarios Estadales:** Validar en vivo el flujo de login con las 25 cuentas territoriales y la carga de archivos de prueba en el nuevo Módulo de Ingesta Inteligente.
 - [ ] **Validación de Conexión Supabase:** Probar el botón "Probar Conexión" y explorador de tablas en la consola web.
 - [ ] **Carga Piloto de Nuevos Procesos:** Probar en caliente la creación y carga de un proceso real (ej. Diagnóstico de Subestaciones `08_SCDXS` o Termografía `09_SCTER`).
+
 
 ---
 
