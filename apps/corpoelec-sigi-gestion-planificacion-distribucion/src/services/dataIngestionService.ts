@@ -517,7 +517,235 @@ export const validateFileNameNomenclature = (
 
 /**
  * ==============================================================================
- * MOTOR DE VALIDACIÓN DE CONTENIDO Y FILAS (ISO 8000-110)
+ * DICCIONARIO UNIVERSAL DE SINÓNIMOS DE ENCABEZADOS (ISO 8000 / CORPOELEC)
+ * Mapea las variaciones típicas utilizadas por los 25 Estados a nombres canónicos
+ * ==============================================================================
+ */
+export const UNIVERSAL_COLUMN_SYNONYMS: Record<string, string[]> = {
+  'COD_ESTADO': ['ESTADO', 'COD_ESTADO', 'EDO', 'ENTIDAD', 'ESTADO_PROVINCIA', 'CODIGO_ESTADO', 'UBICACION_ESTADO', 'COD_EDO'],
+  'SUBESTACION': ['SUBESTACION', 'S/E', 'SUB_ESTACION', 'SUB-ESTACION', 'ESTACION', 'NOMBRE_SE', 'SUBESTACION_CABECERA', 'S/E_CABECERA', 'SUBESTACION_ELECTRICA', 'SUBESTACIÓN'],
+  'CIRCUITO': ['CIRCUITO', 'ALIMENTADOR', 'CTO', 'NOMBRE_CIRCUITO', 'NOMBRE_CT', 'CIRCUITO_AFECTADO', 'ALIMENTADOR_MT', 'LINEA_MT', 'ALIMENTADOR_DISTRIBUCION'],
+  'FECHA_APERTURA': ['FECHA_APERTURA', 'FECHA_INICIO', 'INICIO', 'HORA_INICIO', 'FECHA_FALLA', 'FECHA_HORA_INICIO', 'FECHA/HORA_INICIO', 'FECHA_APERTURA_INTERRUPCION', 'HORA_APERTURA'],
+  'FECHA_CIERRE': ['FECHA_CIERRE', 'FECHA_FIN', 'FIN', 'HORA_FIN', 'FECHA_RESTABLECIMIENTO', 'RESTABLECIMIENTO', 'FECHA_HORA_FIN', 'HORA_CIERRE'],
+  'MW_INTERRUMPIDOS': ['MW_INTERRUMPIDOS', 'MW', 'CARGA_MW', 'CARGA_INTERRUMPIDA', 'CARGA_AFECTADA_MW', 'POTENCIA_MW', 'MW_AFECTADOS', 'CARGA_MW_AFECTADA'],
+  'CAUSA_CODIGO': ['CAUSA_CODIGO', 'CAUSA', 'MOTIVO', 'ORIGEN_FALLA', 'CAUSA_INTERRUPCION', 'COD_CAUSA', 'DESCRIPCION_CAUSA', 'CAUSA_PRINCIPAL'],
+  'OBSERVACIONES': ['OBSERVACIONES', 'OBSERVACION', 'DETALLE', 'DESCRIPCION', 'NOTAS', 'COMENTARIOS', 'ACCION_TOMADA', 'DIAGNOSTICO_PRELIMINAR'],
+  'TAG_EQUIPO': ['TAG_EQUIPO', 'TAG', 'EQUIPO', 'CODIGO_EQUIPO', 'ID_EQUIPO', 'ACTIVO', 'NOMBRE_EQUIPO', 'ELEMENTO_FALLADO'],
+  'TIPO_EQUIPO': ['TIPO_EQUIPO', 'TIPO', 'CATEGORIA_EQUIPO', 'ELEMENTO_TIPO', 'TIPO_ACTIVO'],
+  'FECHA_FALLA': ['FECHA_FALLA', 'FECHA_INDISPONIBILIDAD', 'FECHA_EVENTO', 'FECHA_SALIDA', 'FECHA_DISPARO'],
+  'ESTATUS_EQUIPO': ['ESTATUS_EQUIPO', 'ESTATUS', 'ESTADO_EQUIPO', 'CONDICION', 'ESTADO_ACTUAL'],
+  'DIAGNOSTICO_TECNICO': ['DIAGNOSTICO_TECNICO', 'DIAGNOSTICO', 'DICTAMEN', 'ANALISIS_TECNICO', 'FALLA_DIAGNOSTICADA'],
+  'COD_PROYECTO': ['COD_PROYECTO', 'CODIGO_PROYECTO', 'ID_PROYECTO', 'POA', 'PRTSEN', 'NUMERO_PROYECTO'],
+  'NOMBRE_PROYECTO': ['NOMBRE_PROYECTO', 'PROYECTO', 'DENOMINACION', 'DESCRIPCION_PROYECTO', 'OBRA'],
+  'AVANCE_FISICO_PCT': ['AVANCE_FISICO_PCT', 'AVANCE_FISICO', 'AVANCE_%', '%_AVANCE', 'AVANCE_PCT', 'PORCENTAJE_AVANCE', 'EJECUCION_FISICA'],
+  'MONTO_EJECUTADO_BS': ['MONTO_EJECUTADO_BS', 'MONTO_EJECUTADO', 'GASTO_BS', 'MONTO_BS', 'EJECUTADO_BS', 'COSTO_BS', 'INVERSION_BS'],
+  'RESPONSABLE_TECNICO': ['RESPONSABLE_TECNICO', 'RESPONSABLE', 'INGENIERO', 'INSPECTOR', 'SUPERVISOR', 'INGENIERO_RESIDENTE'],
+  'NUMERO_MINUTA': ['NUMERO_MINUTA', 'MINUTA', 'NRO_MINUTA', 'ACTA', 'NUMERO_ACTA', 'COD_MINUTA'],
+  'TITULO_COMPROMISO': ['TITULO_COMPROMISO', 'COMPROMISO', 'TAREA', 'TITULO_TAREA', 'ACCION_ACORDADA', 'ACTIVIDAD'],
+  'RESPONSABLE_ASIGNADO': ['RESPONSABLE_ASIGNADO', 'ASIGNADO_A', 'RESPONSABLE', 'EJECUTOR', 'CUADRILLA'],
+  'FECHA_COMPROMISO': ['FECHA_COMPROMISO', 'FECHA_LIMITE', 'FECHA_VENCIMIENTO', 'FECHA_ENTREGA'],
+  'ESTADO_TAREA': ['ESTADO_TAREA', 'ESTATUS_TAREA', 'ESTADO', 'ESTATUS'],
+  'KM_PODADOS': ['KM_PODADOS', 'KILOMETROS_PODADOS', 'KM_PODA', 'LONGITUD_KM', 'KM_DESPEJADOS', 'KM_EJECUTADOS'],
+  'NUM_ARBOLES_CRITICOS': ['NUM_ARBOLES_CRITICOS', 'ARBOLES_CRITICOS', 'ARBOLES_PODADOS', 'ARBOLES_TALADOS', 'CANTIDAD_ARBOLES'],
+  'CUADRILLA_RESPONSABLE': ['CUADRILLA_RESPONSABLE', 'CUADRILLA', 'EQUIPO_TRABAJO', 'RESPONSABLE_CUADRILLA'],
+  'FECHA_EJECUCION': ['FECHA_EJECUCION', 'FECHA', 'FECHA_TRABAJO', 'FECHA_MANTENIMIENTO', 'FECHA_LABOR'],
+  'PATIO_INTERVENIDO': ['PATIO_INTERVENIDO', 'PATIO', 'AREA_INTERVENIDA', 'SECTOR_SE', 'PATIO_SUBESTACION'],
+  'HECTAREAS_DESMALEZADAS': ['HECTAREAS_DESMALEZADAS', 'HECTAREAS', 'HA_DESMALEZADAS', 'AREA_HA', 'HECTAREAS_LIMPIAS'],
+  'APLICACION_HERBICIDA': ['APLICACION_HERBICIDA', 'HERBICIDA', 'QUIMICO', 'APLICO_HERBICIDA'],
+  'FECHA_INSPECCION': ['FECHA_INSPECCION', 'FECHA_REVISION', 'FECHA_CIERRE', 'FECHA_SUPERVISION'],
+  'CAPACIDAD_KVA': ['CAPACIDAD_KVA', 'KVA', 'CAPACIDAD', 'POTENCIA_KVA', 'CAP_KVA'],
+  'SERIAL_FALLADO': ['SERIAL_FALLADO', 'SERIAL_AVERIADO', 'SERIAL_VIEJO', 'SERIAL_RETIRADO'],
+  'SERIAL_INSTALADO': ['SERIAL_INSTALADO', 'SERIAL_NUEVO', 'SERIAL_COLOCADO', 'SERIAL_REEMPLAZO'],
+  'FECHA_SUSTITUCION': ['FECHA_SUSTITUCION', 'FECHA_REEMPLAZO', 'FECHA_INSTALACION', 'FECHA_CAMBIO'],
+  'FAMILIAS_BENEFICIADAS': ['FAMILIAS_BENEFICIADAS', 'FAMILIAS', 'USUARIOS_ATENDIDOS', 'USUARIOS_BENEFICIADOS', 'POBLACION_ATENDIDA']
+};
+
+/**
+ * Normaliza un string eliminando acentos, caracteres especiales y espacios múltiples
+ */
+const normalizeHeaderKey = (str: string): string => {
+  return str
+    .toUpperCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^A-Z0-9]/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_|_$/g, '');
+};
+
+/**
+ * Selecciona automáticamente la mejor hoja operativa en un libro multi-hoja
+ */
+export const detectBestWorksheet = (workbook: XLSX.WorkBook, process: ProcessDefinition): string => {
+  const sheetNames = workbook.SheetNames;
+  if (sheetNames.length === 1) return sheetNames[0];
+
+  const processKeywords = [
+    process.code.split('_')[1] || '',
+    process.id,
+    'DISTRIBUCION',
+    'INTERRUPCIONES',
+    'TIRAS',
+    'EVENTOS',
+    'EQUIPOS',
+    'PROYECTOS',
+    'MINUTAS',
+    'PICA',
+    'DESMALEZAMIENTO',
+    'TRANSFORMADORES',
+    'DATOS',
+    'REGISTRO'
+  ].filter(Boolean).map(k => k.toUpperCase());
+
+  // 1. Buscar coincidencia en nombre de hoja
+  for (const name of sheetNames) {
+    const norm = name.toUpperCase();
+    if (norm.includes('PORTADA') || norm.includes('INSTRUCCION') || norm.includes('GRAFICO') || norm.includes('RESUMEN')) {
+      continue;
+    }
+    if (processKeywords.some(k => norm.includes(k))) {
+      return name;
+    }
+  }
+
+  // 2. Si no coincide por nombre, buscar la hoja con mayor cantidad de datos útiles
+  let bestSheet = sheetNames[0];
+  let maxRows = -1;
+
+  for (const name of sheetNames) {
+    const ws = workbook.Sheets[name];
+    if (!ws || !ws['!ref']) continue;
+    const range = XLSX.utils.decode_range(ws['!ref']);
+    const numRows = range.e.r - range.s.r + 1;
+    if (numRows > maxRows) {
+      maxRows = numRows;
+      bestSheet = name;
+    }
+  }
+
+  return bestSheet;
+};
+
+/**
+ * Sanitiza números venezolanos/internacionales (comas, Bs., $, %, espacios)
+ */
+export const sanitizeNumberValue = (val: any): number | null => {
+  if (val === undefined || val === null || val === '') return null;
+  if (typeof val === 'number') return isNaN(val) ? null : val;
+
+  let s = String(val).trim()
+    .replace(/Bs\.?|\$|USD|EUR|%|\s/gi, '')
+    .replace(/\.(?=\d{3})/g, '') // Eliminar puntos de miles
+    .replace(',', '.');          // Reemplazar coma decimal por punto
+
+  const num = parseFloat(s);
+  return isNaN(num) ? null : num;
+};
+
+/**
+ * Sanitiza horas y fechas con comas tipográficas o formato Excel
+ */
+export const sanitizeDateOrTimeString = (val: any): string => {
+  if (val === undefined || val === null || val === '') return '';
+  
+  // Si es un número serial de fecha de Excel
+  if (typeof val === 'number' && val > 30000 && val < 60000) {
+    const jsDate = new Date((val - (25567 + 2)) * 86400 * 1000);
+    if (!isNaN(jsDate.getTime())) {
+      return jsDate.toISOString().slice(0, 19).replace('T', ' ');
+    }
+  }
+
+  let s = String(val).trim();
+  // Limpiar comas tipográficas en horas (ej: "08,:54:00," -> "08:54:00")
+  s = s.replace(/,:/g, ':').replace(/,/g, '').trim();
+
+  return s;
+};
+
+/**
+ * Escanea dinámicamente hasta la fila 25 para detectar la cabecera real y mapear columnas
+ */
+export const detectHeaderRowAndMapColumns = (
+  worksheet: XLSX.WorkSheet,
+  process: ProcessDefinition
+): {
+  headerRowIndex: number;
+  columnMap: Record<string, number>; // canonicalName -> colIndex
+  detectedHeaders: string[];
+  totalRows: number;
+  matrixData: any[][];
+} => {
+  const matrix: any[][] = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+  const maxScanRows = Math.min(matrix.length, 25);
+  const requiredCanonicalCols = process.requiredColumns.map(c => c.name);
+
+  let bestHeaderRowIndex = 0;
+  let bestScore = -1;
+  let bestColumnMap: Record<string, number> = {};
+  let bestDetectedHeaders: string[] = [];
+
+  for (let r = 0; r < maxScanRows; r++) {
+    const row = matrix[r];
+    if (!Array.isArray(row) || row.length === 0) continue;
+
+    const rowNormalized = row.map(cell => normalizeHeaderKey(String(cell || '')));
+    const candidateMap: Record<string, number> = {};
+    let score = 0;
+
+    requiredCanonicalCols.forEach(canonicalCol => {
+      const canonicalNorm = normalizeHeaderKey(canonicalCol);
+      const synonyms = (UNIVERSAL_COLUMN_SYNONYMS[canonicalCol] || [canonicalCol]).map(normalizeHeaderKey);
+
+      // Buscar si alguna celda de la fila r coincide con el nombre canónico o alguno de sus sinónimos
+      for (let c = 0; c < rowNormalized.length; c++) {
+        const cellNorm = rowNormalized[c];
+        if (!cellNorm) continue;
+
+        if (cellNorm === canonicalNorm || synonyms.includes(cellNorm)) {
+          candidateMap[canonicalCol] = c;
+          score += 3; // Coincidencia exacta o sinónimo fuerte
+          break;
+        } else if (synonyms.some(syn => cellNorm.includes(syn) || syn.includes(cellNorm))) {
+          if (candidateMap[canonicalCol] === undefined) {
+            candidateMap[canonicalCol] = c;
+            score += 1; // Coincidencia parcial
+          }
+        }
+      }
+    });
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestHeaderRowIndex = r;
+      bestColumnMap = candidateMap;
+      bestDetectedHeaders = row.map(cell => String(cell || '').trim());
+    }
+  }
+
+  // Fallback si no hubo coincidencia alta: usar fila 0
+  if (bestScore <= 0 && matrix.length > 0) {
+    bestHeaderRowIndex = 0;
+    bestDetectedHeaders = matrix[0].map(cell => String(cell || '').trim());
+    requiredCanonicalCols.forEach((col, idx) => {
+      if (idx < matrix[0].length) {
+        bestColumnMap[col] = idx;
+      }
+    });
+  }
+
+  return {
+    headerRowIndex: bestHeaderRowIndex,
+    columnMap: bestColumnMap,
+    detectedHeaders: bestDetectedHeaders,
+    totalRows: matrix.length,
+    matrixData: matrix
+  };
+};
+
+/**
+ * ==============================================================================
+ * MOTOR DE VALIDACIÓN DE CONTENIDO Y FILAS (ISO 8000-110 UNIVERSAL INTELIGENTE)
  * ==============================================================================
  */
 export const validateExcelContent = async (
@@ -527,79 +755,113 @@ export const validateExcelContent = async (
 ): Promise<ValidationReport> => {
   const data = await file.arrayBuffer();
   const workbook = XLSX.read(data, { type: 'array' });
-  const sheetName = workbook.SheetNames[0];
-  const worksheet = workbook.Sheets[sheetName];
-  const rows: Record<string, any>[] = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+  
+  // 1. Selección inteligente de la mejor hoja de datos
+  const bestSheetName = detectBestWorksheet(workbook, process);
+  const worksheet = workbook.Sheets[bestSheetName];
+
+  // 2. Detección dinámica de cabecera (escaneando hasta fila 25) y sinónimos de columnas
+  const { headerRowIndex, columnMap, detectedHeaders, matrixData } = detectHeaderRowAndMapColumns(worksheet, process);
 
   const nomenclatureCheck = validateFileNameNomenclature(file.name, process, stateCode);
   const schemaErrors: string[] = [];
-  const requiredCols = process.requiredColumns.filter(c => c.required).map(c => c.name.toUpperCase());
 
-  // Verificar encabezados
-  const fileHeaders = rows.length > 0 ? Object.keys(rows[0]).map(h => h.trim().toUpperCase()) : [];
-  const missingHeaders = requiredCols.filter(rc => !fileHeaders.includes(rc));
+  // Verificar columnas obligatorias mapeadas
+  const requiredCols = process.requiredColumns.filter(c => c.required);
+  const missingCols = requiredCols.filter(col => columnMap[col.name] === undefined);
 
-  if (missingHeaders.length > 0) {
-    schemaErrors.push(`Faltan columnas requeridas en el archivo: ${missingHeaders.join(', ')}`);
+  if (missingCols.length > 0) {
+    schemaErrors.push(
+      `No se detectaron las columnas obligatorias: ${missingCols.map(c => c.name).join(', ')}. ` +
+      `Encabezados encontrados en fila ${headerRowIndex + 1}: [${detectedHeaders.filter(Boolean).slice(0, 8).join(', ')}...]`
+    );
   }
 
   const validRecords: Record<string, any>[] = [];
   const invalidRecords: InvalidRecordDetail[] = [];
-
   const masterCatalogs = getMasterCatalogs();
 
-  rows.forEach((row, index) => {
-    const rowNum = index + 2; // +1 cabecera, +1 base 1
+  // 3. Procesamiento de filas de datos a partir de headerRowIndex + 1
+  const dataRows = matrixData.slice(headerRowIndex + 1);
+
+  dataRows.forEach((rowArray, idx) => {
+    const rowNum = headerRowIndex + idx + 2; // Número de fila real 1-indexed
+    
+    // Descartar filas completamente vacías
+    if (!Array.isArray(rowArray) || rowArray.every(c => c === '' || c === null || c === undefined)) {
+      return;
+    }
+
+    const rowObj: Record<string, any> = {};
     const rowErrors: string[] = [];
 
-    // Validar columnas obligatorias
+    // Mapear y sanitizar cada columna requerida por el proceso
     process.requiredColumns.forEach(col => {
-      // Buscar valor insensible a mayúsculas
-      const matchingKey = Object.keys(row).find(k => k.trim().toUpperCase() === col.name.toUpperCase());
-      const val = matchingKey ? row[matchingKey] : '';
+      const colIdx = columnMap[col.name];
+      let rawVal = colIdx !== undefined ? rowArray[colIdx] : '';
 
-      if (col.required && (val === '' || val === null || val === undefined)) {
+      // Sanitización según tipo
+      if (col.type === 'number') {
+        const sanitizedNum = sanitizeNumberValue(rawVal);
+        if (sanitizedNum !== null) {
+          rowObj[col.name] = sanitizedNum;
+        } else if (rawVal !== '' && rawVal !== null && rawVal !== undefined) {
+          rowErrors.push(`El campo '${col.name}' con valor '${rawVal}' no es un número válido.`);
+          rowObj[col.name] = rawVal;
+        } else {
+          rowObj[col.name] = null;
+        }
+
+        if (sanitizedNum !== null && sanitizedNum < 0 && (
+          col.name.includes('MW') || col.name.includes('KM') || 
+          col.name.includes('HECTAREA') || col.name.includes('CAPACIDAD') ||
+          col.name.includes('AVANCE') || col.name.includes('MONTO')
+        )) {
+          rowErrors.push(`El campo '${col.name}' no puede ser negativo (${sanitizedNum}).`);
+        }
+      } else if (col.type === 'date' || col.name.includes('FECHA') || col.name.includes('HORA')) {
+        const sanitizedDate = sanitizeDateOrTimeString(rawVal);
+        rowObj[col.name] = sanitizedDate;
+      } else {
+        const sanitizedStr = String(rawVal ?? '').trim();
+        rowObj[col.name] = sanitizedStr;
+      }
+
+      // Validación de obligatoriedad
+      const currentVal = rowObj[col.name];
+      if (col.required && (currentVal === '' || currentVal === null || currentVal === undefined)) {
         rowErrors.push(`Campo obligatorio '${col.name}' está vacío.`);
       }
 
-      if (col.type === 'number' && val !== '' && val !== null) {
-        const num = Number(val);
-        if (isNaN(num)) {
-          rowErrors.push(`El campo '${col.name}' debe ser numérico.`);
-        } else if (num < 0 && (col.name.includes('MW') || col.name.includes('KM') || col.name.includes('HECTAREA') || col.name.includes('CAPACIDAD'))) {
-          rowErrors.push(`El campo '${col.name}' no puede ser negativo (${num}).`);
-        }
-      }
-
-      // Validación contra Catálogo Maestro en Excel
-      if (col.type === 'catalog' && col.masterCatalogId && val) {
+      // Validación contra Catálogo Maestro (MDM)
+      if (col.type === 'catalog' && col.masterCatalogId && currentVal) {
         const catalog = masterCatalogs.find(c => c.id === col.masterCatalogId);
         if (catalog) {
-          const valStr = String(val).trim().toUpperCase();
+          const valStr = String(currentVal).trim().toUpperCase();
           const found = catalog.items.some(item => 
             item.name.toUpperCase() === valStr || 
             item.code.toUpperCase() === valStr ||
             valStr.includes(item.name.toUpperCase())
           );
           if (!found) {
-            rowErrors.push(`El valor '${val}' en '${col.name}' no pertenece al catálogo oficial ${catalog.name}.`);
+            rowErrors.push(`El valor '${currentVal}' en '${col.name}' no coincide con el catálogo oficial ${catalog.name}.`);
           }
         }
       }
     });
 
     if (rowErrors.length === 0) {
-      validRecords.push(row);
+      validRecords.push(rowObj);
     } else {
       invalidRecords.push({
         rowNumber: rowNum,
-        data: row,
+        data: rowObj,
         errors: rowErrors
       });
     }
   });
 
-  const total = rows.length;
+  const total = validRecords.length + invalidRecords.length;
   const validCount = validRecords.length;
   const invalidCount = invalidRecords.length;
   const otqrScore = total > 0 ? Math.round((validCount / total) * 100) : 0;
