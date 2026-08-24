@@ -309,18 +309,21 @@ Todos los microservicios y el portal central se encuentran **activos y respondie
 
 ---
 
-- [x] **Despliegue de Base de Datos Canónica MDM en InsForge (`insforge-bk`):** Creado esquema `core`, 13 tablas maestras pobladas (871 SEs, 4,207 CTs con 0 huérfanos, 26 estados normalizados con código `LGU`, 21 familias de materiales, 804 precios en EUR, causas y macro-procesos) y motor de auto-codificación con secuencias y triggers automáticos.
-- [ ] **Sincronización y Pruebas en Sandbox de las Aplicaciones Satélites con `insforge-bk`:** Configurar adaptadores / clientes en modo dual/sandbox para que las 4 apps (SCTIS, SCEIN, SCPPE, SCMTP) y SIGI puedan conectarse y probarse contra la nueva BD canónica de InsForge sin alterar ni tocar las instancias de producción / QA actuales.
+## 🎯 6. Roadmap y Próximos Pasos para Mañana
+- [x] **Despliegue y Diagnóstico Robusto InsForge BaaS en VibeHost:** Handshake directo HTTP/REST y SDK (@insforge/sdk) operativo y validado en producción.
+- [x] **Sincronización Integral SCTAP en Minutario Técnico de SIGI:** 26 compromisos reales, 13 pendientes y 2 minutas oficiales (#26-0004 y #26-0002) con Kanban 100% dinámico.
+- [x] **Tablero Ejecutivo KGI/KPI SCMTP V2.0:** Curva S ponderada RUP, WBS por 6 disciplinas, matriz RAM de responsabilidades y heatmap de riesgos mitigados.
+- [x] **Creación y Sincronización de 10 Repositorios GitHub Refactorizados:** 5 repos en `skidrowkodex-wq` y 5 repos en `distribucion-corpoelec-automatizacion`.
+- [ ] **Diseño del Tablero KGI/KPI para SCPPE V3.0 (Planificación, Viáticos y Proyectos Especiales):** Extender la misma arquitectura de métricas RUP/WBS al módulo presupuestario y físico.
+- [ ] **Diseño del Tablero KGI/KPI para SCTIS V2.0 (Tiras de Interrupción) y SCEIN V3.0 (Equipos Indisponibles):** Conectar indicadores ENS (MWh) y criticidad de transformadores ISO 55000.
 - [ ] **Jornada de Pruebas de Calidad (QA) con Usuarios Estadales:** Validar en vivo el flujo de login con las 25 cuentas territoriales y la carga de archivos de prueba en el nuevo Módulo de Ingesta Inteligente.
-- [ ] **Carga Piloto de Nuevos Procesos:** Probar en caliente la creación y carga de un proceso real (ej. Diagnóstico de Subestaciones `08_SCDXS` o Termografía `09_SCTER`).
-
-
 
 ---
 
 ## 💡 7. Decisiones Técnicas y Convenciones
-- **Políticas de Seguridad:** RLS obligatorio en todas las tablas de Supabase; nunca exponer `service_role_key` en el frontend.
+- **Políticas de Seguridad:** Matriz RBAC segregada en InsForge PostgreSQL 16 con Kill-Switch instantáneo (`core.mae_usuarios_sistema`).
 - **Nomenclatura Normativa:** Todos los documentos institucionales deben mantener el estándar `NAC_2026_GGPD_*` y código GGPD-SGM-INS-*.
 - **Compatibilidad con Agentes:** Este archivo debe ser actualizado por cada agente de IA antes de finalizar su turno de trabajo.
+
 
 
