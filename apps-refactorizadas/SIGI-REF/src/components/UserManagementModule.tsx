@@ -87,7 +87,7 @@ const APPS_META: Record<keyof AppAccessPermissions, AppMetadata> = {
     description: 'Ingesta automatizada, cálculo de SAIDI/SAIFI y Energía No Suministrada (ENS en MWh).',
     icon: Cpu,
     colorTheme: 'emerald',
-    deployUrl: 'https://sctis-interrupciones-distribucion.ai.studio',
+    deployUrl: 'https://corpoelec-sctis-corpoelec-ggpd-hosting-apps.vibehost.space',
   },
   tareasMinutas: {
     key: 'tareasMinutas',
@@ -96,7 +96,7 @@ const APPS_META: Record<keyof AppAccessPermissions, AppMetadata> = {
     description: 'Administración de compromisos, minutas de reuniones de planificación y acuerdos institucionales.',
     icon: FileText,
     colorTheme: 'blue',
-    deployUrl: 'https://ggpd-corpoelec-sc-tareas.ai.studio',
+    deployUrl: 'https://corpoelec-scmtp-corpoelec-ggpd-hosting-apps.vibehost.space',
   },
   planificacion: {
     key: 'planificacion',
@@ -105,7 +105,7 @@ const APPS_META: Record<keyof AppAccessPermissions, AppMetadata> = {
     description: 'Modelado analítico, ejecución de proyectos POA/PRTSEN y viáticos de campo.',
     icon: BarChart3,
     colorTheme: 'purple',
-    deployUrl: 'https://ggpd-planificacion-proyectos-poa.vercel.app/',
+    deployUrl: 'https://corpoelec-scppe-corpoelec-ggpd-hosting-apps.vibehost.space',
   },
   scein: {
     key: 'scein',
@@ -114,7 +114,7 @@ const APPS_META: Record<keyof AppAccessPermissions, AppMetadata> = {
     description: 'Gestión y trazabilidad de transformadores de potencia, bahías y activos de patio (ISO 55000).',
     icon: Zap,
     colorTheme: 'amber',
-    deployUrl: 'https://distribucion-indisponibles-sen.vercel.app/',
+    deployUrl: 'https://corpoelec-scein-corpoelec-ggpd-hosting-apps.vibehost.space',
   },
   gdriveRepo: {
     key: 'gdriveRepo',

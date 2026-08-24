@@ -3,12 +3,38 @@
 ---
 
 ## 📌 1. Registro de Última Actualización
-- **Fecha y Hora:** 2026-08-23 21:08 (VET / UTC-4) — Creación y Sincronización Total de Repositorios GitHub en Ambas Cuentas
+- **Fecha y Hora:** 2026-08-24 10:11 (VET / UTC-4) — Despliegue Público Total de las 5 Aplicaciones Refactorizadas en VibeHost (`vibehost-bk`) y Actualización Integral de Hipervínculos en SIGI
 - **Plataforma / Entorno:** Antigravity IDE 2.0 (Google Gemini 3.7 Flash)
 - **Responsable / Emisores:** Yván M. Cipiran N. | T.S.U. Josué Pacheco (**Equipo de Automatización e Ingeniería de Productos con IA, de Planificación de Distribución**)
-- **Estado General:** 🟢 **Todos los repositorios refactorizados (SIGI-REF, SCTIS-V2.0-REF, SCMTP-V2.0-REF, SCPPE-V3.0-REF, SCEIN-V3.0-REF) y el Repositorio Maestro han sido creados y sincronizados en las 2 cuentas de GitHub (`skidrowkodex-wq` y `distribucion-corpoelec-automatizacion`).**
+- **Estado General:** 🟢 **Las 5 aplicaciones maestras del SEN (`corpoelec-sigi`, `corpoelec-sctis`, `corpoelec-scmtp`, `corpoelec-scppe`, `corpoelec-scein`) han sido desplegadas con éxito en VibeHost con visibilidad pública total (sin requerir login previo) y sus hipervínculos han sido sincronizados en el Lanzador de Aplicaciones de SIGI.**
 
 ### 📊 Entregables Recientes:
+0.00000000. **Despliegue Público Total en VibeHost (`corpoelec-ggpd-hosting-apps`) y Sincronización de Enlaces:**
+   - **1. SIGI (Consola Central y Portal de Gestión):**
+     - App ID: `a53r8tvlvt9ihw09maca8a2g` | Status: `healthy`
+     - URL Oficial: `https://corpoelec-sigi-corpoelec-ggpd-hosting-apps.vibehost.space`
+     - Share Link: `https://corpoelec-sigi-corpoelec-ggpd-hosting-apps.vibehost.space/?__vh_share=vhs_2OapAmR-D-2KZrwzCx6_S0_dGToragHz`
+   - **2. SCTIS V2.0 (Seguimiento y Control de Tiras de Interrupción):**
+     - App ID: `yq94rtmw5enw9bual08l0p3u` | Status: `healthy`
+     - URL Oficial: `https://corpoelec-sctis-corpoelec-ggpd-hosting-apps.vibehost.space`
+     - Share Link: `https://corpoelec-sctis-corpoelec-ggpd-hosting-apps.vibehost.space/?__vh_share=vhs_miVTayPuCBdwQhqRZOxL1XL3Or-cZjue`
+   - **3. SCMTP V2.0 (Gestión de Minutas y Tareas de Planificación):**
+     - App ID: `xon0wv9a3s45vomgd22w8kp3` | Status: `healthy`
+     - URL Oficial: `https://corpoelec-scmtp-corpoelec-ggpd-hosting-apps.vibehost.space`
+     - Share Link: `https://corpoelec-scmtp-corpoelec-ggpd-hosting-apps.vibehost.space/?__vh_share=vhs_FcjqabFQ2c1xMKFOkh9BhOqtmmAr6ggf`
+   - **4. SCPPE V3.0 (Planificación Eléctrica SEN / Proyectos POA y Viáticos):**
+     - App ID: `c947eg8pgpux8vffy0bjt7ms` | Status: `healthy`
+     - URL Oficial: `https://corpoelec-scppe-corpoelec-ggpd-hosting-apps.vibehost.space`
+     - Share Link: `https://corpoelec-scppe-corpoelec-ggpd-hosting-apps.vibehost.space/?__vh_share=vhs_PWgKC7JkGEle15LcvVz-2Pqlq-tk5ahz`
+   - **5. SCEIN V3.0 (Equipos Indisponibles en Subestaciones):**
+     - App ID: `pqb1ryl1s59ner372rbmf559` | Status: `healthy`
+     - URL Oficial: `https://corpoelec-scein-corpoelec-ggpd-hosting-apps.vibehost.space`
+     - Share Link: `https://corpoelec-scein-corpoelec-ggpd-hosting-apps.vibehost.space/?__vh_share=vhs_v3Knp6MCmTq7TLJ-VVQAx2XvjbGcVtYl`
+   - **Actualización de Código Fuente & Skill:**
+     - Actualizado [vibehost-deploy SKILL.md](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/.agents/skills/vibehost-deploy/SKILL.md) registrando el modo `visibility: 'public'` y la creación de share links como estándar mandatorio de despliegue.
+     - Actualizados [`portalData.ts`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SIGI-REF/src/mockData/portalData.ts), [`UserManagementModule.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SIGI-REF/src/components/UserManagementModule.tsx) e [`index.html`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SIGI-REF/index.html) en `SIGI-REF` y en `corpoelec-sigi-gestion-planificacion-distribucion`.
+     - Actualizados [docs/Links de apps.txt](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/Links%20de%20apps.txt) y [Despliegue urls whatsapp.txt](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/Despliegue%20urls%20whatsapp.txt).
+
 0.0000000. **Publicación y Sincronización de Repositorios en Cuentas GitHub:**
    - **Cuenta 1 (Personal / Master - `skidrowkodex-wq`):**
      - Maestro: `https://github.com/skidrowkodex-wq/ggpd_repositorio_maestro`
@@ -27,8 +53,9 @@
 0.000000. **Tablero Ejecutivo KGI/KPI SCMTP V2.0 en SIGI (`corpoelec-sigi`):**
    - **App ID:** `a53r8tvlvt9ihw09maca8a2g` en workspace `tao59mlv54m5mo1fclakvldq` (`corpoelec-ggpd-hosting-apps`).
    - **Deployment ID:** `j7ia4wxbrmkd9wtbsxpi5kwv` (Estatus: `healthy`).
-   - **URL Oficial:** `https://corpoelec-sigi-corpoelec-ggpd-hosting-apps.vibehost.space`
-   - **Enlace de Acceso Directo (Share Link):** `https://corpoelec-sigi-corpoelec-ggpd-hosting-apps.vibehost.space/?__vh_share=vhs_BowtHBg93zrBSY0xadzhyyUp3-7D9z9Q`
+   - **URL Oficial (Pública / Sin Login):** `https://corpoelec-sigi-corpoelec-ggpd-hosting-apps.vibehost.space`
+   - **Enlace de Acceso Directo (Share Link):** `https://corpoelec-sigi-corpoelec-ggpd-hosting-apps.vibehost.space/?__vh_share=vhs_D8tKXiYVxMPvkB8Q0IUzFpwoLI6POhKW`
+   - **Visibilidad VibeHost:** `public` (Acceso libre e inmediato sin requerir cuenta en VibeHost).
    - **Métricas KGI & KPI Implementadas:**
      - **4 KGI Estratégicos:** Eficacia de Contingencia (92.3%), Disciplina de Plazos (83.5%), Calidad de Datos ISO 8000 (100%) y Madurez Digital (88.0%).
      - **Curva S de Avance Ponderado vs. Planificado:** Hitos temporales divididos en las 4 fases RUP (*Inception, Elaboration, Construction, Transition*).

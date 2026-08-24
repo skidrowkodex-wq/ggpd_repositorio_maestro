@@ -1,19 +1,27 @@
-Buenas tardes, a continuacion envio el listado de aplicaciones con sus respectivos enlaces de acceso.
+Buenas tardes, a continuación envío el listado oficial de las 5 aplicaciones estratégicas del Sistema Eléctrico Nacional (SEN / GGPD) desplegadas en VibeHost con acceso público directo (sin requerir login previo):
 
-Proyecto: Seguimiento y Control de Tiras de Interrupciones.
-Nombre de la app: SCTIS V 2.0 Distribucion
-Url de publicacion: https://sctis-interrupciones-distribucion.ai.studio
+0. Consola Central y Portal de Gestión (SIGI):
+Nombre: SIGI - Sistema Integral de Gestión y Planificación de Distribución
+Enlace Oficial: https://corpoelec-sigi-corpoelec-ggpd-hosting-apps.vibehost.space
+Enlace Directo (Share): https://corpoelec-sigi-corpoelec-ggpd-hosting-apps.vibehost.space/?__vh_share=vhs_2OapAmR-D-2KZrwzCx6_S0_dGToragHz
 
+1. Proyecto: Seguimiento y Control de Tiras de Interrupciones (SCTIS V2.0):
+Nombre: SCTIS V2.0 - Tiras de Interrupción
+Enlace Oficial: https://corpoelec-sctis-corpoelec-ggpd-hosting-apps.vibehost.space
+Enlace Directo (Share): https://corpoelec-sctis-corpoelec-ggpd-hosting-apps.vibehost.space/?__vh_share=vhs_miVTayPuCBdwQhqRZOxL1XL3Or-cZjue
 
-Proyecto: Sistema de Seguimiento de Minutas y Proyectos
-Nombre de la app: CORPOELEC - Gestor de Tareas y Minutas
-Url de publicacion: https://ggpd-corpoelec-sc-tareas.ai.studio
+2. Proyecto: Sistema de Seguimiento de Minutas y Tareas (SCMTP V2.0):
+Nombre: SCMTP V2.0 - Gestión de Minutas y Tareas
+Enlace Oficial: https://corpoelec-scmtp-corpoelec-ggpd-hosting-apps.vibehost.space
+Enlace Directo (Share): https://corpoelec-scmtp-corpoelec-ggpd-hosting-apps.vibehost.space/?__vh_share=vhs_FcjqabFQ2c1xMKFOkh9BhOqtmmAr6ggf
 
-Proyecto: Planificacion Electrica SEN
-Nombre de la app: Planificacion Electrica SEN
-Url de publicacion: https://ggpd-planificacion-proyectos-poa.vercel.app/
+3. Proyecto: Planificación Eléctrica SEN (SCPPE V3.0):
+Nombre: SCPPE V3.0 - Planes, Proyectos Especiales y Viáticos
+Enlace Oficial: https://corpoelec-scppe-corpoelec-ggpd-hosting-apps.vibehost.space
+Enlace Directo (Share): https://corpoelec-scppe-corpoelec-ggpd-hosting-apps.vibehost.space/?__vh_share=vhs_PWgKC7JkGEle15LcvVz-2Pqlq-tk5ahz
 
+4. Proyecto: Seguimiento y Control de Equipos Indisponibles (SCEIN V3.0):
+Nombre: SCEIN V3.0 - Equipos Indisponibles en Subestaciones
+Enlace Oficial: https://corpoelec-scein-corpoelec-ggpd-hosting-apps.vibehost.space
+Enlace Directo (Share): https://corpoelec-scein-corpoelec-ggpd-hosting-apps.vibehost.space/?__vh_share=vhs_v3Knp6MCmTq7TLJ-VVQAx2XvjbGcVtYl
 
-Proyecto: Seguimiento y Control de Equipos Indisponibles.
-Nombre de la app: REMIX SCEIN - seguimiento y control de equipos indisponibles CORPOELEC
-Url de publicacion: https://distribucion-indisponibles-sen.vercel.app/

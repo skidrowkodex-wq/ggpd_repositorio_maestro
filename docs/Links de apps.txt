@@ -1,8 +1,16 @@
-Links de apps:
+Links de apps (Despliegues Oficiales VibeHost & Cloud GGPD):
 *************************************************************************
-Proyecto: Seguimiento y Control de Tiras de Interrupcion
-Nombre de la app: SCTIS V 2.0 Distribucion
-Url de publicacion: https://sctis-interrupciones-distribucion.ai.studio
+0. Consola Central y Portal de Gestión:
+Nombre de la app: SIGI - Sistema Integral de Gestión y Planificación de Distribución
+Url Oficial VibeHost (Pública): https://corpoelec-sigi-corpoelec-ggpd-hosting-apps.vibehost.space
+Enlace Directo (Share Link): https://corpoelec-sigi-corpoelec-ggpd-hosting-apps.vibehost.space/?__vh_share=vhs_2OapAmR-D-2KZrwzCx6_S0_dGToragHz
+
+1. Proyecto: Seguimiento y Control de Tiras de Interrupción
+Nombre de la app: SCTIS V2.0 Distribucion
+Url Oficial VibeHost (Pública): https://corpoelec-sctis-corpoelec-ggpd-hosting-apps.vibehost.space
+Enlace Directo (Share Link): https://corpoelec-sctis-corpoelec-ggpd-hosting-apps.vibehost.space/?__vh_share=vhs_miVTayPuCBdwQhqRZOxL1XL3Or-cZjue
+Url Alterna (AI Studio): https://sctis-interrupciones-distribucion.ai.studio
+
 Integraciones: Google Drive, Gmail, Gemini AI
 Cuenta AI STUDIO: skidrowkdex@gmail.com.
 Cuenta de Despliegue: skidrowkodex@gmail.com
@@ -63,12 +71,14 @@ C. Detección Inteligente de Duplicados (detect_duplicates_with_ai)
 ***************************************************************************************
 
 Proyecto: Sistema de Seguimiento de Minutas y Proyectos
-Nombre de la app: CORPOELEC - Gestor de Tareas y Minutas 
-Url de publicacion: https://ggpd-corpoelec-sc-tareas.ai.studio
-Integraciones: Gemini AI.
+Nombre de la app: SCMTP V2.0 - Seguimiento y Control de Minutas y Tareas de Planificacion
+Url Oficial VibeHost (Pública): https://corpoelec-scmtp-corpoelec-ggpd-hosting-apps.vibehost.space
+Enlace Directo (Share Link): https://corpoelec-scmtp-corpoelec-ggpd-hosting-apps.vibehost.space/?__vh_share=vhs_FcjqabFQ2c1xMKFOkh9BhOqtmmAr6ggf
+Url Alterna (AI Studio): https://ggpd-corpoelec-sc-tareas.ai.studio
+Integraciones: Gemini AI, InsForge BaaS.
 Cuenta AI STUDIO: skidrowkodex@gmail.com.
 Cuenta de Despliegue: skidrowkodex@gmail.com.
-Motor de Publicacion: Cloud Google (cloud.google.com).
+Motor de Publicacion: VibeHost Cloud / Google AI Studio.
 
 
 USUARIOS:
@@ -149,14 +159,16 @@ Al procesar una minuta, Gemini extrae y organiza automáticamente los siguientes
 
 *************************************************************
 Proyecto: Planificacion Electrica SEN
-Nombre de la app: Planificacion Electrica SEN
+Nombre de la app: SCPPE V3.0 - Planificacion Electrica SEN
 Repo Github: ggpd-planificacion-proyectos-poa
-Url de publicacion: https://ggpd-planificacion-proyectos-poa.vercel.app/
-Integraciones: Gemini AI.
+Url Oficial VibeHost (Pública): https://corpoelec-scppe-corpoelec-ggpd-hosting-apps.vibehost.space
+Enlace Directo (Share Link): https://corpoelec-scppe-corpoelec-ggpd-hosting-apps.vibehost.space/?__vh_share=vhs_PWgKC7JkGEle15LcvVz-2Pqlq-tk5ahz
+Url Alterna (Vercel): https://ggpd-planificacion-proyectos-poa.vercel.app/
+Integraciones: Gemini AI, InsForge BaaS.
 Cuenta AI Studio: skidrowkodex@gmail.com.
 Cuenta de Despliegue: ggpd.innovacion.corpelec@gmail.com
 Cuenta Github:ggpd.innovacion.corpelec@gmail.com
-Motor de Publicacion: Vercel.
+Motor de Publicacion: VibeHost Cloud / Vercel.
 
 USUARIOS:
 
@@ -184,13 +196,15 @@ El proyecto contempla las siguientes integraciones técnicas y de infraestructur
   ***************************************************************************
   
 Proyecto: Seguimiento y Control de Equipos Indisponibles.
-Nombre de la app: REMIX SCEIN - seguimiento y control de equipos indisponibles CORPOELEC
-Url de publicacion: https://distribucion-indisponibles-sen.vercel.app/
-Integraciones: Gemini AI.
+Nombre de la app: SCEIN V3.0 - Seguimiento y Control de Equipos Indisponibles
+Url Oficial VibeHost (Pública): https://corpoelec-scein-corpoelec-ggpd-hosting-apps.vibehost.space
+Enlace Directo (Share Link): https://corpoelec-scein-corpoelec-ggpd-hosting-apps.vibehost.space/?__vh_share=vhs_v3Knp6MCmTq7TLJ-VVQAx2XvjbGcVtYl
+Url Alterna (Vercel): https://distribucion-indisponibles-sen.vercel.app/
+Integraciones: Gemini AI, InsForge BaaS.
 Cuenta AI Studio: ggpd.innovacion.corpelec@gmail.com.
 Cuenta de Despliegue: ggpd.innovacion.corpelec@gmail.com
 Cuenta Github:ggpd.innovacion.corpelec@gmail.com
-Motor de Publicacion: Vercel.
+Motor de Publicacion: VibeHost Cloud / Vercel.
 
 USUARIOS:
 

@@ -35,7 +35,7 @@ export const SYSTEM_APPS: AppItem[] = [
     name: 'SCTIS V2.0 - Seguimiento y Control de Tiras de Interrupciones',
     description: 'Sistema de Ingesta, Deduplicación y Gobierno de Activos Eléctricos (Subestaciones y Circuitos).',
     category: 'APLICACION_MAESTRA',
-    url: 'https://sctis-interrupciones-distribucion.ai.studio',
+    url: 'https://corpoelec-sctis-corpoelec-ggpd-hosting-apps.vibehost.space',
     iconName: 'Cpu',
     isCloud: false,
     badgeText: 'Producción ISO 8000'
@@ -45,7 +45,7 @@ export const SYSTEM_APPS: AppItem[] = [
     name: 'SCPPE V3.0 - Seguimiento y Control de Planes y Proyectos Especiales de Distribucion',
     description: 'Modelado analítico, proyección de capacidad, proyectos POA y viáticos de campo del SEN.',
     category: 'APLICACION_MAESTRA',
-    url: 'https://ggpd-planificacion-proyectos-poa.vercel.app/',
+    url: 'https://corpoelec-scppe-corpoelec-ggpd-hosting-apps.vibehost.space',
     iconName: 'Zap',
     isCloud: false,
     badgeText: 'IA Gemini 3.6'
@@ -55,7 +55,7 @@ export const SYSTEM_APPS: AppItem[] = [
     name: 'SCEIN V3.0 - Seguimiento y Control de Equipos Indisponibles',
     description: 'Seguimiento y control operativo en tiempo real de transformación y bahías fuera de servicio.',
     category: 'APLICACION_MAESTRA',
-    url: 'https://distribucion-indisponibles-sen.vercel.app/',
+    url: 'https://corpoelec-scein-corpoelec-ggpd-hosting-apps.vibehost.space',
     iconName: 'AlertTriangle',
     isCloud: false,
     badgeText: 'Alerta Operativa'
@@ -65,7 +65,7 @@ export const SYSTEM_APPS: AppItem[] = [
     name: 'SCMTP V2.0 - Seguimiento y Control de Minutas y Tareas de Planificacion',
     description: 'Administración de compromisos, minutas de reuniones de planificación y acuerdos institucionales.',
     category: 'APLICACION_MAESTRA',
-    url: 'https://ggpd-corpoelec-sc-tareas.ai.studio',
+    url: 'https://corpoelec-scmtp-corpoelec-ggpd-hosting-apps.vibehost.space',
     iconName: 'ClipboardList',
     isCloud: false,
     badgeText: 'Auditoría COBIT'
