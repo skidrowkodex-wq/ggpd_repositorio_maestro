@@ -17,7 +17,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => getInitialUser());
   const [showLoginModal, setShowLoginModal] = useState(() => getInitialUser() === null);
-  const [darkMode, setDarkMode] = useState(false); // Tema claro por defecto para diseño corporativo
+  const [darkMode, setDarkMode] = useState(true); // Tema Oscuro Glassmorphism por defecto
 
   useEffect(() => {
     if (darkMode) {

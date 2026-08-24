@@ -40,27 +40,28 @@ export function LoginModal({ isOpen, onClose, onLoginSuccess, darkMode = false }
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4">
-      <div className={`industrial-card max-w-md w-full p-6 sm:p-8 space-y-6 relative overflow-hidden transition-colors ${
-        darkMode ? 'border-slate-800 text-slate-100' : 'border-slate-200 text-slate-900'
+    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+      <div className={`industrial-card max-w-md w-full p-6 sm:p-8 space-y-6 relative overflow-hidden transition-colors border shadow-2xl rounded-2xl ${
+        darkMode ? 'border-yellow-500/30 bg-slate-900/95 text-slate-100' : 'border-slate-200 bg-white text-slate-900'
       }`}>
-        {/* Franja de Identidad Corporativa CORPOELEC (Rojo, Azul, Amarillo) */}
-        <div className="absolute top-0 left-0 right-0 h-1.5 flex">
-          <div className="h-full w-1/3 bg-corpo-red" />
-          <div className="h-full w-1/3 bg-corpo-blue" />
-          <div className="h-full w-1/3 bg-corpo-accent" />
-        </div>
+        {/* Banda Técnica de Proceso Dorado Energía (4px) */}
+        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-500 shadow-[0_0_12px_rgba(234,179,8,0.5)]" />
 
         {/* Encabezado */}
-        <div className="text-center space-y-2 pt-1">
-          <div className={`mx-auto w-12 h-12 rounded-md border flex items-center justify-center font-bold text-2xl shadow-inner ${
-            darkMode ? 'bg-amber-500/10 border-amber-500/30 text-corpo-accent' : 'bg-red-50 border-red-200 text-corpo-red'
+        <div className="text-center space-y-2 pt-2">
+          <div className={`mx-auto w-12 h-12 rounded-2xl border flex items-center justify-center font-bold text-2xl shadow-inner ${
+            darkMode ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-400' : 'bg-amber-50 border-amber-200 text-amber-600'
           }`}>
             ⚡
           </div>
           <div className="space-y-1">
+            <div className="inline-block">
+              <span className="text-[10px] font-mono tracking-widest text-yellow-400 uppercase bg-yellow-950/70 px-2.5 py-0.5 rounded-full border border-yellow-500/40">
+                PROCESO GGPD-PLA-01 • PLANES & VIÁTICOS
+              </span>
+            </div>
             <h2 className={`text-xl font-bold tracking-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-              Iniciar Sesión — Planificación Eléctrica SEN
+              SCPPE V3.0 — Planificación Eléctrica SEN
             </h2>
             <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
               CORPOELEC • Gerencia General de Planificación de Distribución

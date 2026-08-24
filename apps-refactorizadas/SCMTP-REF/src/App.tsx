@@ -458,7 +458,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 font-sans text-slate-900 flex">
+    <div className="min-h-screen bg-[#030d1e] font-sans text-slate-100 flex">
       
       {/* Collapsible Left Sidebar */}
       <Sidebar

@@ -62,25 +62,33 @@ export const LoginForm: React.FC = () => {
       <div className="max-w-md w-full space-y-6">
         {/* Header Branding */}
         <div className="text-center space-y-3">
-          <div className="inline-flex h-14 w-14 rounded-2xl bg-gradient-to-tr from-sky-700 via-sky-600 to-red-600 items-center justify-center shadow-xl shadow-sky-600/20 text-white mx-auto">
-            <Zap className="w-8 h-8 fill-current text-white" />
+          <div className="inline-flex h-14 w-14 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-600 to-amber-700 items-center justify-center shadow-xl shadow-amber-500/25 text-white mx-auto">
+            <Zap className="w-8 h-8 fill-current text-white animate-pulse" />
           </div>
           <div>
-            <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">CORPOELEC • GGPD</h1>
-            <p className="text-sm font-semibold text-sky-700 dark:text-sky-400 mt-0.5">SCEIN - Sistema de Control e Ingesta de Equipos Indisponibles</p>
-            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Calidad de Datos ISO 8000 & Auditoría ISO 27001</p>
+            <div className="inline-block mb-1">
+              <span className="text-[11px] font-mono tracking-widest text-amber-400 uppercase bg-amber-950/70 px-3 py-0.5 rounded-full border border-amber-500/40">
+                PROCESO GGPD-SUB-01 • SUBESTACIONES
+              </span>
+            </div>
+            <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">CORPOELEC • GGPD</h1>
+            <p className="text-sm font-bold text-amber-600 dark:text-amber-400 mt-0.5">SCEIN V3.0 — Seguimiento y Control de Equipos Indisponibles</p>
+            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-mono">Gestión de Activos Mayores ISO 55000 & Calidad ISO 8000</p>
           </div>
         </div>
 
         {/* Card Form */}
-        <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl dark:shadow-2xl backdrop-blur-md space-y-6">
+        <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-amber-500/30 rounded-2xl p-6 sm:p-8 shadow-xl dark:shadow-2xl dark:shadow-amber-500/10 backdrop-blur-md space-y-6 relative overflow-hidden">
+          {/* Banda Técnica de Proceso Ámbar Industrial (4px) */}
+          <div className="h-1 w-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 absolute top-0 left-0 shadow-[0_0_12px_rgba(245,158,11,0.5)]"></div>
+
           <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
             <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-semibold text-sm">
-              <Lock className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-              <span>Iniciar Sesión en el Sistema</span>
+              <Lock className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+              <span>Control de Acceso al Sistema</span>
             </div>
-            <span className="text-[11px] px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 font-mono font-bold">
-              Esquema DB: scei
+            <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-700/60 font-mono font-bold">
+              Esquema DB: core
             </span>
           </div>
 
@@ -93,7 +101,7 @@ export const LoginForm: React.FC = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">Usuario Corporativo</label>
+              <label className="block text-xs font-bold font-mono text-slate-700 dark:text-slate-300 uppercase tracking-wider">Usuario Corporativo</label>
               <div className="relative">
                 <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                 <input
@@ -101,14 +109,14 @@ export const LoginForm: React.FC = () => {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="ej: ggpd_admin, j_jimenez, e_tachira"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition font-mono"
                   required
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">Contraseña</label>
+              <label className="block text-xs font-bold font-mono text-slate-700 dark:text-slate-300 uppercase tracking-wider">Contraseña</label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                 <input
@@ -116,7 +124,7 @@ export const LoginForm: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition font-mono"
                   required
                 />
               </div>
@@ -125,7 +133,7 @@ export const LoginForm: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-sky-700 to-sky-600 hover:from-sky-800 hover:to-sky-700 dark:from-sky-600 dark:to-cyan-600 active:scale-[0.99] text-white font-bold text-sm shadow-lg shadow-sky-600/25 transition flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-extrabold text-sm shadow-lg shadow-amber-500/20 active:scale-[0.99] transition flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {loading ? (
                 <>
@@ -134,7 +142,7 @@ export const LoginForm: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <ShieldCheck className="w-4 h-4" />
+                  <ShieldCheck className="w-4 h-4 text-slate-950" />
                   <span>Ingresar al Sistema SCEIN</span>
                 </>
               )}

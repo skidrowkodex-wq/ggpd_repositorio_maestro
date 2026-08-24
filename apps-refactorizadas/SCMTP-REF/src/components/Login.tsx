@@ -129,14 +129,14 @@ const INSFORGE_API_KEY = import.meta.env.VITE_INSFORGE_API_KEY || '***REMOVED***
         
         {/* Brand Header */}
         <div className="text-center mb-6 space-y-2">
-          <div className="inline-flex items-center space-x-3 bg-slate-900/90 border border-slate-700/80 px-4 py-2 rounded-2xl shadow-xl backdrop-blur-md">
-            <div className="bg-[#E30613] p-2 rounded-xl text-white shadow-md">
-              <Zap className="w-6 h-6 fill-current animate-pulse" />
+          <div className="inline-flex items-center space-x-3 bg-slate-900/90 border border-emerald-500/30 px-4 py-2 rounded-2xl shadow-xl backdrop-blur-md">
+            <div className="bg-emerald-600 p-2 rounded-xl text-white shadow-md shadow-emerald-600/30">
+              <FileText className="w-6 h-6 fill-current animate-pulse text-white" />
             </div>
             <div className="text-left">
               <div className="flex items-center space-x-1.5">
                 <span className="font-black text-xl tracking-wider text-white">CORPOELEC</span>
-                <span className="text-[10px] bg-cyan-500/20 text-cyan-300 font-extrabold px-2 py-0.5 rounded-full border border-cyan-400/30">
+                <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-extrabold px-2 py-0.5 rounded-full border border-emerald-400/30">
                   GGPD
                 </span>
               </div>
@@ -146,11 +146,17 @@ const INSFORGE_API_KEY = import.meta.env.VITE_INSFORGE_API_KEY || '***REMOVED***
             </div>
           </div>
 
-          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight pt-2">
-            Sistema de Seguimiento de Minutas y Proyectos
+          <div className="inline-block mt-2">
+            <span className="text-[11px] font-mono tracking-widest text-emerald-400 uppercase bg-emerald-950/70 px-3 py-0.5 rounded-full border border-emerald-500/40">
+              PROCESO GGPD-PLA-02 • GOBERNANZA & MINUTAS
+            </span>
+          </div>
+
+          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight pt-1">
+            SCMTP V2.0 — Seguimiento y Control de Minutas y Tareas
           </h1>
           <p className="text-xs text-slate-400 max-w-md mx-auto">
-            Plataforma institucional de gestión de compromisos operativos PRTSEN / POA
+            Plataforma institucional de gestión de compromisos operativos y auditoría COBIT 2019
           </p>
 
           {/* ISO Compliance Badge */}
@@ -161,7 +167,9 @@ const INSFORGE_API_KEY = import.meta.env.VITE_INSFORGE_API_KEY || '***REMOVED***
         </div>
 
         {/* Main Login Card */}
-        <div className="bg-slate-900/95 border border-slate-700/80 rounded-3xl shadow-2xl p-6 sm:p-8 backdrop-blur-xl space-y-6">
+        <div className="bg-slate-900/95 border border-emerald-500/30 rounded-3xl shadow-2xl p-6 sm:p-8 backdrop-blur-xl space-y-6 relative overflow-hidden">
+          {/* Banda Técnica de Proceso Esmeralda Auditoría (4px) */}
+          <div className="h-1 w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 absolute top-0 left-0 shadow-[0_0_12px_rgba(16,185,129,0.5)]"></div>
                  {/* Mode Selector Tabs */}
           <div className="flex rounded-xl bg-slate-950/80 p-1 border border-slate-800 text-xs font-bold">
             <button
