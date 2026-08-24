@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="785.6" height="526" viewBox="0 0 785.6 526" font-family="Segoe UI, Arial, sans-serif"><defs><marker id="flecha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9 z" fill="#475569"/></marker><marker id="retorno" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9 z" fill="none" stroke="#475569" stroke-width="1.1"/></marker></defs><rect x="0" y="0" width="785.6" height="526" fill="#ffffff"/><rect x="26.0" y="156" width="177.4" height="382" rx="6" fill="#ffffff" stroke="none" stroke-width="1.2"/>
+<line x1="114.7" y1="164" x2="114.7" y2="520" stroke="#94a3b8" stroke-width="1.1" stroke-dasharray="4 4"/>
+<rect x="211.40000000000003" y="156" width="177.4" height="382" rx="6" fill="#ffffff" stroke="none" stroke-width="1.2"/>
+<line x1="300.1" y1="164" x2="300.1" y2="520" stroke="#94a3b8" stroke-width="1.1" stroke-dasharray="4 4"/>
+<rect x="396.8" y="156" width="177.4" height="382" rx="6" fill="#ffffff" stroke="none" stroke-width="1.2"/>
+<line x1="485.5" y1="164" x2="485.5" y2="520" stroke="#94a3b8" stroke-width="1.1" stroke-dasharray="4 4"/>
+<rect x="582.1999999999999" y="156" width="177.4" height="382" rx="6" fill="#ffffff" stroke="none" stroke-width="1.2"/>
+<line x1="670.9" y1="164" x2="670.9" y2="520" stroke="#94a3b8" stroke-width="1.1" stroke-dasharray="4 4"/>
+<rect x="110.7" y="312" width="8" height="20" rx="3" fill="#c7d2fe" stroke="#6366f1" stroke-width="1"/>
+<rect x="110.7" y="450" width="8" height="20" rx="3" fill="#c7d2fe" stroke="#6366f1" stroke-width="1"/>
+<rect x="296.1" y="162" width="8" height="20" rx="3" fill="#c7d2fe" stroke="#6366f1" stroke-width="1"/>
+<rect x="296.1" y="282" width="8" height="20" rx="3" fill="#c7d2fe" stroke="#6366f1" stroke-width="1"/>
+<rect x="296.1" y="372" width="8" height="20" rx="3" fill="#c7d2fe" stroke="#6366f1" stroke-width="1"/>
+<rect x="481.5" y="192" width="8" height="20" rx="3" fill="#c7d2fe" stroke="#6366f1" stroke-width="1"/>
+<rect x="481.5" y="252" width="8" height="20" rx="3" fill="#c7d2fe" stroke="#6366f1" stroke-width="1"/>
+<rect x="666.9" y="222" width="8" height="20" rx="3" fill="#c7d2fe" stroke="#6366f1" stroke-width="1"/>
+<line x1="118.7" y1="162" x2="294.1" y2="162" stroke="#475569" stroke-width="1.4" marker-end="url(#flecha)"/>
+<text x="207.4" y="150.25" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:600;fill:#1e293b;">GET /dashboard (perspectiva: Ing. Eléctrico /</text>
+<text x="207.4" y="161.75" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:600;fill:#1e293b;">Mantto / PM / Data)</text>
+<line x1="304.1" y1="192" x2="479.5" y2="192" stroke="#475569" stroke-width="1.4" marker-end="url(#flecha)"/>
+<text x="392.8" y="186.0" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:600;fill:#1e293b;">GET /api/dashboard</text>
+<line x1="489.5" y1="222" x2="664.9" y2="222" stroke="#475569" stroke-width="1.4" marker-end="url(#flecha)"/>
+<text x="578.2" y="204.5" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:600;fill:#1e293b;">13 queries: causas, horas, tendencia, sistema,</text>
+<text x="578.2" y="216.0" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:600;fill:#1e293b;">OTRAS (Sankey), circuitos, SE, estados,</text>
+<text x="578.2" y="227.5" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:600;fill:#1e293b;">horario, calidad…</text>
+<line x1="481.5" y1="252" x2="676.9" y2="252" stroke="#64748b" stroke-width="1.1" stroke-dasharray="5 4" marker-end="url(#retorno)"/>
+<text x="578.2" y="246.0" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:600;fill:#1e293b;">Datos agregados</text>
+<line x1="296.1" y1="282" x2="491.5" y2="282" stroke="#64748b" stroke-width="1.1" stroke-dasharray="5 4" marker-end="url(#retorno)"/>
+<text x="392.8" y="276.0" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:600;fill:#1e293b;">JSON con las 13 secciones</text>
+<line x1="110.7" y1="312" x2="306.1" y2="312" stroke="#64748b" stroke-width="1.1" stroke-dasharray="5 4" marker-end="url(#retorno)"/>
+<text x="207.4" y="306.0" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:600;fill:#1e293b;">Renderiza Chart.js + Plotly (Sankey OTRAS)</text>
+<line x1="118.7" y1="372" x2="294.1" y2="372" stroke="#475569" stroke-width="1.4" marker-end="url(#flecha)"/>
+<text x="207.4" y="366.0" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:600;fill:#1e293b;">Descargar gráfico como PNG</text>
+<path d="M 300.1 402 h 34 q 9 0 9 9 v 14 q 0 9 -9 9 h -34" fill="none" stroke="#475569" stroke-width="1.4" marker-end="url(#flecha)"/><text x="330.1" y="390.25" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:600;fill:#1e293b;">canvas.toDataURL() /</text>
+<text x="330.1" y="401.75" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:600;fill:#1e293b;">Plotly.downloadImage()</text>
+<line x1="110.7" y1="450" x2="306.1" y2="450" stroke="#64748b" stroke-width="1.1" stroke-dasharray="5 4" marker-end="url(#retorno)"/>
+<text x="207.4" y="444.0" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:600;fill:#1e293b;">Imagen PNG descargada</text>
+<rect x="26.0" y="104" width="177.4" height="54" rx="7" fill="#e3f2fd" stroke="#1e88e5" stroke-width="1.4"/>
+<text x="114.7" y="131.0" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:12.5px;font-weight:700;fill:#0f172a;">Usuario (perspectiva)</text>
+<rect x="211.40000000000003" y="104" width="177.4" height="54" rx="7" fill="#fff3e0" stroke="#fb8c00" stroke-width="1.4"/>
+<text x="300.1" y="131.0" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:12.5px;font-weight:700;fill:#0f172a;">Frontend (Vue 3)</text>
+<rect x="396.8" y="104" width="177.4" height="54" rx="7" fill="#ede7f6" stroke="#5e35b1" stroke-width="1.4"/>
+<text x="485.5" y="131.0" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:12.5px;font-weight:700;fill:#0f172a;">API Flask</text>
+<rect x="582.1999999999999" y="104" width="177.4" height="54" rx="7" fill="#e0f2f1" stroke="#00897b" stroke-width="1.4"/>
+<text x="670.9" y="131.0" text-anchor="middle" style="font-family:Segoe UI, Arial, sans-serif;font-size:12.5px;font-weight:700;fill:#0f172a;">BD PostgreSQL</text>
+<text x="22" y="34.0" text-anchor="start" style="font-family:Segoe UI, Arial, sans-serif;font-size:17px;font-weight:800;fill:#0f172a;">Flujo 5.4 — Dashboard y API de Datos</text>
+<text x="22" y="56.0" text-anchor="start" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:normal;fill:#64748b;">Diagrama de secuencia por carriles — SCTIS-SEC-04</text>
+<text x="763.6" y="34.0" text-anchor="end" style="font-family:Segoe UI, Arial, sans-serif;font-size:11.5px;font-weight:normal;fill:#94a3b8;">SCTIS v1.0</text>
+<line x1="22" y1="66" x2="763.6" y2="66" stroke="#cbd5e1" stroke-width="1.2"/></svg>

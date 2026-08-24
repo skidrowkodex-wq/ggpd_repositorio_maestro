@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% block title %}Panel de Control — SCTIS{% endblock %}
+{% block header_title %}Centro de Control Operativo{% endblock %}
+
+{% block content %}
+<!-- Banner de Bienvenida y Proceso -->
+<div class="tech-banner rounded-2xl p-6 sm:p-7 shadow-xl border border-slate-200 dark:border-cyan-500/20 text-white relative overflow-hidden">
+    <div class="tech-chevron-watermark">
+        <svg width="40" height="60" viewBox="0 0 40 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-cyan-400 opacity-20">
+            <path d="M5 5L25 30L5 55" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M18 5L38 30L18 55" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </div>
+    
+    <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2 mb-2">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-[#00f2fe]/20 text-[#00f2fe] border border-cyan-400/30">
+                    SCTIS • Proceso GGPD-DIS-01
+                </span>
+                <span class="text-xs text-slate-300 font-mono">Gestión de Continuidad Eléctrica</span>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-black tracking-tight text-white">
+                Seguimiento y Control de Interrupciones de Servicio
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl leading-relaxed">
+                Plataforma institucional para el registro, homologación bajo norma IEEE 1366 / ISO 8000 y análisis de confiabilidad en el Sistema Eléctrico Nacional.
+            </p>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <a href="/nuevo" class="px-4 py-2 bg-[#00f2fe] hover:bg-cyan-300 text-[#072146] font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-cyan-500/20 flex items-center gap-2">
+                <i class="fas fa-plus"></i> Nueva Novedad
+            </a>
+            <a href="/dashboard" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all border border-white/20 flex items-center gap-2 backdrop-blur-md">
+                <i class="fas fa-chart-line text-[#00f2fe]"></i> Analítica
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Action Industrial Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+    <a href="/importar" class="industrial-card p-5 group block transition-all">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#0033A0] to-[#0284c7] text-[#00f2fe] flex items-center justify-center text-xl shadow-md border border-cyan-400/30 group-hover:scale-105 group-hover:shadow-[0_0_15px_rgba(0,242,254,0.3)] transition-all">
+                <i class="fas fa-file-arrow-up"></i>
+            </div>
+            <div>
+                <div class="flex items-center gap-1.5">
+                    <h3 class="font-bold text-sm text-slate-800 dark:text-white tracking-tight uppercase">Importar Datos</h3>
+                    <i class="fas fa-arrow-right text-xs text-slate-400 group-hover:text-[#00f2fe] group-hover:translate-x-0.5 transition-all"></i>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">Carga masiva / Homologación</p>
+            </div>
+        </div>
+    </a>
+    
+    <a href="/nuevo" class="industrial-card p-5 group block transition-all">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#072146] to-[#002b49] text-[#F2A900] flex items-center justify-center text-xl shadow-md border border-amber-500/30 group-hover:scale-105 group-hover:shadow-[0_0_15px_rgba(242,169,0,0.3)] transition-all">
+                <i class="fas fa-pen-to-square"></i>
+            </div>
+            <div>
+                <div class="flex items-center gap-1.5">
+                    <h3 class="font-bold text-sm text-slate-800 dark:text-white tracking-tight uppercase">Registro Manual</h3>
+                    <i class="fas fa-arrow-right text-xs text-slate-400 group-hover:text-[#F2A900] group-hover:translate-x-0.5 transition-all"></i>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">Captura individual de novedades</p>
+            </div>
+        </div>
+    </a>
+    
+    <a href="/consulta" class="industrial-card p-5 group block transition-all">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#041426] to-[#0b172c] text-[#38bdf8] flex items-center justify-center text-xl shadow-md border border-sky-500/30 group-hover:scale-105 group-hover:shadow-[0_0_15px_rgba(56,189,248,0.3)] transition-all">
+                <i class="fas fa-magnifying-glass-chart"></i>
+            </div>
+            <div>
+                <div class="flex items-center gap-1.5">
+                    <h3 class="font-bold text-sm text-slate-800 dark:text-white tracking-tight uppercase">Consultas & Tiras</h3>
+                    <i class="fas fa-arrow-right text-xs text-slate-400 group-hover:text-[#38bdf8] group-hover:translate-x-0.5 transition-all"></i>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">Filtros, exportación e historial</p>
+            </div>
+        </div>
+    </a>
+</div>
+
+<!-- Table Card: Últimas Novedades Operativas -->
+<div class="industrial-card overflow-hidden">
+    <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/70 dark:bg-[#041426]/70 backdrop-blur-sm">
+        <div class="flex items-center gap-2.5">
+            <div class="w-2.5 h-2.5 rounded-full bg-[#00f2fe] animate-pulse"></div>
+            <h2 class="font-black text-slate-800 dark:text-white uppercase tracking-widest text-xs font-mono flex items-center gap-2">
+                Últimas Novedades Operativas del SEN
+            </h2>
+        </div>
+        <span class="text-[10px] font-mono text-slate-500 dark:text-slate-400 bg-white dark:bg-[#0b172c] px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm">
+            Top 20 registros recientes
+        </span>
+    </div>
+    
+    <div id="tabla-container" class="overflow-x-auto">
+        <table class="w-full text-xs text-left table-industrial">
+            <thead class="bg-slate-100/80 dark:bg-[#041426] text-slate-600 dark:text-slate-400 font-bold border-b border-slate-200 dark:border-slate-800">
+                <tr>
+                    <th class="px-5 py-3.5 whitespace-nowrap">Fecha Falla</th>
+                    <th class="px-5 py-3.5 whitespace-nowrap">Estado / Región</th>
+                    <th class="px-5 py-3.5 whitespace-nowrap">Circuito</th>
+                    <th class="px-5 py-3.5">Causa Original Reportada</th>
+                    <th class="px-5 py-3.5 whitespace-nowrap">Causa Homologada IEEE</th>
+                    <th class="px-5 py-3.5 whitespace-nowrap">Hora Inicio</th>
+                    <th class="px-5 py-3.5 text-right whitespace-nowrap">KVA</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-body" class="divide-y divide-slate-100 dark:divide-slate-800/80 text-slate-700 dark:text-slate-300 font-medium">
+                <tr>
+                    <td colspan="7" class="px-6 py-12 text-center text-slate-400 font-mono">
+                        <i class="fas fa-circle-notch fa-spin text-[#00f2fe] mr-2 text-base"></i> Sincronizando telemetría del sistema...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+async function cargarDatos() {
+    try {
+        const res = await fetch('/api/interrupciones');
+        const datos = await res.json();
+        const tbody = document.getElementById('tabla-body');
+        
+        if (!datos || datos.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-10 text-center text-slate-500 font-mono text-xs uppercase tracking-widest">Sin registros operativos en este momento</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = datos.slice(0, 20).map(d => {
+            const inicio = d.fecha_inicio ? new Date(d.fecha_inicio).toLocaleString('es-VE', {hour12: false}) : '-';
+            const fecha = d.fecha_falla ? new Date(d.fecha_falla).toLocaleDateString('es-VE') : '-';
+            
+            let badgeHomologada = '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold font-mono bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/50 uppercase tracking-wider">Pendiente</span>';
+            if (d.causa_id) {
+                badgeHomologada = `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold font-mono bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50 uppercase tracking-wider">${d.causa_homologada}</span>`;
+            }
+            
+            return `
+            <tr class="hover:bg-cyan-500/5 transition-colors group">
+                <td class="px-5 py-3 font-mono text-xs whitespace-nowrap text-slate-900 dark:text-slate-200 font-bold">${fecha}</td>
+                <td class="px-5 py-3 whitespace-nowrap">
+                    <span class="inline-flex items-center gap-1.5 font-medium">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#00f2fe]"></span>
+                        ${d.state_name || '-'}
+                    </span>
+                </td>
+                <td class="px-5 py-3 font-mono text-xs text-slate-800 dark:text-slate-300 font-semibold">${d.circuito || '-'}</td>
+                <td class="px-5 py-3 text-xs text-slate-500 dark:text-slate-400 truncate max-w-xs" title="${d.causa || ''}">${d.causa || '-'}</td>
+                <td class="px-5 py-3 whitespace-nowrap">${badgeHomologada}</td>
+                <td class="px-5 py-3 font-mono text-xs whitespace-nowrap text-slate-500 dark:text-slate-400">${inicio}</td>
+                <td class="px-5 py-3 font-mono text-xs text-right font-black text-slate-900 dark:text-[#00f2fe]">${d.kva != null ? Number(d.kva).toLocaleString('es-VE') : '-'}</td>
+            </tr>`;
+        }).join('');
+    } catch(e) {
+        document.getElementById('tabla-body').innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-rose-500 font-mono text-xs uppercase tracking-widest"><i class="fas fa-triangle-exclamation mr-2"></i> Error de conexión con el servidor maestro</td></tr>';
+    }
+}
+cargarDatos();
+</script>
+{% endblock %}

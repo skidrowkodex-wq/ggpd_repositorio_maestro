@@ -3,12 +3,89 @@
 ---
 
 ## 📌 1. Registro de Última Actualización
-- **Fecha y Hora:** 2026-08-20 00:28 (VET / UTC-4) — Ingesta Universal Inteligente SIGI, Caracterización Gemini SPARK (871 SEs / 4,207 CTs) y Segmentación Norma CADAFE NS-P-105
+- **Fecha y Hora:** 2026-08-23 20:55 (VET / UTC-4) — Despliegue del Tablero Ejecutivo KGI/KPI SCMTP V2.0 (Gobernanza RUP-WBS)
 - **Plataforma / Entorno:** Antigravity IDE 2.0 (Google Gemini 3.7 Flash)
 - **Responsable / Emisores:** Yván M. Cipiran N. | T.S.U. Josué Pacheco (**Equipo de Automatización e Ingeniería de Productos con IA, de Planificación de Distribución**)
-- **Estado General:** 🟢 **Ecosistema CORPOELEC 100% Operativo y Sincronizado. Desplegado en Vercel (SIGI) y GitHub Maestro con motor universal de tolerancia a datos sucios en todos los procesos.**
+- **Estado General:** 🟢 **SIGI Dashboards cuenta con el Tablero KGI/KPI de SCMTP V2.0 100% operativo, con Curva S de Avance Ponderado, WBS por Disciplinas RUP, Matriz RAM de Responsabilidades y Gestión de Riesgos.**
 
 ### 📊 Entregables Recientes:
+0.000000. **Tablero Ejecutivo KGI/KPI SCMTP V2.0 en SIGI (`corpoelec-sigi`):**
+   - **App ID:** `a53r8tvlvt9ihw09maca8a2g` en workspace `tao59mlv54m5mo1fclakvldq` (`corpoelec-ggpd-hosting-apps`).
+   - **Deployment ID:** `j7ia4wxbrmkd9wtbsxpi5kwv` (Estatus: `healthy`).
+   - **URL Oficial:** `https://corpoelec-sigi-corpoelec-ggpd-hosting-apps.vibehost.space`
+   - **Enlace de Acceso Directo (Share Link):** `https://corpoelec-sigi-corpoelec-ggpd-hosting-apps.vibehost.space/?__vh_share=vhs_BowtHBg93zrBSY0xadzhyyUp3-7D9z9Q`
+   - **Métricas KGI & KPI Implementadas:**
+     - **4 KGI Estratégicos:** Eficacia de Contingencia (92.3%), Disciplina de Plazos (83.5%), Calidad de Datos ISO 8000 (100%) y Madurez Digital (88.0%).
+     - **Curva S de Avance Ponderado vs. Planificado:** Hitos temporales divididos en las 4 fases RUP (*Inception, Elaboration, Construction, Transition*).
+     - **WBS por Disciplinas:** Desglose analítico de las 26 tareas por áreas técnicas (Data Base, Automatización, Proyectos, Infraestructura, Normativa, etc.).
+     - **Matriz RAM (Responsibility Assignment Matrix):** Tasa de eficacia individual de los coordinadores y analistas de la GGPD.
+     - **Matriz de Mitigación de Riesgos:** Heatmap de riesgos operativos y planes de mitigación activos.
+0.00000. **Suite de Pruebas de Integración End-to-End IAM (`scripts/test_unified_iam_integration.js`):**
+   - **Test 1 (Censo y Conectividad):** Verificación exitosa de los 37 usuarios oficiales en `core.mae_usuarios_sistema`.
+   - **Test 2 (Matriz de Permisos Transversal):** 11/11 casos de prueba superados (Admins con acceso total a las 5 apps, Visores Estadales con acceso exclusivo asignado y bloqueo de aplicaciones no autorizadas, rechazo de credenciales inválidas y usuarios inexistentes).
+   - **Test 3 (Ciclo de Vida y Kill-Switch Inmediato):** Creación de usuario dinámico `test.auditor.iam`, validación de acceso selectivo en tiempo real, activación de Kill-Switch (`status = 'SUSPENDIDO'`) confirmando el bloqueo instantáneo en las 5 aplicaciones (`HTTP 403_SUSPENDED`), y posterior purga limpia de datos de prueba.
+0.0000. **Refactorización Integral de las 5 Apps en `apps-refactorizadas/` a InsForge (`insforge-bk`):**
+   - **`SIGI-REF` (Consola Central):** Conectada con `@insforge/sdk` para administración total de usuarios, asignación de permisos, restablecimiento de claves y kill-switch. Compilación Vite exitosa (0 errores).
+   - **`SCTIS-REF` (Tiras de Interrupción):** Módulo `auth.py` refactorizado para consultar `core.mae_usuarios_sistema` y vista `public.v_usuarios_sistema` (`permiso_sctis = TRUE`). Sintaxis Python validada exitosamente.
+   - **`SCEIN-REF` (Equipos Indisponibles):** Backend `server.ts` y frontend refactorizados con autenticación directa contra InsForge (`permiso_scein = TRUE`). Compilación Vite & esbuild exitosa (0 errores).
+   - **`SCPPE-REF` (Planificación SEN):** Servicio `authService.ts` refactorizado para consultar InsForge (`permiso_scppe = TRUE`). Compilación Vite exitosa (0 errores).
+   - **`SCMTP-REF` (Minutas y Tareas GGPD):** Componente `Login.tsx` y sesión refactorizados con InsForge (`permiso_scmtp = TRUE`). Compilación Vite & esbuild exitosa (0 errores).
+0.000. **Despliegue del Motor Unificado IAM en InsForge (`insforge-bk`) y Conexión en `SIGI-REF`:**
+   - **Esquema de Base de Datos Canónica en InsForge:**
+     - `core.mae_usuarios_sistema`: Tabla canónica con campos de identidad, correo institucional, rol GGPD, estado asignado, contraseñas criptográficas y matriz booleana de permisos por aplicación (`permiso_sigi`, `permiso_sctis`, `permiso_scein`, `permiso_scppe`, `permiso_scmtp`, `permiso_gdrive`).
+     - `public.v_usuarios_sistema`: Vista semántica pública con JOIN automático a `core.dim_estados` para resolución de nombres estadales y regiones operativas.
+   - **Catálogo Oficial Normalizado Sembrado (37 Usuarios):**
+     - 12 Usuarios Ejecutivos / Especialistas Nacionales (`admin.ggpd`, `yvan.cipiran`, `josue.pacheco`, `adrian.correa`, etc.).
+     - 25 Coordinaciones Estadales normalizadas con formato `distribucion.[estado]` y contraseñas OWASP.
+   - **Conexión en `apps-refactorizadas/SIGI-REF`:**
+     - SDK oficial `@insforge/sdk` integrado en `src/services/insforgeClient.ts` y servicio `src/services/userService.ts`.
+     - `AuthContext.tsx` y `AuthModal.tsx` autenticando en tiempo real contra InsForge con fallback seguro.
+     - `UserManagementModule.tsx` actualizado con sincronización en vivo, creación/edición directa en InsForge, asignación de permisos por app y botón de suspensión/reactivación (Kill-Switch inmediato).
+     - Validación de compilación `npm run build` limpia (1,854 módulos, 0 errores).
+0.00. **Creación del Directorio de Refactorización `apps-refactorizadas/`:**
+   - Clonación limpia y estructurada de las 5 aplicaciones del SEN excluyendo dependencias y artefactos pesados (`node_modules`, `.next`, `dist`, `build`, `__pycache__`, `carga_qa`, `uploads` y `.zip`).
+   - Mapeo de directorios:
+     - `apps-refactorizadas/SCTIS-REF`
+     - `apps-refactorizadas/SCEIN-REF`
+     - `apps-refactorizadas/SCPPE-REF`
+     - `apps-refactorizadas/SCMTP-REF`
+     - `apps-refactorizadas/SIGI-REF`
+0.0. **Configuración e Integración del Servicio de Despliegue Privado VibeHost (`vibehost-bk`):**
+   - Instalación de la skill global y local `vibehost-deploy` en `.agents/skills/vibehost-deploy`.
+   - Instalación y verificación del binario CLI `vibehost` (v4.15.0) en `~/.local/bin/vibehost`.
+   - Documentación y alias `vibehost-bk` incorporados en `AGENTS.md` para despliegues de sitios estáticos y aplicaciones Next.js/React.
+0. **Arquitectura y Despliegue Integral de Base de Datos Canónica MDM en InsForge (`insforge-bk`):**
+   - **Tablas Canónicas en Esquema Dedicado `core` & Vistas Semánticas en `public`:**
+     1. `core.dim_regiones` (9 regiones operativas SEN).
+     2. `core.dim_estados` (26 entidades federales normalizadas con código oficial `LGU` para La Guaira).
+     3. `core.cat_niveles_tension` (9 niveles de tensión normalizados SEN: 765kV a 0.208kV).
+     4. `core.mae_subestaciones` (871 Subestaciones Eléctricas con metadata y llaves foráneas a `dim_estados`).
+     5. `core.mae_circuitos` (4,207 Circuitos y Alimentadores vinculados a `codigo_se_padre` con 0 huérfanos).
+     6. `core.cat_macro_procesos` (10 Macro-procesos y flujos operativos de la GGPD: SCTIS, SCEIN, SCPPE, SCMTP, SCPYP, etc.).
+     7. `core.cat_tipos_equipo_potencia` (12 Familias y tipos de equipos mayores de subestaciones para SCEIN).
+     8. `core.cat_causas_interrupcion` (22 Causas Oficiales de Interrupción SEN para SCTIS).
+     9. `core.cat_subcausas_interrupcion` (19 Sub-causas de interrupción homologadas).
+     10. `core.cat_familias_materiales` (21 Familias de insumos y repuestos).
+     11. `core.cat_items_materiales_precios` (804 Insumos y repuestos con unidades de medida y precios de referencia en EUR).
+     12. `core.cat_tipos_restriccion_operativa` (8 Tipos de restricciones operativas en circuitos MT).
+     13. `core.cat_estados_operativos_activo` (7 Estados operativos normalizados según ISO 55000).
+     14. `public.v_red_electrica_sen`: Vista semántica unificada para consultas directas y legibles para humanos y analistas.
+   - **Motor de Auto-Codificación y Triggers Activos (ISO 8000 / CADAFE NS-P-105):**
+     - Secuencias atómicas `core.seq_subestacion_correlativo` y `core.seq_circuito_correlativo` concurrencia-safe.
+     - Triggers `trg_subestacion_auto_cod` y `trg_circuito_auto_cod` que generan automáticamente códigos `SE-[ESTADO]-[0000]` y `CT-[ESTADO]-[00000]`, normalizan mayúsculas y heredan automáticamente estado y cabecera de la SE padre si no se proveen.
+   - Políticas de seguridad RLS habilitadas en todas las tablas del esquema `core`.
+0. **Guía Técnica de Automatización Spark para SCEIN (`spark_scein.MD`):**
+   - **Archivos:** [`spark_scein.MD`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/spark_scein.MD) y [`docs/spark_scein.MD`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/spark_scein.MD).
+   - **Catálogo Adicional Generado:** [`docs/catalogos_maestros_spark/CATALOGO_MAESTRO_EQUIPOS_SCEIN.xlsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/catalogos_maestros_spark/CATALOGO_MAESTRO_EQUIPOS_SCEIN.xlsx) (12 tipos y componentes estándar).
+   - **Contenido:** Reglas de tratamiento dual (`LEV_EI_SE` vs `PLA_EI_SE`), diccionario universal de sinónimos de cabeceras, gobernanza PMP de ventana semanal, deduplicación semántica SHA-256 (`Fingerprint`), matriz de segregación de cuarentena ISO 8000 y formato de salida nacional.
+0.1. **Catálogo Maestro y Matriz de Reconciliación de Activos de Red SE/CT (`NAC_2026_GGPD_CATALOGO_ACTIVOS_RED_SE_CT_RECONCILIADO`):**
+   - **Archivo Excel:** [NAC_2026_GGPD_CATALOGO_ACTIVOS_RED_SE_CT_RECONCILIADO_20260820_1429.xlsx](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/NAC_2026_GGPD_CATALOGO_ACTIVOS_RED_SE_CT_RECONCILIADO_20260820_1429.xlsx) (919.1 KB).
+   - **Estructura (5 Hojas):**
+     1. `RESUMEN`: Ficha técnica, diagnóstico exhaustivo de la diferencia 4,313 vs 4,207 CTs y métricas consolidadas.
+     2. `SUBESTACIONES`: 871 SE (451 Transmisión / 420 Distribución / 2 Móviles) con metadata técnica completa.
+     3. `CIRCUITOS_NORMALIZADOS`: 4,207 CT clasificados bajo norma CADAFE NS-P-105 (4,022 alimentadores, 140 seccionadores, 25 reservas, 10 barras, 9 líneas MT, 1 trafo).
+     4. `DASHBOARD`: Matriz consolidada por los 25 estados comparando SE, CT normalizados, CT legacy, deltas netos y ratios CT/SE.
+     5. `CIRCUITOS_AUDITORIA_LEGACY`: El 100% de los 4,313 registros del archivo original `CARACTERIZACIÓN DISTRIBUCION.xls` con su estatus de conciliación (`HOMOLOGADO EXACTO`, `HOMOLOGADO CABECERA AJUSTADA`, `EXCLUIDO TRANSMISIÓN/GENERACIÓN`, `DUPLICADO EN ORIGEN`, `EN REVISIÓN/AUDITORÍA TERRITORIAL`), ID asignado y dictamen técnico explicativo.
 1. **Auditoría Técnica Exhaustiva de los 25 Archivos Estadales en `/carga_qa`:**
    - **Resultado:** **25 / 25 archivos evaluados con 100% de compatibilidad operativa.** Cero caídas, cero congelamientos de memoria.
    - **Soporte Nativo Monagas (`MONAGAS26.xls`):** Detección automática del formato Crystal Reports (membretes de 14 filas, cabecera en fila 15, comas tipográficas en horas ej. `08,:54:00,` limpiadas automáticamente a `08:54:00`). Extraídas 2,491 filas limpias en 1.24s.
@@ -217,17 +294,9 @@ Todos los microservicios y el portal central se encuentran **activos y respondie
 
 ---
 
-## 📋 6. Tareas Pendientes / Próximos Pasos Prioritarios
-- [x] **Motor Universal de Ingesta Inteligente en SIGI:** Homologado con el escudo de tolerancia de SCTIS v2.0 para todos los procesos.
-- [x] **Auditoría, Remediación y Normalización de Activos de Red:** Integrados 871 SEs y 4,207 CTs en BD Supabase, Catálogos Spark, SIGI y reportes Word.
-- [x] **Despliegue y Sincronización en GitHub / Vercel:** Repositorio maestro y standalone 100% sincronizados.
-- [x] **Integración y Gobernanza Google Drive:** Implementado control RBAC, doble cuenta de correo, bandeja de aprobaciones y Webhook con `bk.ggpd.corpoelec@gmail.com`.
-- [x] **Aprovisionamiento de Árbol de Directorios del Data Lake 2026:** Desplegado en Google Drive para 25 Estados y 4 macro-procesos.
-- [x] **Módulo de Ingesta Inteligente & Calidad ISO 8000 (`DataIngestionHub.tsx`):** Validación en caliente, índice OTQR, segregación y planillas de remediación.
-- [x] **Asistente Wizard ISO 8000 & Catálogos Maestros (MDM):** Detección heurística de antipatrones y rediseño evolutivo.
-- [x] **Generación de Catálogos Maestros y Prompt Google Spark:** 7 libros `.xlsx` y prompt de ingeniería de datos.
+- [x] **Despliegue de Base de Datos Canónica MDM en InsForge (`insforge-bk`):** Creado esquema `core`, 13 tablas maestras pobladas (871 SEs, 4,207 CTs con 0 huérfanos, 26 estados normalizados con código `LGU`, 21 familias de materiales, 804 precios en EUR, causas y macro-procesos) y motor de auto-codificación con secuencias y triggers automáticos.
+- [ ] **Sincronización y Pruebas en Sandbox de las Aplicaciones Satélites con `insforge-bk`:** Configurar adaptadores / clientes en modo dual/sandbox para que las 4 apps (SCTIS, SCEIN, SCPPE, SCMTP) y SIGI puedan conectarse y probarse contra la nueva BD canónica de InsForge sin alterar ni tocar las instancias de producción / QA actuales.
 - [ ] **Jornada de Pruebas de Calidad (QA) con Usuarios Estadales:** Validar en vivo el flujo de login con las 25 cuentas territoriales y la carga de archivos de prueba en el nuevo Módulo de Ingesta Inteligente.
-- [ ] **Validación de Conexión Supabase:** Probar el botón "Probar Conexión" y explorador de tablas en la consola web.
 - [ ] **Carga Piloto de Nuevos Procesos:** Probar en caliente la creación y carga de un proceso real (ej. Diagnóstico de Subestaciones `08_SCDXS` o Termografía `09_SCTER`).
 
 

@@ -1,0 +1,11 @@
+{
+  "name": "sctis-backend",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "bash -c 'if [ ! -d python_runtime ]; then curl -sL https://github.com/astral-sh/python-build-standalone/releases/download/20240415/cpython-3.11.9+20240415-x86_64-unknown-linux-gnu-install_only.tar.gz | tar -xz && mv python python_runtime; fi && if ! ./python_runtime/bin/python3 -c \"import flask, psycopg2, openpyxl, xlrd, lxml, pandas, docx\" 2>/dev/null; then ./python_runtime/bin/python3 -m pip install -r interrupciones/requirements.txt; fi && cd interrupciones && PORT=3000 ../python_runtime/bin/python3 run.py'",
+    "build": "bash -c 'if [ ! -d python_runtime ]; then curl -sL https://github.com/astral-sh/python-build-standalone/releases/download/20240415/cpython-3.11.9+20240415-x86_64-unknown-linux-gnu-install_only.tar.gz | tar -xz && mv python python_runtime; fi && ./python_runtime/bin/python3 -m pip install -r interrupciones/requirements.txt'",
+    "start": "bash -c 'if [ ! -d python_runtime ]; then curl -sL https://github.com/astral-sh/python-build-standalone/releases/download/20240415/cpython-3.11.9+20240415-x86_64-unknown-linux-gnu-install_only.tar.gz | tar -xz && mv python python_runtime && ./python_runtime/bin/python3 -m pip install -r interrupciones/requirements.txt; fi && cd interrupciones && ../python_runtime/bin/python3 -m gunicorn -b 0.0.0.0:${PORT:-8080} app.main:app'",
+    "clean": "rm -rf dist server.js"
+  }
+}

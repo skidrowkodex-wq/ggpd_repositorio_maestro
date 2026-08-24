@@ -1,0 +1,12 @@
+flask
+psycopg2-binary
+openpyxl
+xlrd
+lxml
+pandas
+python-docx
+python-dotenv
+gunicorn
+google-genai
+firebase-admin
+google-api-python-client

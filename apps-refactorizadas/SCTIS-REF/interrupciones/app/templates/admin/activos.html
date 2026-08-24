@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+{% block title %}Catálogo de Activos{% endblock %}
+{% block header_title %}Infraestructura Geográfica{% endblock %}
+
+{% block content %}
+<div id="app" class="max-w-6xl mx-auto">
+    <div class="industrial-card p-0 mb-6">
+        <div class="bg-gray-100 px-6 py-4 border-b border-gray-300 flex items-center justify-between">
+            <h2 class="font-bold text-corpo-dark uppercase tracking-widest text-sm flex items-center gap-2">
+                <i class="fas fa-network-wired text-corpo-blue"></i> Gestión de Activos Físicos
+            </h2>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-5 items-end">
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Filtro de Entidad</label>
+                    <select v-model="filtroEstado" @change="cambioEstado" class="industrial-input w-full p-2.5 text-sm font-mono">
+                        <option value="">SELECCIONE ESTADO</option>
+                        <option v-for="e in estados" :value="e.state_code">${ e.state_name }</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Subestación Base</label>
+                    <select v-model="filtroSubestacion" @change="cambioSubestacion" class="industrial-input w-full p-2.5 text-sm font-mono" :disabled="!filtroEstado">
+                        <option value="">TODAS LAS SUBESTACIONES</option>
+                        <option v-for="s in subestaciones" :value="s.subestacion">${ s.subestacion }</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Búsqueda Rápida</label>
+                    <div class="relative">
+                        <input v-model="busqueda" type="text" placeholder="Código de circuito..." class="industrial-input w-full pl-9 pr-3 py-2.5 text-sm font-mono uppercase" @keyup.enter="buscar">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button @click="buscar" class="flex-1 bg-corpo-dark text-white hover:bg-gray-800 px-4 py-2.5 rounded-sm flex items-center justify-center gap-2 uppercase tracking-widest text-xs font-bold shadow-sm transition">
+                        Consultar
+                    </button>
+                    <button @click="abrirNuevo" class="flex-1 bg-corpo-blue text-white hover:bg-[#002280] px-4 py-2.5 rounded-sm flex items-center justify-center gap-2 uppercase tracking-widest text-xs font-bold shadow-sm transition" title="Registrar Activo">
+                        <i class="fas fa-plus"></i> Nuevo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="industrial-card p-0">
+        <div class="bg-gray-100 px-6 py-4 border-b border-gray-300 flex items-center justify-between">
+            <h2 class="font-bold text-corpo-dark uppercase tracking-widest text-sm flex items-center gap-2">
+                <i class="fas fa-list-alt text-corpo-blue"></i> Inventario de Circuitos
+            </h2>
+            <span class="text-xs font-mono text-gray-500 bg-white px-2 py-1 rounded border border-gray-300 shadow-inner">
+                ${ activos.length } RESULTADOS
+            </span>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="bg-gray-50 text-gray-600 text-[10px] uppercase font-bold tracking-wider font-mono border-b border-gray-300">
+                    <tr>
+                        <th class="px-4 py-3 border-r border-gray-200">ID Único</th>
+                        <th class="px-4 py-3 border-r border-gray-200">Estado</th>
+                        <th class="px-4 py-3 border-r border-gray-200">Subestación</th>
+                        <th class="px-4 py-3 border-r border-gray-200">Circuito</th>
+                        <th class="px-4 py-3 border-r border-gray-200">kV</th>
+                        <th class="px-4 py-3 border-r border-gray-200">Cap. (MVA)</th>
+                        <th class="px-4 py-3 border-r border-gray-200">Longitud</th>
+                        <th class="px-4 py-3 border-r border-gray-200">Troncal</th>
+                        <th class="px-4 py-3 border-r border-gray-200">P.D. (kVA)</th>
+                        <th class="px-4 py-3 text-center">Controles</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 text-gray-700 font-medium">
+                    <tr v-if="cargando">
+                        <td colspan="10" class="px-6 py-12 text-center text-gray-400 font-mono text-xs uppercase tracking-widest">
+                            <i class="fas fa-circle-notch fa-spin mr-2"></i> Procesando consulta...
+                        </td>
+                    </tr>
+                    <tr v-else-if="activos.length === 0">
+                        <td colspan="10" class="px-6 py-12 text-center text-gray-500 font-mono text-xs uppercase tracking-widest">
+                            <i class="fas fa-info-circle mr-2"></i> No se encontraron activos coincidentes
+                        </td>
+                    </tr>
+                    <tr v-for="a in activos" :key="a.id" class="hover:bg-blue-50 transition-colors">
+                        <td class="px-4 py-3 font-mono text-xs font-bold border-r border-gray-200">#${ a.id }</td>
+                        <td class="px-4 py-3 text-xs border-r border-gray-200"><span class="inline-flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-corpo-blue"></span>${ a.state_name }</span></td>
+                        <td class="px-4 py-3 text-[11px] font-bold border-r border-gray-200 uppercase">${ a.subestacion }</td>
+                        <td class="px-4 py-3 text-[11px] font-mono font-bold text-corpo-dark border-r border-gray-200">${ a.circuito }</td>
+                        <td class="px-4 py-3 font-mono text-[11px] border-r border-gray-200">${ a.kv || '—' }</td>
+                        <td class="px-4 py-3 font-mono text-[11px] border-r border-gray-200">${ a.capacidad_mva || '—' }</td>
+                        <td class="px-4 py-3 font-mono text-[11px] border-r border-gray-200">${ a.longitud_red || '—' }</td>
+                        <td class="px-4 py-3 font-mono text-[11px] border-r border-gray-200">${ a.calibre_conductor_troncal || '—' }</td>
+                        <td class="px-4 py-3 font-mono text-[11px] border-r border-gray-200">${ a.potencia_instalada_kva || '—' }</td>
+                        <td class="px-4 py-3 text-center">
+                            <button @click="editar(a)" class="text-corpo-blue hover:text-corpo-dark bg-blue-50 hover:bg-blue-100 p-1.5 rounded transition border border-transparent hover:border-blue-200" title="Editar Activo">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Form -->
+    <div v-if="modal" class="fixed inset-0 bg-corpo-dark bg-opacity-70 flex items-center justify-center z-50 backdrop-blur-sm" @click.self="modal=false">
+        <div class="bg-white rounded-sm shadow-2xl p-0 w-full max-w-2xl mx-4 border-t-4 border-corpo-accent max-h-[90vh] overflow-y-auto">
+            <div class="bg-gray-100 px-6 py-4 border-b border-gray-300 sticky top-0 z-10">
+                <h2 class="text-sm font-bold text-corpo-dark uppercase tracking-widest flex items-center gap-2">
+                    <i class="fas" :class="modalEditando ? 'fa-edit' : 'fa-plus'"></i>
+                    ${ modalEditando ? 'Actualizar Ficha de Activo' : 'Nuevo Registro de Activo' }
+                </h2>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Fila 1 -->
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-600 mb-1 uppercase tracking-wide">Código de Estado <span class="text-red-500">*</span></label>
+                        <select v-model="form.state_code" class="industrial-input w-full p-2.5 text-xs font-mono">
+                            <option value="">Seleccione...</option>
+                            <option v-for="e in estados" :value="e.state_code">${ e.state_name }</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-600 mb-1 uppercase tracking-wide">Subestación <span class="text-red-500">*</span></label>
+                        <input v-model="form.subestacion" type="text" class="industrial-input w-full p-2.5 text-xs uppercase" placeholder="Ej. PLANTA CENTRO">
+                    </div>
+                    
+                    <!-- Fila 2 -->
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-600 mb-1 uppercase tracking-wide">Identificador Circuito <span class="text-red-500">*</span></label>
+                        <input v-model="form.circuito" type="text" class="industrial-input w-full p-2.5 text-xs font-mono uppercase" placeholder="Ej. LÍNEA 1">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-600 mb-1 uppercase tracking-wide">Nivel de Tensión (kV)</label>
+                        <input v-model="form.kv" type="number" step="any" class="industrial-input w-full p-2.5 text-xs font-mono">
+                    </div>
+                    
+                    <!-- Fila 3 -->
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-600 mb-1 uppercase tracking-wide">Capacidad Nominal (MVA)</label>
+                        <input v-model="form.capacidad_mva" type="number" step="any" class="industrial-input w-full p-2.5 text-xs font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-600 mb-1 uppercase tracking-wide">Longitud de Red (km)</label>
+                        <input v-model="form.longitud_red" type="number" step="any" class="industrial-input w-full p-2.5 text-xs font-mono">
+                    </div>
+                    
+                    <!-- Fila 4 -->
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-600 mb-1 uppercase tracking-wide">Calibre Troncal</label>
+                        <input v-model="form.calibre_conductor_troncal" type="text" class="industrial-input w-full p-2.5 text-xs font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-600 mb-1 uppercase tracking-wide">Pot. Instalada Dist. (kVA)</label>
+                        <input v-model="form.potencia_instalada_kva" type="number" step="any" class="industrial-input w-full p-2.5 text-xs font-mono">
+                    </div>
+                </div>
+                
+                <div v-if="modalError" class="mt-4 bg-red-50 border border-red-200 text-red-700 rounded-sm p-3 text-xs font-mono font-bold shadow-sm">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>${ modalError }
+                </div>
+                
+                <div class="flex justify-end gap-3 mt-8 border-t border-gray-100 pt-4">
+                    <button @click="modal=false" class="px-6 py-2 bg-white border border-gray-400 text-gray-700 rounded-sm text-xs font-bold uppercase tracking-widest hover:bg-gray-50 transition">Cancelar</button>
+                    <button @click="guardar" :disabled="modalGuardando"
+                            class="px-6 py-2 bg-corpo-blue text-white rounded-sm text-xs font-bold uppercase tracking-widest shadow-md hover:bg-corpo-dark transition disabled:opacity-50 flex items-center gap-2">
+                        <i v-if="modalGuardando" class="fas fa-circle-notch fa-spin"></i>
+                        <i v-else class="fas fa-save"></i>
+                        ${ modalGuardando ? 'Procesando...' : 'Guardar Ficha' }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script>
+const { createApp } = Vue;
+createApp({
+    delimiters: ['${', '}'],
+    data() {
+        return {
+            cargando: false,
+            estados: [],
+            subestaciones: [],
+            activos: [],
+            filtroEstado: '',
+            filtroSubestacion: '',
+            busqueda: '',
+            modal: false,
+            modalEditando: false,
+            modalGuardando: false,
+            modalError: null,
+            form: this.formVacio(),
+            editandoId: null,
+        };
+    },
+    methods: {
+        formVacio() {
+            return {
+                state_code: '', subestacion: '', circuito: '', kv: null,
+                capacidad_mva: null, longitud_red: null, 
+                calibre_conductor_troncal: '', potencia_instalada_kva: null
+            };
+        },
+        async cargarEstados() {
+            try {
+                const res = await fetch('/api/estados');
+                if (res.ok) this.estados = await res.json();
+            } catch(e) {}
+        },
+        async cambioEstado() {
+            this.filtroSubestacion = '';
+            this.subestaciones = [];
+            if (!this.filtroEstado) {
+                this.buscar();
+                return;
+            }
+            try {
+                const res = await fetch(`/api/admin/activos/subestaciones?estado=${this.filtroEstado}`);
+                if (res.ok) this.subestaciones = await res.json();
+            } catch(e) {}
+            this.buscar();
+        },
+        cambioSubestacion() {
+            this.buscar();
+        },
+        async buscar() {
+            this.cargando = true;
+            try {
+                const params = new URLSearchParams();
+                if (this.filtroEstado) params.append('estado', this.filtroEstado);
+                if (this.filtroSubestacion) params.append('subestacion', this.filtroSubestacion);
+                if (this.busqueda) params.append('busqueda', this.busqueda);
+                
+                const res = await fetch(`/api/admin/activos?${params.toString()}`);
+                if (res.ok) this.activos = await res.json();
+            } catch (e) {
+                console.error(e);
+            }
+            this.cargando = false;
+        },
+        abrirNuevo() {
+            this.form = this.formVacio();
+            this.modalEditando = false;
+            this.modalError = null;
+            this.modal = true;
+        },
+        editar(a) {
+            this.form = { ...a };
+            this.editandoId = a.id;
+            this.modalEditando = true;
+            this.modalError = null;
+            this.modal = true;
+        },
+        async guardar() {
+            this.modalGuardando = true;
+            this.modalError = null;
+            try {
+                const url = this.modalEditando ? `/api/admin/activos/${this.editandoId}` : `/api/admin/activos`;
+                const method = this.modalEditando ? 'PUT' : 'POST';
+                
+                // Limpiar valores vacios
+                const body = { ...this.form };
+                for (let k in body) {
+                    if (body[k] === '') body[k] = null;
+                }
+                
+                const res = await fetch(url, {
+                    method,
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(body),
+                });
+                if (!res.ok) {
+                    const d = await res.json();
+                    this.modalError = d.error || 'Fallo al procesar registro';
+                } else {
+                    this.modal = false;
+                    this.buscar();
+                    if (this.filtroEstado && !this.modalEditando) {
+                        this.cambioEstado(); // Reload subestaciones if needed
+                    }
+                }
+            } catch(e) {
+                this.modalError = 'Fallo de conexión con el servidor.';
+            }
+            this.modalGuardando = false;
+        }
+    },
+    mounted() {
+        this.cargarEstados();
+        this.buscar();
+    }
+}).mount('#app');
+</script>
+{% endblock %}

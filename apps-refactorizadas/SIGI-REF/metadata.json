@@ -1,0 +1,8 @@
+{
+  "name": "SIGI - Gestión de Planificación de Distribución CORPOELEC",
+  "description": "Portal Institucional de Gestión de Información y Automatización de Procesos de la Gerencia Nacional de Gestión de Planificación de Distribución de CORPOELEC.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}Auditoría de Cargas Masivas{% endblock %}
+{% block header_title %}Auditoría de Cargas{% endblock %}
+
+{% block content %}
+<div id="app" class="max-w-6xl mx-auto">
+    
+    <div class="industrial-card p-0 mb-6">
+        <div class="bg-gray-100 px-6 py-4 border-b border-gray-300 flex items-center justify-between">
+            <h2 class="font-bold text-corpo-dark uppercase tracking-widest text-sm flex items-center gap-2">
+                <i class="fas fa-clipboard-check text-corpo-blue"></i> Control de Integración de Datos
+            </h2>
+        </div>
+        <div class="p-6">
+            <div class="flex flex-col md:flex-row justify-between items-end gap-4">
+                <div class="w-full md:w-1/3">
+                    <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Filtro Geográfico</label>
+                    <select v-model="filtroEstado" @change="cargar" class="industrial-input w-full p-2.5 text-sm font-mono">
+                        <option value="">TODOS LOS ESTADOS</option>
+                        <option v-for="e in estados" :value="e.state_code">${ e.state_name }</option>
+                    </select>
+                </div>
+                <button @click="cargar" class="bg-white border border-gray-400 text-gray-700 hover:bg-gray-50 px-6 py-2.5 rounded-sm flex items-center gap-2 uppercase tracking-widest text-xs font-bold shadow-sm transition">
+                    <i class="fas fa-sync-alt" :class="{'fa-spin': cargando}"></i>
+                    Actualizar Registros
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumen -->
+    <div v-if="resumen.length" class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+        <div v-for="r in resumen" class="industrial-card relative overflow-hidden group">
+            <div class="absolute right-0 top-0 opacity-5 text-6xl -mt-2 -mr-2">
+                <i class="fas fa-database"></i>
+            </div>
+            <div class="relative z-10">
+                <div class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 flex justify-between">
+                    <span>ENTIDAD: ${ r.state_code }</span>
+                    <span class="text-corpo-blue">${ r.ingested_by }</span>
+                </div>
+                <div class="text-3xl font-bold text-gray-800 font-mono tracking-tight my-2">
+                    ${ r.total_cargas } <span class="text-sm font-normal text-gray-500 font-sans tracking-normal uppercase">Lotes Procesados</span>
+                </div>
+                <div class="flex gap-4 border-t border-gray-100 pt-3 mt-3">
+                    <div class="flex-1">
+                        <div class="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Aceptados</div>
+                        <div class="text-green-600 font-mono font-bold text-sm"><i class="fas fa-check-circle text-xs"></i> ${ r.total_aceptados }</div>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Rechazados</div>
+                        <div class="text-red-600 font-mono font-bold text-sm"><i class="fas fa-times-circle text-xs"></i> ${ r.total_rechazados }</div>
+                    </div>
+                </div>
+                <div class="text-[9px] text-gray-400 font-mono mt-3 uppercase tracking-widest">
+                    Última sincronización: ${ formatearFecha(r.ultima_carga) }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de auditorías -->
+    <div class="industrial-card p-0">
+        <div class="bg-gray-100 px-6 py-4 border-b border-gray-300 flex items-center justify-between">
+            <h2 class="font-bold text-corpo-dark uppercase tracking-widest text-sm flex items-center gap-2">
+                <i class="fas fa-history text-corpo-blue"></i> Histórico de Cargas Masivas
+            </h2>
+            <span class="text-xs font-mono text-gray-500 bg-white px-2 py-1 rounded border border-gray-300 shadow-inner">
+                ${ auditorias.length } REGISTROS
+            </span>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="bg-gray-50 text-gray-600 text-[10px] uppercase font-bold tracking-wider font-mono border-b border-gray-300">
+                    <tr>
+                        <th class="px-4 py-3 border-r border-gray-200">Fecha/Hora</th>
+                        <th class="px-4 py-3 border-r border-gray-200">ID Tarea</th>
+                        <th class="px-4 py-3 border-r border-gray-200">Operador</th>
+                        <th class="px-4 py-3 border-r border-gray-200">Entidad</th>
+                        <th class="px-4 py-3 border-r border-gray-200 text-center">Registros Aceptados</th>
+                        <th class="px-4 py-3 border-r border-gray-200 text-center">Registros Rechazados</th>
+                        <th class="px-4 py-3 text-center">Archivo Tira</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 text-gray-700 font-medium">
+                    <tr v-if="cargando && auditorias.length === 0">
+                        <td colspan="7" class="px-6 py-12 text-center text-gray-400 font-mono text-xs uppercase tracking-widest">
+                            <i class="fas fa-circle-notch fa-spin mr-2"></i> Obteniendo logs de auditoría...
+                        </td>
+                    </tr>
+                    <tr v-else-if="auditorias.length === 0">
+                        <td colspan="7" class="px-6 py-12 text-center text-gray-500 font-mono text-xs uppercase tracking-widest">
+                            <i class="fas fa-inbox mr-2"></i> No se encontraron registros de auditoría
+                        </td>
+                    </tr>
+                    <tr v-for="a in auditorias" :key="a.id" class="hover:bg-blue-50 transition-colors">
+                        <td class="px-4 py-3 font-mono text-xs border-r border-gray-200">${ formatearFecha(a.created_at) }</td>
+                        <td class="px-4 py-3 font-mono text-xs text-gray-500 font-bold border-r border-gray-200">#${ a.tarea_id }</td>
+                        <td class="px-4 py-3 text-xs uppercase border-r border-gray-200 font-mono">${ a.ingested_by }</td>
+                        <td class="px-4 py-3 text-xs border-r border-gray-200">
+                            <span class="inline-flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-corpo-blue"></span>${ a.state_code }</span>
+                        </td>
+                        <td class="px-4 py-3 text-center border-r border-gray-200">
+                            <span class="text-green-700 font-mono font-bold">${ a.registros_aceptados }</span>
+                        </td>
+                        <td class="px-4 py-3 text-center border-r border-gray-200">
+                            <span class="text-red-600 font-mono font-bold">${ a.registros_rechazados }</span>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <a v-if="a.original_filename" :href="'/api/admin/auditoria/archivo/' + a.original_filename" class="text-corpo-blue hover:text-corpo-dark transition" :title="a.original_filename">
+                                <i class="fas fa-file-excel"></i>
+                            </a>
+                            <span v-else class="text-gray-300">—</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script>
+const { createApp } = Vue;
+createApp({
+    delimiters: ['${', '}'],
+    data() {
+        return {
+            auditorias: [],
+            resumen: [],
+            estados: [],
+            cargando: true,
+            filtroEstado: ''
+        };
+    },
+    async mounted() {
+        await this.cargarEstados();
+        await this.cargar();
+    },
+    methods: {
+        async cargarEstados() {
+            try {
+                const r = await fetch('/api/estados');
+                if (r.ok) this.estados = await r.json();
+            } catch(e) { console.error(e); }
+        },
+        async cargar() {
+            this.cargando = true;
+            try {
+                let url = '/api/admin/auditoria';
+                const params = new URLSearchParams();
+                if (this.filtroEstado) params.set('estado', this.filtroEstado);
+                if (params.toString()) url += '?' + params.toString();
+                
+                const [audR, resR] = await Promise.all([
+                    fetch(url),
+                    fetch('/api/admin/auditoria/resumen')
+                ]);
+                
+                if (audR.ok) this.auditorias = await audR.json();
+                if (resR.ok) this.resumen = await resR.json();
+            } catch(e) {
+                console.error(e);
+            } finally {
+                this.cargando = false;
+            }
+        },
+        formatearFecha(fecha) {
+            if (!fecha) return '—';
+            return new Date(fecha).toLocaleString('es-VE', {
+                day: '2-digit', month: 'short', year: 'numeric',
+                hour: '2-digit', minute: '2-digit', hour12: false
+            });
+        }
+    }
+}).mount('#app');
+</script>
+{% endblock %}

@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+{% block title %}Acceso Institucional — SCTIS{% endblock %}
+{% block header_title %}Control de Acceso{% endblock %}
+
+{% block content %}
+<div class="min-h-[85vh] flex flex-col items-center justify-center relative py-6">
+    
+    <!-- Top Theme Switcher on Login Page -->
+    <div class="mb-5 flex items-center bg-white dark:bg-[#0b172c] p-1.5 rounded-2xl border border-slate-200 dark:border-cyan-500/30 shadow-md select-none relative z-20">
+        <button onclick="setTheme('light')" id="login-theme-light" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all text-xs font-bold font-sans">
+            <i class="fas fa-sun text-amber-500"></i>
+            <span>Claro Corporativo</span>
+        </button>
+        <button onclick="setTheme('dark')" id="login-theme-dark" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all text-xs font-bold font-sans">
+            <i class="fas fa-moon text-cyan-400"></i>
+            <span>Oscuro Industrial</span>
+        </button>
+    </div>
+
+    <!-- Login Card Container -->
+    <div class="w-full max-w-md relative z-10">
+        
+        <!-- Industrial Card with Glassmorphism -->
+        <div class="bg-white dark:bg-[#0b172c]/90 rounded-2xl shadow-2xl border border-slate-200 dark:border-cyan-500/20 backdrop-blur-xl overflow-hidden transition-all duration-300">
+            
+            <!-- Banda Técnica de Proceso (4px) -->
+            <div class="h-1 w-full bg-gradient-to-r from-[#00f2fe] via-[#0284c7] to-[#00f2fe] shadow-[0_0_12px_rgba(0,242,254,0.6)]"></div>
+
+            <!-- Header Corporativo -->
+            <div class="tech-banner p-6 sm:p-7 text-center relative border-b border-slate-200 dark:border-slate-800/80">
+                <div class="tech-chevron-watermark">
+                    <svg width="40" height="60" viewBox="0 0 40 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-cyan-400 opacity-20">
+                        <path d="M5 5L25 30L5 55" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M18 5L38 30L18 55" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+
+                <!-- CORPOELEC Official Pill Container -->
+                <div class="relative z-10 flex justify-center mb-4">
+                    <div class="bg-white px-4 py-1.5 rounded-2xl shadow-md border border-slate-200 scale-x-[1.05] inline-flex items-center gap-2">
+                        <i class="fas fa-bolt text-[#0033A0] text-base"></i>
+                        <span class="font-black text-sm tracking-widest text-[#0033A0] font-sans">CORPOELEC</span>
+                    </div>
+                </div>
+
+                <!-- System Title & Process Details -->
+                <div class="relative z-10 space-y-1">
+                    <h1 class="text-2xl font-black tracking-wider text-white font-mono flex items-center justify-center gap-2">
+                        <span>SCTIS</span>
+                    </h1>
+                    <div class="inline-block">
+                        <span class="text-[11px] font-mono tracking-widest text-[#00f2fe] uppercase bg-cyan-950/60 px-2.5 py-0.5 rounded-full border border-cyan-500/30">
+                            Proceso GGPD-DIS-01
+                        </span>
+                    </div>
+                    <p class="text-[11px] text-slate-300 uppercase tracking-wider font-medium max-w-xs mx-auto pt-1 leading-snug">
+                        Seguimiento y Control de Interrupciones de Servicio
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Form Body (Vue 3) -->
+            <div id="app" class="p-6 sm:p-8 bg-white dark:bg-[#0b172c]/95">
+                
+                <!-- SSO Status State -->
+                <div v-if="ssoIniciando" class="py-8 text-center space-y-4">
+                    <div class="relative w-14 h-14 mx-auto flex items-center justify-center">
+                        <div class="absolute inset-0 rounded-full border-4 border-cyan-500/20 animate-ping"></div>
+                        <div class="w-12 h-12 rounded-full border-4 border-t-[#00f2fe] border-slate-700 animate-spin flex items-center justify-center">
+                            <i class="fas fa-key text-[#00f2fe] text-sm"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-800 dark:text-white uppercase font-mono tracking-wider">Validando Sesión SSO GGPD</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-mono">Autenticando usuario corporativo...</p>
+                    </div>
+                </div>
+
+                <!-- Regular Login Form -->
+                <div v-else>
+                    <!-- Error Alert -->
+                    <div v-if="error" class="bg-rose-50 dark:bg-rose-950/40 border-l-4 border-rose-500 text-rose-800 dark:text-rose-300 rounded-r-xl p-3.5 mb-5 text-xs flex items-start gap-3 shadow-sm">
+                        <i class="fas fa-circle-exclamation mt-0.5 text-rose-500 text-sm"></i> 
+                        <div>
+                            <strong class="block font-bold mb-0.5 uppercase tracking-wide">Acceso Denegado</strong>
+                            ${ error }
+                        </div>
+                    </div>
+                    
+                    <form @submit.prevent="login" class="space-y-4">
+                        <!-- Usuario Corporativo -->
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1.5 uppercase font-mono tracking-wider">
+                                Usuario Corporativo
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+                                    <i class="fas fa-user-shield text-sm"></i>
+                                </div>
+                                <input v-model="username" type="text" autocomplete="username" class="industrial-input w-full pl-10 pr-3.5 py-2.5 text-sm font-sans" placeholder="ID de Usuario (ej. ggpd_admin)" autofocus required>
+                            </div>
+                        </div>
+                        
+                        <!-- Contraseña Institucional -->
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1.5 uppercase font-mono tracking-wider">
+                                Contraseña Institucional
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+                                    <i class="fas fa-lock text-sm"></i>
+                                </div>
+                                <input :type="mostrarPass ? 'text' : 'password'" v-model="password" autocomplete="current-password" class="industrial-input w-full pl-10 pr-10 py-2.5 text-sm font-mono" placeholder="••••••••" required>
+                                <button type="button" @click="mostrarPass = !mostrarPass" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-[#00f2fe] focus:outline-none transition-colors" title="Mostrar/Ocultar Contraseña">
+                                    <i :class="mostrarPass ? 'fas fa-eye-slash' : 'fas fa-eye'" class="text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <div class="pt-3">
+                            <button type="submit" :disabled="cargando"
+                                    class="w-full bg-gradient-to-r from-[#0033A0] via-[#004bb5] to-[#0284c7] hover:from-[#002677] hover:to-[#00f2fe] text-white py-3 px-4 rounded-xl transition-all duration-300 disabled:opacity-60 flex items-center justify-center gap-2.5 font-bold uppercase tracking-wider text-xs shadow-lg shadow-blue-900/30 border border-cyan-400/30 active:scale-[0.99]">
+                                <i v-if="cargando" class="fas fa-circle-notch fa-spin text-sm text-[#00f2fe]"></i>
+                                <i v-else class="fas fa-right-to-bracket text-sm text-[#00f2fe]"></i>
+                                <span>${ cargando ? 'Verificando Credenciales...' : 'Iniciar Operación Institucional' }</span>
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <!-- ISO Compliance & Security Note -->
+                    <div class="mt-6 pt-5 border-t border-slate-200 dark:border-slate-800/80">
+                        <div class="flex items-center justify-center gap-4 text-[10px] font-mono text-slate-500 dark:text-slate-400">
+                            <span class="flex items-center gap-1">
+                                <i class="fas fa-shield-halved text-[#00f2fe]"></i> ISO 27001
+                            </span>
+                            <span>•</span>
+                            <span class="flex items-center gap-1">
+                                <i class="fas fa-database text-[#00f2fe]"></i> ISO 8000
+                            </span>
+                            <span>•</span>
+                            <span class="flex items-center gap-1">
+                                <i class="fas fa-lock text-emerald-500"></i> TLS 1.3
+                            </span>
+                        </div>
+                        <p class="text-[9px] text-slate-400 dark:text-slate-500 font-mono uppercase tracking-widest text-center mt-3 leading-relaxed">
+                            Gerencia General de Distribución (GGPD)<br>
+                            Uso estrictamente confidencial y reservado
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script>
+const { createApp } = Vue;
+createApp({
+    delimiters: ['${', '}'],
+    data() {
+        return {
+            username: '',
+            password: '',
+            mostrarPass: false,
+            cargando: false,
+            ssoIniciando: false,
+            error: null
+        };
+    },
+    mounted() {
+        this.verificarSSO();
+    },
+    methods: {
+        async verificarSSO() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sso = urlParams.get('sso');
+            const user = urlParams.get('user') || urlParams.get('username');
+            const role = urlParams.get('role') || 'admin';
+            const state = urlParams.get('state') || urlParams.get('estado') || '';
+
+            if (sso === 'true' && user) {
+                this.ssoIniciando = true;
+                try {
+                    const res = await fetch('/api/login/sso', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user, role, state })
+                    });
+                    const data = await res.json();
+                    if (res.ok) {
+                        window.location.href = '/';
+                        return;
+                    } else {
+                        this.error = data.error || 'Fallo de autenticación SSO';
+                        this.ssoIniciando = false;
+                    }
+                } catch (e) {
+                    this.error = 'No fue posible conectar con el servidor SSO';
+                    this.ssoIniciando = false;
+                }
+            }
+        },
+        async login() {
+            if (!this.username || !this.password) {
+                this.error = 'Por favor introduzca su usuario y contraseña institucional.';
+                return;
+            }
+            this.cargando = true;
+            this.error = null;
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: this.username.trim(),
+                        password: this.password
+                    }),
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    this.error = data.error || 'Credenciales institucionales incorrectas.';
+                    this.cargando = false;
+                    return;
+                }
+                window.location.href = '/';
+            } catch (e) {
+                this.error = 'Fallo de comunicación con el servicio de autenticación.';
+                this.cargando = false;
+            }
+        }
+    },
+}).mount('#app');
+
+// Ensure sidebar and top bar are cleanly hidden for the isolated login page
+document.addEventListener('DOMContentLoaded', () => {
+    const sb = document.getElementById('sidebar');
+    if (sb) sb.style.display = 'none';
+    const hd = document.querySelector('header');
+    if (hd) hd.style.display = 'none';
+    const sec = document.getElementById('security-badge-container');
+    if (sec) sec.style.display = 'none';
+});
+</script>
+{% endblock %}

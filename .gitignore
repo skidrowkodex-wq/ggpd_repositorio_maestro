@@ -19,3 +19,18 @@ docs/010 REGISTROS 2026/
 apps/sctis-v-2.0-distribucion/carga_qa/
 apps/sctis-v-2.0-distribucion/interrupciones/uploads/
 
+
+# InsForge & AI agent skills
+.insforge
+.agent
+.agents
+.augment
+.claude
+.cline
+.github/copilot*
+.kilocode
+.qoder
+.qwen
+.roo
+.trae
+.windsurf

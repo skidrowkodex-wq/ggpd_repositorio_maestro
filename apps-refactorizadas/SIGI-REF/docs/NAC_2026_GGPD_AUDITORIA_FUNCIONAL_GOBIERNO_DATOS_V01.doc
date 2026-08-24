@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>NAC_2026_GGPD_AUDITORIA_FUNCIONAL_GOBIERNO_DATOS_V01</title>
+<!--[if gte mso 9]>
+<xml>
+ <w:WordDocument>
+  <w:View>Print</w:View>
+  <w:Zoom>100</w:Zoom>
+  <w:DoNotOptimizeForBrowser/>
+ </w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+@page {
+  size: letter landscape;
+  margin: 0.6in 0.7in 0.6in 0.7in;
+  mso-page-orientation: landscape;
+}
+@page Section1 {
+  size: 11.0in 8.5in;
+  mso-page-orientation: landscape;
+  margin: 0.6in 0.7in 0.6in 0.7in;
+  mso-header-margin: 0.4in;
+  mso-footer-margin: 0.4in;
+  mso-paper-source: 0;
+}
+div.Section1 {
+  page: Section1;
+}
+body {
+  font-family: Calibri, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #FFFFFF;
+}
+</style>
+</head>
+<body>
+<div class="Section1">
+<h1 style="color:#003366; font-family:Calibri, Arial, sans-serif; font-size:22pt; margin-bottom:8pt; border-bottom:2px solid #003366; padding-bottom:4pt;">DOCUMENTO FUNCIONAL Y EJECUTIVO DE GOBIERNO DE DATOS, SEGURIDAD Y CONTROL DE RECURSOS</h1>
+<strong>NOMENCLATURA NORMATIVA:</strong> <code style="font-family:Consolas, Courier New, monospace; font-size:8.5pt; background-color:#E2E8F0; padding:1pt 3pt; color:#0F172A; border-radius:2pt;">NAC_2026_GGPD_AUDITORIA_FUNCIONAL_GOBIERNO_DATOS_V01.md</code>  
+<strong>CÓDIGO INSTRUCTIVO INSTITUCIONAL:</strong> GGPD-SGM-INS-005 (v3.0 ISO)  
+<strong>ALCANCE DEL SISTEMA:</strong> Consolidado Nacional — Integración de las 4 Aplicaciones del Repositorio Maestro:  
+  1. <strong>Gestor de Tareas y Minutas (SGTA)</strong>  
+  2. <strong>Planificación Eléctrica SEN / Viáticos / SAMC</strong>  
+  3. <strong>Remix SCEIN (Seguimiento de Equipos Indisponibles)</strong>  
+  4. <strong>SCTIS v2.0 (Control de Interrupciones de Distribución)</strong>  
+<strong>DIRIGIDO A:</strong> Gerencia General, Direcciones Ejecutivas, Aprobadores Presupuestarios y Unidades de Planificación  
+<strong>ENTIDAD:</strong> GERENCIA DE GESTIÓN DE PLANIFICACIÓN DE DISTRIBUCIÓN (GGPD) — CORPOELEC / MPPEE  
+<strong>FECHA DE EMISIÓN:</strong> Agosto 2026
+<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" />
+<h2 style="color:#004488; font-family:Calibri, Arial, sans-serif; font-size:16pt; margin-top:14pt; margin-bottom:6pt;">1. RESUMEN EJECUTIVO PARA LA ALTA GERENCIA</h2>
+<p style="font-family:Calibri, Arial, sans-serif; font-size:10.5pt; line-height:1.35; color:#1E293B; margin:3pt 0 6pt 0;">El presente documento expone, en un lenguaje estratégico y accesible, el funcionamiento, los mecanismos de protección de recursos y las garantías de calidad de la <strong>Suite Integral de 4 Aplicaciones del Repositorio Maestro de Distribución</strong> de CORPOELEC.</p>
+<p style="font-family:Calibri, Arial, sans-serif; font-size:10.5pt; line-height:1.35; color:#1E293B; margin:3pt 0 6pt 0;">Este ecosistema unificado no solo representa una solución tecnológica moderna; constituye un <strong>blindaje institucional integral</strong> que asegura la calidad del dato, la seguridad de la información y la transparencia en el uso de los recursos financieros asignados a las subestaciones y redes del Sistema Eléctrico Nacional (SEN).</p>
+<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" />
+<h2 style="color:#004488; font-family:Calibri, Arial, sans-serif; font-size:16pt; margin-top:14pt; margin-bottom:6pt;">2. TRADUCCIÓN DE NORMAS INTERNACIONALES PARA LA TOMADORES DE DECISIONES</h2>
+<p style="font-family:Calibri, Arial, sans-serif; font-size:10.5pt; line-height:1.35; color:#1E293B; margin:3pt 0 6pt 0;">Para las autoridades institucionales encargadas de financiar, aprobar y asignar recursos, la implementación de normativas internacionales se traduce en los siguientes beneficios operativos inmediatos:</p>
+<h3 style="color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:13pt; margin-top:10pt; margin-bottom:4pt;">🏆 1. ISO 9001:2015 — Calidad en la Gestión y Orden Operativo</h3>
+* <strong>Beneficio Real:</strong> Elimina la improvisación y estandariza los flujos de trabajo en las 24 entidades federales. Garantiza que los datos de fallas, inspecciones y minutas sigan el mismo formato homologado en todo el país.
+<h3 style="color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:13pt; margin-top:10pt; margin-bottom:4pt;">📊 2. ISO 8000 — Calidad de los Datos Maestros</h3>
+* <strong>Beneficio Real:</strong> Evita la existencia de datos duplicados o inconsistentes. Garantiza que las <strong>838 Subestaciones</strong> y <strong>4.311 Circuitos</strong> del país tengan un único nombre estándar (RDS-PS), eliminando alias informales y asegurando que las cifras presentadas a Junta Directiva sean 100% exactas.
+<h3 style="color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:13pt; margin-top:10pt; margin-bottom:4pt;">🔒 3. ISO/IEC 27001:2022 — Seguridad, Privacidad y Registro Inalterable</h3>
+* <strong>Beneficio Real:</strong> Protege la información estratégica del sector eléctrico. Garantiza que cada analista acceda únicamente a los datos de su ámbito regional y mantiene una bitácora inalterable que registra a cada usuario, su IP y los cambios realizados.
+<h3 style="color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:13pt; margin-top:10pt; margin-bottom:4pt;">🏛️ 4. ISACA COBIT 2019 — Gobierno de TI y Control del Dinero Institucional</h3>
+* <strong>Beneficio Real:</strong> Garantiza que la tecnología trabaje en favor del control financiero, impidiendo sobregastos presupuestarios y exigiendo la comprobación válida de cada Bolívar o Euro invertido en campo.
+<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" />
+<h2 style="color:#004488; font-family:Calibri, Arial, sans-serif; font-size:16pt; margin-top:14pt; margin-bottom:6pt;">3. ALCANCE Y FUNCIONALIDAD DE LAS 4 APLICACIONES INTEGRADAS</h2>
+<div style="background-color:#F4F6F8; border:1px solid #CBD5E1; padding:8pt; font-family:Consolas, Courier New, monospace; font-size:8.5pt; color:#1E293B; margin:8pt 0; white-space:pre-wrap;">
+                                 REPOSITORIO MAESTRO DE DISTRIBUCIÓN
+                                                  │
+   ┌───────────────────────────┬──────────────────┴────────────┬───────────────────────────┐
+   ▼                           ▼                               ▼                           ▼
+1. GESTOR DE TAREAS Y      2. PLANIFICACIÓN Y              3. REMIX SCEIN (EQUIPOS     4. SCTIS v2.0 (CONTROL
+   MINUTAS (SGTA)             VIÁTICOS (SEN)                  INDISPONIBLES)              DE INTERRUPCIONES)
+   • Automatización con       • Control Presupuestario        • Diagnóstico de patio      • Ingesta masiva Excel.
+     IA Gemini 3.6 Flash.       de Viáticos.                    (Transformadores, SF6).   • Catálogo 22 Causas.
+   • Seguimiento POA          • Freno automático              • Deduplicación SHA-256     • Scoring ISO 8000
+     y acuerdos.                de sobregasto.                  y Cuarentena.               (0 a 100).
+</div>
+<p style="font-family:Calibri, Arial, sans-serif; font-size:10.5pt; line-height:1.35; color:#1E293B; margin:3pt 0 6pt 0;">1. <strong>Gestor de Tareas y Minutas (SGTA):</strong> Transforma los acuerdos de reuniones e inspecciones en tareas con seguimiento automatizado e Inteligencia Artificial.<br/>2. <strong>Planificación Eléctrica SEN:</strong> Administra el presupuesto de viáticos con validación preventiva en base de datos, impidiendo asignaciones que excedan el presupuesto disponible.<br/>3. <strong>Remix SCEIN (Equipos Indisponibles):</strong> Realiza el inventario y seguimiento técnico de transformadores e interruptores averiados o en riesgo en las subestaciones.<br/>4. <strong>SCTIS v2.0 (Interrupciones):</strong> Procesa masivamente las tiras de interrupción de los 24 estados, calcula la Energía No Suministrada (MWh) y normaliza las causas de fallas.</p>
+<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" />
+<h2 style="color:#004488; font-family:Calibri, Arial, sans-serif; font-size:16pt; margin-top:14pt; margin-bottom:6pt;">4. IMPACTO DEL BLINDAJE PRESUPUESTARIO Y CONTROL INTERNO</h2>
+<p style="font-family:Calibri, Arial, sans-serif; font-size:10.5pt; line-height:1.35; color:#1E293B; margin:3pt 0 6pt 0;">El sistema cuenta con reglas automáticas de control financiero que protegen el patrimonio institucional:<br/>* <strong>Freno de Sobregasto:</strong> Si el saldo de una partida presupuestaria es insuficiente, el motor de base de datos bloquea inmediatamente la transacción.<br/>* <strong>Exigencia de Comprobantes Validados:</strong> Ningún gasto o viaje puede ser cerrado administrativamente sin facturas validadas que sumen exactamente el monto ejecutado.<br/>* <strong>Trazabilidad de Origen de Fondos:</strong> Registro claro de la fuente de financiamiento autorizada (Presupuesto de Gerencia, Corporativo o Reservas).</p>
+<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" />
+<h2 style="color:#004488; font-family:Calibri, Arial, sans-serif; font-size:16pt; margin-top:14pt; margin-bottom:6pt;">5. DESARROLLO INNOVADOR: INTELIGENCIA ARTIFICIAL + EXPERTOS HUMANOS</h2>
+<p style="font-family:Calibri, Arial, sans-serif; font-size:10.5pt; line-height:1.35; color:#1E293B; margin:3pt 0 6pt 0;">Este ecosistema maestro representa un hito en la administración pública al ser desarrollado mediante un enfoque <strong>Híbrido de Alta Eficiencia</strong>:</p>
+<p style="font-family:Calibri, Arial, sans-serif; font-size:10.5pt; line-height:1.35; color:#1E293B; margin:3pt 0 6pt 0;">1. <strong>Inteligencia Artificial Avanzada (Google Gemini 3.6 Flash / Antigravity):</strong> Aceleró la construcción de scripts SQL, limpieza ETL de archivos Excel masivos y homologación sintáctica en un tiempo récord de <strong>menos de 72 horas</strong> (ahorrando meses de desarrollo y reduciendo costos).<br/>2. <strong>Supervisión de Expertos Humanos:</strong> Diseñado y validado directamente por un equipo especializado en <strong>Ingeniería Eléctrica</strong>, <strong>Ciencia de Datos</strong> y <strong>Auditoría COBIT/ISO</strong>, garantizando que el sistema responda al 100% a las realidades operativas de CORPOELEC.</p>
+<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" />
+<h2 style="color:#004488; font-family:Calibri, Arial, sans-serif; font-size:16pt; margin-top:14pt; margin-bottom:6pt;">6. MATRIZ RACI Y RESPONSABILIDADES INSTITUCIONALES (INS-005 v3.0 ISO)</h2>
+<table style="width:100%; border-collapse:collapse; margin:10pt 0; font-family:Calibri, Arial, sans-serif; font-size:9.5pt;"><tr><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;">Actividad / Proceso</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;">Analista Estadal</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;">Supervisor Regional</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;">Gerente General GGPD</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;">Admin. Sistemas e IA</th></tr><tr><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;">:<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" /></th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;">:<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" />:</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;">:<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" />:</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;">:<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" />:</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;">:<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" />:</th></tr><tr><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;"><strong>Generación de Data y Nomenclatura</strong></th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;"><strong>R</strong> (Responsable)</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;"><strong>A</strong> (Aprobador)</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;"><strong>I</strong> (Informado)</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;"><strong>C</strong> (Consultado)</th></tr><tr><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;"><strong>Validación Sintáctica y Cargas</strong></th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;"><strong>C</strong> (Consultado)</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;"><strong>R</strong> (Responsable)</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;"><strong>A</strong> (Aprobador)</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;"><strong>R</strong> (Ejecutor IA)</th></tr><tr><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;"><strong>Auditoría ISO 8000 / COBIT</strong></th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;"><strong>I</strong> (Informado)</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;"><strong>C</strong> (Consultado)</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;"><strong>A</strong> (Aprobador)</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;"><strong>R</strong> (Responsable)</th></tr><tr><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;"><strong>Mantenimiento Catálogo Maestro</strong></th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;"><strong>I</strong> (Informado)</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;"><strong>R</strong> (Responsable)</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;"><strong>A</strong> (Aprobador)</th><th style="background-color:#003366; color:#ffffff; font-weight:bold; padding:5pt 7pt; border:1px solid #003366; text-align:left; font-size:9.5pt;"><strong>C</strong> (Consultado)</th></tr></table>
+<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" />
+<h2 style="color:#004488; font-family:Calibri, Arial, sans-serif; font-size:16pt; margin-top:14pt; margin-bottom:6pt;">7. RECOMENDACIÓN ESTRATÉGICA A LA ALTA GERENCIA</h2>
+<p style="font-family:Calibri, Arial, sans-serif; font-size:10.5pt; line-height:1.35; color:#1E293B; margin:3pt 0 6pt 0;">Se recomienda a la Gerencia General y Direcciones Ejecutivas:<br/>* <strong>Aprobar la unificación definitiva de las 4 aplicaciones</strong> bajo el Repositorio Maestro de Distribución.<br/>* <strong>Garantizar el soporte presupuestario</strong> para las herramientas de Inteligencia Artificial (Google AI Studio / Antigravity) y la infraestructura Supabase Cloud, consolidando a CORPOELEC como referente tecnológico de gestión pública en la región.</p>
+<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" />
+<p style="font-family:Calibri, Arial, sans-serif; font-size:10.5pt; line-height:1.35; color:#1E293B; margin:3pt 0 6pt 0;"><strong>Elaborado por:</strong> Equipo de Desarrollo de IA, Ciencia de Datos y Gobierno de TI  <br/><strong>Gerencia Responsable:</strong> Gerencia de Gestión de Planificación de Distribución (GGPD) — CORPOELEC  <br/><strong>Aprobado por:</strong> Ing. Adrian Correa — Gerente GGPD  <br/><strong>Documento Oficial:</strong> GGPD-SGM-INS-005 v3.0 ISO</p>
+</div>
+</body>
+</html>

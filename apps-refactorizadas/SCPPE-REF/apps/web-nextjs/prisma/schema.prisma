@@ -1,0 +1,891 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["partialIndexes"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model accion_especifica {
+  id                     String                   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  poa_id                 String                   @db.Uuid
+  codigo                 String                   @db.VarChar(50)
+  nombre                 String                   @db.VarChar(255)
+  descripcion            String?
+  meta                   String?
+  indicador              String?
+  activo                 Boolean                  @default(true)
+  created_at             DateTime                 @default(now()) @db.Timestamptz(6)
+  updated_at             DateTime                 @default(now()) @db.Timestamptz(6)
+  created_by             String?                  @db.VarChar(100)
+  updated_by             String?                  @db.VarChar(100)
+  version                Int                      @default(1)
+  unidad_medida          String?                  @db.VarChar(100)
+  orden                  Int?
+  ponderacion            Decimal?                 @db.Decimal(5, 2)
+  fecha_inicio_accion    DateTime?                @db.Date
+  fecha_fin_accion       DateTime?                @db.Date
+  ejecutor               String?                  @db.VarChar(255)
+  poa                    poa                      @relation(fields: [poa_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  meta_fisica            meta_fisica[]
+  partida_presupuestaria partida_presupuestaria[]
+
+  @@unique([poa_id, codigo])
+  @@index([ejecutor], map: "idx_accion_especifica_ejecutor")
+  @@index([fecha_inicio_accion, fecha_fin_accion], map: "idx_accion_fechas")
+  @@index([poa_id, orden], map: "idx_accion_orden")
+  @@index([poa_id, activo], map: "idx_accion_poa_activo")
+  @@index([ponderacion], map: "idx_accion_ponderacion")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model aprobacion_viatico {
+  id                       String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  asignacion_viatico_id    String             @db.Uuid
+  solicitado_por           String             @db.VarChar(255)
+  fecha_solicitud          DateTime?          @default(now()) @db.Timestamp(6)
+  justificacion            String
+  aprobado_por             String?            @db.VarChar(255)
+  fecha_aprobacion         DateTime?          @db.Timestamp(6)
+  estado                   String?            @default("PENDIENTE") @db.VarChar(30)
+  monto_solicitado         Decimal            @db.Decimal(15, 2)
+  monto_aprobado           Decimal?           @db.Decimal(15, 2)
+  observaciones_aprobacion String?
+  motivo_rechazo           String?
+  activo                   Boolean?           @default(true)
+  created_at               DateTime?          @default(now()) @db.Timestamp(6)
+  updated_at               DateTime?          @default(now()) @db.Timestamp(6)
+  created_by               String?            @db.VarChar(100)
+  updated_by               String?            @db.VarChar(100)
+  version                  Int?               @default(1)
+  asignacion_viatico       asignacion_viatico @relation(fields: [asignacion_viatico_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_aprobacion_asignacion")
+
+  @@index([activo], map: "idx_aprobacion_activo")
+  @@index([asignacion_viatico_id], map: "idx_aprobacion_asignacion")
+  @@index([estado], map: "idx_aprobacion_estado")
+  @@index([fecha_solicitud], map: "idx_aprobacion_fecha_solicitud")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model asignacion_viatico {
+  id                  String                @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  viatico_id          String                @db.Uuid
+  responsable_id      String                @db.Uuid
+  monto_asignado      Decimal               @db.Decimal(15, 2)
+  monto_ejecutado     Decimal?              @default(0) @db.Decimal(15, 2)
+  saldo_pendiente     Decimal?              @default(dbgenerated("(monto_asignado - monto_ejecutado)")) @db.Decimal(15, 2)
+  destino             String                @db.VarChar(255)
+  fecha_salida        DateTime              @db.Date
+  fecha_retorno       DateTime              @db.Date
+  dias_viaje          Int?                  @default(dbgenerated("((fecha_retorno - fecha_salida) + 1)"))
+  estado              String?               @default("PENDIENTE") @db.VarChar(30)
+  observaciones       String?
+  motivo_rechazo      String?
+  activo              Boolean?              @default(true)
+  created_at          DateTime?             @default(now()) @db.Timestamp(6)
+  updated_at          DateTime?             @default(now()) @db.Timestamp(6)
+  created_by          String?               @db.VarChar(100)
+  updated_by          String?               @db.VarChar(100)
+  version             Int?                  @default(1)
+  aprobacion_viatico  aprobacion_viatico[]
+  responsable         responsable           @relation(fields: [responsable_id], references: [id], onUpdate: NoAction, map: "fk_asignacion_responsable")
+  viatico             viatico               @relation(fields: [viatico_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_asignacion_viatico")
+  cierre_viatico      cierre_viatico[]
+  comprobante_viatico comprobante_viatico[]
+
+  @@index([activo], map: "idx_asignacion_viatico_activo")
+  @@index([estado], map: "idx_asignacion_viatico_estado")
+  @@index([fecha_salida, fecha_retorno], map: "idx_asignacion_viatico_fechas")
+  @@index([responsable_id], map: "idx_asignacion_viatico_responsable")
+  @@index([viatico_id], map: "idx_asignacion_viatico_viatico")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model auditoria {
+  id               String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  tabla_nombre     String   @db.VarChar(100)
+  registro_id      String   @db.Uuid
+  operacion        String   @db.VarChar(20)
+  datos_anteriores Json?
+  datos_nuevos     Json?
+  usuario          String?  @db.VarChar(100)
+  fecha            DateTime @default(now()) @db.Timestamptz(6)
+  ip_address       String?  @db.Inet
+
+  @@index([fecha], map: "idx_auditoria_fecha")
+  @@index([registro_id], map: "idx_auditoria_registro")
+  @@index([tabla_nombre], map: "idx_auditoria_tabla")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model catalogo_origen_fondos {
+  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  codigo      String    @unique @db.VarChar(50)
+  nombre      String    @db.VarChar(255)
+  descripcion String?
+  activo      Boolean?  @default(true)
+  created_at  DateTime? @default(now()) @db.Timestamp(6)
+  updated_at  DateTime? @default(now()) @db.Timestamp(6)
+  created_by  String?   @db.VarChar(100)
+  updated_by  String?   @db.VarChar(100)
+  version     Int?      @default(1)
+
+  @@index([activo], map: "idx_catalogo_origen_fondos_activo")
+  @@index([codigo], map: "idx_catalogo_origen_fondos_codigo")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model cierre_viatico {
+  id                          String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  asignacion_viatico_id       String             @db.Uuid
+  tipo_cierre                 String             @db.VarChar(30)
+  monto_asignado              Decimal            @db.Decimal(15, 2)
+  monto_gastado               Decimal?           @default(0) @db.Decimal(15, 2)
+  monto_reintegro             Decimal?           @default(0) @db.Decimal(15, 2)
+  monto_reembolso             Decimal?           @default(0) @db.Decimal(15, 2)
+  fecha_cierre                DateTime           @default(dbgenerated("CURRENT_DATE")) @db.Date
+  fecha_reintegro             DateTime?          @db.Date
+  fecha_reembolso             DateTime?          @db.Date
+  aprobado_por_gerente        String             @db.VarChar(255)
+  fecha_aprobacion_gerente    DateTime           @db.Timestamp(6)
+  justificacion_gerente       String
+  aprobado_por_director       String?            @db.VarChar(255)
+  fecha_aprobacion_director   DateTime?          @db.Timestamp(6)
+  justificacion_director      String?
+  origen_fondos               String?            @db.VarChar(100)
+  comprobante_reintegro       String?            @db.VarChar(100)
+  comprobante_reembolso       String?            @db.VarChar(100)
+  motivo_cierre               String
+  observaciones               String?
+  es_excepcional              Boolean?           @default(false)
+  requiere_revision_periodica Boolean?           @default(true)
+  proxima_revision            DateTime?          @db.Date
+  estado_revision             String?            @default("PENDIENTE") @db.VarChar(30)
+  activo                      Boolean?           @default(true)
+  created_at                  DateTime?          @default(now()) @db.Timestamp(6)
+  updated_at                  DateTime?          @default(now()) @db.Timestamp(6)
+  created_by                  String?            @db.VarChar(100)
+  updated_by                  String?            @db.VarChar(100)
+  version                     Int?               @default(1)
+  asignacion_viatico          asignacion_viatico @relation(fields: [asignacion_viatico_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_cierre_asignacion")
+
+  @@index([activo], map: "idx_cierre_activo")
+  @@index([asignacion_viatico_id], map: "idx_cierre_asignacion")
+  @@index([estado_revision], map: "idx_cierre_estado_revision")
+  @@index([es_excepcional], map: "idx_cierre_excepcional")
+  @@index([fecha_cierre], map: "idx_cierre_fecha")
+  @@index([proxima_revision], map: "idx_cierre_proxima_revision")
+  @@index([tipo_cierre], map: "idx_cierre_tipo")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model comprobante_viatico {
+  id                    String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  asignacion_viatico_id String             @db.Uuid
+  tipo_comprobante      String             @db.VarChar(50)
+  numero_comprobante    String?            @db.VarChar(100)
+  fecha_comprobante     DateTime           @db.Date
+  descripcion           String
+  monto_comprobante     Decimal            @db.Decimal(15, 2)
+  proveedor             String?            @db.VarChar(255)
+  rif_proveedor         String?            @db.VarChar(20)
+  archivo_ruta          String?            @db.VarChar(500)
+  archivo_nombre        String?            @db.VarChar(255)
+  archivo_tipo          String?            @db.VarChar(50)
+  archivo_tamano        Int?
+  estado                String?            @default("PENDIENTE") @db.VarChar(30)
+  motivo_rechazo        String?
+  activo                Boolean?           @default(true)
+  created_at            DateTime?          @default(now()) @db.Timestamp(6)
+  updated_at            DateTime?          @default(now()) @db.Timestamp(6)
+  created_by            String?            @db.VarChar(100)
+  updated_by            String?            @db.VarChar(100)
+  version               Int?               @default(1)
+  asignacion_viatico    asignacion_viatico @relation(fields: [asignacion_viatico_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_comprobante_asignacion")
+
+  @@index([activo], map: "idx_comprobante_activo")
+  @@index([asignacion_viatico_id], map: "idx_comprobante_asignacion")
+  @@index([estado], map: "idx_comprobante_estado")
+  @@index([fecha_comprobante], map: "idx_comprobante_fecha")
+  @@index([tipo_comprobante], map: "idx_comprobante_tipo")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model ejecucion_item {
+  id                         String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  item_presupuestario_id     String              @db.Uuid
+  fecha_ejecucion            DateTime            @default(dbgenerated("CURRENT_DATE")) @db.Date
+  cantidad_ejecutada         Decimal             @default(0) @db.Decimal(18, 2)
+  costo_ejecutado            Decimal             @default(0) @db.Decimal(18, 2)
+  comprobante_tipo           String?             @db.VarChar(50)
+  comprobante_numero         String?             @db.VarChar(100)
+  comprobante_fecha          DateTime?           @db.Date
+  comprobante_rif            String?             @db.VarChar(20)
+  comprobante_proveedor      String?             @db.VarChar(255)
+  comprobante_archivo_ruta   String?
+  comprobante_archivo_nombre String?             @db.VarChar(255)
+  comprobante_archivo_tipo   String?             @db.VarChar(50)
+  comprobante_archivo_tamano BigInt?
+  recibido_por               String?             @db.VarChar(255)
+  fecha_recepcion            DateTime?           @db.Date
+  conformidad                Boolean?            @default(false)
+  observaciones              String?
+  activo                     Boolean             @default(true)
+  created_at                 DateTime            @default(now()) @db.Timestamptz(6)
+  updated_at                 DateTime            @default(now()) @db.Timestamptz(6)
+  created_by                 String?             @db.VarChar(100)
+  updated_by                 String?             @db.VarChar(100)
+  version                    Int                 @default(1)
+  item_presupuestario        item_presupuestario @relation(fields: [item_presupuestario_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_ejecucion_item")
+
+  @@index([activo], map: "idx_ejecucion_activo")
+  @@index([comprobante_numero], map: "idx_ejecucion_comprobante")
+  @@index([fecha_ejecucion], map: "idx_ejecucion_fecha")
+  @@index([item_presupuestario_id], map: "idx_ejecucion_item")
+  @@index([comprobante_proveedor], map: "idx_ejecucion_proveedor")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model empresa {
+  id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  codigo     String   @unique @db.VarChar(50)
+  nombre     String   @db.VarChar(255)
+  rif        String?  @unique @db.VarChar(20)
+  direccion  String?
+  telefono   String?  @db.VarChar(50)
+  email      String?  @db.VarChar(100)
+  activo     Boolean  @default(true)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @default(now()) @db.Timestamptz(6)
+  created_by String?  @db.VarChar(100)
+  updated_by String?  @db.VarChar(100)
+  version    Int      @default(1)
+  tipo       String   @default("PÚBLICA") @db.VarChar(20)
+  ambito     String   @default("NACIONALES") @db.VarChar(20)
+  ente       ente[]
+
+  @@index([activo], map: "idx_empresa_activo")
+  @@index([ambito], map: "idx_empresa_ambito")
+  @@index([tipo], map: "idx_empresa_tipo")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model ente {
+  id          String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  empresa_id  String     @db.Uuid
+  codigo      String     @db.VarChar(50)
+  nombre      String     @db.VarChar(255)
+  descripcion String?
+  activo      Boolean    @default(true)
+  created_at  DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime   @default(now()) @db.Timestamptz(6)
+  created_by  String?    @db.VarChar(100)
+  updated_by  String?    @db.VarChar(100)
+  version     Int        @default(1)
+  tipo        String     @default("OTROS") @db.VarChar(30)
+  empresa     empresa    @relation(fields: [empresa_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  gerencia    gerencia[]
+
+  @@unique([empresa_id, codigo])
+  @@index([empresa_id, activo], map: "idx_ente_empresa_activo")
+  @@index([tipo], map: "idx_ente_tipo")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model entidad_politica {
+  id                     String                  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  entidad_type           String                  @db.VarChar(30)
+  entidad_id             String                  @db.Uuid
+  plan_patria_id         String?                 @db.Uuid
+  plan_carabobo_id       String?                 @db.Uuid
+  created_at             DateTime                @default(now()) @db.Timestamptz(6)
+  updated_at             DateTime                @default(now()) @db.Timestamptz(6)
+  created_by             String?                 @db.VarChar(100)
+  updated_by             String?                 @db.VarChar(100)
+  version                Int                     @default(1)
+  politica_plan_carabobo politica_plan_carabobo? @relation(fields: [plan_carabobo_id], references: [id], onUpdate: NoAction)
+  politica_plan_patria   politica_plan_patria?   @relation(fields: [plan_patria_id], references: [id], onUpdate: NoAction)
+
+  @@unique([entidad_type, entidad_id], map: "uq_entidad_politica")
+  @@index([plan_carabobo_id], map: "idx_entidad_politica_pc")
+  @@index([plan_patria_id], map: "idx_entidad_politica_pp")
+  @@index([entidad_type, entidad_id], map: "idx_entidad_politica_type_id")
+}
+
+model estado {
+  id                   String            @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  region_geografica_id String            @db.Uuid
+  codigo_ine           String            @unique @db.VarChar(5)
+  nombre               String            @db.VarChar(100)
+  capital              String?           @db.VarChar(100)
+  superficie_km2       Decimal?          @db.Decimal(10, 2)
+  activo               Boolean           @default(true)
+  created_at           DateTime          @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime          @default(now()) @db.Timestamptz(6)
+  created_by           String?           @db.VarChar(100)
+  updated_by           String?           @db.VarChar(100)
+  version              Int               @default(1)
+  region_geografica    region_geografica @relation(fields: [region_geografica_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  gerencia             gerencia[]
+  municipio            municipio[]
+
+  @@index([region_geografica_id, activo], map: "idx_estado_region_activo")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model gerencia {
+  id                   String                 @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  ente_id              String                 @db.Uuid
+  codigo               String                 @db.VarChar(50)
+  nombre               String                 @db.VarChar(255)
+  descripcion          String?
+  activo               Boolean                @default(true)
+  created_at           DateTime               @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime               @default(now()) @db.Timestamptz(6)
+  created_by           String?                @db.VarChar(100)
+  updated_by           String?                @db.VarChar(100)
+  version              Int                    @default(1)
+  ambito               String                 @default("GENERAL") @db.VarChar(20)
+  proceso_medular      String                 @default("NO APLICA") @db.VarChar(30)
+  ceco                 String?                @db.VarChar(50)
+  codigo_sap           String?                @db.VarChar(50)
+  municipio_id         String?                @db.Uuid
+  region_id            String?                @db.Uuid
+  estado_id            String?                @db.Uuid
+  direccion_fisica     String?
+  centro_servicios     String?                @default("NO APLICA") @db.VarChar(255)
+  ente                 ente                   @relation(fields: [ente_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  estado               estado?                @relation(fields: [estado_id], references: [id], onUpdate: NoAction)
+  municipio            municipio?             @relation(fields: [municipio_id], references: [id], onUpdate: NoAction)
+  region_geografica    region_geografica?     @relation(fields: [region_id], references: [id], onUpdate: NoAction)
+  gerencia_responsable gerencia_responsable[]
+  unidad               unidad[]
+
+  @@unique([ente_id, codigo])
+  @@index([ambito], map: "idx_gerencia_ambito")
+  @@index([ceco], map: "idx_gerencia_ceco")
+  @@index([codigo_sap], map: "idx_gerencia_codigo_sap")
+  @@index([ente_id, activo], map: "idx_gerencia_ente_activo")
+  @@index([estado_id], map: "idx_gerencia_estado")
+  @@index([municipio_id], map: "idx_gerencia_municipio")
+  @@index([proceso_medular], map: "idx_gerencia_proceso_medular")
+  @@index([region_id], map: "idx_gerencia_region")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model gerencia_responsable {
+  id                 String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  gerencia_id        String      @db.Uuid
+  responsable_id     String      @db.Uuid
+  numero_designacion String?     @db.VarChar(50)
+  cargo              String      @db.VarChar(255)
+  gaceta             String?     @db.VarChar(100)
+  fecha_designacion  DateTime?   @db.Date
+  fecha_inicio       DateTime    @db.Date
+  fecha_fin          DateTime?   @db.Date
+  activo             Boolean     @default(true)
+  created_at         DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime    @default(now()) @db.Timestamptz(6)
+  created_by         String?     @db.VarChar(100)
+  updated_by         String?     @db.VarChar(100)
+  version            Int         @default(1)
+  gerencia           gerencia    @relation(fields: [gerencia_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  responsable        responsable @relation(fields: [responsable_id], references: [id], onUpdate: NoAction)
+
+  @@index([gerencia_id], map: "idx_gerencia_resp_actual", where: raw("(fecha_fin IS NULL)"))
+  @@index([fecha_inicio, fecha_fin], map: "idx_gerencia_resp_fechas")
+  @@index([gerencia_id], map: "idx_gerencia_resp_gerencia")
+  @@index([responsable_id], map: "idx_gerencia_resp_responsable")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model item_presupuestario {
+  id                        String                 @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  partida_presupuestaria_id String                 @db.Uuid
+  elemento_id               String?                @db.Uuid
+  codigo                    String                 @db.VarChar(100)
+  codigo_snc                String?                @db.VarChar(50)
+  codigo_sap                String?                @db.VarChar(50)
+  nombre                    String                 @db.VarChar(500)
+  descripcion               String?
+  especificacion_tecnica    String?
+  cantidad                  Decimal                @default(0) @db.Decimal(18, 2)
+  unidad_medida             String?                @db.VarChar(100)
+  costo_unitario            Decimal                @default(0) @db.Decimal(18, 2)
+  costo_total               Decimal?               @default(dbgenerated("(cantidad * costo_unitario)")) @db.Decimal(18, 2)
+  tipo_item                 String                 @db.VarChar(30)
+  tipo_reemplazo            String?                @db.VarChar(20)
+  categoria_codigo          String?                @db.VarChar(20)
+  subcategoria_codigo       String?                @db.VarChar(20)
+  tipo_servicio             String?                @db.VarChar(100)
+  periodo_facturacion       String?                @db.VarChar(50)
+  proveedor                 String?                @db.VarChar(255)
+  marca                     String?                @db.VarChar(100)
+  modelo                    String?                @db.VarChar(100)
+  vida_util_meses           Int?
+  estado_activo             String?                @db.VarChar(20)
+  numero_personas           Int?
+  numero_dias               Int?
+  unidades_tributarias      Decimal?               @db.Decimal(18, 2)
+  costo_por_ut              Decimal?               @db.Decimal(18, 2)
+  destino                   String?                @db.VarChar(255)
+  tipo_viatico              String?                @db.VarChar(20)
+  justificacion             String
+  estado                    String                 @default("PENDIENTE") @db.VarChar(20)
+  fecha_ejecucion_estimada  DateTime?              @db.Date
+  fecha_ejecucion_real      DateTime?              @db.Date
+  activo                    Boolean                @default(true)
+  created_at                DateTime               @default(now()) @db.Timestamptz(6)
+  updated_at                DateTime               @default(now()) @db.Timestamptz(6)
+  created_by                String?                @db.VarChar(100)
+  updated_by                String?                @db.VarChar(100)
+  version                   Int                    @default(1)
+  ejecucion_item            ejecucion_item[]
+  partida_elemento          partida_elemento?      @relation(fields: [elemento_id], references: [id], onUpdate: NoAction, map: "fk_item_elemento")
+  partida_presupuestaria    partida_presupuestaria @relation(fields: [partida_presupuestaria_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_item_partida")
+
+  @@unique([partida_presupuestaria_id, codigo], map: "uq_item_codigo")
+  @@index([activo], map: "idx_item_activo")
+  @@index([codigo], map: "idx_item_codigo")
+  @@index([codigo_sap], map: "idx_item_codigo_sap")
+  @@index([codigo_snc], map: "idx_item_codigo_snc")
+  @@index([elemento_id], map: "idx_item_elemento")
+  @@index([estado], map: "idx_item_estado")
+  @@index([partida_presupuestaria_id], map: "idx_item_partida")
+  @@index([tipo_item], map: "idx_item_tipo")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model mes {
+  id              String            @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  codigo          String            @unique @db.VarChar(10)
+  nombre          String            @db.VarChar(50)
+  nombre_corto    String            @db.VarChar(10)
+  numero          Int
+  trimestre_id    String            @db.Uuid
+  created_at      DateTime          @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime          @default(now()) @db.Timestamptz(6)
+  created_by      String?           @db.VarChar(100)
+  updated_by      String?           @db.VarChar(100)
+  version         Int               @default(1)
+  trimestre       trimestre         @relation(fields: [trimestre_id], references: [id], onUpdate: NoAction)
+  meta_fisica     meta_fisica[]
+  partida_mensual partida_mensual[]
+
+  @@index([trimestre_id], map: "idx_mes_trimestre")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model meta_fisica {
+  id                      String                    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  accion_especifica_id    String                    @db.Uuid
+  mes_id                  String                    @db.Uuid
+  anio                    Int
+  programado              Decimal                   @default(0) @db.Decimal(15, 2)
+  ejecutado               Decimal                   @default(0) @db.Decimal(15, 2)
+  unidad_medida           String?                   @db.VarChar(100)
+  eficacia                Decimal?                  @default(dbgenerated("\nCASE\n    WHEN (programado > (0)::numeric) THEN LEAST(((ejecutado / programado) * (100)::numeric), (100)::numeric)\n    ELSE (0)::numeric\nEND")) @db.Decimal(5, 2)
+  activo                  Boolean                   @default(true)
+  created_at              DateTime                  @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime                  @default(now()) @db.Timestamptz(6)
+  created_by              String?                   @db.VarChar(100)
+  updated_by              String?                   @db.VarChar(100)
+  version                 Int                       @default(1)
+  accion_especifica       accion_especifica         @relation(fields: [accion_especifica_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_meta_fisica_accion")
+  mes                     mes                       @relation(fields: [mes_id], references: [id], onUpdate: NoAction, map: "fk_meta_fisica_mes")
+  meta_fisica_presupuesto meta_fisica_presupuesto[]
+
+  @@unique([accion_especifica_id, mes_id, anio], map: "uq_meta_fisica_accion_mes_anio")
+  @@index([accion_especifica_id], map: "idx_meta_fisica_accion")
+  @@index([accion_especifica_id, anio], map: "idx_meta_fisica_accion_anio")
+  @@index([anio], map: "idx_meta_fisica_anio")
+  @@index([mes_id], map: "idx_meta_fisica_mes")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model meta_fisica_presupuesto {
+  id                        String                 @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  meta_fisica_id            String                 @db.Uuid
+  partida_presupuestaria_id String                 @db.Uuid
+  monto_asignado            Decimal                @default(0) @db.Decimal(15, 2)
+  monto_ejecutado           Decimal                @default(0) @db.Decimal(15, 2)
+  monto_pendiente           Decimal?               @default(dbgenerated("(monto_asignado - monto_ejecutado)")) @db.Decimal(15, 2)
+  porcentaje_financiero     Decimal?               @default(dbgenerated("\nCASE\n    WHEN (monto_asignado > (0)::numeric) THEN LEAST((((monto_ejecutado / monto_asignado) * (100)::numeric))::numeric(5,2), (100)::numeric)\n    ELSE (0)::numeric\nEND")) @db.Decimal(5, 2)
+  observaciones             String?
+  activo                    Boolean                @default(true)
+  created_at                DateTime               @default(now()) @db.Timestamptz(6)
+  updated_at                DateTime               @default(now()) @db.Timestamptz(6)
+  created_by                String?                @db.VarChar(100)
+  updated_by                String?                @db.VarChar(100)
+  version                   Int                    @default(1)
+  meta_fisica               meta_fisica            @relation(fields: [meta_fisica_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_mf_presupuesto_meta")
+  partida_presupuestaria    partida_presupuestaria @relation(fields: [partida_presupuestaria_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_mf_presupuesto_partida")
+
+  @@unique([meta_fisica_id, partida_presupuestaria_id], map: "uq_mf_presupuesto")
+  @@index([activo], map: "idx_mf_presupuesto_activo")
+  @@index([meta_fisica_id], map: "idx_mf_presupuesto_meta")
+  @@index([partida_presupuestaria_id], map: "idx_mf_presupuesto_partida")
+}
+
+model municipio {
+  id         String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  estado_id  String     @db.Uuid
+  codigo_ine String     @unique @db.VarChar(10)
+  nombre     String     @db.VarChar(150)
+  capital    String?    @db.VarChar(100)
+  activo     Boolean    @default(true)
+  created_at DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at DateTime   @default(now()) @db.Timestamptz(6)
+  created_by String?    @db.VarChar(100)
+  updated_by String?    @db.VarChar(100)
+  version    Int        @default(1)
+  gerencia   gerencia[]
+  estado     estado     @relation(fields: [estado_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([estado_id, activo], map: "idx_municipio_estado_activo")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model partida_elemento {
+  id                        String                 @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  partida_presupuestaria_id String                 @db.Uuid
+  codigo                    String                 @db.VarChar(50)
+  nombre                    String                 @db.VarChar(255)
+  descripcion               String?
+  activo                    Boolean                @default(true)
+  created_at                DateTime               @default(now()) @db.Timestamptz(6)
+  updated_at                DateTime               @default(now()) @db.Timestamptz(6)
+  created_by                String?                @db.VarChar(100)
+  updated_by                String?                @db.VarChar(100)
+  version                   Int                    @default(1)
+  item_presupuestario       item_presupuestario[]
+  partida_presupuestaria    partida_presupuestaria @relation(fields: [partida_presupuestaria_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_partida_elemento_partida")
+
+  @@unique([partida_presupuestaria_id, codigo], map: "uq_partida_elemento_codigo")
+  @@index([activo], map: "idx_partida_elemento_activo")
+  @@index([codigo], map: "idx_partida_elemento_codigo")
+  @@index([partida_presupuestaria_id], map: "idx_partida_elemento_partida")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model partida_mensual {
+  id                        String                 @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  partida_presupuestaria_id String                 @db.Uuid
+  mes_id                    String                 @db.Uuid
+  anio                      Int
+  monto_solicitado          Decimal                @default(0) @db.Decimal(15, 2)
+  monto_asignado            Decimal                @default(0) @db.Decimal(15, 2)
+  monto_ejecutado           Decimal                @default(0) @db.Decimal(15, 2)
+  eficacia                  Decimal?               @default(dbgenerated("\nCASE\n    WHEN (monto_asignado > (0)::numeric) THEN LEAST(((monto_ejecutado / monto_asignado) * (100)::numeric), (100)::numeric)\n    ELSE (0)::numeric\nEND")) @db.Decimal(5, 2)
+  activo                    Boolean                @default(true)
+  created_at                DateTime               @default(now()) @db.Timestamptz(6)
+  updated_at                DateTime               @default(now()) @db.Timestamptz(6)
+  created_by                String?                @db.VarChar(100)
+  updated_by                String?                @db.VarChar(100)
+  version                   Int                    @default(1)
+  mes                       mes                    @relation(fields: [mes_id], references: [id], onUpdate: NoAction, map: "fk_partida_mensual_mes")
+  partida_presupuestaria    partida_presupuestaria @relation(fields: [partida_presupuestaria_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_partida_mensual_partida")
+
+  @@unique([partida_presupuestaria_id, mes_id, anio], map: "uq_partida_mensual")
+  @@index([anio], map: "idx_partida_mensual_anio")
+  @@index([mes_id], map: "idx_partida_mensual_mes")
+  @@index([partida_presupuestaria_id], map: "idx_partida_mensual_partida")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model partida_presupuestaria {
+  id                      String                    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  accion_especifica_id    String                    @db.Uuid
+  codigo                  String                    @db.VarChar(50)
+  nombre                  String                    @db.VarChar(255)
+  descripcion             String?
+  monto_presupuestado     Decimal?                  @default(0) @db.Decimal(15, 2)
+  monto_ejecutado         Decimal?                  @default(0) @db.Decimal(15, 2)
+  moneda                  String?                   @default("VES") @db.VarChar(10)
+  activo                  Boolean                   @default(true)
+  created_at              DateTime                  @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime                  @default(now()) @db.Timestamptz(6)
+  created_by              String?                   @db.VarChar(100)
+  updated_by              String?                   @db.VarChar(100)
+  version                 Int                       @default(1)
+  cantidad                Decimal?                  @db.Decimal(15, 2)
+  unidad_medida           String?                   @db.VarChar(100)
+  costo_unitario          Decimal?                  @db.Decimal(15, 2)
+  justificacion           String?
+  item_presupuestario     item_presupuestario[]
+  meta_fisica_presupuesto meta_fisica_presupuesto[]
+  partida_elemento        partida_elemento[]
+  partida_mensual         partida_mensual[]
+  accion_especifica       accion_especifica         @relation(fields: [accion_especifica_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  recurso_humano          recurso_humano[]
+  viatico                 viatico[]
+
+  @@unique([accion_especifica_id, codigo])
+  @@index([accion_especifica_id, activo], map: "idx_partida_accion_activo")
+  @@index([justificacion], map: "idx_partida_presupuestaria_justificacion")
+  @@index([unidad_medida], map: "idx_partida_presupuestaria_unidad")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model poa {
+  id                           String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  unidad_id                    String              @db.Uuid
+  anio                         Int
+  codigo                       String              @db.VarChar(50)
+  nombre                       String              @db.VarChar(255)
+  descripcion                  String?
+  fecha_inicio                 DateTime?           @db.Date
+  fecha_fin                    DateTime?           @db.Date
+  estado                       String?             @default("borrador") @db.VarChar(50)
+  activo                       Boolean             @default(true)
+  created_at                   DateTime            @default(now()) @db.Timestamptz(6)
+  updated_at                   DateTime            @default(now()) @db.Timestamptz(6)
+  created_by                   String?             @db.VarChar(100)
+  updated_by                   String?             @db.VarChar(100)
+  version                      Int                 @default(1)
+  politica_sen                 String?
+  programa_sen                 String?
+  codigo_sipes                 String?             @db.VarChar(50)
+  organismo_responsable        String?             @db.VarChar(255)
+  unidad_ejecutora_local       String?             @db.VarChar(255)
+  objetivo_especifico_unidad   String?
+  responsable_ejecucion_nombre String?             @db.VarChar(255)
+  cargo_responsable            String?             @db.VarChar(255)
+  es_plurianual                Boolean?            @default(false)
+  situacion_presupuestaria     String?             @default("POR INICIAR") @db.VarChar(50)
+  responsable_tecnico_nombre   String?             @db.VarChar(255)
+  responsable_tecnico_email    String?             @db.VarChar(100)
+  responsable_admin_nombre     String?             @db.VarChar(255)
+  responsable_admin_email      String?             @db.VarChar(100)
+  localizacion                 String?
+  accion_especifica            accion_especifica[]
+  unidad                       unidad              @relation(fields: [unidad_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  poa_aprobacion               poa_aprobacion?
+
+  @@unique([unidad_id, anio, codigo])
+  @@index([anio], map: "idx_poa_anio")
+  @@index([codigo_sipes], map: "idx_poa_codigo_sipes")
+  @@index([organismo_responsable], map: "idx_poa_organismo")
+  @@index([es_plurianual], map: "idx_poa_plurianual")
+  @@index([responsable_admin_nombre], map: "idx_poa_responsable_admin")
+  @@index([responsable_tecnico_nombre], map: "idx_poa_responsable_tecnico")
+  @@index([situacion_presupuestaria], map: "idx_poa_situacion_presupuestaria")
+  @@index([unidad_id, activo], map: "idx_poa_unidad_activo")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model poa_aprobacion {
+  id                    String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  poa_id                String    @unique(map: "uq_poa_aprobacion") @db.Uuid
+  monto_solicitado      Decimal   @db.Decimal(15, 2)
+  monto_asignado        Decimal   @db.Decimal(15, 2)
+  tipo_aprobacion       String    @db.VarChar(30)
+  metas_originales      Json?
+  metas_ajustadas       Json?
+  requiere_ajuste_metas Boolean?  @default(false)
+  porcentaje_variacion  Decimal?  @default(dbgenerated("\nCASE\n    WHEN (monto_solicitado > (0)::numeric) THEN (((monto_asignado - monto_solicitado) / monto_solicitado) * (100)::numeric)\n    ELSE (0)::numeric\nEND")) @db.Decimal(5, 2)
+  fecha_aprobacion      DateTime? @db.Timestamptz(6)
+  aprobado_por          String?   @db.VarChar(100)
+  observaciones         String?
+  created_at            DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime  @default(now()) @db.Timestamptz(6)
+  created_by            String?   @db.VarChar(100)
+  updated_by            String?   @db.VarChar(100)
+  version               Int       @default(1)
+  poa                   poa       @relation(fields: [poa_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_poa_aprobacion_poa")
+
+  @@index([tipo_aprobacion], map: "idx_poa_aprobacion_tipo")
+}
+
+model politica_plan_carabobo {
+  id                String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  codigo            String             @unique @db.VarChar(20)
+  descripcion       String
+  linea_estrategica String             @db.VarChar(300)
+  is_active         Boolean            @default(true)
+  created_at        DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime           @default(now()) @db.Timestamptz(6)
+  created_by        String?            @db.VarChar(100)
+  updated_by        String?            @db.VarChar(100)
+  version           Int                @default(1)
+  entidad_politica  entidad_politica[]
+
+  @@index([is_active], map: "idx_ppc_is_active")
+}
+
+model politica_plan_patria {
+  id                String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  codigo            String             @unique @db.VarChar(20)
+  descripcion       String
+  linea_estrategica String             @db.VarChar(300)
+  objetivo_nacional String?
+  is_active         Boolean            @default(true)
+  created_at        DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime           @default(now()) @db.Timestamptz(6)
+  created_by        String?            @db.VarChar(100)
+  updated_by        String?            @db.VarChar(100)
+  version           Int                @default(1)
+  entidad_politica  entidad_politica[]
+
+  @@index([is_active], map: "idx_ppp_is_active")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recurso_humano {
+  id                        String                 @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  partida_presupuestaria_id String                 @db.Uuid
+  rol_funcional             String                 @db.VarChar(255)
+  dedicacion_meses          Int
+  costo_mensual             Decimal                @db.Decimal(15, 2)
+  costo_anual               Decimal?               @default(dbgenerated("(costo_mensual * (dedicacion_meses)::numeric)")) @db.Decimal(15, 2)
+  activo                    Boolean?               @default(true)
+  created_at                DateTime?              @default(now()) @db.Timestamp(6)
+  updated_at                DateTime?              @default(now()) @db.Timestamp(6)
+  created_by                String?                @db.VarChar(100)
+  updated_by                String?                @db.VarChar(100)
+  version                   Int?                   @default(1)
+  partida_presupuestaria    partida_presupuestaria @relation(fields: [partida_presupuestaria_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_recurso_humano_partida")
+
+  @@index([activo], map: "idx_recurso_humano_activo")
+  @@index([partida_presupuestaria_id], map: "idx_recurso_humano_partida")
+  @@index([rol_funcional], map: "idx_recurso_humano_rol")
+}
+
+model region_geografica {
+  id          String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  codigo      String     @unique @db.VarChar(10)
+  nombre      String     @db.VarChar(100)
+  descripcion String?
+  activo      Boolean    @default(true)
+  created_at  DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime   @default(now()) @db.Timestamptz(6)
+  created_by  String?    @db.VarChar(100)
+  updated_by  String?    @db.VarChar(100)
+  version     Int        @default(1)
+  estado      estado[]
+  gerencia    gerencia[]
+
+  @@index([activo], map: "idx_region_activo")
+}
+
+model responsable {
+  id                   String                 @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  cedula               String                 @unique @db.VarChar(20)
+  numero_personal      String                 @unique @db.VarChar(30)
+  nombres              String                 @db.VarChar(255)
+  apellidos            String                 @db.VarChar(255)
+  activo               Boolean                @default(true)
+  created_at           DateTime               @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime               @default(now()) @db.Timestamptz(6)
+  created_by           String?                @db.VarChar(100)
+  updated_by           String?                @db.VarChar(100)
+  version              Int                    @default(1)
+  asignacion_viatico   asignacion_viatico[]
+  gerencia_responsable gerencia_responsable[]
+  unidad_responsable   unidad_responsable[]
+
+  @@index([activo], map: "idx_responsable_activo")
+  @@index([cedula], map: "idx_responsable_cedula")
+  @@index([numero_personal], map: "idx_responsable_numero_personal")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model trimestre {
+  id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  codigo     String   @unique @db.VarChar(10)
+  nombre     String   @db.VarChar(50)
+  numero     Int
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @default(now()) @db.Timestamptz(6)
+  created_by String?  @db.VarChar(100)
+  updated_by String?  @db.VarChar(100)
+  version    Int      @default(1)
+  mes        mes[]
+}
+
+model unidad {
+  id                 String               @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  gerencia_id        String               @db.Uuid
+  codigo             String               @db.VarChar(50)
+  nombre             String               @db.VarChar(255)
+  descripcion        String?
+  activo             Boolean              @default(true)
+  created_at         DateTime             @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime             @default(now()) @db.Timestamptz(6)
+  created_by         String?              @db.VarChar(100)
+  updated_by         String?              @db.VarChar(100)
+  version            Int                  @default(1)
+  poa                poa[]
+  gerencia           gerencia             @relation(fields: [gerencia_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  unidad_responsable unidad_responsable[]
+
+  @@unique([gerencia_id, codigo])
+  @@index([gerencia_id, activo], map: "idx_unidad_gerencia_activo")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model unidad_responsable {
+  id                 String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  unidad_id          String      @db.Uuid
+  responsable_id     String      @db.Uuid
+  numero_designacion String?     @db.VarChar(50)
+  cargo              String      @db.VarChar(255)
+  gaceta             String?     @db.VarChar(100)
+  fecha_designacion  DateTime?   @db.Date
+  fecha_inicio       DateTime    @db.Date
+  fecha_fin          DateTime?   @db.Date
+  activo             Boolean     @default(true)
+  created_at         DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime    @default(now()) @db.Timestamptz(6)
+  created_by         String?     @db.VarChar(100)
+  updated_by         String?     @db.VarChar(100)
+  version            Int         @default(1)
+  responsable        responsable @relation(fields: [responsable_id], references: [id], onUpdate: NoAction)
+  unidad             unidad      @relation(fields: [unidad_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([unidad_id], map: "idx_unidad_resp_actual", where: raw("(fecha_fin IS NULL)"))
+  @@index([fecha_inicio, fecha_fin], map: "idx_unidad_resp_fechas")
+  @@index([responsable_id], map: "idx_unidad_resp_responsable")
+  @@index([unidad_id], map: "idx_unidad_resp_unidad")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model viatico {
+  id                        String                 @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  partida_presupuestaria_id String                 @db.Uuid
+  concepto                  String                 @db.VarChar(255)
+  numero_personas           Int
+  dias                      Int
+  costo_unitario            Decimal                @db.Decimal(15, 2)
+  costo_total               Decimal?               @default(dbgenerated("(((numero_personas * dias))::numeric * costo_unitario)")) @db.Decimal(15, 2)
+  activo                    Boolean?               @default(true)
+  created_at                DateTime?              @default(now()) @db.Timestamp(6)
+  updated_at                DateTime?              @default(now()) @db.Timestamp(6)
+  created_by                String?                @db.VarChar(100)
+  updated_by                String?                @db.VarChar(100)
+  version                   Int?                   @default(1)
+  asignacion_viatico        asignacion_viatico[]
+  partida_presupuestaria    partida_presupuestaria @relation(fields: [partida_presupuestaria_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_viatico_partida")
+
+  @@index([activo], map: "idx_viatico_activo")
+  @@index([concepto], map: "idx_viatico_concepto")
+  @@index([partida_presupuestaria_id], map: "idx_viatico_partida")
+}

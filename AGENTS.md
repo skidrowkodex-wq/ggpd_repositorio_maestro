@@ -35,3 +35,38 @@ El repositorio integra las cuatro aplicaciones estratégicas del SEN más el por
 - `npm run dev`: Inicia el servidor de desarrollo Vite para el portal unificado.
 - `npm run serve:portal`: Servidor HTTP en puerto 5000 para el portal maestro.
 - `npm run discover` / `npm run spec` / `npm run scan`: Herramientas automatizadas de inspección y schema de Supabase.
+
+<!-- INSFORGE:START -->
+## InsForge backend
+
+This project uses [InsForge](https://insforge.dev): an all-in-one, open-source Postgres-based backend (BaaS) that gives this app a database, authentication, file storage, edge functions, realtime, an AI model gateway, and payments through one platform.
+
+- **Project:** **ggpd-data-maestra-0002** (API base `https://wxkeqf37.ap-southeast.insforge.app`)
+- **Skills:** these InsForge skills are installed for supported coding agents. Reach for them before implementing any InsForge feature instead of guessing the API:
+  - `insforge`: app code with the `@insforge/sdk` client (database CRUD, auth, storage, edge functions, realtime, AI, email, and Stripe payments).
+  - `insforge-cli`: backend and infrastructure via the `insforge` CLI (projects, SQL, migrations, RLS policies, storage buckets, functions, secrets, payment setup, schedules, deploys).
+  - `insforge-debug`: diagnosing failures (SDK/HTTP errors, RLS denials, auth and OAuth issues) and running security or performance audits.
+  - `insforge-integrations`: wiring external auth providers (Clerk, Auth0, WorkOS, Better Auth, etc.) for JWT-based RLS, or the OKX x402 payment facilitator.
+  - `find-skills`: discovering additional skills on demand.
+- **Credentials:** app code reads keys from `.env.local`; the CLI reads `.insforge/project.json`. Never hardcode or commit keys.
+
+Key patterns:
+
+- Database inserts take an array: `insert([{ ... }])`.
+- Reference users with `auth.users(id)`; use `auth.uid()` in RLS policies.
+- For storage uploads, persist both the returned `url` and `key`.
+<!-- INSFORGE:END -->
+
+<!-- VIBEHOST:START -->
+## VibeHost Deployment Service (`vibehost-bk`)
+
+This project supports private-by-default web hosting via [VibeHost](https://vibehost.com) under the alias **`vibehost-bk`**.
+
+- **Skill:** `vibehost-deploy` (located in `.agents/skills/vibehost-deploy`).
+- **CLI:** `vibehost` installed at `~/.local/bin/vibehost`.
+- **Usage:**
+  - Authenticate: `vibehost login` (or pass `VIBEHOST_TOKEN` in env).
+  - Deploy static sites: `vibehost deploy ./dist --app <app-name> --json`
+  - Deploy Next.js apps: `vibehost deploy . --app <app-name> --runtime nextjs --json`
+  - Link project: `vibehost link --app <app-name>`
+<!-- VIBEHOST:END -->

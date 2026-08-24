@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>INSTRUCTIVO OPERATIVO
+PROCEDIMIENTO DE CARGA DE TIRAS DE INTERRUPCIÓN</title>
+<style>
+body { font-family: Arial, sans-serif; font-size: 11pt; color: #1e293b; line-height: 1.6; margin: 40px; }
+h1 { color: #003C71; font-size: 20pt; margin-top: 24pt; margin-bottom: 12pt; border-bottom: 2px solid #003C71; padding-bottom: 6px; }
+h2 { color: #003C71; font-size: 15pt; margin-top: 18pt; margin-bottom: 8pt; }
+h3 { color: #003C71; font-size: 12pt; margin-top: 14pt; margin-bottom: 6pt; }
+p { margin-bottom: 10pt; text-align: justify; }
+table { border-collapse: collapse; width: 100%; margin: 14pt 0; }
+th, td { border: 1px solid #cbd5e1; padding: 8pt 10pt; text-align: left; vertical-align: top; font-size: 10pt; }
+th { background-color: #003C71; color: #ffffff; font-weight: bold; }
+tr:nth-child(even) td { background-color: #f8fafc; }
+.portada { text-align: center; padding: 40px 20px; border: 2px solid #003C71; background-color: #f8fafc; margin-bottom: 30px; border-radius: 8px; }
+.portada h1 { border-bottom: none; font-size: 24pt; margin-bottom: 12pt; color: #003C71; }
+.portada .subtitulo { font-size: 13pt; color: #334155; font-weight: bold; margin-bottom: 8pt; }
+.portada .sistema { font-size: 11pt; color: #64748b; margin-bottom: 16pt; }
+.control-doc { width: 100%; margin-bottom: 24pt; border: 1px solid #cbd5e1; }
+.control-doc td { padding: 6pt 10pt; font-size: 9.5pt; }
+.control-doc .lbl { font-weight: bold; background-color: #e2e8f0; width: 25%; color: #1e293b; }
+.info-box { background-color: #f0f9ff; border-left: 4px solid #0284c7; padding: 10pt 14pt; margin: 12pt 0; border-radius: 4px; }
+.tech-box { background-color: #f8fafc; border-left: 4px solid #475569; padding: 10pt 14pt; margin: 12pt 0; border-radius: 4px; }
+.box-title { font-weight: bold; margin-bottom: 4pt; color: #0f172a; }
+ul, ol { margin-bottom: 10pt; padding-left: 24pt; }
+li { margin-bottom: 4pt; }
+pre { background-color: #f1f5f9; padding: 10pt; border-radius: 4px; border: 1px solid #e2e8f0; font-size: 9pt; font-family: monospace; }
+.footer { margin-top: 40pt; border-top: 1px solid #cbd5e1; padding-top: 10pt; text-align: center; font-size: 9pt; color: #64748b; }
+</style>
+</head>
+<body>
+<div class="portada"><h1>INSTRUCTIVO OPERATIVO
+PROCEDIMIENTO DE CARGA DE TIRAS DE INTERRUPCIÓN</h1><div class="subtitulo">Sistema de Gestión de Tiras de Interrupción Eléctrica — Guía de uso para estados operadores</div><div class="sistema">SCTIS v1.0</div><div class="fecha">Agosto 2026</div></div>
+<table class="control-doc"><tr><td class="lbl">Código Documento:</td><td>SCTIS-INSTR-001</td><td class="lbl">Fecha:</td><td>Agosto 2026</td></tr><tr><td class="lbl">Sistema:</td><td>SCTIS v1.0</td><td class="lbl">Estado:</td><td>VIGENTE / APROBADO</td></tr></table>
+<h1>1. Propósito y Alcance</h1>
+<p>Este instructivo describe el procedimiento completo de uso de la aplicación SCTIS por parte de los estados operadores: desde el ingreso al sistema hasta la carga de tiras de interrupción, la corrección de rechazados y la consulta de información.</p>
+<p>Va dirigido a los operadores y planificadores de cada estado que reportan las tiras de interrupción a la Gerencia de Gestión de Planificación de Distribución.</p>
+<h1>2. Requisitos previos</h1>
+<ul>
+<li>Una cuenta de usuario activa asignada por el administrador (usuario y contraseña).</li>
+<li>El estado al que está asignado el usuario.</li>
+<li>Un archivo Excel con el formato de su estado (o el Formato TIRAS Estándar homologado).</li>
+<li>Un navegador web moderno (Chrome, Edge, Firefox).</li>
+</ul>
+<div class="info-box"><div class="box-title">RECORDATORIO</div><p>Si no tiene usuario o lo olvidó, contacte a la Coordinación de SCTIS o al administrador del sistema.</p></div>
+<h1>3. Ingreso al sistema</h1>
+<table><thead><tr><th>Paso</th><th>Descripción</th></tr></thead><tbody>
+<tr><td><b>ABRIR</b></td><td>Acceda a la URL del sistema en su navegador</td></tr>
+<tr><td><b>INGRESAR</b></td><td>Digite usuario y contraseña</td></tr>
+<tr><td><b>SESIÓN</b></td><td>El sistema lo dirige al menú principal</td></tr>
+</tbody></table>
+<ul>
+<li>Si la contraseña es incorrecta 5 veces, la cuenta queda bloqueada por 30 minutos.</li>
+<li>Cierre sesión al terminar, especialmente en equipos compartidos.</li>
+</ul>
+<h1>4. Preparación del archivo Excel</h1>
+<h2>4.1. Formatos aceptados</h2>
+<p>El sistema acepta el Formato TIRAS Estándar homologado (21 columnas) y los formatos propios de cada estado registrados en el catálogo. La detección es automática. Si su archivo tiene un formato no registrado, el sistema lo rechazará con un mensaje de 'formato no reconocido'.</p>
+<h2>4.2. Consolidación en una sola hoja</h2>
+<p>El sistema procesa UNA sola hoja por carga. Si su archivo tiene varias hojas, el sistema le pedirá que seleccione una. Antes de subir, consolide sus reportes en una sola hoja con la estructura correcta.</p>
+<h2>4.3. Verificación de la estructura</h2>
+<ul>
+<li>La hoja debe tener encabezados en la primera fila (ESTADO, SISTEMA, CIRCUITO, FECHA, CAUSA, SUB, OBSERVACION como mínimo).</li>
+<li>No agregue, elimine ni reordene columnas respecto a su plantilla.</li>
+<li>No combine celdas ni agregue formatos condicionales.</li>
+<li>Verifique que las fechas sean reales y las horas estén en formato HH:MM.</li>
+</ul>
+<h2>4.4. Plazos y frecuencia de entrega</h2>
+<ul>
+<li>Reporte Semanal: Debe subir las tiras de la semana al menos los días Miércoles o Jueves. Cargas con más de 4 días de antigüedad se marcan como morosas.</li>
+<li>Consolidado Mensual: Debe garantizar la carga del consolidado completo antes del día 3 del mes posterior.</li>
+<li>Requerimientos Directos: Si incurre en mora, el administrador emitirá una tarea en su perfil con plazo urgente (24h/48h) que deberá atender a la brevedad.</li>
+</ul>
+<hr style="margin: 30px 0; border: none; border-top: 1px dashed #cbd5e1;">
+<h1>5. Procedimiento de carga paso a paso</h1>
+<h2>Paso 1 — Subir el archivo</h2>
+<ul>
+<li>En el menú principal seleccione 'Importar'.</li>
+<li>Haga clic en 'Subir' y seleccione su archivo .xlsx.</li>
+<li>Si es administrador, seleccione el estado destino.</li>
+<li>Si el archivo tiene varias hojas, seleccione la hoja correcta en la lista que se muestra.</li>
+</ul>
+<h2>Paso 2 — Revisar la previsualización</h2>
+<p>El sistema procesa la hoja y muestra un resumen con:</p>
+<ul>
+<li>Cantidad de registros detectados.</li>
+<li>Formato detectado (TIRAS, F328 o el de su estado).</li>
+<li>Causas originales a homologar y su asignación a las causas oficiales.</li>
+<li>Activos inconsistentes (subestaciones o circuitos no encontrados).</li>
+<li>Advertencias de calidad o duplicados.</li>
+</ul>
+<p>Revise cada sección. Para cada activo inconsistente, elija una de dos opciones:</p>
+<ul>
+<li>Emparejarlo con un activo del catálogo: seleccione la subestación o circuito correcto de la lista. El sistema memorizará esa referencia y en las próximas cargas ese nombre se resolverá solo.</li>
+<li>Reportarlo como nuevo: marque la casilla 'Reportar como nueva' si el activo no existe en el inventario. La carga no se bloquea: la tira se guarda con el nombre tal cual y la solicitud pasa a revisión del administrador.</li>
+</ul>
+<p>El sistema muestra una etiqueta de preclasificación (probable nuevo, probable typo o posible alias) para orientar la decisión. Confirme las homologaciones de causa sugeridas o ajuste la causa oficial de cada una.</p>
+<h2>Paso 3 — Confirmar la carga</h2>
+<ul>
+<li>Haga clic en 'Confirmar importación' para guardar los registros en la base de datos.</li>
+<li>El sistema mostrará el resultado: registros insertados y registros rechazados.</li>
+<li>Si hubo rechazados, el sistema crea una tarea de corrección y genera un archivo Excel con el detalle de errores por fila.</li>
+</ul>
+<div class="info-box"><div class="box-title">EN LENGUAJE CLARO</div><p>Antes de confirmar nada se guarda en la base de datos. La previsualización es una vista previa: puede corregir el Excel y subirlo de nuevo sin dejar datos huérfanos.</p></div>
+<h1>6. Manejo de registros rechazados</h1>
+<table><thead><tr><th>Paso</th><th>Descripción</th></tr></thead><tbody>
+<tr><td><b>RESULTADO</b></td><td>Revisa la lista de errores por fila</td></tr>
+<tr><td><b>DESCARGAR</b></td><td>Descarga el Excel de corrección generado</td></tr>
+<tr><td><b>CORREGIR</b></td><td>Corrige los datos en el archivo original</td></tr>
+<tr><td><b>RECARGAR</b></td><td>Vuelve a subir el archivo corregido</td></tr>
+</tbody></table>
+<p>Los errores más comunes son: causa sin mapeo a causa oficial, estado no determinado, fechas inválidas y duplicados. Corrija en su Excel y vuelva a subir. El administrador puede ver las tareas pendientes y sus archivos de corrección en 'Admin → Tareas'.</p>
+<hr style="margin: 30px 0; border: none; border-top: 1px dashed #cbd5e1;">
+<h1>7. Subestaciones y circuitos no catalogados</h1>
+<p>Cuando un archivo contiene una subestación (SE) o un circuito (CT) que no está en el inventario oficial, el sistema le pedirá que decida qué hacer con ese nombre.</p>
+<h2>7.1. Si el activo existe con otro nombre</h2>
+<ul>
+<li>Seleccione el activo correcto en la lista de sugerencias (aunque el nombre reportado sea distinto: siglas, tildes, numerales, nombre anterior).</li>
+<li>El sistema guarda esa referencia como sinónimo del estado. En las próximas cargas, ese nombre se reconocerá automáticamente y no se volverá a preguntar.</li>
+</ul>
+<h2>7.2. Si el activo es realmente nuevo</h2>
+<ul>
+<li>Marque 'Reportar como nueva' en la previsualización.</li>
+<li>La tira se carga sin bloquearse, con el nombre tal como aparece en el archivo.</li>
+<li>La solicitud queda pendiente en la bandeja del administrador ('Admin → Activos'), quien decidirá aprobarla, asociarla a un activo existente o rechazarla.</li>
+<li>Al aprobarla, el activo entra al catálogo con su nombre normalizado y las tiras ya cargadas se vinculan automáticamente.</li>
+</ul>
+<div class="info-box"><div class="box-title">IMPORTANTE</div><p>Reportar como nueva NO crea la subestación ni el circuito automáticamente: solo la encola. La creación final la hace siempre el administrador, después de verificar el nombre. Esto protege el inventario oficial de errores de tipeo.</p></div>
+<h1>8. Carga manual de una tira</h1>
+<p>Para registrar una tira individual (por ejemplo una corrección puntual), use la opción 'Nuevo registro':</p>
+<table><thead><tr><th>Paso</th><th>Descripción</th></tr></thead><tbody>
+<tr><td><b>NUEVO</b></td><td>Selecciona 'Nuevo' en el menú</td></tr>
+<tr><td><b>ESTADO</b></td><td>Fijado según su perfil</td></tr>
+<tr><td><b>SUBESTACIÓN</b></td><td>Selecciona del listado filtrado por estado</td></tr>
+<tr><td><b>CIRCUITO</b></td><td>Selecciona del listado filtrado por subestación</td></tr>
+<tr><td><b>DATOS</b></td><td>Completa fechas, causa, sub-causa, horas, KVA y observaciones</td></tr>
+<tr><td><b>GUARDAR</b></td><td>Valida y guarda</td></tr>
+</tbody></table>
+<div class="info-box"><div class="box-title">LENGUAJE CLARO</div><p>El formulario es guiado: las listas se actualizan automáticamente según la selección anterior, lo que evita errores de referencia.</p></div>
+<h1>9. Consulta de registros</h1>
+<ul>
+<li>Use la opción 'Consulta' para buscar tiras por estado, fecha, subestación o circuito.</li>
+<li>Puede ver, editar o eliminar registros de su estado.</li>
+<li>Los registros se muestran filtrados según su perfil (solo su estado).</li>
+</ul>
+<h1>10. Tablero de control</h1>
+<p>El 'Dashboard' presenta estadísticas y gráficos: causas más frecuentes, horas de interrupción, tendencia mensual, sistemas afectados, circuitos y subestaciones con más fallas, distribución horaria y calidad de datos. Incluye 4 perspectivas (Ingeniero Eléctrico, Mantenimiento, Project Manager, Data Scientist). Cada gráfico se puede descargar como imagen (PNG).</p>
+<h1>11. Errores frecuentes y solución</h1>
+<table><thead><tr>
+<th>Error</th>
+<th>Causa probable</th>
+<th>Solución</th>
+</tr></thead><tbody>
+<tr>
+<td>Formato no reconocido</td>
+<td>El archivo no coincide con ningún formato registrado</td>
+<td>Verifique que use la plantilla de su estado o el Formato TIRAS Estándar</td>
+</tr>
+<tr>
+<td>Columna 'X': se esperaba '...'</td>
+<td>Encabezado modificado o desplazado</td>
+<td>Compare con la plantilla oficial; restaure el encabezado</td>
+</tr>
+<tr>
+<td>Debe seleccionar una hoja</td>
+<td>El archivo tiene varias hojas visibles</td>
+<td>Seleccione la hoja correcta o consolide en una sola</td>
+</tr>
+<tr>
+<td>Fila N: causa sin mapeo</td>
+<td>La causa no está asociada a una causa oficial</td>
+<td>Asigne la causa oficial en la previsualización</td>
+</tr>
+<tr>
+<td>Fila N: no se pudo determinar el estado</td>
+<td>La columna ESTADO no tiene un estado válido</td>
+<td>Escriba el nombre del estado correctamente (sin abreviar)</td>
+</tr>
+<tr>
+<td>Duplicado detectado</td>
+<td>Mismo evento cargado dos veces</td>
+<td>Verifique fecha, circuito y hora; elimine el duplicado</td>
+</tr>
+<tr>
+<td>Cuenta bloqueada</td>
+<td>5 intentos fallidos en 30 minutos</td>
+<td>Espere 30 minutos o contacte al administrador</td>
+</tr>
+<tr>
+<td>Subestación/circuito no catalogado</td>
+<td>El activo no existe o está escrito con otro nombre</td>
+<td>Empatéjelo con el activo correcto o repórtelo como nuevo para revisión</td>
+</tr>
+</tbody></table>
+<h1>12. Buenas prácticas</h1>
+<ul>
+<li>Consolide siempre sus reportes en una sola hoja antes de subir.</li>
+<li>Use la plantilla oficial proporcionada por la Coordinación de SCTIS.</li>
+<li>Escriba los nombres de subestaciones y circuitos tal como aparecen en el inventario.</li>
+<li>Revise la previsualización antes de confirmar cada carga.</li>
+<li>Descargue y corrija los registros rechazados de inmediato para mantener la información al día.</li>
+<li>Empareje los nombres fuera de norma con el activo correcto para que el sistema los memorice.</li>
+<li>Registre observaciones completas en cada tira para facilitar la auditoría.</li>
+</ul>
+<hr style="margin: 30px 0; border: none; border-top: 1px dashed #cbd5e1;">
+<h1>13. Contacto y soporte</h1>
+<ul>
+<li>Coordinación de SCTIS — soporte y capacitación.</li>
+<li>Ing. Catherina Favio — Responsable del Proceso de Interrupciones.</li>
+<li>Administrador del sistema — gestión de usuarios y permisos.</li>
+</ul>
+<h1>Anexo A — Glosario</h1>
+<table><thead><tr><th>Término</th><th>Definición</th></tr></thead><tbody>
+<tr><td><b>Tira de interrupción</b></td><td>Registro de un evento de interrupción del servicio eléctrico.</td></tr>
+<tr><td><b>TTI</b></td><td>Tiempo Total de Interrupción: energía no suministrada durante el evento.</td></tr>
+<tr><td><b>Causa homologada</b></td><td>Causa asignada a uno de los códigos oficiales del catálogo.</td></tr>
+<tr><td><b>Activo</b></td><td>Subestación o circuito registrado en el inventario oficial.</td></tr>
+<tr><td><b>Sub-causa</b></td><td>Detalle complementario de la causa de la interrupción.</td></tr>
+<tr><td><b>Homologación</b></td><td>Proceso de llevar la causa reportada a una causa oficial.</td></tr>
+<tr><td><b>Scoring ISO 8000</b></td><td>Puntaje de calidad de datos (0-100) de cada registro.</td></tr>
+<tr><td><b>Alias de activo</b></td><td>Sinónimo aprendido por el sistema: nombre fuera de norma que se resuelve automáticamente a un activo del catálogo.</td></tr>
+<tr><td><b>Bandeja de revisión</b></td><td>Lista de SE/CT reportados como nuevos que esperan decisión del administrador.</td></tr>
+<tr><td><b>Backfill</b></td><td>Vinculación automática y retroactiva de tiras ya cargadas al activo recién aprobado.</td></tr>
+<tr><td><b>KVA</b></td><td>Kilovoltamperio: potencia aparente afectada durante el evento.</td></tr>
+</tbody></table>
+<h1>Anexo B — Catálogo de Formatos por Estado</h1>
+<div class="info-box"><div class="box-title">AVISO</div><p>Los códigos de formato son PROPUESTOS y deben revisarse con el equipo funcional.</p></div>
+<table><thead><tr>
+<th>Código propuesto</th>
+<th>Nombre</th>
+<th>Estado</th>
+</tr></thead><tbody>
+<tr>
+<td>TIRAS</td>
+<td>Formato TIRAS Estándar</td>
+<td>Multi-estado</td>
+</tr>
+<tr>
+<td>F328</td>
+<td>Formato F328 — Sistema Eléctrico</td>
+<td>Multi-estado</td>
+</tr>
+<tr>
+<td>ANZOATEGUI</td>
+<td>Formato Anzoátegui / Nesparta</td>
+<td>ANZOÁTEGUI</td>
+</tr>
+<tr>
+<td>CARABOBO</td>
+<td>Formato Carabobo</td>
+<td>CARABOBO</td>
+</tr>
+<tr>
+<td>CAPITAL</td>
+<td>Formato Capital</td>
+<td>DISTRITO CAPITAL</td>
+</tr>
+<tr>
+<td>GUARICO_1</td>
+<td>Formato Guárico (Variante 1)</td>
+<td>GUÁRICO</td>
+</tr>
+<tr>
+<td>GUARICO_2</td>
+<td>Formato Guárico (Variante 2)</td>
+<td>GUÁRICO</td>
+</tr>
+<tr>
+<td>LARA</td>
+<td>Formato Lara</td>
+<td>LARA</td>
+</tr>
+<tr>
+<td>MIRANDA_TUY</td>
+<td>Formato Miranda Tuy Barlovento</td>
+<td>MIRANDA</td>
+</tr>
+<tr>
+<td>YARACUY</td>
+<td>Formato Yaracuy</td>
+<td>YARACUY</td>
+</tr>
+<tr>
+<td>ZULIA</td>
+<td>Formato Zulia</td>
+<td>ZULIA</td>
+</tr>
+</tbody></table>
+<div class="footer"><p>SCTIS-INSTR-001 - INSTRUCTIVO OPERATIVO
+PROCEDIMIENTO DE CARGA DE TIRAS DE INTERRUPCIÓN | SCTIS v1.0 </p></div></body></html>

@@ -1,0 +1,810 @@
+{% extends "base.html" %}
+{% block title %}Importar Novedades Operativas{% endblock %}
+{% block header_title %}Carga Masiva de Tiras de Interrupción{% endblock %}
+
+{% block content %}
+<div id="app" class="max-w-5xl mx-auto pb-12">
+    <div class="industrial-card p-0 shadow-lg">
+        <div class="bg-gray-100 px-6 py-4 border-b border-gray-300 flex items-center justify-between">
+            <h2 class="font-bold text-corpo-dark uppercase tracking-widest text-sm flex items-center gap-2">
+                <i class="fas fa-file-upload text-corpo-blue"></i> Asistente de Importación Excel y Homologación
+            </h2>
+            <span class="text-xs font-mono text-gray-500 bg-white px-2 py-1 rounded border border-gray-300 shadow-inner">OPERACIÓN EN LOTE</span>
+        </div>
+
+        <div class="p-6 sm:p-8 bg-white">
+            <!-- Alert Messages -->
+            <div v-if="error" class="bg-red-50 border-l-4 border-red-600 text-red-800 rounded-r p-4 mb-6 text-sm font-mono shadow-sm flex items-start gap-3">
+                <i class="fas fa-exclamation-triangle mt-0.5 text-red-600"></i>
+                <div v-html="error"></div>
+            </div>
+            
+            <div v-if="success" class="bg-green-50 border-l-4 border-green-600 text-green-800 rounded-r p-6 mb-6 text-sm font-mono shadow-sm">
+                <div class="flex items-center gap-3 mb-3">
+                    <i class="fas fa-check-circle text-2xl text-green-600"></i>
+                    <div>
+                        <h4 class="font-bold text-base text-green-900 uppercase">¡Integración de Datos Finalizada con Éxito!</h4>
+                        <p class="text-xs text-green-700 font-sans mt-0.5">Se han inyectado <strong>${ importResult.insertados || 0 }</strong> registros en la base de datos central SCTIS.</p>
+                    </div>
+                </div>
+
+                <div v-if="importResult.errores && importResult.errores.length > 0" class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-800 font-mono">
+                    <div class="font-bold mb-1 uppercase">Observaciones registradas (${ importResult.total_errores }):</div>
+                    <ul class="list-disc pl-5 space-y-1 max-h-32 overflow-y-auto">
+                        <li v-for="(e, idx) in importResult.errores" :key="idx">${ e }</li>
+                    </ul>
+                </div>
+
+                <div class="mt-6 flex flex-wrap gap-3">
+                    <a href="/consulta" class="bg-corpo-blue hover:bg-corpo-dark text-white font-bold text-xs uppercase tracking-widest px-5 py-2.5 rounded-sm shadow transition inline-flex items-center gap-2">
+                        <i class="fas fa-table"></i> Ir a Consulta de Novedades
+                    </a>
+                    <button @click="reiniciar" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-bold text-xs uppercase tracking-widest px-5 py-2.5 rounded-sm shadow-sm transition inline-flex items-center gap-2">
+                        <i class="fas fa-upload"></i> Cargar Otro Archivo
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 1: Upload File or Paste Excel Data -->
+            <div v-if="step === 'upload' && !success">
+                {% if not user_estado %}
+                <div class="mb-6 p-4 border border-blue-200 bg-blue-50 rounded-sm">
+                    <label class="block text-xs font-bold text-corpo-dark mb-2 uppercase tracking-widest">
+                        <i class="fas fa-map-marker-alt text-corpo-accent mr-1"></i> Entidad Geográfica Destino <span class="text-red-500">*</span>
+                    </label>
+                    <select v-model="estadoSeleccionado" class="industrial-input w-full p-2.5 text-sm font-bold bg-white">
+                        <option value="">— REQUERIDO: SELECCIONE ESTADO OPERATIVO —</option>
+                        {% for e in estados %}
+                        <option value="{{ e.state_code }}">{{ e.state_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+
+                <!-- Selection Mode Tabs -->
+                <div class="flex items-center gap-2 mb-4 border-b border-gray-200 pb-2">
+                    <button @click="inputMode = 'file'" 
+                            :class="inputMode === 'file' ? 'bg-corpo-blue text-white font-bold shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                            class="px-4 py-2 rounded-sm text-xs uppercase tracking-wider transition flex items-center gap-2">
+                        <i class="fas fa-file-excel"></i> Subir Archivo Excel
+                    </button>
+                    <button @click="inputMode = 'paste'" 
+                            :class="inputMode === 'paste' ? 'bg-corpo-blue text-white font-bold shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                            class="px-4 py-2 rounded-sm text-xs uppercase tracking-wider transition flex items-center gap-2">
+                        <i class="fas fa-paste"></i> Pegar Data de Excel
+                    </button>
+                    
+                    <div class="ml-auto">
+                        <a :href="'/api/descargar-formulario?estado=' + estadoSeleccionado" 
+                           class="bg-white border border-gray-300 text-corpo-blue hover:bg-gray-50 text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-sm flex items-center gap-1 transition shadow-sm">
+                            <i class="fas fa-download"></i> Plantilla SCTIS
+                        </a>
+                    </div>
+                </div>
+
+                <!-- MODE 1: FILE UPLOAD -->
+                <div v-if="inputMode === 'file'">
+                    <div class="border-2 border-dashed border-gray-400 bg-gray-50 rounded-sm p-12 text-center hover:bg-blue-50 hover:border-corpo-blue transition cursor-pointer group" 
+                         @click="seleccionarArchivo" @dragover.prevent @drop.prevent="handleDrop">
+                        <div class="w-16 h-16 bg-white border border-gray-300 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm group-hover:scale-110 group-hover:border-corpo-blue transition-all">
+                            <i class="fas fa-file-excel text-3xl text-green-700"></i>
+                        </div>
+                        <p class="text-corpo-dark font-bold text-sm uppercase tracking-wide">Arrastre o seleccione el archivo de datos aquí</p>
+                        <p class="text-xs text-gray-500 mt-2 font-mono">Formato soportado: .xlsx, .xls de Tiras de Interrupción</p>
+                        <input type="file" ref="fileInput" accept=".xlsx,.xls" class="hidden" @change="handleFile">
+                    </div>
+                </div>
+
+                <!-- MODE 2: PASTE EXCEL DATA -->
+                <div v-else class="space-y-4">
+                    <div class="p-4 bg-blue-50/70 border border-blue-200 rounded-sm">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <h4 class="text-xs font-bold uppercase tracking-wider text-corpo-dark flex items-center gap-1.5">
+                                    <i class="fas fa-clipboard-list text-corpo-blue"></i> Pegar Celdas Copiadas Directamente de Excel
+                                </h4>
+                                <p class="text-xs text-gray-600 font-mono mt-1">
+                                    Seleccione las filas en su archivo Excel, presione <kbd class="px-1.5 py-0.5 bg-white border rounded text-[10px] font-mono shadow-xs">Ctrl + C</kbd> y pegue aquí el contenido con <kbd class="px-1.5 py-0.5 bg-white border rounded text-[10px] font-mono shadow-xs">Ctrl + V</kbd>.
+                                </p>
+                            </div>
+                            <button @click="pegarDesdePortapapeles" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded shadow-xs flex items-center gap-1 whitespace-nowrap">
+                                <i class="fas fa-paste text-corpo-blue"></i> Pegar del Portapapeles
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="relative">
+                        <textarea v-model="pastedText" 
+                                  rows="10" 
+                                  placeholder="Copie las celdas desde su hoja Excel y pegue aquí (tabulaciones o columnas estándar)..." 
+                                  class="w-full industrial-input p-4 font-mono text-xs text-gray-800 bg-white border border-gray-300 rounded focus:ring-2 focus:ring-corpo-blue focus:border-corpo-blue leading-relaxed"></textarea>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-gray-50 p-4 border border-gray-200 rounded-sm">
+                        <div class="text-xs font-mono text-gray-600">
+                            <span v-if="pastedRowsCount > 0">
+                                📊 Filas detectadas en portapapeles: <strong class="text-corpo-blue">${ pastedRowsCount }</strong>
+                            </span>
+                            <span v-else class="text-gray-400">
+                                Ningún dato pegado todavía.
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button v-if="pastedText" @click="pastedText = ''" class="px-3 py-2 text-xs font-bold text-gray-600 hover:text-red-600 border border-gray-300 bg-white rounded uppercase tracking-wider transition">
+                                Limpiar
+                            </button>
+                            <button @click="uploadPastedData" 
+                                    :disabled="!pastedText.trim() || uploading" 
+                                    class="bg-corpo-blue hover:bg-corpo-dark text-white font-bold text-xs uppercase tracking-widest px-6 py-2.5 rounded shadow transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <i v-if="uploading" class="fas fa-circle-notch fa-spin"></i>
+                                <i v-else class="fas fa-bolt"></i>
+                                ${ uploading ? 'Procesando...' : 'Analizar y Homologar Data' }
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div v-if="uploading" class="mt-6 p-5 border border-blue-200 bg-blue-50 text-center rounded-sm">
+                    <i class="fas fa-circle-notch fa-spin text-corpo-blue text-3xl mb-3"></i>
+                    <p class="text-corpo-dark font-bold text-xs uppercase tracking-widest">Analizando telemetría y diagnósticos de causas...</p>
+                </div>
+            </div>
+
+            <!-- STEP 2: Preview & Homologation Assistant -->
+            <div v-if="step === 'preview' && !success" class="animate-fade-in space-y-6">
+                <!-- STEP PROGRESS BAR -->
+                <div class="flex items-center justify-between bg-blue-50/60 p-3.5 border border-blue-200 rounded-sm text-xs font-mono">
+                    <div class="flex items-center gap-2 text-green-700 font-bold">
+                        <span class="w-6 h-6 rounded-full bg-green-600 text-white flex items-center justify-center text-[10px]"><i class="fas fa-check"></i></span>
+                        <span>1. Archivo Analizado</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+                    <div class="flex items-center gap-2 text-corpo-blue font-bold">
+                        <span class="w-6 h-6 rounded-full bg-corpo-blue text-white flex items-center justify-center text-[10px]">2</span>
+                        <span>2. Vista Previa y Homologación</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+                    <div class="flex items-center gap-2 text-gray-500">
+                        <span class="w-6 h-6 rounded-full bg-gray-300 text-gray-700 flex items-center justify-center text-[10px]">3</span>
+                        <span>3. Guardado en BD</span>
+                    </div>
+                </div>
+
+                <!-- CALL TO ACTION BANNER (TOP) -->
+                <div class="p-4 bg-amber-50 border-2 border-amber-400 rounded-sm flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-700 shrink-0">
+                            <i class="fas fa-arrow-down text-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-xs uppercase tracking-wider text-amber-950">
+                                📌 Paso Final Requerido: Guardar en Base de Datos
+                            </h4>
+                            <p class="text-xs text-amber-900 font-mono mt-0.5">
+                                Los registros están en <strong>modo preliminar</strong>. Para que aparezcan en la pantalla de Consulta, haga clic en el botón de integración.
+                            </p>
+                        </div>
+                    </div>
+
+                    <button @click="procesarImportacion" 
+                            :disabled="uploading || !(previewData && (previewData.total_rows || previewData.total)) || (previewData && previewData.alerta_incompletos && (!previewData.es_admin || !aceptarNoRepudio))" 
+                            class="bg-green-700 hover:bg-green-800 text-white font-bold text-xs uppercase tracking-widest px-6 py-3 rounded-sm shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap">
+                        <i v-if="uploading" class="fas fa-circle-notch fa-spin text-sm"></i>
+                        <i v-else class="fas fa-save text-sm"></i>
+                        ${ uploading ? 'Guardando en BD...' : 'Guardar e Insertar ' + (previewData.total_rows || previewData.total || 0) + ' Registros en BD' }
+                    </button>
+                </div>
+
+                <!-- Alert Banner for 0 Records Found -->
+                <div v-if="previewData && (!previewData.total_rows || previewData.total_rows === 0)"
+                     class="p-5 bg-amber-50 border-l-4 border-amber-500 rounded-r shadow-md text-amber-900">
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-info-circle text-2xl text-amber-600 mt-0.5"></i>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-sm uppercase tracking-wider mb-1 flex items-center justify-between">
+                                <span>No se detectaron registros en la hoja seleccionada (${ previewData.sheet_seleccionada || 'Principal' })</span>
+                            </h4>
+                            <p class="text-xs font-mono mb-2 text-amber-900">
+                                La hoja actual no contiene registros de interrupción o está en blanco. Si su libro Excel tiene los datos en otra pestaña, selecciónela a continuación:
+                            </p>
+                            <div v-if="previewData.sheet_names && previewData.sheet_names.length > 1" class="mt-3 flex items-center gap-2">
+                                <span class="text-xs font-bold text-amber-950 font-sans">Seleccionar otra hoja:</span>
+                                <select @change="cambiarHoja($event.target.value)" class="text-xs bg-white border border-amber-400 rounded px-2 py-1 font-mono font-bold text-gray-800 shadow-sm">
+                                    <option v-for="sname in previewData.sheet_names" :key="sname" :value="sname" :selected="sname === previewData.sheet_seleccionada">
+                                        ${ sname }
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary Header -->
+                <div class="bg-gray-100 p-4 border border-gray-300 rounded-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-inner">
+                    <div>
+                        <h3 class="font-bold text-corpo-dark uppercase tracking-widest text-xs mb-1 flex items-center gap-2">
+                            <i class="fas fa-search-plus text-corpo-accent"></i> Resumen de Diagnóstico
+                            <span v-if="previewData && previewData.sheet_seleccionada" class="ml-2 bg-blue-100 text-blue-800 text-[10px] font-mono font-bold px-2 py-0.5 rounded border border-blue-200 uppercase">
+                                Hoja: ${ previewData.sheet_seleccionada }
+                            </span>
+                        </h3>
+                        <div class="flex flex-wrap items-center gap-3 text-xs font-mono text-gray-600 mt-1">
+                            <span>Registros en archivo: <strong class="text-corpo-blue">${ previewData.total_rows || previewData.total || 0 }</strong></span>
+                            <span>•</span>
+                            <span>Causas únicas: <strong class="text-gray-800">${ causasLista.length }</strong></span>
+                            <span v-if="previewData && previewData.alerta_incompletos" class="text-amber-700 font-bold">
+                                • Incompletos: <strong class="text-red-700">${ previewData.registros_incompletos }</strong>
+                            </span>
+                            <span v-if="previewData && previewData.sheet_names && previewData.sheet_names.length > 1" class="flex items-center gap-1.5 ml-2">
+                                • <span class="text-gray-500 font-sans">Cambiar Hoja:</span>
+                                <select @change="cambiarHoja($event.target.value)" class="text-xs bg-white border border-gray-300 rounded px-1.5 py-0.5 font-sans font-medium text-gray-700">
+                                    <option v-for="sname in previewData.sheet_names" :key="sname" :value="sname" :selected="sname === previewData.sheet_seleccionada">
+                                        ${ sname }
+                                    </option>
+                                </select>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button @click="aplicarTodasSugerencias" class="bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm transition shadow flex items-center gap-1.5" title="Aplicar las causas homologadas sugeridas automáticamente">
+                            <i class="fas fa-wand-magic-sparkles"></i> Auto-Homologar Todo
+                        </button>
+                        <button @click="reiniciar" class="text-gray-600 hover:text-red-600 border border-gray-300 bg-white hover:bg-red-50 text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm transition flex items-center gap-1">
+                            <i class="fas fa-times"></i> Reemplazar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Alert Banner for Incomplete Data (Carga Excepcional Controlada) -->
+                <div v-if="previewData && previewData.alerta_incompletos" 
+                     class="p-5 border-l-4 rounded-r shadow-md transition"
+                     :class="previewData.es_admin ? 'bg-amber-50 border-amber-500 text-amber-900' : 'bg-red-50 border-red-600 text-red-900'">
+                    <div class="flex items-start gap-3">
+                        <i :class="previewData.es_admin ? 'fa-exclamation-triangle text-amber-600' : 'fa-ban text-red-600'" class="fas text-2xl mt-0.5"></i>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-sm uppercase tracking-wider mb-1 flex items-center justify-between">
+                                <span>${ previewData.es_admin ? '⚠️ Carga Excepcional Controlada (Datos Fuera de Norma)' : '⛔ Bloqueo de Cumplimiento SCTIS: Registros Incompletos' }</span>
+                                <span class="text-xs bg-white/80 px-2 py-0.5 rounded border font-mono font-bold">
+                                    ${ previewData.registros_incompletos } ${ previewData.registros_incompletos === 1 ? 'fila incompleta' : 'filas incompletas' }
+                                </span>
+                            </h4>
+                            <p class="text-xs font-mono mb-2">
+                                Se han detectado <strong>${ previewData.registros_incompletos }</strong> registros que carecen de fecha u hora de cierre (<code>fecha_fin</code> / <code>hora_fin</code>), violando la regla de negocio de datos completos.
+                            </p>
+
+                            <!-- NON-ADMIN LOCK WARNING -->
+                            <div v-if="!previewData.es_admin" class="mt-3 p-3 bg-red-100 border border-red-300 rounded text-xs font-mono text-red-900">
+                                <i class="fas fa-lock mr-1.5 text-red-700"></i>
+                                <strong>REGLA DE NEGOCIO ESTABLECIDA:</strong> Su rol de usuario no posee privilegios de Administrador del Sistema. Para resguardar la exactitud de los indicadores, la carga masiva ha sido bloqueada. Por favor complete las fechas y horas en el archivo Excel antes de volver a cargarlo.
+                            </div>
+
+                            <!-- ADMIN NON-REPUDIATION DISCLAIMER -->
+                            <div v-else class="mt-3 p-4 bg-white border border-amber-300 rounded-sm space-y-3 shadow-inner">
+                                <div class="text-xs font-mono text-amber-950 flex items-center gap-2">
+                                    <i class="fas fa-user-shield text-amber-700 text-base"></i>
+                                    <span><strong>AUTORIZACIÓN CONTROLADA PARA ADMINISTRADORES:</strong> El sistema permitirá inyectar la data rellenando con ceros los valores nulos para evitar rupturas de aplicación, y registrará este evento en la tabla de auditoría.</span>
+                                </div>
+
+                                <div class="p-3 bg-amber-50/80 border border-amber-300 rounded">
+                                    <label class="flex items-start gap-3 cursor-pointer select-none">
+                                        <input type="checkbox" v-model="aceptarNoRepudio" class="mt-1 w-4 h-4 text-amber-600 rounded border-amber-400 focus:ring-amber-500">
+                                        <div class="text-xs font-mono text-gray-800 leading-relaxed">
+                                            <span class="font-bold text-amber-900 uppercase block mb-0.5">
+                                                Declaración de No Repudio y Responsabilidad Administrativa
+                                            </span>
+                                            Yo, <strong class="text-gray-900 uppercase underline">${ userUsername }</strong>, en mi condición de Administrador del Sistema, asumo explícitamente la responsabilidad administrativa por autorizar la inyección fuera de norma de <strong>${ previewData.registros_incompletos }</strong> registros incompletos. Entiendo que esta acción afectará los cálculos automáticos y quedará registrada en el libro de auditoría de excepciones con firma digital de no repudio, IP y sello de tiempo.
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cause Homologation Assistant Panel -->
+                <div class="border border-gray-300 rounded-sm overflow-hidden bg-white shadow-sm">
+                    <div class="bg-corpo-dark text-white px-5 py-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-project-diagram text-corpo-accent"></i>
+                            <h3 class="font-bold uppercase tracking-wider text-xs">Asistente de Homologación de Causas</h3>
+                        </div>
+                        <div class="flex items-center gap-2 text-[11px] font-mono">
+                            <span class="bg-amber-500/30 text-amber-200 border border-amber-400/30 px-2 py-0.5 rounded font-bold">
+                                ${ pendientesCount } Pendientes
+                            </span>
+                            <span class="bg-green-500/30 text-green-200 border border-green-400/30 px-2 py-0.5 rounded font-bold">
+                                ${ homologadasCount } Homologadas
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Filter Tabs -->
+                    <div class="bg-gray-50 border-b border-gray-200 px-4 py-2 flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-1">
+                            <button @click="filtroCausa = 'todas'" 
+                                    :class="filtroCausa === 'todas' ? 'bg-corpo-blue text-white font-bold' : 'bg-white border text-gray-700 hover:bg-gray-100'"
+                                    class="px-3 py-1 rounded-sm uppercase tracking-wider text-[11px] transition">
+                                Todas (${ causasLista.length })
+                            </button>
+                            <button @click="filtroCausa = 'pendientes'" 
+                                    :class="filtroCausa === 'pendientes' ? 'bg-amber-600 text-white font-bold' : 'bg-white border text-gray-700 hover:bg-gray-100'"
+                                    class="px-3 py-1 rounded-sm uppercase tracking-wider text-[11px] transition">
+                                Pendientes (${ pendientesCount })
+                            </button>
+                            <button @click="filtroCausa = 'homologadas'" 
+                                    :class="filtroCausa === 'homologadas' ? 'bg-green-700 text-white font-bold' : 'bg-white border text-gray-700 hover:bg-gray-100'"
+                                    class="px-3 py-1 rounded-sm uppercase tracking-wider text-[11px] transition">
+                                Homologadas (${ homologadasCount })
+                            </button>
+                        </div>
+
+                        <span class="text-[10px] text-gray-500 font-mono hidden sm:inline">Seleccione la causa oficial SCTIS para cada descripción reportada</span>
+                    </div>
+
+                    <!-- Causes List -->
+                    <div class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
+                        <div v-if="causasFiltradas.length === 0" class="p-8 text-center text-gray-500 text-xs font-mono">
+                            <i class="fas fa-check-double text-green-600 text-2xl mb-2"></i>
+                            <p class="font-bold">No hay causas en este filtro.</p>
+                        </div>
+
+                        <div v-for="item in causasFiltradas" :key="item.original" 
+                             class="p-4 hover:bg-blue-50/40 transition flex flex-col md:flex-row md:items-center justify-between gap-3"
+                             :class="{'bg-amber-50/30': !homologacionMap[item.original]}">
+                            
+                            <!-- Original cause description -->
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span v-if="!homologacionMap[item.original]" class="text-[9px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded uppercase tracking-wider border border-amber-300">
+                                        <i class="fas fa-exclamation-circle mr-1"></i> PENDIENTE_SCTIS
+                                    </span>
+                                    <span v-else class="text-[9px] bg-green-100 text-green-800 font-bold px-2 py-0.5 rounded uppercase tracking-wider border border-green-300">
+                                        <i class="fas fa-check-circle mr-1"></i> HOMOLOGADO
+                                    </span>
+                                    <span class="text-[10px] text-gray-500 font-mono bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200">
+                                        ${ item.count } ${ item.count === 1 ? 'registro' : 'registros' }
+                                    </span>
+                                </div>
+                                
+                                <div class="text-xs font-bold text-corpo-dark break-words">
+                                    "${ item.original }"
+                                </div>
+                                <div v-if="item.sub_causa" class="text-[11px] text-gray-500 italic font-mono mt-0.5">
+                                    Sub-causa: ${ item.sub_causa }
+                                </div>
+                            </div>
+
+                            <!-- Homologated cause selector -->
+                            <div class="w-full md:w-80 flex-shrink-0 flex flex-col gap-1.5">
+                                <select v-model="homologacionMap[item.original]" 
+                                        class="industrial-input w-full p-2 text-xs font-bold bg-white text-gray-800"
+                                        :class="homologacionMap[item.original] ? 'border-green-600 text-green-900 bg-green-50/30' : 'border-amber-400 text-amber-900 bg-amber-50/20'">
+                                    <option value="">-- SELECCIONAR CAUSA HOMOLOGADA --</option>
+                                    <option v-for="c in causasHomologadasDisponibles" :key="c.causa_id" :value="c.causa_id">
+                                        ${ c.causa_codigo } — ${ c.causa_nombre }
+                                    </option>
+                                </select>
+
+                                <!-- AI Suggestion shortcut -->
+                                <div v-if="item.sugerencia_id && item.sugerencia_id !== homologacionMap[item.original]" 
+                                     class="flex items-center justify-between text-[10px] bg-amber-50 p-1.5 border border-amber-200 rounded">
+                                    <span class="text-amber-800 font-medium truncate" :title="item.sugerencia_nombre">
+                                        <i class="fas fa-lightbulb text-amber-500 mr-1"></i> Sugerido: <strong>${ item.sugerencia_nombre }</strong> (${ item.confianza }%)
+                                    </span>
+                                    <button @click="homologacionMap[item.original] = item.sugerencia_id" 
+                                            class="text-amber-700 hover:text-amber-900 font-bold uppercase underline ml-2 whitespace-nowrap">
+                                        Aceptar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview Rows Table -->
+                <div v-if="previewData.preview && previewData.preview.length > 0" class="border border-gray-300 rounded-sm bg-white overflow-hidden shadow-sm">
+                    <div class="bg-gray-100 px-4 py-2 border-b border-gray-300 font-bold text-xs uppercase tracking-wider text-corpo-dark flex justify-between items-center">
+                        <span><i class="fas fa-table text-corpo-blue mr-1"></i> Muestra de Filas Detectadas</span>
+                        <span class="text-[10px] font-mono text-gray-500">Mostrando primeras ${ previewData.preview.length } filas</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-gray-50 border-b border-gray-200 font-mono text-[10px] uppercase text-gray-600">
+                                <tr>
+                                    <th class="px-3 py-2">Falla</th>
+                                    <th class="px-3 py-2">Subestación</th>
+                                    <th class="px-3 py-2">Circuito</th>
+                                    <th class="px-3 py-2">Causa Reportada</th>
+                                    <th class="px-3 py-2">Horas</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 font-mono text-[11px]">
+                                <tr v-for="(row, idx) in previewData.preview.slice(0, 8)" :key="idx" class="hover:bg-gray-50">
+                                    <td class="px-3 py-1.5">${ row.fecha_falla || row.fecha_inicio || '-' }</td>
+                                    <td class="px-3 py-1.5 font-bold">${ row.subestacion || '-' }</td>
+                                    <td class="px-3 py-1.5">${ row.circuito || '-' }</td>
+                                    <td class="px-3 py-1.5 truncate max-w-xs" :title="row.causa">${ row.causa || '-' }</td>
+                                    <td class="px-3 py-1.5 font-bold text-gray-900">${ row.horas ?? row.duracion ?? '-' }</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Submit / Integration Action Box -->
+                <div class="p-6 bg-gray-50 border border-gray-300 rounded-sm space-y-4 shadow-sm">
+                    <!-- Inline Admin Non-Repudiation Box -->
+                    <div v-if="previewData && previewData.alerta_incompletos && previewData.es_admin" 
+                         class="p-4 bg-amber-50 border-2 border-amber-400 rounded-sm shadow-sm">
+                        <label class="flex items-start gap-3 cursor-pointer select-none">
+                            <input type="checkbox" v-model="aceptarNoRepudio" class="mt-1 w-5 h-5 text-amber-600 rounded border-amber-400 focus:ring-amber-500 cursor-pointer">
+                            <div class="text-xs font-mono text-gray-900 leading-relaxed">
+                                <span class="font-bold text-amber-900 uppercase block mb-1 text-xs">
+                                    <i class="fas fa-file-signature text-amber-700 mr-1"></i> Declaración de No Repudio y Responsabilidad Administrativa
+                                </span>
+                                Yo, <strong class="text-gray-900 uppercase underline">${ userUsername }</strong>, en mi condición de Administrador del Sistema, autorizo expresamente la inyección de los <strong>${ previewData.registros_incompletos || 1 }</strong> registro(s) incompletos/fuera de norma bajo registro de auditoría.
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div>
+                            <h4 class="font-bold text-xs uppercase tracking-widest text-corpo-dark mb-1">
+                                <i class="fas fa-database text-corpo-blue mr-1"></i> Listo para Integrar a Base de Datos Central
+                            </h4>
+                            <p class="text-xs text-gray-600 font-mono">
+                                <span v-if="pendientesCount > 0" class="text-amber-700 font-bold">
+                                    Nota: Hay ${ pendientesCount } causa(s) sin homologar. Si no selecciona una, se asignarán automáticamente como "OTROS".
+                                </span>
+                                <span v-else class="text-green-700 font-bold">
+                                    ¡Todas las causas han sido homologadas correctamente!
+                                </span>
+                            </p>
+                        </div>
+
+                        <button @click="procesarImportacion" 
+                                :disabled="uploading || (previewData && previewData.alerta_incompletos && (!previewData.es_admin || !aceptarNoRepudio))" 
+                                class="bg-corpo-blue hover:bg-corpo-dark text-white font-bold text-xs uppercase tracking-widest px-8 py-3.5 rounded-sm shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap">
+                            <i v-if="uploading" class="fas fa-circle-notch fa-spin text-sm"></i>
+                            <i v-else-if="previewData && previewData.alerta_incompletos && !previewData.es_admin" class="fas fa-lock text-sm"></i>
+                            <i v-else-if="previewData && previewData.alerta_incompletos && !aceptarNoRepudio" class="fas fa-file-signature text-sm text-amber-300"></i>
+                            <i v-else class="fas fa-cloud-upload-alt text-sm"></i>
+                            ${ uploading ? 'Inyectando registros...' : (previewData && previewData.alerta_incompletos && !previewData.es_admin ? 'Carga Bloqueada (No Admin)' : (previewData && previewData.alerta_incompletos && !aceptarNoRepudio ? 'Firme No Repudio para Cargar' : 'Ejecutar Integración en BD')) }
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.animate-fade-in { animation: fadeIn 0.25s ease-in-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script>
+const { createApp } = Vue;
+createApp({
+    delimiters: ['${', '}'],
+    data() {
+        return {
+            step: 'upload',
+            inputMode: 'file',
+            pastedText: '',
+            uploading: false,
+            error: null,
+            success: false,
+            estadoSeleccionado: '{{ user_estado or "" }}',
+            file: null,
+            previewData: null,
+            homologacionMap: {},
+            filtroCausa: 'todas',
+            importResult: {},
+            aceptarNoRepudio: false,
+            userUsername: '{{ session.get("user", {}).get("username", "admin") }}'
+        };
+    },
+    computed: {
+        pastedRowsCount() {
+            if (!this.pastedText) return 0;
+            return this.pastedText.trim().split('\n').filter(l => l.trim().length > 0).length;
+        },
+        causasLista() {
+            if (!this.previewData || !this.previewData.causas_originales) return [];
+            return this.previewData.causas_originales;
+        },
+        causasHomologadasDisponibles() {
+            if (!this.previewData || !this.previewData.causas_homologadas) return [];
+            return this.previewData.causas_homologadas;
+        },
+        pendientesCount() {
+            return this.causasLista.filter(c => !this.homologacionMap[c.original]).length;
+        },
+        homologadasCount() {
+            return this.causasLista.filter(c => !!this.homologacionMap[c.original]).length;
+        },
+        causasFiltradas() {
+            if (this.filtroCausa === 'pendientes') {
+                return this.causasLista.filter(c => !this.homologacionMap[c.original]);
+            }
+            if (this.filtroCausa === 'homologadas') {
+                return this.causasLista.filter(c => !!this.homologacionMap[c.original]);
+            }
+            return this.causasLista;
+        }
+    },
+    mounted() {
+        window.addEventListener('paste', this.handleGlobalPaste);
+    },
+    beforeUnmount() {
+        window.removeEventListener('paste', this.handleGlobalPaste);
+    },
+    methods: {
+        seleccionarArchivo() { this.$refs.fileInput.click(); },
+        handleDrop(e) {
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                this.file = files[0];
+                this.inputMode = 'file';
+                this.uploadFile();
+            }
+        },
+        handleFile(e) {
+            if (e.target.files.length > 0) {
+                this.file = e.target.files[0];
+                this.uploadFile();
+            }
+        },
+        handleGlobalPaste(e) {
+            if (this.step !== 'upload') return;
+            const target = e.target;
+            if (target && (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT')) {
+                return;
+            }
+            const clipboardData = e.clipboardData || window.clipboardData;
+            if (!clipboardData) return;
+
+            // Check if file
+            if (clipboardData.files && clipboardData.files.length > 0) {
+                this.file = clipboardData.files[0];
+                this.inputMode = 'file';
+                this.uploadFile();
+                return;
+            }
+
+            // Check text
+            const text = clipboardData.getData('text');
+            if (text && text.trim().length > 0) {
+                this.pastedText = text;
+                this.inputMode = 'paste';
+            }
+        },
+        async pegarDesdePortapapeles() {
+            try {
+                if (navigator.clipboard && navigator.clipboard.readText) {
+                    const text = await navigator.clipboard.readText();
+                    if (text) {
+                        this.pastedText = text;
+                    }
+                }
+            } catch (err) {
+                // Clipboard permissions might be restricted in some browsers
+            }
+        },
+        reiniciar() {
+            this.step = 'upload';
+            this.error = null;
+            this.success = false;
+            this.file = null;
+            this.pastedText = '';
+            this.previewData = null;
+            this.homologacionMap = {};
+            this.importResult = {};
+            this.aceptarNoRepudio = false;
+            if (this.$refs.fileInput) this.$refs.fileInput.value = '';
+        },
+        async fetchWithRetry(url, options, maxRetries = 3) {
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                try {
+                    const res = await fetch(url, options);
+                    if (res.status === 503 && attempt < maxRetries) {
+                        await new Promise(r => setTimeout(r, 1200 * attempt));
+                        continue;
+                    }
+                    return res;
+                } catch (err) {
+                    if (attempt < maxRetries) {
+                        await new Promise(r => setTimeout(r, 1200 * attempt));
+                        continue;
+                    }
+                    throw err;
+                }
+            }
+        },
+        async uploadPastedData() {
+            if (!this.pastedText.trim()) return;
+            {% if not user_estado %}
+            if (!this.estadoSeleccionado) {
+                this.error = 'DEBE SELECCIONAR LA ENTIDAD GEOGRÁFICA DESTINO PARA CONTINUAR.';
+                return;
+            }
+            {% endif %}
+
+            this.error = null;
+            this.success = false;
+            this.uploading = true;
+            this.homologacionMap = {};
+
+            try {
+                const res = await this.fetchWithRetry('/api/importar/preview', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        pasted_text: this.pastedText,
+                        estado_codigo: this.estadoSeleccionado
+                    })
+                });
+                const rawText = await res.text();
+                let data;
+                try {
+                    data = JSON.parse(rawText);
+                } catch (jsonErr) {
+                    data = { error: `Respuesta del servidor (${res.status}): ${rawText.substring(0, 150)}`, ok: false };
+                }
+                this.procesarRespuestaPreview(res, data);
+            } catch (e) {
+                this.error = `FALLO DE COMUNICACIÓN CON EL SERVIDOR (${e.message || 'Error de red'}). Verifique su conexión y vuelva a intentarlo.`;
+            }
+            this.uploading = false;
+        },
+        async uploadFile() {
+            if (!this.file) return;
+            {% if not user_estado %}
+            if (!this.estadoSeleccionado) {
+                this.error = 'DEBE SELECCIONAR LA ENTIDAD GEOGRÁFICA DESTINO PARA CONTINUAR.';
+                this.file = null;
+                if (this.$refs.fileInput) this.$refs.fileInput.value = '';
+                return;
+            }
+            {% endif %}
+            
+            this.error = null;
+            this.success = false;
+            this.uploading = true;
+            this.homologacionMap = {};
+            
+            const formData = new FormData();
+            formData.append('file', this.file);
+            formData.append('estado_codigo', this.estadoSeleccionado);
+            
+            try {
+                const res = await this.fetchWithRetry('/api/importar/preview', {
+                    method: 'POST',
+                    body: formData
+                });
+                const rawText = await res.text();
+                let data;
+                try {
+                    data = JSON.parse(rawText);
+                } catch (jsonErr) {
+                    data = { error: `Respuesta del servidor (${res.status}): ${rawText.substring(0, 150)}`, ok: false };
+                }
+                this.procesarRespuestaPreview(res, data);
+            } catch (e) {
+                this.error = `ERROR DE COMUNICACIÓN: ${e.message || 'Fallo de conexión'}. Si el problema persiste, intente copiar los datos del archivo y usar la pestaña 'Pegar Data de Excel'.`;
+                this.file = null;
+            }
+            this.uploading = false;
+            if (this.$refs.fileInput) this.$refs.fileInput.value = '';
+        },
+        procesarRespuestaPreview(res, data) {
+            if (res.ok) {
+                this.previewData = data;
+                this.step = 'preview';
+                
+                // Pre-fill homologation mapping from backend analysis
+                if (data.causas_originales) {
+                    data.causas_originales.forEach(item => {
+                        if (item.matched_id) {
+                            this.homologacionMap[item.original] = item.matched_id;
+                        } else {
+                            this.homologacionMap[item.original] = '';
+                        }
+                    });
+                }
+
+                if (this.pendientesCount > 0) {
+                    this.filtroCausa = 'pendientes';
+                } else {
+                    this.filtroCausa = 'todas';
+                }
+            } else {
+                this.error = `FALLO DE ANÁLISIS: ${data.error || 'Archivo corrupto o formato incompatible'}`;
+                this.file = null;
+            }
+        },
+        async cambiarHoja(sheetName) {
+            if (!this.previewData || !sheetName) return;
+            this.uploading = true;
+            this.error = null;
+            try {
+                const res = await this.fetchWithRetry('/api/importar/preview', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        sheet_name: sheetName,
+                        estado_codigo: this.estadoSeleccionado
+                    })
+                });
+                const rawText = await res.text();
+                let data;
+                try {
+                    data = JSON.parse(rawText);
+                } catch (jsonErr) {
+                    data = { error: `Respuesta del servidor (${res.status}): ${rawText.substring(0, 150)}`, ok: false };
+                }
+                this.procesarRespuestaPreview(res, data);
+            } catch (e) {
+                this.error = `Error al cambiar de hoja: ${e.message}`;
+            }
+            this.uploading = false;
+        },
+        aplicarTodasSugerencias() {
+            this.causasLista.forEach(item => {
+                if (!this.homologacionMap[item.original] && item.sugerencia_id) {
+                    this.homologacionMap[item.original] = item.sugerencia_id;
+                }
+            });
+        },
+        async procesarImportacion() {
+            this.uploading = true;
+            this.error = null;
+            
+            try {
+                const res = await fetch('/api/importar/confirmar', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        mapping: this.homologacionMap,
+                        estado_codigo: this.estadoSeleccionado,
+                        subestacion_map: {},
+                        circuito_map: {},
+                        aceptar_no_repudio: this.aceptarNoRepudio,
+                        declaracion_no_repudio: `Yo, ${this.userUsername}, como Administrador del Sistema SCTIS, asumo la responsabilidad por autorizar la inyección de ${this.previewData?.registros_incompletos || 0} registros incompletos fuera de la norma.`
+                    })
+                });
+                
+                const rawText = await res.text();
+                let data;
+                try {
+                    data = JSON.parse(rawText);
+                } catch (jsonErr) {
+                    data = { error: `Respuesta inesperada (${res.status}): ${rawText.substring(0, 150)}`, ok: false };
+                }
+                
+                if (res.ok) {
+                    this.importResult = data;
+                    this.success = true;
+                    this.step = 'upload';
+                } else {
+                    this.error = `ERROR EN INTEGRACIÓN DE BASE DE DATOS: ${data.error || 'Fallo desconocido'}`;
+                    if (data.error && (data.error.includes('No Repudio') || data.error.includes('incompleto'))) {
+                        if (this.previewData) {
+                            this.previewData.alerta_incompletos = true;
+                            this.previewData.es_admin = true;
+                        }
+                    }
+                    window.scrollTo({top: 0, behavior: 'smooth'});
+                }
+            } catch(e) {
+                this.error = `FALLO DE RED: ${e.message || 'Error durante la inyección de registros en base de datos'}.`;
+            }
+            this.uploading = false;
+        }
+    }
+}).mount('#app');
+</script>
+{% endblock %}

@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+{% block title %}Administración de Usuarios{% endblock %}
+{% block header_title %}Control de Acceso y Usuarios{% endblock %}
+
+{% block content %}
+<div id="app" class="max-w-6xl mx-auto">
+    <div class="industrial-card p-0 mb-6">
+        <div class="bg-gray-100 px-6 py-4 border-b border-gray-300 flex items-center justify-between">
+            <h2 class="font-bold text-corpo-dark uppercase tracking-widest text-sm flex items-center gap-2">
+                <i class="fas fa-users-cog text-corpo-blue"></i> Directorio de Operadores
+            </h2>
+            <button @click="abrirNuevo" class="bg-corpo-blue text-white px-4 py-2 rounded-sm hover:bg-corpo-dark text-xs font-bold uppercase tracking-widest transition shadow-sm flex items-center gap-2">
+                <i class="fas fa-user-plus"></i> Registrar Nuevo
+            </button>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="bg-gray-50 text-gray-600 text-[10px] uppercase font-bold tracking-wider font-mono border-b border-gray-300">
+                    <tr>
+                        <th class="px-4 py-3 border-r border-gray-200">ID Usuario</th>
+                        <th class="px-4 py-3 border-r border-gray-200">Nombre Completo</th>
+                        <th class="px-4 py-3 border-r border-gray-200">Rol Sistema</th>
+                        <th class="px-4 py-3 border-r border-gray-200">Entidad Geográfica</th>
+                        <th class="px-4 py-3 border-r border-gray-200 text-center">Estado</th>
+                        <th class="px-4 py-3 border-r border-gray-200 text-center">Intentos</th>
+                        <th class="px-4 py-3 text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 text-gray-700 font-medium">
+                    <tr v-if="cargando">
+                        <td colspan="7" class="px-6 py-12 text-center text-gray-400 font-mono text-xs uppercase tracking-widest">
+                            <i class="fas fa-circle-notch fa-spin mr-2"></i> Obteniendo directorio...
+                        </td>
+                    </tr>
+                    <tr v-else-if="usuarios.length === 0">
+                        <td colspan="7" class="px-6 py-12 text-center text-gray-500 font-mono text-xs uppercase tracking-widest">
+                            No hay usuarios registrados
+                        </td>
+                    </tr>
+                    <tr v-for="u in usuarios" :key="u.user_id" class="hover:bg-blue-50 transition-colors" :class="{'opacity-60': !u.is_active}">
+                        <td class="px-4 py-3 font-mono text-xs font-bold border-r border-gray-200">${ u.username }</td>
+                        <td class="px-4 py-3 text-xs uppercase border-r border-gray-200">${ u.full_name || '—' }</td>
+                        <td class="px-4 py-3 border-r border-gray-200">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-purple-100 text-purple-800 border border-purple-200 shadow-inner">
+                                ${ u.role_name }
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-xs border-r border-gray-200">
+                            <span v-if="u.estado_codigo" class="inline-flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-corpo-blue"></span>${ u.estado_codigo }</span>
+                            <span v-else class="text-gray-400 font-mono text-[10px] uppercase">NACIONAL</span>
+                        </td>
+                        <td class="px-4 py-3 text-center border-r border-gray-200">
+                            <button @click="toggleActivo(u)" class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors border shadow-inner" :class="u.is_active ? 'bg-green-500 border-green-600' : 'bg-gray-300 border-gray-400'">
+                                <span class="inline-block h-3 w-3 transform rounded-full bg-white transition-transform shadow-sm" :class="u.is_active ? 'translate-x-5' : 'translate-x-1'"></span>
+                            </button>
+                        </td>
+                        <td class="px-4 py-3 text-center border-r border-gray-200 font-mono text-xs">
+                            <span :class="u.failed_attempts > 0 ? 'text-red-600 font-bold' : 'text-gray-400'">${ u.failed_attempts }</span>
+                        </td>
+                        <td class="px-4 py-3 text-center space-x-1">
+                            <button @click="editar(u)" class="text-corpo-blue hover:text-corpo-dark bg-blue-50 hover:bg-blue-100 p-1.5 rounded transition border border-transparent hover:border-blue-200" title="Modificar Datos">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button @click="resetPass(u)" class="text-orange-600 hover:text-orange-800 bg-orange-50 hover:bg-orange-100 p-1.5 rounded transition border border-transparent hover:border-orange-200" title="Restablecer Clave">
+                                <i class="fas fa-key"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Form -->
+    <div v-if="modal" class="fixed inset-0 bg-corpo-dark bg-opacity-70 flex items-center justify-center z-50 backdrop-blur-sm" @click.self="modal=false">
+        <div class="bg-white rounded-sm shadow-2xl p-0 w-full max-w-lg mx-4 border-t-4 border-corpo-accent">
+            <div class="bg-gray-100 px-6 py-4 border-b border-gray-300">
+                <h2 class="text-sm font-bold text-corpo-dark uppercase tracking-widest flex items-center gap-2">
+                    <i class="fas" :class="modalEditando ? 'fa-edit' : 'fa-user-plus'"></i>
+                    ${ modalEditando ? 'Actualizar Operador' : 'Registro de Nuevo Operador' }
+                </h2>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">ID Usuario <span class="text-red-500">*</span></label>
+                        <input v-model="form.username" type="text" class="industrial-input w-full p-2.5 text-sm font-mono" :disabled="modalEditando">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Nombre Completo</label>
+                        <input v-model="form.full_name" type="text" class="industrial-input w-full p-2.5 text-sm uppercase">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Clave de Seguridad <span v-if="!modalEditando" class="text-red-500">*</span></label>
+                        <input v-model="form.password" type="password" class="industrial-input w-full p-2.5 text-sm font-mono tracking-widest" :placeholder="modalEditando ? 'Dejar vacío para no cambiar' : ''">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Rol Sistema <span class="text-red-500">*</span></label>
+                            <select v-model="form.role_id" class="industrial-input w-full p-2.5 text-sm font-mono">
+                                <option value="">Seleccione...</option>
+                                {% for r in roles %}
+                                <option value="{{ r.role_id }}">{{ r.role_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Entidad Asignada</label>
+                            <select v-model="form.estado_codigo" class="industrial-input w-full p-2.5 text-sm font-mono">
+                                <option value="">— NACIONAL —</option>
+                                {% for e in estados %}
+                                <option value="{{ e.state_code }}">{{ e.state_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div v-if="modalError" class="mt-4 bg-red-50 border border-red-200 text-red-700 rounded-sm p-3 text-xs font-mono font-bold shadow-sm">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>${ modalError }
+                </div>
+                
+                <div class="flex justify-end gap-3 mt-8 border-t border-gray-100 pt-4">
+                    <button @click="modal=false" class="px-6 py-2 bg-white border border-gray-400 text-gray-700 rounded-sm text-xs font-bold uppercase tracking-widest hover:bg-gray-50 transition">Cancelar</button>
+                    <button @click="guardar" :disabled="modalGuardando"
+                            class="px-6 py-2 bg-corpo-blue text-white rounded-sm text-xs font-bold uppercase tracking-widest shadow-md hover:bg-corpo-dark transition disabled:opacity-50 flex items-center gap-2">
+                        <i v-if="modalGuardando" class="fas fa-circle-notch fa-spin"></i>
+                        <i v-else class="fas fa-save"></i>
+                        ${ modalGuardando ? 'Procesando...' : 'Guardar Datos' }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Reset Password -->
+    <div v-if="modalPass" class="fixed inset-0 bg-corpo-dark bg-opacity-70 flex items-center justify-center z-50 backdrop-blur-sm" @click.self="modalPass=false">
+        <div class="bg-white rounded-sm shadow-2xl p-0 w-full max-w-sm mx-4 border-t-4 border-orange-500">
+            <div class="bg-gray-100 px-6 py-4 border-b border-gray-300">
+                <h2 class="text-sm font-bold text-gray-800 uppercase tracking-widest flex items-center gap-2">
+                    <i class="fas fa-key text-orange-600"></i> Restablecer Clave
+                </h2>
+            </div>
+            <div class="p-6">
+                <p class="text-xs text-gray-600 mb-4 uppercase tracking-widest">Usuario: <strong class="text-corpo-dark font-mono">${ passUser?.username }</strong></p>
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Nueva Clave de Seguridad</label>
+                    <input v-model="newPassword" type="password" class="industrial-input w-full p-2.5 text-sm font-mono tracking-widest">
+                </div>
+                
+                <div v-if="modalPassError" class="mt-4 bg-red-50 border border-red-200 text-red-700 rounded-sm p-3 text-xs font-mono font-bold shadow-sm">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>${ modalPassError }
+                </div>
+                
+                <div class="flex justify-end gap-3 mt-8 border-t border-gray-100 pt-4">
+                    <button @click="modalPass=false" class="px-6 py-2 bg-white border border-gray-400 text-gray-700 rounded-sm text-xs font-bold uppercase tracking-widest hover:bg-gray-50 transition">Cancelar</button>
+                    <button @click="confirmarResetPass" :disabled="!newPassword"
+                            class="px-6 py-2 bg-orange-600 text-white rounded-sm text-xs font-bold uppercase tracking-widest shadow-md hover:bg-orange-700 transition disabled:opacity-50 flex items-center gap-2">
+                        <i class="fas fa-check"></i> Aplicar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script>
+const { createApp } = Vue;
+createApp({
+    delimiters: ['${', '}'],
+    data() {
+        return {
+            cargando: false,
+            usuarios: [],
+            modal: false,
+            modalEditando: false,
+            modalGuardando: false,
+            modalError: null,
+            form: this.formVacio(),
+            modalPass: false,
+            modalPassError: null,
+            passUser: null,
+            newPassword: '',
+        };
+    },
+    methods: {
+        formVacio() {
+            return { username: '', full_name: '', password: '', role_id: '', estado_codigo: '' };
+        },
+        async cargar() {
+            this.cargando = true;
+            try {
+                const res = await fetch('/api/admin/usuarios');
+                if (res.ok) {
+                    this.usuarios = await res.json();
+                }
+            } catch (e) {
+                console.error(e);
+            }
+            this.cargando = false;
+        },
+        abrirNuevo() {
+            this.form = this.formVacio();
+            this.modalEditando = false;
+            this.modalError = null;
+            this.modal = true;
+        },
+        editar(u) {
+            this.form = {
+                username: u.username,
+                full_name: u.full_name || '',
+                password: '',
+                role_id: u.role_id,
+                estado_codigo: u.estado_codigo || '',
+            };
+            this.editandoId = u.user_id;
+            this.modalEditando = true;
+            this.modalError = null;
+            this.modal = true;
+        },
+        async guardar() {
+            this.modalGuardando = true;
+            this.modalError = null;
+            try {
+                if (this.modalEditando) {
+                    const body = {};
+                    if (this.form.full_name) body.full_name = this.form.full_name;
+                    if (this.form.role_id) body.role_id = this.form.role_id;
+                    body.estado_codigo = this.form.estado_codigo || null;
+                    
+                    if (this.form.password) {
+                        const r = await fetch(`/api/admin/usuarios/${this.editandoId}/reset-password`, {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({password: this.form.password}),
+                        });
+                        if (!r.ok) { const d = await r.json(); this.modalError = d.error; this.modalGuardando = false; return; }
+                    }
+                    
+                    const res = await fetch(`/api/admin/usuarios/${this.editandoId}`, {
+                        method: 'PUT',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(body),
+                    });
+                    if (!res.ok) { const d = await res.json(); this.modalError = d.error; this.modalGuardando = false; return; }
+                } else {
+                    if (!this.form.password) { this.modalError = 'La contraseña de seguridad es obligatoria.'; this.modalGuardando = false; return; }
+                    const res = await fetch('/api/admin/usuarios', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(this.form),
+                    });
+                    if (!res.ok) { const d = await res.json(); this.modalError = d.error; this.modalGuardando = false; return; }
+                }
+                this.modal = false;
+                await this.cargar();
+            } catch (e) {
+                this.modalError = 'Fallo de conexión con el servidor.';
+            }
+            this.modalGuardando = false;
+        },
+        resetPass(u) {
+            this.passUser = u;
+            this.newPassword = '';
+            this.modalPassError = null;
+            this.modalPass = true;
+        },
+        async confirmarResetPass() {
+            if (!this.newPassword) return;
+            try {
+                const res = await fetch(`/api/admin/usuarios/${this.passUser.user_id}/reset-password`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({password: this.newPassword}),
+                });
+                if (!res.ok) { const d = await res.json(); this.modalPassError = d.error; return; }
+                this.modalPass = false;
+            } catch (e) {
+                this.modalPassError = 'Fallo de conexión con el servidor.';
+            }
+        },
+        async toggleActivo(u) {
+            try {
+                await fetch(`/api/admin/usuarios/${u.user_id}`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({is_active: !u.is_active}),
+                });
+                await this.cargar();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    },
+    mounted() {
+        this.cargar();
+    }
+}).mount('#app');
+</script>
+{% endblock %}

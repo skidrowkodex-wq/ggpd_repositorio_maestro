@@ -1,0 +1,719 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Multi-Perspectiva — SCTIS{% endblock %}
+{% block header_title %}Analítica & Monitoreo Multi-Perspectiva{% endblock %}
+
+{% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.35.0.min.js"></script>
+
+<!-- Filter Toolbar Banner -->
+<div class="industrial-card p-4 sm:p-5 mb-6">
+  <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+    <div>
+      <div class="flex items-center gap-2 mb-1">
+        <span class="text-[10px] font-mono font-bold uppercase bg-cyan-500/10 text-[#0284c7] dark:text-[#00f2fe] border border-cyan-500/30 px-2 py-0.5 rounded-md">
+          SCTIS ANALYTICS
+        </span>
+        <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">IEEE 1366 / ISO 8000</span>
+      </div>
+      <h2 class="text-lg sm:text-xl font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-2">
+        <i class="fas fa-chart-line text-[#00f2fe]"></i> Dashboard Multi-Perspectiva
+      </h2>
+    </div>
+    <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+      <select id="filtro-estado" class="industrial-input px-3 py-2 text-xs font-semibold flex-1 sm:flex-initial">
+        <option value="">Todos los estados</option>
+      </select>
+      <input type="date" id="filtro-desde" class="industrial-input px-3 py-2 text-xs font-mono">
+      <input type="date" id="filtro-hasta" class="industrial-input px-3 py-2 text-xs font-mono">
+      <button onclick="cargarDashboard()" class="px-4 py-2 bg-gradient-to-r from-[#0033A0] to-[#0284c7] hover:to-[#00f2fe] text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center gap-2 border border-cyan-400/30">
+        <i class="fas fa-arrows-rotate"></i> Actualizar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- KPIs Principales -->
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8" id="kpis-container">
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 1: INGENIERO ELÉCTRICO -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="mb-8">
+  <div class="flex items-center gap-2.5 mb-4 border-l-4 border-[#00f2fe] pl-3">
+    <div class="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center text-[#00f2fe]">
+      <i class="fas fa-bolt text-lg"></i>
+    </div>
+    <h2 class="text-base sm:text-lg font-black text-slate-800 dark:text-white tracking-tight">Perspectiva del Ingeniero Eléctrico</h2>
+    <span class="text-[10px] font-mono font-bold bg-cyan-500/10 text-[#0284c7] dark:text-[#00f2fe] border border-cyan-500/30 px-2 py-0.5 rounded-full ml-2">Confiabilidad del Sistema</span>
+  </div>
+  
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="industrial-card p-5">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+          <i class="fas fa-chart-pie text-[#00f2fe]"></i> Interrupciones por Causa
+        </h3>
+        <button onclick="descargarChart('chartCausas', 'causas_interrupcion')" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-lg hover:text-[#00f2fe] border border-slate-200 dark:border-slate-700 transition">
+          <i class="fas fa-download"></i>
+        </button>
+      </div>
+      <canvas id="chartCausas" height="250"></canvas>
+    </div>
+    
+    <div class="industrial-card p-5">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+          <i class="fas fa-chart-simple text-[#00f2fe]"></i> Horas de Interrupción por Causa
+        </h3>
+        <button onclick="descargarChart('chartCausasHoras', 'horas_por_causa')" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-lg hover:text-[#00f2fe] border border-slate-200 dark:border-slate-700 transition">
+          <i class="fas fa-download"></i>
+        </button>
+      </div>
+      <canvas id="chartCausasHoras" height="250"></canvas>
+    </div>
+  </div>
+  
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+    <div class="industrial-card p-5">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+          <i class="fas fa-chart-line text-[#00f2fe]"></i> Tendencia Mensual
+        </h3>
+        <button onclick="descargarChart('chartTendencia', 'tendencia_mensual')" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-lg hover:text-[#00f2fe] border border-slate-200 dark:border-slate-700 transition">
+          <i class="fas fa-download"></i>
+        </button>
+      </div>
+      <canvas id="chartTendencia" height="200"></canvas>
+    </div>
+    
+    <div class="industrial-card p-5">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+          <i class="fas fa-layer-group text-[#00f2fe]"></i> Distribución por Sistema
+        </h3>
+        <button onclick="descargarChart('chartSistema', 'distribucion_sistema')" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-lg hover:text-[#00f2fe] border border-slate-200 dark:border-slate-700 transition">
+          <i class="fas fa-download"></i>
+        </button>
+      </div>
+      <canvas id="chartSistema" height="200"></canvas>
+    </div>
+  </div>
+
+  <!-- Sankey: Desglose de causas OTRAS -->
+  <div class="industrial-card p-5 mt-6">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+        <i class="fas fa-diagram-project text-[#00f2fe]"></i> Desglose de Causas "OTRAS" — Flujo Homologada → Original
+      </h3>
+      <button onclick="descargarPlotly('chartDesgloseOtras', 'desglose_otras')" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-lg hover:text-[#00f2fe] border border-slate-200 dark:border-slate-700 transition">
+        <i class="fas fa-download mr-1"></i>PNG
+      </button>
+    </div>
+    <div id="chartDesgloseOtras" style="width:100%;height:400px;"></div>
+    <p id="chartDesgloseOtras-empty" class="text-center text-slate-400 py-8 hidden font-mono text-xs">
+      <i class="fas fa-circle-check text-emerald-400 mr-1"></i>Todas las causas están perfectamente homologadas (sin "OTRAS").
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 2: INGENIERO DE MANTENIMIENTO -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="mb-8">
+  <div class="flex items-center gap-2.5 mb-4 border-l-4 border-rose-500 pl-3">
+    <div class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-500">
+      <i class="fas fa-wrench text-lg"></i>
+    </div>
+    <h2 class="text-base sm:text-lg font-black text-slate-800 dark:text-white tracking-tight">Perspectiva del Ingeniero de Mantenimiento</h2>
+    <span class="text-[10px] font-mono font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30 px-2 py-0.5 rounded-full ml-2">Equipos y Subestaciones</span>
+  </div>
+  
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="industrial-card p-5">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+          <i class="fas fa-triangle-exclamation text-rose-500"></i> Circuitos Más Afectados
+        </h3>
+        <button onclick="descargarChart('chartCircuitos', 'circuitos_afectados')" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-lg hover:text-rose-400 border border-slate-200 dark:border-slate-700 transition">
+          <i class="fas fa-download"></i>
+        </button>
+      </div>
+      <canvas id="chartCircuitos" height="250"></canvas>
+    </div>
+    
+    <div class="industrial-card p-5">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+          <i class="fas fa-industry text-rose-500"></i> Subestaciones con Más Fallas
+        </h3>
+        <button onclick="descargarChart('chartSubestaciones', 'subestaciones_fallas')" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-lg hover:text-rose-400 border border-slate-200 dark:border-slate-700 transition">
+          <i class="fas fa-download"></i>
+        </button>
+      </div>
+      <canvas id="chartSubestaciones" height="250"></canvas>
+    </div>
+  </div>
+  
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+    <div class="industrial-card p-5 overflow-hidden">
+      <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
+        <i class="fas fa-clock text-rose-500"></i> Top 5 Interrupciones Más Largas
+      </h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs text-left table-industrial">
+          <thead class="bg-rose-500/10 text-rose-800 dark:text-rose-300 font-bold border-b border-rose-500/20">
+            <tr>
+              <th class="p-2.5">Fecha</th>
+              <th class="p-2.5">Estado</th>
+              <th class="p-2.5">Circuito</th>
+              <th class="p-2.5">Causa</th>
+              <th class="p-2.5 text-right">Horas</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-top-largas" class="divide-y divide-slate-100 dark:divide-slate-800 font-mono"></tbody>
+        </table>
+      </div>
+    </div>
+    
+    <div class="industrial-card p-5 overflow-hidden">
+      <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
+        <i class="fas fa-arrows-rotate text-rose-500"></i> Circuitos con Fallas Repetidas
+        <span class="text-[10px] font-mono bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30 px-2 py-0.5 rounded-full">Alerta</span>
+      </h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs text-left table-industrial">
+          <thead class="bg-rose-500/10 text-rose-800 dark:text-rose-300 font-bold border-b border-rose-500/20">
+            <tr>
+              <th class="p-2.5">Circuito</th>
+              <th class="p-2.5">Estado</th>
+              <th class="p-2.5 text-right">Repeticiones</th>
+              <th class="p-2.5">Período</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-repetidos" class="divide-y divide-slate-100 dark:divide-slate-800 font-mono"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 3: PROJECT MANAGER -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="mb-8">
+  <div class="flex items-center gap-2.5 mb-4 border-l-4 border-[#0284c7] pl-3">
+    <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-[#0284c7]">
+      <i class="fas fa-list-check text-lg"></i>
+    </div>
+    <h2 class="text-base sm:text-lg font-black text-slate-800 dark:text-white tracking-tight">Perspectiva del Project Manager</h2>
+    <span class="text-[10px] font-mono font-bold bg-blue-500/10 text-[#0033A0] dark:text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded-full ml-2">KPIs y Seguimiento</span>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="industrial-card p-5">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+          <i class="fas fa-map-location-dot text-[#0284c7]"></i> Distribución por Estado
+        </h3>
+        <button onclick="descargarChart('chartEstados', 'distribucion_estados')" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-lg hover:text-[#0284c7] border border-slate-200 dark:border-slate-700 transition">
+          <i class="fas fa-download"></i>
+        </button>
+      </div>
+      <canvas id="chartEstados" height="250"></canvas>
+    </div>
+    
+    <div class="industrial-card p-5">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+          <i class="fas fa-clock text-[#0284c7]"></i> Patrón Horario de Interrupciones
+        </h3>
+        <button onclick="descargarChart('chartHorario', 'patron_horario')" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-lg hover:text-[#0284c7] border border-slate-200 dark:border-slate-700 transition">
+          <i class="fas fa-download"></i>
+        </button>
+      </div>
+      <canvas id="chartHorario" height="250"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SECCIÓN 4: CIENTÍFICO DE DATOS -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="mb-8">
+  <div class="flex items-center gap-2.5 mb-4 border-l-4 border-purple-500 pl-3">
+    <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-500">
+      <i class="fas fa-brain text-lg"></i>
+    </div>
+    <h2 class="text-base sm:text-lg font-black text-slate-800 dark:text-white tracking-tight">Perspectiva del Científico de Datos</h2>
+    <span class="text-[10px] font-mono font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/30 px-2 py-0.5 rounded-full ml-2">Análisis y Anomalías</span>
+  </div>
+  
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="industrial-card p-5">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+          <i class="fas fa-chart-area text-purple-500"></i> Calidad ISO 8000
+        </h3>
+        <button onclick="descargarChart('chartCalidad', 'calidad_iso8000')" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-lg hover:text-purple-400 border border-slate-200 dark:border-slate-700 transition">
+          <i class="fas fa-download"></i>
+        </button>
+      </div>
+      <div id="calidad-container" class="flex flex-col items-center">
+        <canvas id="chartCalidad" width="250" height="250"></canvas>
+        <div id="calidad-leyenda" class="mt-3 text-xs font-mono text-slate-500 dark:text-slate-400"></div>
+      </div>
+    </div>
+    
+    <div class="industrial-card p-5">
+      <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
+        <i class="fas fa-database text-purple-500"></i> Integridad de Datos
+      </h3>
+      <div class="space-y-3 font-mono text-xs">
+        <div id="alertas-calidad" class="space-y-2"></div>
+        <div id="alertas-duplicados" class="space-y-2"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Sin datos placeholder -->
+<div id="sin-datos" class="hidden bg-white rounded-lg shadow-lg p-12 text-center">
+  <i class="fas fa-inbox text-gray-300 text-6xl mb-4"></i>
+  <h3 class="text-xl font-semibold text-gray-500 mb-2">Sin datos para mostrar</h3>
+  <p class="text-gray-400">No hay registros de interrupciones con los filtros seleccionados.</p>
+  <a href="/nuevo" class="inline-block mt-4 bg-blue-900 text-white px-6 py-2 rounded hover:bg-blue-800">
+    <i class="fas fa-plus-circle"></i> Registrar primera interrupción
+  </a>
+</div>
+
+<script>
+const COLORES = {
+  primary: ['#1e3a5f','#2563eb','#f59e0b','#ef4444','#10b981','#8b5cf6','#ec4899','#06b6d4','#f97316','#84cc16'],
+  causas: ['#ef4444','#f59e0b','#3b82f6','#10b981','#8b5cf6','#ec4899','#06b6d4','#f97316','#84cc16','#6366f1',
+           '#14b8a6','#e11d48','#a855f7','#0ea5e9','#d946ef']
+};
+let charts = {};
+
+// ── Descarga de gráficos Chart.js como PNG ──
+function descargarChart(canvasId, filename) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const link = document.createElement('a');
+  link.download = filename + '.png';
+  link.href = canvas.toDataURL('image/png', 1.0);
+  link.click();
+}
+
+// ── Descarga de gráficos Plotly como PNG ──
+function descargarPlotly(divId, filename) {
+  Plotly.downloadImage(divId, {
+    format: 'png',
+    width: 1200,
+    height: 500,
+    filename: filename,
+    scale: 2
+  });
+}
+
+async function cargarEstados() {
+  const res = await fetch('/api/estados');
+  const estados = await res.json();
+  const sel = document.getElementById('filtro-estado');
+  estados.forEach(e => {
+    const opt = document.createElement('option');
+    opt.value = e.state_code;
+    opt.textContent = e.state_name;
+    sel.appendChild(opt);
+  });
+}
+
+async function cargarDashboard() {
+  const estado = document.getElementById('filtro-estado').value;
+  const desde = document.getElementById('filtro-desde').value;
+  const hasta = document.getElementById('filtro-hasta').value;
+
+  let url = '/api/dashboard?';
+  if (estado) url += `estado=${encodeURIComponent(estado)}&`;
+  if (desde) url += `fecha_desde=${desde}&`;
+  if (hasta) url += `fecha_hasta=${hasta}&`;
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.kpis.total_interrupciones === 0) {
+      document.getElementById('sin-datos').classList.remove('hidden');
+      return;
+    }
+    document.getElementById('sin-datos').classList.add('hidden');
+    renderKPIs(data.kpis);
+    renderCausas(data.causas_resumen);
+    renderCausasHoras(data.causas_resumen);
+    renderTendencia(data.por_mes);
+    renderSistema(data.por_sistema);
+    renderCircuitos(data.circuitos_criticos);
+    renderSubestaciones(data.subestaciones_fallas);
+    renderTopLargas(data.top_largas);
+    renderRepetidos(data.repetidos);
+    renderEstados(data.por_estado);
+    renderHorario(data.patron_horario);
+    renderCalidad(data.stats_calidad);
+    renderAlertas(data.calidad_baja, data.duplicados);
+    renderDesgloseOtras(data.desglose_otras);
+  } catch (e) {
+    console.error('Error cargando dashboard:', e);
+  }
+}
+
+function renderKPIs(k) {
+  const container = document.getElementById('kpis-container');
+  const kpis = [
+    { label: 'Total Interrupciones', value: k.total_interrupciones, icon: 'fa-bolt', color: '#00f2fe', bg: 'bg-cyan-500/10' },
+    { label: 'Total Horas Falla', value: parseFloat(k.total_horas).toFixed(1), icon: 'fa-clock', color: '#F2A900', bg: 'bg-amber-500/10' },
+    { label: 'Horas Promedio (TTR)', value: parseFloat(k.horas_promedio).toFixed(2), icon: 'fa-stopwatch', color: '#f43f5e', bg: 'bg-rose-500/10' },
+    { label: 'MW Afectados', value: parseFloat(k.total_mw).toFixed(1), icon: 'fa-chart-area', color: '#10b981', bg: 'bg-emerald-500/10' },
+    { label: 'Clientes Impactados', value: Number(k.total_clientes_afectados).toLocaleString('es-VE'), icon: 'fa-users', color: '#a855f7', bg: 'bg-purple-500/10' },
+  ];
+  container.innerHTML = kpis.map(kpi => `
+    <div class="kpi-card p-4 transition-all">
+      <div class="flex items-center justify-between gap-2 mb-2">
+        <span class="text-[10px] font-mono uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider truncate">${kpi.label}</span>
+        <div class="w-7 h-7 rounded-lg ${kpi.bg} flex items-center justify-center text-xs flex-shrink-0" style="color: ${kpi.color};">
+          <i class="fas ${kpi.icon}"></i>
+        </div>
+      </div>
+      <div class="text-xl sm:text-2xl font-black font-mono tracking-tight text-slate-900 dark:text-white mt-1">${kpi.value}</div>
+      <div class="h-0.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full mt-3 overflow-hidden">
+        <div class="h-full rounded-full" style="background-color: ${kpi.color}; width: 100%;"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function destroyChart(id) {
+  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+}
+
+function renderCausas(data) {
+  destroyChart('causas');
+  if (!data || data.length === 0) return;
+  const ctx = document.getElementById('chartCausas').getContext('2d');
+  charts.causas = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: data.map(d => d.causa),
+      datasets: [{
+        data: data.map(d => d.cantidad),
+        backgroundColor: COLORES.causas.slice(0, data.length)
+      }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'right', labels: { font: { size: 11 } } } } }
+  });
+}
+
+function renderCausasHoras(data) {
+  destroyChart('causasHoras');
+  if (!data || data.length === 0) return;
+  const ctx = document.getElementById('chartCausasHoras').getContext('2d');
+  charts.causasHoras = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: data.map(d => d.causa),
+      datasets: [{
+        label: 'Horas totales',
+        data: data.map(d => parseFloat(d.horas_total)),
+        backgroundColor: COLORES.causas.slice(0, data.length)
+      }]
+    },
+    options: {
+      responsive: true, indexAxis: 'y',
+      plugins: { legend: { display: false } },
+      scales: { x: { title: { display: true, text: 'Horas' } } }
+    }
+  });
+}
+
+function renderTendencia(data) {
+  destroyChart('tendencia');
+  if (!data || data.length === 0) return;
+  const ctx = document.getElementById('chartTendencia').getContext('2d');
+  charts.tendencia = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.map(d => d.mes),
+      datasets: [
+        { label: 'Interrupciones', data: data.map(d => d.cantidad), borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.1)', fill: true, tension: 0.3, yAxisID: 'y' },
+        { label: 'Horas', data: data.map(d => parseFloat(d.horas_total)), borderColor: '#ef4444', borderDash: [5,5], tension: 0.3, yAxisID: 'y1' }
+      ]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: { position: 'left', title: { display: true, text: 'Cantidad' } },
+        y1: { position: 'right', title: { display: true, text: 'Horas' }, grid: { drawOnChartArea: false } }
+      }
+    }
+  });
+}
+
+function renderSistema(data) {
+  destroyChart('sistema');
+  if (!data || data.length === 0) return;
+  const ctx = document.getElementById('chartSistema').getContext('2d');
+  charts.sistema = new Chart(ctx, {
+    type: 'polarArea',
+    data: {
+      labels: data.map(d => d.sistema),
+      datasets: [{ data: data.map(d => d.cantidad), backgroundColor: COLORES.primary.map(c => c + '99') }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'right' } } }
+  });
+}
+
+function renderCircuitos(data) {
+  destroyChart('circuitos');
+  if (!data || data.length === 0) return;
+  const ctx = document.getElementById('chartCircuitos').getContext('2d');
+  charts.circuitos = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: data.map(d => d.circuito),
+      datasets: [
+        { label: 'Fallas', data: data.map(d => d.fallas), backgroundColor: '#ef4444' },
+        { label: 'Horas', data: data.map(d => parseFloat(d.horas_total)), backgroundColor: '#f59e0b', hidden: true }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'top' } },
+      scales: { x: { ticks: { maxRotation: 45 } } }
+    }
+  });
+}
+
+function renderSubestaciones(data) {
+  destroyChart('subestaciones');
+  if (!data || data.length === 0) return;
+  const ctx = document.getElementById('chartSubestaciones').getContext('2d');
+  charts.subestaciones = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: data.map(d => d.subestacion),
+      datasets: [
+        { label: 'Fallas', data: data.map(d => d.fallas), backgroundColor: '#3b82f6' },
+        { label: 'Circuitos Afectados', data: data.map(d => d.circuitos_afectados), backgroundColor: '#10b981', hidden: true }
+      ]
+    },
+    options: {
+      responsive: true, indexAxis: 'y',
+      plugins: { legend: { position: 'top' } }
+    }
+  });
+}
+
+function renderTopLargas(data) {
+  const tbody = document.getElementById('tabla-top-largas');
+  if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-400">Sin datos</td></tr>'; return; }
+  tbody.innerHTML = data.map(d => `
+    <tr class="border-b hover:bg-gray-50">
+      <td class="p-2">${d.fecha_falla ? new Date(d.fecha_falla).toLocaleDateString('es-VE') : '-'}</td>
+      <td class="p-2"><span class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">${d.estado_codigo || '-'}</span></td>
+      <td class="p-2 font-medium">${d.circuito || '-'}</td>
+      <td class="p-2 text-sm text-gray-600">${d.causa || '-'}</td>
+      <td class="p-2 text-right font-bold text-red-600">${d.horas ? parseFloat(d.horas).toFixed(1) : '-'}</td>
+    </tr>
+  `).join('');
+}
+
+function renderRepetidos(data) {
+  const tbody = document.getElementById('tabla-repetidos');
+  if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-400">Sin circuitos con fallas repetidas</td></tr>'; return; }
+  tbody.innerHTML = data.map(d => `
+    <tr class="border-b hover:bg-gray-50 ${d.repeticiones >= 5 ? 'bg-red-50' : ''}">
+      <td class="p-2 font-medium">${d.circuito}</td>
+      <td class="p-2"><span class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">${d.estado_codigo}</span></td>
+      <td class="p-2 text-right">
+        <span class="font-bold ${d.repeticiones >= 5 ? 'text-red-600' : 'text-orange-500'}">${d.repeticiones}</span>
+      </td>
+      <td class="p-2 text-sm text-gray-600">${d.primera_falla ? new Date(d.primera_falla).toLocaleDateString('es-VE') : ''} — ${d.ultima_falla ? new Date(d.ultima_falla).toLocaleDateString('es-VE') : ''}</td>
+    </tr>
+  `).join('');
+}
+
+function renderEstados(data) {
+  destroyChart('estados');
+  if (!data || data.length === 0) return;
+  const ctx = document.getElementById('chartEstados').getContext('2d');
+  charts.estados = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: data.map(d => d.estado_codigo),
+      datasets: [
+        { label: 'Interrupciones', data: data.map(d => d.cantidad), backgroundColor: '#3b82f6' },
+        { label: 'Horas totales', data: data.map(d => parseFloat(d.horas_total)), backgroundColor: '#f59e0b', hidden: true }
+      ]
+    },
+    options: {
+      responsive: true,
+      scales: { x: { ticks: { maxRotation: 45 } } }
+    }
+  });
+}
+
+function renderHorario(data) {
+  destroyChart('horario');
+  if (!data || data.length === 0) return;
+  const ctx = document.getElementById('chartHorario').getContext('2d');
+  const horas = Array.from({length: 24}, (_, i) => i);
+  const mapa = {};
+  data.forEach(d => mapa[parseInt(d.hora)] = d.cantidad);
+  charts.horario = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: horas.map(h => `${h}:00`),
+      datasets: [{
+        label: 'Interrupciones',
+        data: horas.map(h => mapa[h] || 0),
+        backgroundColor: horas.map(h => (h >= 8 && h <= 17) ? '#2563eb' : '#94a3b8')
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { title: { display: true, text: 'Cantidad' } } }
+    }
+  });
+}
+
+function renderCalidad(stats) {
+  destroyChart('calidad');
+  if (!stats || stats.total_evaluados === 0) {
+    document.getElementById('calidad-leyenda').innerHTML = '<span class="text-gray-400">Sin datos de calidad</span>';
+    return;
+  }
+  const ctx = document.getElementById('chartCalidad').getContext('2d');
+  charts.calidad = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Excelentes (≥90)', 'Buenos (70-89)', 'Deficientes (<70)'],
+      datasets: [{
+        data: [stats.excelentes, stats.buenos, stats.deficientes],
+        backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
+      }]
+    },
+    options: { responsive: false, cutout: '60%', plugins: { legend: { position: 'bottom' } } }
+  });
+  document.getElementById('calidad-leyenda').innerHTML =
+    `<strong>Score promedio: ${parseFloat(stats.score_promedio).toFixed(1)}</strong> — ${stats.total_evaluados} registros evaluados`;
+}
+
+function renderAlertas(calidad, duplicados) {
+  const container = document.getElementById('alertas-calidad');
+  const dupContainer = document.getElementById('alertas-duplicados');
+
+  if (!calidad || calidad.length === 0) {
+    container.innerHTML = '<div class="text-sm text-gray-400"><i class="fas fa-check-circle text-green-500"></i> Sin registros con calidad deficiente</div>';
+  } else {
+    container.innerHTML = '<h4 class="font-medium text-gray-700 mb-2"><i class="fas fa-exclamation-circle text-orange-500"></i> Registros con Calidad Baja</h4>' +
+      calidad.map(d => `
+        <div class="bg-orange-50 border-l-3 border-orange-400 p-2 rounded text-sm flex justify-between">
+          <span>Registro #${d.row_pk}</span>
+          <span class="font-bold text-orange-600">${parseFloat(d.score).toFixed(1)} pts</span>
+        </div>
+      `).join('');
+  }
+
+  if (!duplicados || duplicados.length === 0) {
+    dupContainer.innerHTML = '<div class="text-sm text-gray-400 mt-3"><i class="fas fa-check-circle text-green-500"></i> Sin duplicados detectados</div>';
+  } else {
+    dupContainer.innerHTML = '<h4 class="font-medium text-gray-700 mb-2 mt-3"><i class="fas fa-clone text-red-500"></i> Posibles Duplicados</h4>' +
+      duplicados.map(d => `
+        <div class="bg-red-50 border-l-3 border-red-400 p-2 rounded text-sm flex justify-between">
+          <span>${d.group_ref}</span>
+          <span class="font-bold text-red-600">${d.miembros} registros</span>
+        </div>
+      `).join('');
+  }
+}
+
+// ── Sankey: Desglose de causas "OTRAS" ──
+function renderDesgloseOtras(data) {
+  const div = document.getElementById('chartDesgloseOtras');
+  const empty = document.getElementById('chartDesgloseOtras-empty');
+  if (!data || data.length === 0) {
+    div.style.display = 'none';
+    empty.classList.remove('hidden');
+    return;
+  }
+  div.style.display = 'block';
+  empty.classList.add('hidden');
+
+  // Identificar causas homologadas únicas y causas originales únicas
+  const homologadas = [...new Set(data.map(d => d.causa_homologada))];
+  const originales = [...new Set(data.map(d => d.causa_original))];
+
+  // Colores por causa homologada
+  const coloresHom = {
+    'Otras': '#ef4444', 'Componente Dañado': '#3b82f6', 'Atribuible a Mantenimiento': '#f59e0b',
+    'Accidental': '#8b5cf6', 'Atmosférica': '#10b981', 'Sobrecorriente en Fase': '#06b6d4',
+    'Por Terceros': '#ec4899', 'Programada': '#84cc16', 'Vegetación': '#14b8a6',
+    'Falla de Equipos': '#f97316', 'Error de Operaciones': '#6366f1'
+  };
+  const colorDefault = '#94a3b8';
+
+  // Construir nodos
+  const todosNodos = [...homologadas, ...originales];
+  const nodeIndex = {};
+  todosNodos.forEach((n, i) => nodeIndex[n] = i);
+
+  // Construir links
+  const links = { source: [], target: [], value: [], color: [] };
+  data.forEach(d => {
+    const srcIdx = nodeIndex[d.causa_homologada];
+    const tgtIdx = nodeIndex[d.causa_original];
+    links.source.push(srcIdx);
+    links.target.push(tgtIdx);
+    links.value.push(d.cantidad);
+    links.color.push((coloresHom[d.causa_homologada] || colorDefault) + '66');
+  });
+
+  // Colores de nodos
+  const nodeColors = todosNodos.map(n =>
+    coloresHom[n] || (n === 'SIN ESPECIFICAR' ? '#d1d5db' : '#60a5fa')
+  );
+
+  const trace = {
+    type: 'sankey',
+    orientation: 'h',
+    node: {
+      pad: 20,
+      thickness: 25,
+      label: todosNodos,
+      color: nodeColors,
+      hovertemplate: '%{label}<br>Registros: %{value}<extra></extra>'
+    },
+    link: {
+      source: links.source,
+      target: links.target,
+      value: links.value,
+      color: links.color,
+      hovertemplate: '%{source.label} → %{target.label}<br>Registros: %{value}<extra></extra>'
+    }
+  };
+
+  const layout = {
+    font: { size: 12, family: 'Inter, system-ui, sans-serif' },
+    margin: { l: 10, r: 10, t: 10, b: 10 },
+    paper_bgcolor: 'transparent',
+    plot_bgcolor: 'transparent'
+  };
+
+  Plotly.newPlot(div, [trace], layout, { responsive: true, displayModeBar: false });
+}
+
+// Init
+cargarEstados().then(() => cargarDashboard());
+</script>
+
+{% endblock %}

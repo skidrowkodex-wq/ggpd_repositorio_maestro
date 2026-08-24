@@ -1,0 +1,6 @@
+{
+  "name": "CORPOELEC - SGTA - Ai Studio Google",
+  "description": "Sistema de gestión de tareas, cronogramas de mantenimiento y seguimiento de proyectos PRTSEN/POA con procesamiento inteligente de minutas mediante IA para CORPOELEC.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

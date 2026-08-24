@@ -1,0 +1,176 @@
+{
+  "appId": "a53r8tvlvt9ihw09maca8a2g",
+  "shas": [
+    "6fa4f3cc321645c3f6d2d84f59e42303c6dab99697674aae0107c985d9fac52c",
+    "1ec1346e823c7893f60b6b1e2320b8ca542787709700f998895d1de45be5495b",
+    "04bce77f7b5e7d0e47dbeb3faac4a4fdab0f01419b99829af4ae1ce694e257a8",
+    "50a5d548f6a7ef2a1021deb33a7a8353161fd5e2f6a65d9206a166081d0f4852",
+    "d561c4c6d881e4fe25c74b28e6340ea78f93701060f8f9f3060fc967cd1ed1b8",
+    "09c317730d52751ecfc2d1c6d667d18bd9caceda5468e171101623ffaae4e11f",
+    "4cadc92c645532ec45a9e33013a0d147ba7e81de01df5e5bb6b1140c094c9ae7",
+    "bf89e43b9c1f1e574003eed6255c0b4d869f01b4d113a09e57fcc6226dc99452",
+    "941ae777ef0525604adaf3e7e76cd02a89adaecc72a2b0412ec165ff59a173e3",
+    "8ff9d17788b7557e4b64d0970f079ed6cd346cf73eaa06ec15a11da7b40f6b1a",
+    "429c55bcccbbbdfa8029c8466fc30c47e40a3565110f85da19f17f4d9d98408f"
+  ],
+  "manifest": [
+    {
+      "path": "assets/diagrama_flujo_asistente_wizard_iso8000.svg",
+      "sha256": "6fa4f3cc321645c3f6d2d84f59e42303c6dab99697674aae0107c985d9fac52c",
+      "size": 24133
+    },
+    {
+      "path": "assets/index-CS-QNvhQ.css",
+      "sha256": "1ec1346e823c7893f60b6b1e2320b8ca542787709700f998895d1de45be5495b",
+      "size": 125713
+    },
+    {
+      "path": "assets/index-Cn1a1fvD.js",
+      "sha256": "04bce77f7b5e7d0e47dbeb3faac4a4fdab0f01419b99829af4ae1ce694e257a8",
+      "size": 1752454
+    },
+    {
+      "path": "assets/index-YnIr7fBo.js",
+      "sha256": "50a5d548f6a7ef2a1021deb33a7a8353161fd5e2f6a65d9206a166081d0f4852",
+      "size": 41748
+    },
+    {
+      "path": "images/control_room_hero.jpg",
+      "sha256": "d561c4c6d881e4fe25c74b28e6340ea78f93701060f8f9f3060fc967cd1ed1b8",
+      "size": 860374
+    },
+    {
+      "path": "images/corpoelec-logo.png",
+      "sha256": "09c317730d52751ecfc2d1c6d667d18bd9caceda5468e171101623ffaae4e11f",
+      "size": 11757
+    },
+    {
+      "path": "images/corpoelec_logo.jpg",
+      "sha256": "4cadc92c645532ec45a9e33013a0d147ba7e81de01df5e5bb6b1140c094c9ae7",
+      "size": 66521
+    },
+    {
+      "path": "images/corpoelec_logo.png",
+      "sha256": "09c317730d52751ecfc2d1c6d667d18bd9caceda5468e171101623ffaae4e11f",
+      "size": 11757
+    },
+    {
+      "path": "images/corpoelec_logo.svg",
+      "sha256": "bf89e43b9c1f1e574003eed6255c0b4d869f01b4d113a09e57fcc6226dc99452",
+      "size": 1066
+    },
+    {
+      "path": "images/mppee_logo.svg",
+      "sha256": "941ae777ef0525604adaf3e7e76cd02a89adaecc72a2b0412ec165ff59a173e3",
+      "size": 3457
+    },
+    {
+      "path": "images/substation_digital_twin.jpg",
+      "sha256": "8ff9d17788b7557e4b64d0970f079ed6cd346cf73eaa06ec15a11da7b40f6b1a",
+      "size": 1011698
+    },
+    {
+      "path": "img/corpoelec-logo.png",
+      "sha256": "09c317730d52751ecfc2d1c6d667d18bd9caceda5468e171101623ffaae4e11f",
+      "size": 11757
+    },
+    {
+      "path": "index.html",
+      "sha256": "429c55bcccbbbdfa8029c8466fc30c47e40a3565110f85da19f17f4d9d98408f",
+      "size": 2405
+    }
+  ],
+  "files": [
+    {
+      "path": "assets/diagrama_flujo_asistente_wizard_iso8000.svg",
+      "fullPath": "/home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SIGI-REF/dist/assets/diagrama_flujo_asistente_wizard_iso8000.svg",
+      "sha256": "6fa4f3cc321645c3f6d2d84f59e42303c6dab99697674aae0107c985d9fac52c",
+      "size": 24133,
+      "mode": 420
+    },
+    {
+      "path": "assets/index-CS-QNvhQ.css",
+      "fullPath": "/home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SIGI-REF/dist/assets/index-CS-QNvhQ.css",
+      "sha256": "1ec1346e823c7893f60b6b1e2320b8ca542787709700f998895d1de45be5495b",
+      "size": 125713,
+      "mode": 420
+    },
+    {
+      "path": "assets/index-Cn1a1fvD.js",
+      "fullPath": "/home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SIGI-REF/dist/assets/index-Cn1a1fvD.js",
+      "sha256": "04bce77f7b5e7d0e47dbeb3faac4a4fdab0f01419b99829af4ae1ce694e257a8",
+      "size": 1752454,
+      "mode": 420
+    },
+    {
+      "path": "assets/index-YnIr7fBo.js",
+      "fullPath": "/home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SIGI-REF/dist/assets/index-YnIr7fBo.js",
+      "sha256": "50a5d548f6a7ef2a1021deb33a7a8353161fd5e2f6a65d9206a166081d0f4852",
+      "size": 41748,
+      "mode": 420
+    },
+    {
+      "path": "images/control_room_hero.jpg",
+      "fullPath": "/home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SIGI-REF/dist/images/control_room_hero.jpg",
+      "sha256": "d561c4c6d881e4fe25c74b28e6340ea78f93701060f8f9f3060fc967cd1ed1b8",
+      "size": 860374,
+      "mode": 420
+    },
+    {
+      "path": "images/corpoelec-logo.png",
+      "fullPath": "/home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SIGI-REF/dist/images/corpoelec-logo.png",
+      "sha256": "09c317730d52751ecfc2d1c6d667d18bd9caceda5468e171101623ffaae4e11f",
+      "size": 11757,
+      "mode": 420
+    },
+    {
+      "path": "images/corpoelec_logo.jpg",
+      "fullPath": "/home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SIGI-REF/dist/images/corpoelec_logo.jpg",
+      "sha256": "4cadc92c645532ec45a9e33013a0d147ba7e81de01df5e5bb6b1140c094c9ae7",
+      "size": 66521,
+      "mode": 420
+    },
+    {
+      "path": "images/corpoelec_logo.png",
+      "fullPath": "/home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SIGI-REF/dist/images/corpoelec_logo.png",
+      "sha256": "09c317730d52751ecfc2d1c6d667d18bd9caceda5468e171101623ffaae4e11f",
+      "size": 11757,
+      "mode": 420
+    },
+    {
+      "path": "images/corpoelec_logo.svg",
+      "fullPath": "/home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SIGI-REF/dist/images/corpoelec_logo.svg",
+      "sha256": "bf89e43b9c1f1e574003eed6255c0b4d869f01b4d113a09e57fcc6226dc99452",
+      "size": 1066,
+      "mode": 420
+    },
+    {
+      "path": "images/mppee_logo.svg",
+      "fullPath": "/home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SIGI-REF/dist/images/mppee_logo.svg",
+      "sha256": "941ae777ef0525604adaf3e7e76cd02a89adaecc72a2b0412ec165ff59a173e3",
+      "size": 3457,
+      "mode": 420
+    },
+    {
+      "path": "images/substation_digital_twin.jpg",
+      "fullPath": "/home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SIGI-REF/dist/images/substation_digital_twin.jpg",
+      "sha256": "8ff9d17788b7557e4b64d0970f079ed6cd346cf73eaa06ec15a11da7b40f6b1a",
+      "size": 1011698,
+      "mode": 420
+    },
+    {
+      "path": "img/corpoelec-logo.png",
+      "fullPath": "/home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SIGI-REF/dist/img/corpoelec-logo.png",
+      "sha256": "09c317730d52751ecfc2d1c6d667d18bd9caceda5468e171101623ffaae4e11f",
+      "size": 11757,
+      "mode": 420
+    },
+    {
+      "path": "index.html",
+      "fullPath": "/home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SIGI-REF/dist/index.html",
+      "sha256": "429c55bcccbbbdfa8029c8466fc30c47e40a3565110f85da19f17f4d9d98408f",
+      "size": 2405,
+      "mode": 420
+    }
+  ]
+}
