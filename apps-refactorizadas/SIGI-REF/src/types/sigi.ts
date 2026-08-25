@@ -1,4 +1,4 @@
-export type UserRole = 'ADMINISTRADOR' | 'GERENCIA' | 'ESPECIALISTA' | 'ANALISTA' | 'OPERADOR' | 'AUDITOR' | 'VISOR_ESTADAL';
+export type UserRole = 'ADMINISTRADOR' | 'GERENCIA' | 'ESPECIALISTA' | 'SUPERVISOR' | 'ANALISTA' | 'OPERADOR' | 'AUDITOR' | 'VISOR_ESTADAL';
 
 export type StateCode =
   | '01' | '02' | '03' | '04' | '05' | '06' | '07'

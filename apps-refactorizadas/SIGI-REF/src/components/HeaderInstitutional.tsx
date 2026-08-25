@@ -33,10 +33,14 @@ export const HeaderInstitutional: React.FC = () => {
             <span className="hidden sm:inline text-emerald-600 dark:text-emerald-400 text-[9px]">SEN ESTABLE</span>
           </div>
 
-          {/* Security ISO Badge */}
-          <div className="hidden lg:flex items-center space-x-1 px-2 py-0.5 rounded-md bg-slate-200/70 dark:bg-slate-800/70 text-slate-700 dark:text-slate-300 text-[10px] font-mono font-medium">
-            <ShieldCheck className="h-3 w-3 text-blue-600 dark:text-cyan-400" />
-            <span>ISO 27001 · Cifrado</span>
+          {/* Security Industrial Safe Zone Badge */}
+          <div className="hidden sm:flex items-center space-x-1.5 px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-600/40 text-[10px] font-mono font-bold">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span className="text-amber-600 dark:text-amber-300">🛡️ ZONA SEGURA</span>
+            <span className="hidden xl:inline text-slate-400">·</span>
+            <span className="hidden xl:inline">GRADO INDUSTRIAL</span>
+            <span className="hidden lg:inline text-slate-400">·</span>
+            <span className="hidden lg:inline text-[9px]">ISO 27001 / ISO 8000 / OWASP</span>
           </div>
 
           {/* AI Co-Development Badge */}

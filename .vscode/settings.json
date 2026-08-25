@@ -1,0 +1,38 @@
+{
+  "git.autorefresh": false,
+  "git.autofetch": false,
+  "git.autoStash": false,
+  "git.enableSmartCommit": false,
+  "git.decorations.enabled": false,
+  "typescript.tsserver.maxTsServerMemory": 512,
+  "files.watcherExclude": {
+    "**/.git/**": true,
+    "**/node_modules/**": true,
+    "**/dist/**": true,
+    "**/build/**": true,
+    "**/.next/**": true,
+    "**/data/**": true,
+    "**/docs/010 REGISTROS 2026/**": true,
+    "**/docs/catalogos_maestros_spark/**": true,
+    "**/carga_qa/**": true,
+    "**/uploads/**": true,
+    "**/__pycache__/**": true,
+    "**/*.xlsx": true,
+    "**/*.xls": true,
+    "**/*.pdf": true,
+    "**/*.zip": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/.next": true,
+    "**/docs/010 REGISTROS 2026": true,
+    "**/*.xlsx": true,
+    "**/*.pdf": true
+  },
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true
+  }
+}

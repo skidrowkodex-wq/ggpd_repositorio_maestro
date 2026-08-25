@@ -231,3 +231,21 @@ Esto garantiza que todas las peticiones a los modelos de Gemini se realicen de f
 
 
 
+
+***************************************************************************
+Proyecto: Seguimiento y Control de la Gestión de Correspondencia Corporativa
+Nombre de la app: SCGCC V1.0 - Gestión de Correspondencia & Despacho GGPD
+Url Oficial VibeHost (Pública): https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space
+Enlace Directo (Share Link): https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space/?__vh_share=vhs_YDh4spx2o1JnziK5w1mmLXrWQC9dNDsm
+Puerto Local: 3006
+Identidad de Proceso: [ PROCESO GGPD-SEC-01 • GESTIÓN DE CORRESPONDENCIA & DESPACHO ] (#8b5cf6)
+Integraciones: Gemini AI, InsForge BaaS (Esquema scgcc), Google Drive Data Lake.
+Módulos Clave:
+  1. Tablero de Control y Monitoreo de SLAs en Tiempo Real.
+  2. Libro Maestro de Radicación Digital (Entrada, Salida, Interna).
+  3. Radicación Asistida con IA (Extracción de PDFs Human-in-the-Loop).
+  4. Redactor Asistido de Oficios de Respuesta Institucional 2026.
+  5. Bandeja de Firmas Digital & Control de Despacho con Acuse.
+  6. Ficha Ejecutiva 360° ("Modo Reunión" Ministerial en < 3s).
+  7. Derivación Automática a SCMTP V2.0 (Tareas Operativas).
+  8. Repositorio de Plantillas Corporativas Normalizadas 2026.

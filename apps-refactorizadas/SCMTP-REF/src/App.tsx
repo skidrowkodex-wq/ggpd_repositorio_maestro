@@ -58,6 +58,25 @@ export default function App() {
   const [showIsoDocsModal, setShowIsoDocsModal] = useState<boolean>(false);
   const [supabaseConfig, setSupabaseConfig] = useState<SupabaseConfig>(getStoredSupabaseConfig());
 
+  // Theme Management (Light Corporativo default / Dark Azul SEN)
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const saved = localStorage.getItem('scmtp_theme');
+    return (saved === 'dark' || saved === 'light') ? saved : 'light';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('scmtp_theme', theme);
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
+  };
+
   // User Profile, Directory & Access Control (ISO 27001 / ISO 8000)
   const [usersList, setUsersList] = useState<UserProfile[]>(() => {
     try {
@@ -458,7 +477,9 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#030d1e] font-sans text-slate-100 flex">
+    <div className={`min-h-screen font-sans transition-colors duration-200 flex ${
+      theme === 'dark' ? 'dark bg-[#072146] text-slate-100' : 'bg-slate-100 text-slate-900'
+    }`}>
       
       {/* Collapsible Left Sidebar */}
       <Sidebar
@@ -504,6 +525,8 @@ export default function App() {
           onOpenRoleSelector={() => setShowRoleModal(true)}
           onLogout={handleLogout}
           onToggleMobileSidebar={() => setIsMobileSidebarOpen(prev => !prev)}
+          theme={theme}
+          onToggleTheme={toggleTheme}
         />
 
         {/* Main View Container */}

@@ -8,7 +8,9 @@ import {
   User, 
   LogOut, 
   Layers,
-  ShieldCheck
+  ShieldCheck,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { MinutaReunion, UserProfile } from '../types';
 
@@ -24,6 +26,8 @@ interface NavbarProps {
   onOpenRoleSelector: () => void;
   onLogout?: () => void;
   onToggleMobileSidebar: () => void;
+  theme?: 'light' | 'dark';
+  onToggleTheme?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -38,6 +42,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenRoleSelector,
   onLogout,
   onToggleMobileSidebar,
+  theme = 'light',
+  onToggleTheme,
 }) => {
   return (
     <header className="bg-[#002B49] text-white border-b border-slate-800 sticky top-0 z-30 shadow-md">
@@ -113,6 +119,27 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Upload className="w-3.5 h-3.5" />
               <span>Cargar Minuta IA</span>
             </button>
+
+            {/* Theme Toggle Button (Light/Dark) */}
+            {onToggleTheme && (
+              <button
+                onClick={onToggleTheme}
+                className="flex items-center space-x-1.5 bg-slate-900/90 hover:bg-slate-800 text-slate-200 px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-700/80 transition-all cursor-pointer shadow-xs"
+                title={theme === 'light' ? 'Cambiar a Modo Oscuro (Azul SEN)' : 'Cambiar a Modo Claro Corporativo (Predeterminado)'}
+              >
+                {theme === 'light' ? (
+                  <>
+                    <Moon className="w-3.5 h-3.5 text-cyan-400" />
+                    <span className="hidden md:inline text-[11px]">Oscuro</span>
+                  </>
+                ) : (
+                  <>
+                    <Sun className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="hidden md:inline text-[11px]">Claro</span>
+                  </>
+                )}
+              </button>
+            )}
 
             {/* Active Profile Pill */}
             <button

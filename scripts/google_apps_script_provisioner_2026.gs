@@ -4,7 +4,7 @@
  * SCRIPT MAESTRO DE APROVISIONAMIENTO Y GOBIERNO DE DATOS EN GOOGLE DRIVE
  * ==============================================================================
  * Archivo: google_apps_script_provisioner_2026.gs
- * Versión: 3.0.0 (Ultra-Rápido: Creación pura de carpetas sin sobrecarga de API)
+ * Versión: 3.1.0 (Soporte de Ingesta, Auditoría e Inspección de Correspondencias)
  * Cuenta Oficial: bk.ggpd.corpoelec@gmail.com
  * Carpeta Raíz ID: 1mnnChue2IUqOh5Or99_v2LiJ3TaRJvy7
  * ==============================================================================
@@ -19,7 +19,7 @@ const SEN_ESTADOS = [
   { code: '05_CAR', name: 'CARABOBO' },
   { code: '06_ARA', name: 'ARAGUA' },
   { code: '07_LAR', name: 'LARA' },
-  { code: '08_BOL', name: 'BOLIVAR' },
+  { code: '08_BOL', name: 'BOLIVAR' }, 
   { code: '09_ANZ', name: 'ANZOATEGUI' },
   { code: '10_BAR', name: 'BARINAS' },
   { code: '11_FAL', name: 'FALCON' },
@@ -51,21 +51,107 @@ const ROOT_FOLDER_ID = '1mnnChue2IUqOh5Or99_v2LiJ3TaRJvy7';
 const YEAR = '2026';
 const MONTH = '08_AGOSTO';
 
+// Directorios de Correspondencia GGP Oficiales para Auditoría y SCGCC
+const CORRESPONDENCIA_FOLDERS = [
+  { id: '1yKwQ8hKGjCPHwukuADkv__Kp3gicJkBj', alias: '_Gerencia Nacional (Registro Principal GGP)' },
+  { id: '1rxcoAzXeBRPYOiKLWNmVWvKnPkF46Qfy', alias: 'Gestion de Correspondencia GGP (Correlativos Emitidos)' },
+  { id: '1TLY85lMR7R1Yz7TgKaMVc2p42dgSO07D', alias: 'PDF CORRESP TTHH 2026 (Talento Humano -> GGP)' },
+  { id: '1LHRo1PlKxPRHYFSOJsdemq8iXO8SNMRf', alias: 'PDF DOC. CORRESP GCIA GRAL DE DISTRIBUCION A LA GGP' },
+  { id: '1-e_OVf929QnJkUUcXUFRy_pCujAdF26a', alias: 'FORMATO CORPORATIVOS VARIOS 2026' }
+];
+
 /**
  * ==============================================================================
- * FUNCIÓN 1 (RECOMENDADA): COMPLETAR DESDE TÁCHIRA HASTA EL ESEQUIBO (13 AL 25)
- * Tiempo estimado: ~25 segundos
+ * FUNCIÓN DE INSPECCIÓN DE CORRESPONDENCIAS Y RUTAS
  * ==============================================================================
  */
-function provisionFromTachiraToEnd() {
-  Logger.log('🚀 Creando Estados del 13 (Táchira) al 25 (Guayana Esequiba) + Consolidados...');
-  return runFastProvisioning(12, 25);
+function inspectCorrespondenciaFolders(customFolderId) {
+  const targets = customFolderId 
+    ? [{ id: customFolderId, alias: 'Directorio Personalizado' }]
+    : CORRESPONDENCIA_FOLDERS;
+    
+  const results = [];
+  
+  targets.forEach(t => {
+    try {
+      const folder = DriveApp.getFolderById(t.id);
+      const folderData = {
+        id: t.id,
+        alias: t.alias,
+        realName: folder.getName(),
+        url: folder.getUrl(),
+        subfolders: [],
+        files: []
+      };
+      
+      // Subcarpetas directas
+      const subIter = folder.getFolders();
+      while (subIter.hasNext()) {
+        const sub = subIter.next();
+        folderData.subfolders.push({
+          id: sub.getId(),
+          name: sub.getName(),
+          url: sub.getUrl()
+        });
+      }
+      
+      // Archivos directos
+      const fileIter = folder.getFiles();
+      while (fileIter.hasNext()) {
+        const file = fileIter.next();
+        folderData.files.push({
+          id: file.getId(),
+          name: file.getName(),
+          mimeType: file.getMimeType(),
+          sizeBytes: file.getSize(),
+          sizeKB: Math.round(file.getSize() / 1024 * 100) / 100,
+          lastUpdated: file.getLastUpdated().toISOString(),
+          downloadUrl: `https://drive.google.com/uc?export=download&id=${file.getId()}`,
+          viewUrl: file.getUrl()
+        });
+      }
+      
+      results.push(folderData);
+    } catch (err) {
+      results.push({
+        id: t.id,
+        alias: t.alias,
+        error: err.toString()
+      });
+    }
+  });
+  
+  return results;
+}
+
+/**
+ * Obtiene el contenido Base64 de un archivo para descarga y análisis seguro en local
+ */
+function getFileBase64(fileId) {
+  try {
+    const file = DriveApp.getFileById(fileId);
+    const blob = file.getBlob();
+    const base64 = Utilities.base64Encode(blob.getBytes());
+    return {
+      success: true,
+      id: fileId,
+      name: file.getName(),
+      mimeType: file.getMimeType(),
+      sizeBytes: file.getSize(),
+      base64Data: base64
+    };
+  } catch (err) {
+    return {
+      success: false,
+      id: fileId,
+      error: err.toString()
+    };
+  }
 }
 
 /**
  * ==============================================================================
- * FUNCIÓN 2: CREACIÓN COMPLETA ULTRA-RÁPIDA (25 ESTADOS)
- * Tiempo estimado: ~45 segundos
+ * APROVISIONAMIENTO COMPLETO ULTRA-RÁPIDO (25 ESTADOS)
  * ==============================================================================
  */
 function provisionAll25StatesFast() {
@@ -73,11 +159,6 @@ function provisionAll25StatesFast() {
   return runFastProvisioning(0, 25);
 }
 
-/**
- * ==============================================================================
- * MOTOR ULTRA-OPTIMIZADO DE CREACIÓN DE DIRECTORIOS
- * ==============================================================================
- */
 function runFastProvisioning(startIdx, endIdx) {
   const root = DriveApp.getFolderById(ROOT_FOLDER_ID);
   const dataLakeRoot = fastGetOrCreate(root, 'GGPD_DATA_LAKE_OFICIAL');
@@ -116,9 +197,6 @@ function runFastProvisioning(startIdx, endIdx) {
   return 'SUCCESS: Estados ' + (startIdx + 1) + ' al ' + endIdx + ' aprovisionados con Plantillas y Consolidados.';
 }
 
-/**
- * Obtiene o crea la carpeta de forma directa y rápida
- */
 function fastGetOrCreate(parent, name) {
   const iter = parent.getFoldersByName(name);
   if (iter.hasNext()) {
@@ -129,54 +207,35 @@ function fastGetOrCreate(parent, name) {
 
 /**
  * ==============================================================================
- * APROVISIONAMIENTO DINÁMICO DE UN NUEVO PROCESO (ej. 05_SCPYP)
- * ==============================================================================
- */
-function provisionNewProcess(processCode, processName) {
-  const root = DriveApp.getFolderById(ROOT_FOLDER_ID);
-  const dataLakeRoot = fastGetOrCreate(root, 'GGPD_DATA_LAKE_OFICIAL');
-  const fullProcName = `${processCode}_${processName}`;
-  
-  // 1. Crear en los 25 Estados
-  SEN_ESTADOS.forEach(estado => {
-    const estadoName = `${estado.code}_${estado.name}`;
-    const estadoFolder = fastGetOrCreate(dataLakeRoot, estadoName);
-    const procFolder = fastGetOrCreate(estadoFolder, fullProcName);
-    const yearFolder = fastGetOrCreate(procFolder, YEAR);
-    fastGetOrCreate(yearFolder, MONTH);
-  });
-  
-  // 2. Crear registro en la biblioteca central de plantillas
-  const plantillasFolder = fastGetOrCreate(dataLakeRoot, '00_PLANTILLAS_OFICIALES');
-  fastGetOrCreate(plantillasFolder, fullProcName);
-
-  return 'SUCCESS: Proceso ' + fullProcName + ' creado en los 25 Estados y en 00_PLANTILLAS_OFICIALES.';
-}
-
-
-/**
- * ==============================================================================
- * WEBHOOK PARA SIGI (doGet / doPost)
+ * WEBHOOK PARA SIGI & SCGCC (doGet / doPost)
  * ==============================================================================
  */
 function doGet(e) {
   const action = (e && e.parameter && e.parameter.action) ? e.parameter.action : 'STATUS';
   
+  if (action === 'INSPECT_CORRESPONDENCIAS') {
+    const customId = e.parameter.folderId || null;
+    const res = inspectCorrespondenciaFolders(customId);
+    return ContentService.createTextOutput(JSON.stringify({ status: 'SUCCESS', count: res.length, data: res })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (action === 'GET_FILE_BASE64') {
+    const fId = e.parameter.fileId;
+    if (!fId) {
+      return ContentService.createTextOutput(JSON.stringify({ status: 'ERROR', message: 'Falta parámetro fileId' })).setMimeType(ContentService.MimeType.JSON);
+    }
+    const res = getFileBase64(fId);
+    return ContentService.createTextOutput(JSON.stringify(res)).setMimeType(ContentService.MimeType.JSON);
+  }
+
   if (action === 'PROVISION_DATA_LAKE') {
     const res = provisionAll25StatesFast();
     return ContentService.createTextOutput(JSON.stringify({ status: 'SUCCESS', result: res })).setMimeType(ContentService.MimeType.JSON);
   }
   
-  if (action === 'PROVISION_NEW_PROCESS') {
-    const pCode = e.parameter.code || '05_SCPYP';
-    const pName = e.parameter.name || 'PICA_Y_PODA';
-    const res = provisionNewProcess(pCode, pName);
-    return ContentService.createTextOutput(JSON.stringify({ status: 'SUCCESS', result: res })).setMimeType(ContentService.MimeType.JSON);
-  }
-  
   const status = {
     status: "ONLINE",
-    servicio: "CORPOELEC GGPD Google Drive Webhook & Data Lake Hub",
+    servicio: "CORPOELEC GGPD Google Drive Webhook & SCGCC Data Hub",
     cuenta: "bk.ggpd.corpoelec@gmail.com",
     carpetaId: ROOT_FOLDER_ID,
     carpetaUrl: `https://drive.google.com/drive/folders/${ROOT_FOLDER_ID}`,

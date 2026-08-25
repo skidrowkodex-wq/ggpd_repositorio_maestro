@@ -17,7 +17,7 @@ const ThemeContext = createContext<ThemeContextType>({
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<Theme>(() => {
     const saved = localStorage.getItem('scein_theme');
-    return (saved === 'dark' || saved === 'light') ? saved : 'dark'; // Default DARK Glassmorphism
+    return (saved === 'dark' || saved === 'light') ? saved : 'light'; // Default TEMA CLARO CORPORATIVO
   });
 
   useEffect(() => {

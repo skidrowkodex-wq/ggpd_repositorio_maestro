@@ -13,21 +13,37 @@ Consulta el detalle de la regla en [.agents/rules/handoff.md](file:///home/skidr
 ---
 
 ## 🏛️ 2. Estructura del Repositorio y Aplicaciones
-El repositorio integra las cuatro aplicaciones estratégicas del SEN más el portal central y el sistema SIGI:
-1. **Gestor de Tareas y Minutas (SGTA):** `apps/corpoelec---gestor-de-tareas-y-minutas` (Puerto `3003`)
-2. **Planificación Eléctrica SEN / Viáticos / SAMC:** `apps/planificación-eléctrica-sen` (Puerto `3004`)
-3. **SCEIN (Equipos Indisponibles de Subestaciones):** `apps/remix-scein---seguimiento-y-control-de-equipos-indisponibles-corpoelec` (Puerto `3005`)
-4. **SCTIS v2.0 (Tiras de Interrupción de Distribución):** `apps/sctis-v-2.0-distribucion` (Puerto `3002`)
-5. **SIGI (Gestión y Planificación de Distribución):** `apps/corpoelec-sigi-gestion-planificacion-distribucion` (Puerto `3001`)
-6. **Portal Maestro Unificado:** `index.html` / `src/` (Puerto `5000` o `npm run dev`)
+El repositorio integra las cinco aplicaciones estratégicas del SEN más la Consola Central SIGI y el portal maestro:
+1. **Gestor de Tareas y Minutas (SCMTP / SGTA):** `apps/corpoelec---gestor-de-tareas-y-minutas` / `apps-refactorizadas/SCMTP-REF` (Puerto `3003`)
+2. **Planificación Eléctrica SEN / Viáticos / SAMC (SCPPE):** `apps/planificación-eléctrica-sen` / `apps-refactorizadas/SCPPE-REF` (Puerto `3004`)
+3. **SCEIN (Equipos Indisponibles de Subestaciones):** `apps/remix-scein---seguimiento-y-control-de-equipos-indisponibles-corpoelec` / `apps-refactorizadas/SCEIN-REF` (Puerto `3005`)
+4. **SCTIS v2.0 (Tiras de Interrupción de Distribución):** `apps/sctis-v-2.0-distribucion` / `apps-refactorizadas/SCTIS-REF` (Puerto `3002`)
+5. **SIGI (Consola Central de Gestión y Planificación):** `apps/corpoelec-sigi-gestion-planificacion-distribucion` / `apps-refactorizadas/SIGI-REF` (Puerto `3001`)
+6. **SCGCC V1.0 (Gestión de Correspondencia Corporativa):** `apps-refactorizadas/SCGCC-REF` (Puerto `3006`)
+7. **Portal Maestro Unificado:** `index.html` / `src/` (Puerto `5000` o `npm run dev`)
 
 ---
 
-## 🛡️ 3. Estándares y Cumplimiento Normativo (GGPD)
-- **ISO 8000-110:** Calidad de datos sintácticos y semánticos. Erradicación de duplicados y aislamiento en bandejas de remediación.
-- **ISO/IEC 27001:2022:** Seguridad en Supabase Auth, Row Level Security (RLS) habilitado en todas las tablas y variables en `.env`.
-- **ISO 55000 / 55001:** Gestión y trazabilidad del ciclo de vida de activos eléctricos.
-- **ISACA COBIT 2019 (MEA02):** Controles financieros preventivos mediante triggers PostgreSQL (e.g. validación de presupuesto de viáticos antes del commit).
+## 🛡️ 3. Estándares y Cumplimiento Normativo de Grado Industrial SEN (GGPD)
+Toda aplicación nueva o refactorizada en el Repositorio Maestro DEBE implementar obligatoriamente el **Estándar de Certificación de Grado Industrial SEN & Zona Segura Cifrada**:
+- **Pantalla de Autenticación (Login):**
+  - Pill superior pulsante: `🛡️ ZONA SEGURA CIFRADA · ISO/IEC 27001 · OWASP ASVS`.
+  - Sello: `CERTIFICACIÓN DE GRADO INDUSTRIAL · SEN 2026`.
+  - Formulario convencional limpio: `Usuario Corporativo / Correo` y `Contraseña Institucional` (con botón para alternar visibilidad).
+  - Caja de aviso de sesión auditada bajo norma ISO/IEC 27001.
+  - Pie multi-normativo (ISO 27001, ISO 8000-110, OWASP Top 10, ISACA COBIT).
+- **Barra Técnica Superior (Navbar):**
+  - Estampado: `🛡️ ZONA SEGURA DE GRADO INDUSTRIAL | ISO 27001 · ISO 8000 · OWASP · PORT XXXX`.
+- **Pie Institucional Unificado (Footer):**
+  - Mención oficial a los 4 pilares normativos e impulso por Inteligencia Artificial Avanzada (*Google Antigravity / Gemini Flash AI*).
+- **Marco Normativo Vigente:**
+  - **ISO/IEC 27001:2022:** Seguridad en Supabase/InsForge Auth, Row Level Security (RLS) en todas las tablas y variables en `.env`.
+  - **ISO 8000-110:** Calidad de datos sintácticos y semánticos. Erradicación de duplicados y validación estricta de esquemas.
+  - **ISO 55000 / 55001:** Gestión y trazabilidad del ciclo de vida de activos eléctricos.
+  - **OWASP ASVS v4.0 Level 2 / Top 10:** Blindaje contra inyección SQL, XSS, fijación de sesión y Broken Access Control.
+  - **ISACA COBIT 2019 (MEA02):** Controles preventivos mediante triggers PostgreSQL y auditoría de eventos.
+
+Consulta el detalle en [.agents/rules/industrial_grade_standard.md](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/.agents/rules/industrial_grade_standard.md).
 
 ---
 

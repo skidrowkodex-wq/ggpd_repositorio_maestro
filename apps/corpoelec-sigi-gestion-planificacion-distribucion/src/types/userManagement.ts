@@ -1,13 +1,14 @@
 import { StateCode } from './sigi';
 
-export type UserSystemRole = 'ADMINISTRADOR' | 'GERENCIA' | 'ESPECIALISTA' | 'ANALISTA' | 'OPERADOR' | 'AUDITOR' | 'VISOR_ESTADAL';
+export type UserSystemRole = 'ADMINISTRADOR' | 'GERENCIA' | 'ESPECIALISTA' | 'SUPERVISOR' | 'ANALISTA' | 'OPERADOR' | 'AUDITOR' | 'VISOR_ESTADAL';
 
 export interface AppAccessPermissions {
   sctis: boolean;        // App 1: SCTIS V2.0 - Seguimiento y Control de Tiras de Interrupciones
   tareasMinutas: boolean;// App 2: SCMTP V2.0 - Seguimiento y Control de Minutas y Tareas de Planificacion
   planificacion: boolean;// App 3: SCPPE V3.0 - Seguimiento y Control de Planes y Proyectos Especiales de Distribucion
   scein: boolean;        // App 4: SCEIN V3.0 - Seguimiento y Control de Equipos Indisponibles
-  gdriveRepo: boolean;   // App 5: Repositorio Cloud Google Drive GGPD
+  scgcc?: boolean;       // App 5: SCGCC V1.0 - Gestión de Correspondencia & Despacho GGPD
+  gdriveRepo: boolean;   // App 6: Repositorio Cloud Google Drive GGPD
 }
 
 export interface InstitutionalUser {

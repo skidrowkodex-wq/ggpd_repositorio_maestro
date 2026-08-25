@@ -1,4 +1,4 @@
-Buenas tardes, a continuación envío el listado oficial de las 5 aplicaciones estratégicas del Sistema Eléctrico Nacional (SEN / GGPD) desplegadas en VibeHost con acceso público directo (sin requerir login previo):
+Buenas tardes, a continuación envío el listado oficial de las 6 aplicaciones estratégicas del Sistema Eléctrico Nacional (SEN / GGPD) desplegadas en VibeHost con acceso público directo (sin requerir login previo):
 
 0. Consola Central y Portal de Gestión (SIGI):
 Nombre: SIGI - Sistema Integral de Gestión y Planificación de Distribución
@@ -25,3 +25,7 @@ Nombre: SCEIN V3.0 - Equipos Indisponibles en Subestaciones
 Enlace Oficial: https://corpoelec-scein-corpoelec-ggpd-hosting-apps.vibehost.space
 Enlace Directo (Share): https://corpoelec-scein-corpoelec-ggpd-hosting-apps.vibehost.space/?__vh_share=vhs_v3Knp6MCmTq7TLJ-VVQAx2XvjbGcVtYl
 
+5. Proyecto: Seguimiento y Control de la Gestión de Correspondencia Corporativa (SCGCC V1.0):
+Nombre: SCGCC V1.0 - Gestión de Correspondencia & Despacho GGPD
+Enlace Oficial: https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space
+Enlace Directo (Share): https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space/?__vh_share=vhs_YDh4spx2o1JnziK5w1mmLXrWQC9dNDsm

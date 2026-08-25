@@ -8,7 +8,7 @@ import { PoaBudgetView } from './components/PoaBudgetView';
 import { GgdProyectosView } from './components/GgdProyectosView';
 import { ViaticosControlView } from './components/ViaticosControlView';
 import { IsoAuditView } from './components/IsoAuditView';
-import { LoginModal } from './components/LoginModal';
+import { LoginForm } from './components/LoginForm';
 import { IsoAuditBadge } from './components/IsoAuditBadge';
 import { UserProfile } from './types';
 import { getInitialUser, logoutUser } from './services/authService';
@@ -16,10 +16,13 @@ import { getInitialUser, logoutUser } from './services/authService';
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => getInitialUser());
-  const [showLoginModal, setShowLoginModal] = useState(() => getInitialUser() === null);
-  const [darkMode, setDarkMode] = useState(true); // Tema Oscuro Glassmorphism por defecto
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    const saved = localStorage.getItem('scppe_theme');
+    return saved === 'dark';
+  });
 
   useEffect(() => {
+    localStorage.setItem('scppe_theme', darkMode ? 'dark' : 'light');
     if (darkMode) {
       document.documentElement.classList.add('dark');
     } else {
@@ -30,21 +33,29 @@ export default function App() {
   const handleLogout = () => {
     logoutUser();
     setCurrentUser(null);
-    setShowLoginModal(true);
   };
 
   const handleLoginSuccess = (user: UserProfile) => {
     setCurrentUser(user);
-    setShowLoginModal(false);
   };
+
+  if (!currentUser) {
+    return (
+      <LoginForm
+        onLoginSuccess={handleLoginSuccess}
+        darkMode={darkMode}
+        onToggleDarkMode={() => setDarkMode(!darkMode)}
+      />
+    );
+  }
 
   return (
     <div className={`min-h-screen flex flex-col font-sans selection:bg-red-600 selection:text-white transition-colors ${
-      darkMode ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
+      darkMode ? 'dark bg-[#041426] text-slate-100' : 'bg-slate-50 text-slate-900'
     }`}>
       <Navbar
         currentUser={currentUser}
-        onOpenLogin={() => setShowLoginModal(true)}
+        onOpenLogin={() => {}}
         onLogout={handleLogout}
         darkMode={darkMode}
         onToggleDarkMode={() => setDarkMode(!darkMode)}
@@ -67,13 +78,6 @@ export default function App() {
           {activeTab === 'auditoria' && currentUser?.rol !== 'ANALISTA' && <IsoAuditView />}
         </main>
       </div>
-
-      <LoginModal
-        isOpen={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-        onLoginSuccess={handleLoginSuccess}
-        darkMode={darkMode}
-      />
 
       <IsoAuditBadge onGoToAudit={() => setActiveTab('auditoria')} />
     </div>

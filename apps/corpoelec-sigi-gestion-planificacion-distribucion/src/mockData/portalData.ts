@@ -71,6 +71,16 @@ export const SYSTEM_APPS: AppItem[] = [
     badgeText: 'Auditoría COBIT'
   },
   {
+    id: 'scgcc',
+    name: 'SCGCC V1.0 - Gestión de Correspondencia & Despacho GGPD',
+    description: 'Radicación digital, redacción asistida con IA, bandeja de firmas y ficha ejecutiva 360°.',
+    category: 'APLICACION_MAESTRA',
+    url: 'https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space',
+    iconName: 'FileText',
+    isCloud: false,
+    badgeText: 'Protocolo 2026'
+  },
+  {
     id: 'gdrive-ggpd',
     name: 'Repositorio Google Drive Corporativo',
     description: 'Buzón institucional unificado de carpetas, minutas en vivo y matrices de distribución en la nube.',

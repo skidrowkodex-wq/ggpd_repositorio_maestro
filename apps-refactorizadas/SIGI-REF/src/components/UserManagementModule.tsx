@@ -116,6 +116,15 @@ const APPS_META: Record<keyof AppAccessPermissions, AppMetadata> = {
     colorTheme: 'amber',
     deployUrl: 'https://corpoelec-scein-corpoelec-ggpd-hosting-apps.vibehost.space',
   },
+  scgcc: {
+    key: 'scgcc',
+    shortName: 'SCGCC V1.0',
+    fullName: 'SCGCC V1.0 - Gestión de Correspondencia & Despacho GGPD',
+    description: 'Radicación digital, redacción asistida con IA, bandeja de firmas y ficha ejecutiva 360°.',
+    icon: Mail,
+    colorTheme: 'purple',
+    deployUrl: 'https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space',
+  },
   gdriveRepo: {
     key: 'gdriveRepo',
     shortName: 'Google Drive',
@@ -225,7 +234,7 @@ export const UserManagementModule: React.FC = () => {
   const openPermissionWizard = (user: InstitutionalUser, appKey: keyof AppAccessPermissions) => {
     setWizardUser(user);
     setWizardAppKey(appKey);
-    setWizardGranted(user.permissions[appKey]);
+    setWizardGranted(!!user.permissions[appKey]);
     setWizardScopeLevel(user.role === 'ADMINISTRADOR' ? 'ADMIN_APLICACION' : 'OPERADOR_LOCAL');
     setWizardAuditNote(`Modificación de acceso autorizada por ${session.name} (${session.role}). ISO 27001 Audit Trail.`);
   };
@@ -826,7 +835,21 @@ export const UserManagementModule: React.FC = () => {
                             <span>SCEIN V3.0</span>
                           </button>
 
-                          {/* App 5: Google Drive */}
+                          {/* App 5: SCGCC */}
+                          <button
+                            onClick={() => openPermissionWizard(user, 'scgcc')}
+                            title="Click para abrir Asistente de Permisos SCGCC V1.0"
+                            className={`p-1.5 rounded-lg border transition-all text-[10px] font-bold flex items-center space-x-1 hover:scale-105 ${
+                              user.permissions.scgcc 
+                                ? 'bg-purple-100 text-purple-900 border-purple-300 dark:bg-purple-950 dark:text-purple-300 shadow-xs' 
+                                : 'bg-slate-100 text-slate-400 border-slate-300 dark:bg-slate-800 dark:text-slate-500'
+                            }`}
+                          >
+                            <Mail className="h-3.5 w-3.5" />
+                            <span>SCGCC V1.0</span>
+                          </button>
+
+                          {/* App 6: Google Drive */}
                           <button
                             onClick={() => openPermissionWizard(user, 'gdriveRepo')}
                             title="Click para abrir Asistente de Permisos Repositorio Google Drive"

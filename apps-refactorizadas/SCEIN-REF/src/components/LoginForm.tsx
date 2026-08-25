@@ -1,285 +1,228 @@
 import React, { useState } from 'react';
-import { Zap, Lock, User, AlertCircle, RefreshCw, ShieldCheck, CheckCircle2, Database, Key, Cpu, Sparkles, Info, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../lib/authContext';
 import { useTheme } from '../lib/themeContext';
+import { 
+  Zap, 
+  ShieldCheck, 
+  Lock, 
+  Sun, 
+  Moon,
+  ArrowRight,
+  User,
+  KeyRound,
+  Eye,
+  EyeOff,
+  AlertCircle,
+  Database,
+  Cpu,
+  RefreshCw
+} from 'lucide-react';
 
 export const LoginForm: React.FC = () => {
   const { login } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [username, setUsername] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMsg('');
-    setLoading(true);
-
-    const res = await login(username, password);
-    if (!res.success) {
-      setErrorMsg(res.error || 'Credenciales inválidas. Verifica tu usuario y contraseña.');
+    if (!username.trim()) {
+      setError('Por favor ingrese su usuario corporativo.');
+      return;
     }
-    setLoading(false);
-  };
-
-  const handleQuickLogin = async (user: string, pass: string) => {
-    setUsername(user);
-    setPassword(pass);
-    setErrorMsg('');
-    setLoading(true);
-
-    const res = await login(user, pass);
-    if (!res.success) {
-      setErrorMsg(res.error || 'Error al autenticar usuario predeterminado.');
+    if (!password.trim()) {
+      setError('Por favor ingrese su contraseña institucional.');
+      return;
     }
-    setLoading(false);
+
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await login(username.trim(), password.trim());
+      if (!res.success) {
+        setError(res.error || 'Credenciales inválidas o sin permisos en SCEIN.');
+      }
+    } catch {
+      setError('Error al conectar con el servidor de autenticación.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col items-center justify-center p-4 selection:bg-sky-500 selection:text-white relative transition-colors duration-200">
-      {/* Theme Switcher Button at top right */}
-      <div className="absolute top-4 right-4">
+    <div className="min-h-screen bg-slate-100 dark:bg-[#041426] flex flex-col justify-center py-10 sm:px-6 lg:px-8 transition-colors duration-200 relative">
+      
+      {/* Selector de Tema Flotante */}
+      <div className="absolute top-4 right-4 z-50">
         <button
           onClick={toggleTheme}
-          className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-amber-400 shadow-md hover:bg-slate-50 dark:hover:bg-slate-800 transition flex items-center gap-2 text-xs font-semibold"
-          title={theme === 'light' ? 'Cambiar a Modo Oscuro' : 'Cambiar a Modo Claro Corporativo'}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:bg-[#072146] text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-amber-900/60 shadow-sm text-xs font-semibold hover:border-amber-500 transition-colors cursor-pointer"
+          title={theme === 'dark' ? 'Cambiar a Tema Claro' : 'Cambiar a Modo Oscuro'}
         >
-          {theme === 'light' ? (
+          {theme === 'dark' ? (
             <>
-              <Moon className="w-4 h-4 text-sky-600" />
-              <span className="hidden sm:inline">Modo Oscuro</span>
+              <Sun className="w-3.5 h-3.5 text-amber-400" />
+              <span>Tema Claro</span>
             </>
           ) : (
             <>
-              <Sun className="w-4 h-4 text-amber-400" />
-              <span className="hidden sm:inline">Modo Claro</span>
+              <Moon className="w-3.5 h-3.5 text-amber-600" />
+              <span>Modo Oscuro Azul SEN</span>
             </>
           )}
         </button>
       </div>
 
-      <div className="max-w-md w-full space-y-6">
-        {/* Header Branding */}
-        <div className="text-center space-y-3">
-          <div className="inline-flex h-14 w-14 rounded-2xl bg-gradient-to-tr from-amber-500 via-orange-600 to-amber-700 items-center justify-center shadow-xl shadow-amber-500/25 text-white mx-auto">
-            <Zap className="w-8 h-8 fill-current text-white animate-pulse" />
-          </div>
-          <div>
-            <div className="inline-block mb-1">
-              <span className="text-[11px] font-mono tracking-widest text-amber-400 uppercase bg-amber-950/70 px-3 py-0.5 rounded-full border border-amber-500/40">
-                PROCESO GGPD-SUB-01 • SUBESTACIONES
-              </span>
-            </div>
-            <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">CORPOELEC • GGPD</h1>
-            <p className="text-sm font-bold text-amber-600 dark:text-amber-400 mt-0.5">SCEIN V3.0 — Seguimiento y Control de Equipos Indisponibles</p>
-            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-mono">Gestión de Activos Mayores ISO 55000 & Calidad ISO 8000</p>
+      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
+        {/* 🛡️ ZONA SEGURA CIFRADA BADGE */}
+        <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 dark:bg-emerald-950/90 px-3.5 py-1 border border-emerald-300 dark:border-emerald-500/50 text-emerald-900 dark:text-emerald-300 text-[11px] font-mono font-black mb-3 shadow-xs animate-fadeIn">
+          <Lock className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+          <span>ZONA SEGURA CIFRADA · ISO/IEC 27001 · OWASP ASVS</span>
+        </div>
+
+        {/* Logo Card */}
+        <div className="flex justify-center">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 via-amber-500 to-orange-700 flex items-center justify-center text-white shadow-xl shadow-orange-500/30 ring-4 ring-orange-500/20">
+            <Zap className="w-8 h-8 fill-current text-white" />
           </div>
         </div>
 
-        {/* Card Form */}
-        <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-amber-500/30 rounded-2xl p-6 sm:p-8 shadow-xl dark:shadow-2xl dark:shadow-amber-500/10 backdrop-blur-md space-y-6 relative overflow-hidden">
-          {/* Banda Técnica de Proceso Ámbar Industrial (4px) */}
-          <div className="h-1 w-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 absolute top-0 left-0 shadow-[0_0_12px_rgba(245,158,11,0.5)]"></div>
+        <h2 className="mt-3 text-center text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+          SCEIN <span className="text-orange-500 dark:text-orange-400">V3.0</span>
+        </h2>
+        <p className="mt-1 text-center text-xs font-bold uppercase tracking-wider text-orange-700 dark:text-orange-300 font-mono">
+          PROCESO GGPD-SUB-01 • EQUIPOS INDISPONIBLES DE SUBESTACIONES
+        </p>
+        <p className="text-center text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          Gerencia General de Gestión de Planificación (GGPD) • CORPOELEC
+        </p>
 
-          <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-            <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-semibold text-sm">
-              <Lock className="w-4 h-4 text-amber-500 dark:text-amber-400" />
-              <span>Control de Acceso al Sistema</span>
-            </div>
-            <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-700/60 font-mono font-bold">
-              Esquema DB: core
-            </span>
-          </div>
+        {/* Certificación de Grado Industrial Badge */}
+        <div className="mt-2 inline-flex items-center gap-1 text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 bg-slate-200/60 dark:bg-[#072146] px-2.5 py-0.5 rounded-md border border-slate-300 dark:border-orange-900/60">
+          <ShieldCheck className="w-3 h-3 text-orange-500" />
+          <span>CERTIFICACIÓN DE GRADO INDUSTRIAL · SEN 2026</span>
+        </div>
+      </div>
 
-          {errorMsg && (
-            <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800/80 text-rose-800 dark:text-rose-200 text-xs flex items-start gap-2.5">
-              <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
-              <div className="leading-relaxed">{errorMsg}</div>
-            </div>
-          )}
+      <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
+        <div className="bg-white dark:bg-[#072146] py-8 px-6 sm:px-9 shadow-2xl rounded-2xl border border-slate-200 dark:border-orange-900/40 relative overflow-hidden">
+          
+          {/* Top Security Line Indicator */}
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-orange-500 to-amber-500"></div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Formulario Convencional */}
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            
+            {/* Username Input */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold font-mono text-slate-700 dark:text-slate-300 uppercase tracking-wider">Usuario Corporativo</label>
-              <div className="relative">
-                <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="ej: ggpd_admin, j_jimenez, e_tachira"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition font-mono"
-                  required
-                />
-              </div>
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
+                <User className="h-3.5 w-3.5 text-orange-600 dark:text-orange-400" />
+                <span>Usuario Corporativo / Correo *</span>
+              </label>
+              <input
+                type="text"
+                placeholder="ej: carlos.reyes o ggpd_admin"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full rounded-xl bg-slate-50 dark:bg-[#041426] border border-slate-300 dark:border-slate-700 px-3.5 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 font-mono font-medium transition-all"
+                required
+                autoComplete="username"
+              />
             </div>
 
+            {/* Password Input */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold font-mono text-slate-700 dark:text-slate-300 uppercase tracking-wider">Contraseña</label>
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 uppercase tracking-wider">
+                <Lock className="h-3.5 w-3.5 text-orange-600 dark:text-orange-400" />
+                <span>Contraseña Institucional *</span>
+              </label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••••••"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition font-mono"
+                  className="w-full rounded-xl bg-slate-50 dark:bg-[#041426] border border-slate-300 dark:border-slate-700 px-3.5 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 font-mono transition-all pr-10"
                   required
+                  autoComplete="current-password"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                  title={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
+            {/* Error Message */}
+            {error && (
+              <div className="flex items-center gap-2 rounded-xl bg-red-50 dark:bg-red-950/60 p-3 border border-red-200 dark:border-red-500/40 text-xs text-red-700 dark:text-red-300 font-medium animate-fadeIn">
+                <AlertCircle className="h-4 w-4 shrink-0 text-red-600 dark:text-red-400" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            {/* Security Notice Box */}
+            <div className="rounded-xl bg-slate-50 dark:bg-[#061224] p-3 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400 flex items-start gap-2.5">
+              <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400 mt-0.5" />
+              <p className="leading-snug">
+                Acceso restringido a personal técnico autorizado del SEN. Sesión auditada bajo norma <strong>ISO/IEC 27001</strong>.
+              </p>
+            </div>
+
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-extrabold text-sm shadow-lg shadow-amber-500/20 active:scale-[0.99] transition flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-black text-white bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-amber-600 shadow-lg shadow-orange-500/30 transition-all active:scale-[0.98] disabled:opacity-50 uppercase tracking-wider cursor-pointer"
             >
               {loading ? (
                 <>
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Verificando Credenciales...</span>
+                  <RefreshCw className="h-4 w-4 animate-spin text-white" />
+                  <span>Validando Acceso IAM...</span>
                 </>
               ) : (
                 <>
-                  <ShieldCheck className="w-4 h-4 text-slate-950" />
-                  <span>Ingresar al Sistema SCEIN</span>
+                  <KeyRound className="w-4 h-4" />
+                  <span>Iniciar Sesión Institucional</span>
+                  <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </button>
           </form>
 
-          {/* Security & Compliance Badges Card */}
-          <div className="pt-4 border-t border-slate-200 dark:border-slate-800/80 space-y-3">
-            <div className="flex items-center justify-between text-xs font-bold text-emerald-700 dark:text-emerald-400">
+          {/* Footer Multi-Normative Badges */}
+          <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800 space-y-2">
+            <div className="grid grid-cols-2 gap-2 text-[10px] font-mono text-slate-500 dark:text-slate-400">
               <div className="flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <span>Entorno Protegido & Criterios OWASP 2025</span>
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                <span>ISO 27001 / ISO 55000</span>
               </div>
-              <span className="text-[10px] text-emerald-600 dark:text-emerald-500/80 font-mono">v2.4 SEC</span>
+              <div className="flex items-center gap-1.5">
+                <Database className="w-3.5 h-3.5 text-orange-500 shrink-0" />
+                <span>ISO 8000-110 Data Quality</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                <span>OWASP ASVS Level 2</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Cpu className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                <span>ISACA COBIT MEA02</span>
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 text-[11px]">
-              <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></div>
-                <div>
-                  <span className="font-bold text-slate-800 dark:text-slate-200 block">OWASP A01 & A07</span>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400">RBAC Strict & Rate Limit</span>
-                </div>
-              </div>
-
-              <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-cyan-500 dark:bg-cyan-400 animate-pulse"></div>
-                <div>
-                  <span className="font-bold text-slate-800 dark:text-slate-200 block">OWASP A05 & A08</span>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400">Headers SEC & Integrity</span>
-                </div>
-              </div>
-
-              <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-purple-500 dark:bg-purple-400 animate-pulse"></div>
-                <div>
-                  <span className="font-bold text-slate-800 dark:text-slate-200 block">ISO 27001</span>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400">Auditoría & Logs PBKDF2</span>
-                </div>
-              </div>
-
-              <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-amber-500 dark:bg-amber-400 animate-pulse"></div>
-                <div>
-                  <span className="font-bold text-slate-800 dark:text-slate-200 block">ISO 8000-61</span>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400">Calidad de Datos SEN</span>
-                </div>
-              </div>
+            <div className="text-[10px] text-center text-slate-400 dark:text-slate-500 pt-1">
+              Plataforma protegida con cifrado TLS 1.3 • Trazabilidad de activos mayores ISO 55001.
             </div>
           </div>
 
-          {/* Technology Architecture Badge & Reference */}
-          <div className="pt-3 border-t border-slate-200 dark:border-slate-800/80 space-y-2">
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300">
-              <Sparkles className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
-              <span>Arquitectura Tecnológica & Motor de IA</span>
-            </div>
-
-            <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950/90 border border-slate-200 dark:border-slate-800 text-[11px] space-y-1.5">
-              <div className="flex flex-wrap items-center gap-1.5 text-slate-700 dark:text-slate-300 font-medium">
-                <span className="px-1.5 py-0.5 rounded bg-sky-100 dark:bg-sky-950 border border-sky-300 dark:border-sky-800/60 text-sky-800 dark:text-sky-300 text-[10px] font-bold">Google AI Studio</span>
-                <span className="px-1.5 py-0.5 rounded bg-purple-100 dark:bg-purple-950 border border-purple-300 dark:border-purple-800/60 text-purple-800 dark:text-purple-300 text-[10px] font-bold">Gemini 3.6 Pro</span>
-                <span className="px-1.5 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950 border border-indigo-300 dark:border-indigo-800/60 text-indigo-800 dark:text-indigo-300 text-[10px] font-bold">Antigravity Engine</span>
-                <span className="px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 border border-emerald-300 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-300 text-[10px] font-bold">Supabase PostgreSQL</span>
-              </div>
-              <p className="text-[9.5px] text-slate-500 dark:text-slate-400 leading-tight flex items-start gap-1 pt-1">
-                <Info className="w-3 h-3 text-slate-400 shrink-0 mt-0.5" />
-                <span>
-                  <strong>Aviso legal de arquitectura:</strong> Referencia exclusiva al stack de software y servicios en la nube utilizados para la aceleración y despliegue del prototipo. Las marcas registradas pertenecen a sus respectivos titulares y no implican patrocinio, respaldo comercial ni afiliación institucional oficial.
-                </span>
-              </p>
-            </div>
-          </div>
-
-          {/* Quick Logins for Testing (Hidden in UI) */}
-          <div className="hidden pt-2 border-t border-slate-800/80 space-y-3">
-            <p className="text-xs text-slate-400 font-medium flex items-center gap-1.5">
-              <Key className="w-3.5 h-3.5 text-amber-400" />
-              Acceso Rápido para Pruebas (Roles RBAC predeterminados):
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-              <button
-                type="button"
-                onClick={() => handleQuickLogin('ggpd_admin', 'Lunes35.')}
-                className="p-2 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-sky-700/60 text-left transition flex items-center justify-between group"
-              >
-                <div>
-                  <span className="font-bold text-sky-400 block">ggpd_admin</span>
-                  <span className="text-[10px] text-slate-400">ADMIN NACIONAL</span>
-                </div>
-                <CheckCircle2 className="w-3.5 h-3.5 text-slate-600 group-hover:text-sky-400" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickLogin('j_jimenez', 'Jimenez2026.')}
-                className="p-2 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-sky-700/60 text-left transition flex items-center justify-between group"
-              >
-                <div>
-                  <span className="font-bold text-sky-400 block">j_jimenez</span>
-                  <span className="text-[10px] text-slate-400">ADMIN NACIONAL</span>
-                </div>
-                <CheckCircle2 className="w-3.5 h-3.5 text-slate-600 group-hover:text-sky-400" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickLogin('e_tachira', 'Tachira2026.')}
-                className="p-2 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-amber-700/60 text-left transition flex items-center justify-between group"
-              >
-                <div>
-                  <span className="font-bold text-amber-400 block">e_tachira</span>
-                  <span className="text-[10px] text-slate-400">ANALISTA (Táchira)</span>
-                </div>
-                <CheckCircle2 className="w-3.5 h-3.5 text-slate-600 group-hover:text-amber-400" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickLogin('a_auditor', 'Auditor2026.')}
-                className="p-2 rounded-lg bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-purple-700/60 text-left transition flex items-center justify-between group"
-              >
-                <div>
-                  <span className="font-bold text-purple-400 block">a_auditor</span>
-                  <span className="text-[10px] text-slate-400">AUDITOR ISO</span>
-                </div>
-                <CheckCircle2 className="w-3.5 h-3.5 text-slate-600 group-hover:text-purple-400" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="text-center text-xs text-slate-400 flex items-center justify-center gap-2">
-          <Database className="w-3.5 h-3.5 text-slate-400" />
-          <span>Esquema PostgreSQL <code className="text-cyan-300 font-mono">scei</code> en Supabase</span>
         </div>
       </div>
     </div>

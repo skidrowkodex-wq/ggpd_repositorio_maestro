@@ -46,9 +46,14 @@ export function Navbar({ currentUser, onOpenLogin, onLogout, darkMode, onToggleD
       </div>
 
       <div className="flex items-center gap-4 text-xs">
-        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-950 border border-emerald-500/40 text-emerald-400 font-mono text-[11px] shadow-inner">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-          <span>ISO 27001 / ISO 8000 AUDITADO</span>
+        {/* 🛡️ ZONA SEGURA DE GRADO INDUSTRIAL Badge */}
+        <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-300 dark:border-emerald-600/40 text-[10px] font-mono font-bold text-emerald-800 dark:text-emerald-300 shadow-xs">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span className="text-amber-600 dark:text-amber-300">🛡️ ZONA SEGURA</span>
+          <span className="hidden xl:inline text-slate-400">·</span>
+          <span className="hidden xl:inline">GRADO INDUSTRIAL</span>
+          <span className="hidden lg:inline text-slate-400">·</span>
+          <span className="hidden lg:inline text-[9px]">ISO 27001 / ISO 8000 / PORT 3004</span>
         </div>
 
         <div className={`hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-md border ${

@@ -12,6 +12,7 @@ SERVICES = [
     {"name": "Gestor Tareas y Minutas", "port": 3003, "dir": "apps/corpoelec---gestor-de-tareas-y-minutas/dist"},
     {"name": "Planificación Eléctrica SEN", "port": 3004, "dir": "apps/planificación-eléctrica-sen/dist"},
     {"name": "Remix SCEIN", "port": 3005, "dir": "apps/remix-scein---seguimiento-y-control-de-equipos-indisponibles-corpoelec/dist"},
+    {"name": "SCGCC Correspondencia Corporativa", "port": 3006, "dir": "apps-refactorizadas/SCGCC-REF/dist"},
 ]
 
 class ReusableTCPServer(socketserver.TCPServer):
