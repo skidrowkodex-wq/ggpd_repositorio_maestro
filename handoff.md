@@ -9,15 +9,15 @@
 - **Estado General:** 🟢 **Se analizó y formalizó el marco lógico de Metas 2026 de 1er y 2do Nivel en el documento normativo [`docs/analisis_metas_2026.md`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/analisis_metas_2026.md) (`DOC-GGPD-2026-METAS-001`), alineando las fórmulas de criticidad MIMT, Pica y Poda, Baja Tensión, Subestaciones y Alumbrado Público con los seis sistemas del Repositorio Maestro.**
 
 ### 📊 Entregables y Estado de Despliegue:
-0.00000000000000000000000000000000000000000000. **Documento Normativo Oficial `DOC-GGPD-2026-METAS-001`:**
-   - **Archivo:** [`docs/analisis_metas_2026.md`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/analisis_metas_2026.md) (Normas ISO 8000-110, ISO 55000, ISO 27001 e ISACA COBIT 2019).
+0.00000000000000000000000000000000000000000000. **Documento Normativo Oficial `DOC-GGPD-2026-METAS-001` (MD & DOC):**
+   - **Archivos:** [`docs/analisis_metas_2026.md`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/analisis_metas_2026.md) y [`docs/analisis_metas_2026.doc`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/analisis_metas_2026.doc) (Formato Microsoft Word institucional bajo normas ISO 8000-110, ISO 55000, ISO 27001 e ISACA COBIT 2019).
    - **Contenido:** Desglose matemático del 1er Nivel (TTI, FMI, NDI, DPI) y 2do Nivel (AP, PP, SE, MT, BT), reglas de negocio de los Memorandos `GGP-M-001` al `GGP-M-024` y matriz de mapeo entre SCTIS, SCMTP, SCEIN, SCPPE, SIGI y SCGCC.
 0.0000000000000000000000000000000000000000000. **Despliegue a Producción VibeHost (`SCPPE-REF`):**
    - **URL Oficial en Vivo:** [https://corpoelec-scppe-corpoelec-ggpd-hosting-apps.vibehost.space](https://corpoelec-scppe-corpoelec-ggpd-hosting-apps.vibehost.space) 🟢 *(HEALTHY / HTTP 200)*.
 0.000000000000000000000000000000000000000000. **Sincronización de Base de Datos InsForge (`ggpd-data-maestra-0002`):**
    - Tabla `scppe.mae_proyectos_especiales` enriquecida con 821 registros, alcances técnicos, matriz plurianual (2025-2031) y vistas sincronizadas (`v_scppe_proyectos_prtsen`, `proyectos_prtsen`).
 0.000000000000000000000000000000000000000000. **Control de Versiones & GitHub (`ggpd_repositorio_maestro`):**
-   - **Commit:** `517f37d` y `cfce924` en `origin/main` (100% sincronizada).
+   - **Commit:** `c8584c0` en `origin/main` (100% sincronizada).
 0.000000000000000000000000000000000000. **Corrección de Query Builder Fluido & Despliegue PRTSEN:**
 0.000000000000000000000000000000000000. **Corrección de Query Builder Fluido & Despliegue PRTSEN:**
    - `src/lib/supabase.ts`: Reescrito `InsforgeQueryBuilder` para implementar la interfaz `PromiseLike`, resolviendo la llamada fluida a `order()` y `limit()`.
