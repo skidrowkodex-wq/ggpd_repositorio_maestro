@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg-grad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0f1d"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="pane-left" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0369a1" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="pane-right" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#047857" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.9"/>
+    </linearGradient>
+    <filter id="shadow3" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="680" fill="url(#bg-grad3)" rx="16"/>
+  <rect x="2" y="2" width="1196" height="676" fill="none" stroke="#334155" stroke-width="1.5" rx="15"/>
+
+  <!-- Top Header Banner -->
+  <rect x="30" y="20" width="1140" height="75" fill="#020617" rx="10" stroke="#1e293b" stroke-width="1"/>
+  <text x="55" y="50" fill="#38bdf8" font-family="'Segoe UI', -apple-system, Roboto, sans-serif" font-size="19" font-weight="bold" letter-spacing="1.2">METAS NACIONALES 2026 E INDICADORES DE 1ER Y 2DO NIVEL</text>
+  <text x="55" y="76" fill="#94a3b8" font-family="'Segoe UI', -apple-system, Roboto, sans-serif" font-size="12.5">DISTINCIÓN MATEMÁTICA Y OPERATIVA: CALIDAD DE SERVICIO (IMPACTO) vs MANTENIMIENTO FÍSICO (ESFUERZO)</text>
+
+  <!-- Left Pane: 1er Nivel (Confiabilidad) -->
+  <g transform="translate(30, 110)" filter="url(#shadow3)">
+    <rect width="555" height="440" fill="url(#pane-left)" rx="10" stroke="#0284c7" stroke-width="1.5"/>
+    
+    <rect x="15" y="15" width="525" height="36" fill="#0284c7" rx="6"/>
+    <text x="277" y="38" fill="#ffffff" font-family="sans-serif" font-size="13" font-weight="bold" text-anchor="middle">1ER NIVEL: CONFIABILIDAD Y CALIDAD DE SERVICIO (SEN)</text>
+
+    <!-- Header columns -->
+    <rect x="15" y="60" width="130" height="26" fill="#0f172a" rx="4"/>
+    <text x="80" y="77" fill="#38bdf8" font-family="sans-serif" font-size="11" font-weight="bold" text-anchor="middle">INDICADOR</text>
+
+    <rect x="152" y="60" width="145" height="26" fill="#0f172a" rx="4"/>
+    <text x="224" y="77" fill="#38bdf8" font-family="sans-serif" font-size="11" font-weight="bold" text-anchor="middle">META NACIONAL 2026</text>
+
+    <rect x="304" y="60" width="236" height="26" fill="#0f172a" rx="4"/>
+    <text x="422" y="77" fill="#38bdf8" font-family="sans-serif" font-size="11" font-weight="bold" text-anchor="middle">DEFINICIÓN METROLÓGICA</text>
+
+    <!-- Item 1: TTI -->
+    <rect x="15" y="94" width="525" height="58" fill="#1e293b" rx="6" fill-opacity="0.6" stroke="#334155" stroke-width="0.8"/>
+    <text x="25" y="118" fill="#ffffff" font-family="sans-serif" font-size="13" font-weight="bold">TTI</text>
+    <text x="25" y="136" fill="#94a3b8" font-family="sans-serif" font-size="10">Tiempo Total Interrup.</text>
+    <text x="224" y="128" fill="#38bdf8" font-family="sans-serif" font-size="15" font-weight="bold" text-anchor="middle">42.79 hrs / año</text>
+    <text x="314" y="118" fill="#cbd5e1" font-family="sans-serif" font-size="10.5">Promedio de horas al año que</text>
+    <text x="314" y="134" fill="#cbd5e1" font-family="sans-serif" font-size="10.5">un cliente permanece sin servicio.</text>
+
+    <!-- Item 2: FMI -->
+    <rect x="15" y="160" width="525" height="58" fill="#1e293b" rx="6" fill-opacity="0.6" stroke="#334155" stroke-width="0.8"/>
+    <text x="25" y="184" fill="#ffffff" font-family="sans-serif" font-size="13" font-weight="bold">FMI</text>
+    <text x="25" y="202" fill="#94a3b8" font-family="sans-serif" font-size="10">Frecuencia Media Inter.</text>
+    <text x="224" y="194" fill="#38bdf8" font-family="sans-serif" font-size="15" font-weight="bold" text-anchor="middle">42.49 int / cte</text>
+    <text x="314" y="184" fill="#cbd5e1" font-family="sans-serif" font-size="10.5">Cortes promedio experimentados</text>
+    <text x="314" y="200" fill="#cbd5e1" font-family="sans-serif" font-size="10.5">por cada cliente al año.</text>
+
+    <!-- Item 3: NDI -->
+    <rect x="15" y="226" width="525" height="58" fill="#1e293b" rx="6" fill-opacity="0.6" stroke="#334155" stroke-width="0.8"/>
+    <text x="25" y="250" fill="#ffffff" font-family="sans-serif" font-size="13" font-weight="bold">NDI</text>
+    <text x="25" y="268" fill="#94a3b8" font-family="sans-serif" font-size="10">Núm. de Interrupciones</text>
+    <text x="224" y="260" fill="#38bdf8" font-family="sans-serif" font-size="15" font-weight="bold" text-anchor="middle">150,347 fallas</text>
+    <text x="314" y="250" fill="#cbd5e1" font-family="sans-serif" font-size="10.5">Total absoluto de disparos de</text>
+    <text x="314" y="266" fill="#cbd5e1" font-family="sans-serif" font-size="10.5">circuitos a nivel nacional.</text>
+
+    <!-- Item 4: DPI -->
+    <rect x="15" y="292" width="525" height="58" fill="#1e293b" rx="6" fill-opacity="0.6" stroke="#334155" stroke-width="0.8"/>
+    <text x="25" y="316" fill="#ffffff" font-family="sans-serif" font-size="13" font-weight="bold">DPI</text>
+    <text x="25" y="334" fill="#94a3b8" font-family="sans-serif" font-size="10">Duración Promedio Inter.</text>
+    <text x="224" y="326" fill="#38bdf8" font-family="sans-serif" font-size="15" font-weight="bold" text-anchor="middle">1.007 hrs / falla</text>
+    <text x="314" y="316" fill="#cbd5e1" font-family="sans-serif" font-size="10.5">Tiempo promedio que tarda una</text>
+    <text x="314" y="332" fill="#cbd5e1" font-family="sans-serif" font-size="10.5">cuadrilla en reponer el servicio.</text>
+
+    <!-- Item 5: RIND -->
+    <rect x="15" y="358" width="525" height="66" fill="#0c4a6e" rx="6" stroke="#0284c7" stroke-width="1"/>
+    <text x="25" y="385" fill="#38bdf8" font-family="sans-serif" font-size="13" font-weight="bold">RIND</text>
+    <text x="25" y="405" fill="#bae6fd" font-family="sans-serif" font-size="10">Régimen Interrup. No Prog.</text>
+    <text x="224" y="398" fill="#ffffff" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">Índice Ponderado</text>
+    <text x="314" y="382" fill="#e0f2fe" font-family="sans-serif" font-size="10.5">Medición de severidad de</text>
+    <text x="314" y="398" fill="#e0f2fe" font-family="sans-serif" font-size="10.5">eventos no programados vs carga.</text>
+  </g>
+
+  <!-- Right Pane: 2do Nivel (Mantenimiento) -->
+  <g transform="translate(615, 110)" filter="url(#shadow3)">
+    <rect width="555" height="440" fill="url(#pane-right)" rx="10" stroke="#059669" stroke-width="1.5"/>
+    
+    <rect x="15" y="15" width="525" height="36" fill="#059669" rx="6"/>
+    <text x="277" y="38" fill="#ffffff" font-family="sans-serif" font-size="13" font-weight="bold" text-anchor="middle">2DO NIVEL: MANTENIMIENTO FÍSICO Y GESTIÓN OPERATIVA</text>
+
+    <!-- Header columns -->
+    <rect x="15" y="60" width="145" height="26" fill="#0f172a" rx="4"/>
+    <text x="87" y="77" fill="#34d399" font-family="sans-serif" font-size="11" font-weight="bold" text-anchor="middle">ACTIVIDAD MTTO</text>
+
+    <rect x="167" y="60" width="135" height="26" fill="#0f172a" rx="4"/>
+    <text x="234" y="77" fill="#34d399" font-family="sans-serif" font-size="11" font-weight="bold" text-anchor="middle">META ANUAL 2026</text>
+
+    <rect x="309" y="60" width="231" height="26" fill="#0f172a" rx="4"/>
+    <text x="424" y="77" fill="#34d399" font-family="sans-serif" font-size="11" font-weight="bold" text-anchor="middle">ALCANCE Y COMPONENTES</text>
+
+    <!-- Item 1: AP -->
+    <rect x="15" y="94" width="525" height="58" fill="#1e293b" rx="6" fill-opacity="0.6" stroke="#334155" stroke-width="0.8"/>
+    <text x="25" y="118" fill="#ffffff" font-family="sans-serif" font-size="12.5" font-weight="bold">Alumbrado Público (AP)</text>
+    <text x="25" y="136" fill="#94a3b8" font-family="sans-serif" font-size="10">Instalaciones de AP</text>
+    <text x="234" y="128" fill="#34d399" font-family="sans-serif" font-size="14.5" font-weight="bold" text-anchor="middle">60,808 luminarias</text>
+    <text x="318" y="118" fill="#cbd5e1" font-family="sans-serif" font-size="10.5">Sustitución y normalización de</text>
+    <text x="318" y="134" fill="#cbd5e1" font-family="sans-serif" font-size="10.5">luminarias LED y bombillos.</text>
+
+    <!-- Item 2: P&P -->
+    <rect x="15" y="160" width="525" height="58" fill="#1e293b" rx="6" fill-opacity="0.6" stroke="#334155" stroke-width="0.8"/>
+    <text x="25" y="184" fill="#ffffff" font-family="sans-serif" font-size="12.5" font-weight="bold">Pica y Poda (P&amp;P)</text>
+    <text x="25" y="202" fill="#94a3b8" font-family="sans-serif" font-size="10">Corredores de Líneas</text>
+    <text x="234" y="194" fill="#34d399" font-family="sans-serif" font-size="14.5" font-weight="bold" text-anchor="middle">64,162 kms</text>
+    <text x="318" y="184" fill="#cbd5e1" font-family="sans-serif" font-size="10.5">Desmalezamiento en servidumbres</text>
+    <text x="318" y="200" fill="#cbd5e1" font-family="sans-serif" font-size="10.5">de líneas aéreas de MT.</text>
+
+    <!-- Item 3: S/E -->
+    <rect x="15" y="226" width="525" height="58" fill="#1e293b" rx="6" fill-opacity="0.6" stroke="#334155" stroke-width="0.8"/>
+    <text x="25" y="250" fill="#ffffff" font-family="sans-serif" font-size="12.5" font-weight="bold">Subestaciones (S/E)</text>
+    <text x="25" y="268" fill="#94a3b8" font-family="sans-serif" font-size="10">Patios de Distribución</text>
+    <text x="234" y="260" fill="#34d399" font-family="sans-serif" font-size="14.5" font-weight="bold" text-anchor="middle">415 S/E</text>
+    <text x="318" y="250" fill="#cbd5e1" font-family="sans-serif" font-size="10.5">Mantenimiento electromecánico</text>
+    <text x="318" y="266" fill="#cbd5e1" font-family="sans-serif" font-size="10.5">de barras, patio y celdas.</text>
+
+    <!-- Item 4: Media Tensión -->
+    <rect x="15" y="292" width="525" height="58" fill="#1e293b" rx="6" fill-opacity="0.6" stroke="#334155" stroke-width="0.8"/>
+    <text x="25" y="316" fill="#ffffff" font-family="sans-serif" font-size="12.5" font-weight="bold">Media Tensión (MT)</text>
+    <text x="25" y="334" fill="#94a3b8" font-family="sans-serif" font-size="10">Redes y Troncales</text>
+    <text x="234" y="326" fill="#34d399" font-family="sans-serif" font-size="14.5" font-weight="bold" text-anchor="middle">965 Circuitos</text>
+    <text x="318" y="316" fill="#cbd5e1" font-family="sans-serif" font-size="10.5">Sustitución de aislamiento,</text>
+    <text x="318" y="332" fill="#cbd5e1" font-family="sans-serif" font-size="10.5">seccionadores y cortacorrientes.</text>
+
+    <!-- Item 5: Baja Tensión -->
+    <rect x="15" y="358" width="525" height="66" fill="#064e3b" rx="6" stroke="#059669" stroke-width="1"/>
+    <text x="25" y="385" fill="#34d399" font-family="sans-serif" font-size="12.5" font-weight="bold">Baja Tensión (BT)</text>
+    <text x="25" y="405" fill="#a7f3d0" font-family="sans-serif" font-size="10">Sectores Residenciales</text>
+    <text x="234" y="398" fill="#ffffff" font-family="sans-serif" font-size="14.5" font-weight="bold" text-anchor="middle">7,114 Sectores</text>
+    <text x="318" y="382" fill="#d1fae5" font-family="sans-serif" font-size="10.5">Balanceo de carga, conectores,</text>
+    <text x="318" y="398" fill="#d1fae5" font-family="sans-serif" font-size="10.5">acometidas y tableros.</text>
+  </g>
+
+  <!-- Bottom Link Banner (Causa - Efecto) -->
+  <g transform="translate(30, 565)">
+    <rect width="1140" height="95" fill="#0f172a" rx="8" stroke="#f59e0b" stroke-width="1.2"/>
+    <circle cx="55" cy="47" r="22" fill="#78350f" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="55" y="54" fill="#fef3c7" font-family="sans-serif" font-size="20" font-weight="bold" text-anchor="middle">⚡</text>
+
+    <text x="95" y="38" fill="#fef3c7" font-family="sans-serif" font-size="13" font-weight="bold">PRINCIPIO METROLÓGICO SEN: EL 2DO NIVEL ES LA CAUSA FÍSICA; EL 1ER NIVEL ES EL EFECTO SISTÉMICO</text>
+    <text x="95" y="58" fill="#cbd5e1" font-family="sans-serif" font-size="11">Un estado NO puede reportar éxito operativo si sus circuitos más fallados en SCTIS (1er Nivel) no coinciden con las órdenes ejecutadas de Pica y Poda (2do Nivel).</text>
+    <text x="95" y="76" fill="#94a3b8" font-family="sans-serif" font-size="10.5">La verdadera optimización ocurre cuando el sistema (SIGI) orienta las cuadrillas de campo basándose en la criticidad eléctrica real calculada en InsForge.</text>
+  </g>
+</svg>

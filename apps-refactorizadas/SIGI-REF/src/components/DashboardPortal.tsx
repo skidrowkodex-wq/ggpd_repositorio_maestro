@@ -5,12 +5,13 @@ import { MinutarioSection } from './MinutarioSection';
 import { ProcessDashboard } from './ProcessDashboard';
 import { DocumentViewer } from './DocumentViewer';
 import { UserManagementModule } from './UserManagementModule';
+import { BciGovernanceModule } from './BciGovernanceModule';
 import { SupabaseStatusWidget } from './SupabaseStatusWidget';
 import { FloatingSecurityWidget } from './FloatingSecurityWidget';
 import { DataIngestionHub } from './ingestion/DataIngestionHub';
 import { ProcessDirectoryManager } from './ingestion/ProcessDirectoryManager';
 import { VENEZUELAN_STATES } from '../mockData/portalData';
-import { MapPin, LayoutGrid, FileText, BarChart3, Cloud, Users, UploadCloud, FolderTree } from 'lucide-react';
+import { MapPin, LayoutGrid, FileText, BarChart3, Cloud, Users, UploadCloud, FolderTree, Brain } from 'lucide-react';
 
 interface DashboardPortalProps {
   activeSection: string;
@@ -199,6 +200,21 @@ export const DashboardPortal: React.FC<DashboardPortalProps> = ({ activeSection,
             </button>
           )}
 
+          {/* Tab 8: Gobernanza BCI / IAM */}
+          {isAdminOrGerencia && (
+            <button
+              onClick={() => setActiveSection('bci_iam')}
+              className={`flex items-center space-x-2 rounded-xl px-4 py-2.5 text-xs font-black transition-all cursor-pointer ${
+                activeSection === 'bci_iam'
+                  ? 'bg-white text-[#072146] shadow-md ring-2 ring-[#00f2fe]'
+                  : 'bg-cyan-500/20 text-cyan-200 border border-cyan-400/40 hover:bg-cyan-500/30'
+              }`}
+            >
+              <Brain className="h-4 w-4 text-[#00f2fe]" />
+              <span>8. Gobernanza BCI / IAM 🧠</span>
+            </button>
+          )}
+
         </div>
 
       </div>
@@ -215,6 +231,7 @@ export const DashboardPortal: React.FC<DashboardPortalProps> = ({ activeSection,
         {activeSection === 'procesos_drive' && <ProcessDirectoryManager />}
         {activeSection === 'drive' && <DocumentViewer />}
         {activeSection === 'usuarios' && <UserManagementModule />}
+        {activeSection === 'bci_iam' && <BciGovernanceModule />}
       </main>
 
       {/* FLOATING COMPLIANCE SHIELD WIDGET (ISO 27001 / ISO 8000 / OWASP) */}

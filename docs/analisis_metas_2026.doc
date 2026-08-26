@@ -1,396 +1,183 @@
-<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
-<head>
-<meta charset="utf-8">
-<title>DOC-GGPD-2026-METAS-001 — Analisis Metas 2026 1er y 2do Nivel</title>
-<style>
-  body {
-    font-family: 'Calibri', 'Segoe UI', Arial, sans-serif;
-    margin: 30px;
-    color: #0f172a;
-    line-height: 1.5;
-    background-color: #ffffff;
-  }
-  .header-box {
-    border: 2px solid #002b49;
-    background-color: #f8fafc;
-    padding: 14px 18px;
-    margin-bottom: 24px;
-    border-radius: 4px;
-  }
-  .header-title {
-    font-size: 14pt;
-    font-weight: bold;
-    color: #ce1126;
-    margin-bottom: 4px;
-    text-transform: uppercase;
-  }
-  .header-subtitle {
-    font-size: 10pt;
-    font-weight: bold;
-    color: #002b49;
-    margin-bottom: 8px;
-  }
-  .meta-grid {
-    font-family: 'Consolas', monospace;
-    font-size: 8.5pt;
-    color: #334155;
-    line-height: 1.4;
-  }
-  h1 {
-    color: #002b49;
-    border-bottom: 2px solid #ce1126;
-    padding-bottom: 6px;
-    font-size: 15pt;
-    margin-top: 24px;
-    text-transform: uppercase;
-  }
-  h2 {
-    color: #003366;
-    margin-top: 18px;
-    font-size: 12pt;
-    border-bottom: 1px solid #cbd5e1;
-    padding-bottom: 4px;
-  }
-  h3 {
-    color: #1e293b;
-    margin-top: 14px;
-    font-size: 10pt;
-    font-weight: bold;
-  }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    margin: 14px 0;
-    font-size: 9pt;
-  }
-  th, td {
-    border: 1px solid #cbd5e1;
-    padding: 6px 9px;
-    text-align: left;
-  }
-  th {
-    background-color: #002b49;
-    color: #ffffff;
-    font-weight: bold;
-    font-size: 8.5pt;
-    text-transform: uppercase;
-  }
-  tr:nth-child(even) {
-    background-color: #f8fafc;
-  }
-  .highlight-cell {
-    font-weight: bold;
-    color: #002b49;
-  }
-  .formula-box {
-    background-color: #f1f5f9;
-    border-left: 4px solid #ce1126;
-    padding: 10px 14px;
-    margin: 12px 0;
-    font-family: 'Consolas', monospace;
-    font-size: 9pt;
-    color: #0f172a;
-  }
-  .badge-iso {
-    display: inline-block;
-    padding: 2px 6px;
-    background-color: #ecfdf5;
-    border: 1px solid #10b981;
-    color: #065f46;
-    font-size: 8pt;
-    font-weight: bold;
-    border-radius: 3px;
-  }
-  hr {
-    border: 0;
-    height: 1px;
-    background: #cbd5e1;
-    margin: 20px 0;
-  }
-  li {
-    font-size: 9.5pt;
-    margin-bottom: 4px;
-  }
-  p {
-    font-size: 9.5pt;
-    margin-bottom: 6px;
-    text-align: justify;
-  }
-  .footer-box {
-    margin-top: 30px;
-    border-top: 2px solid #002b49;
-    padding-top: 10px;
-    font-size: 8pt;
-    color: #64748b;
-    text-align: center;
-  }
-</style>
-</head>
-<body>
+# REPÚBLICA BOLIVARIANA DE VENEZUELA
+# MINISTERIO DEL PODER POPULAR PARA LA ENERGÍA ELÉCTRICA (MPPEE)
+# CORPORACIÓN ELÉCTRICA NACIONAL (CORPOELEC)
+# GERENCIA GENERAL DE PLANIFICACIÓN DE DISTRIBUCIÓN (GGPD)
 
-<!-- ENCABEZADO OFICIAL INSTITUCIONAL -->
-<div class="header-box">
-  <div class="header-title">REPÚBLICA BOLIVARIANA DE VENEZUELA · MPPEE · CORPOELEC</div>
-  <div class="header-subtitle">GERENCIA GENERAL DE PLANIFICACIÓN DE DISTRIBUCIÓN (GGPD)</div>
-  <div class="meta-grid">
-    <strong>CÓDIGO DOCUMENTAL :</strong> DOC-GGPD-2026-METAS-001<br/>
-    <strong>TÍTULO DEL DOCUMENTO :</strong> ANÁLISIS ESTRATÉGICO Y MARCO LÓGICO DE METAS 2026 DE 1ER Y 2DO NIVEL<br/>
-    <strong>MARCO NORMATIVO   :</strong> ISO 8000-110 · ISO 55000/55001 · ISO 27001:2022 · ISACA COBIT 2019 · IEC 81346<br/>
-    <strong>FECHA DE EMISIÓN  :</strong> 2026-08-25<br/>
-    <strong>AUTORES / EMISOR  :</strong> Equipo de Automatización e Ingeniería de Productos con IA (GGPD)<br/>
-    <strong>DESTINATARIO      :</strong> Repositorio Maestro de Aplicaciones CORPOELEC (SIGI, SCTIS, SCMTP, SCEIN, SCPPE, SCGCC)
-  </div>
-</div>
+---
 
-<h1>1. Resumen Ejecutivo y Marco de Referencia</h1>
-<p>
-El presente informe técnico establece la <strong>arquitectura lógica, matemática y de gobernanza de datos</strong> que rige el sistema de fijación, seguimiento y control de las <strong>Metas 2026 para el Área de Distribución</strong> de CORPOELEC. Este análisis se fundamenta en la documentación oficial emitida por la Gerencia General de Planificación de Distribución (GGPD) a través de los memorandos oficiales <code>GGP-M-001-2026-01</code> al <code>GGP-M-024-2026-01</code> y la matriz de cálculo maestro <code>METAS 2026 1ER Y 2DO NIVEL.xlsx</code>.
-</p>
-<p>
-Este instrumento resuelve la dispersión histórica de formatos en campo, unificando bajo un solo estándar industrial las reglas de negocio que alimentan los seis (6) sistemas estratégicos del SEN que componen el Repositorio Maestro de Distribución.
-</p>
+```text
+====================================================================================================
+CÓDIGO DOCUMENTAL : DOC-GGPD-2026-METAS-001
+TÍTULO            : ANÁLISIS ESTRATÉGICO Y MARCO LÓGICO DE METAS 2026 DE 1ER Y 2DO NIVEL
+MARCO NORMATIVO   : ISO 8000-110 · ISO 55000/55001 · ISO 27001:2022 · ISACA COBIT 2019 · IEC 81346
+ESTATUS           : OFICIAL / APROBADO PARA ALINEACIÓN DE ARQUITECTURA DE SOFTWARE
+FECHA DE EMISIÓN  : 2026-08-25
+AUTORES / EMISOR  : EQUIPO DE AUTOMATIZACIÓN E INGENIERÍA DE PRODUCTOS CON IA (GGPD)
+DESTINATARIO      : REPOSITORIO MAESTRO DE APLICACIONES CORPOELEC
+====================================================================================================
+```
 
-<hr/>
+---
 
-<h1>2. Arquitectura de Medición: Relación Causal (1er y 2do Nivel)</h1>
-<p>
-El modelo de gestión de la GGPD opera bajo una estricta relación bidireccional de <strong>Causa Operativa (2do Nivel) &harr; Efecto en la Calidad del Servicio (1er Nivel)</strong>:
-</p>
+## 📑 1. Resumen Ejecutivo y Objeto del Documento
 
-<table>
-  <thead>
-    <tr>
-      <th style="width: 50%;">2DO NIVEL: CAUSA (MANTENIMIENTO PREVENTIVO)</th>
-      <th style="width: 50%;">1ER NIVEL: EFECTO (CALIDAD Y CONTIUIDAD SEN)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>💡 Alumbrado Público:</strong> 60.808 Instalaciones a Mantener.</td>
-      <td><strong>⏱️ TTI / SAIDI:</strong> Meta Nacional = 42,79 Horas/año.</td>
-    </tr>
-    <tr>
-      <td><strong>🌳 Pica y Poda:</strong> 64.162 km de Corredores de Líneas.</td>
-      <td><strong>📊 FMI / SAIFI:</strong> Meta Nacional = 42,49 Veces/año.</td>
-    </tr>
-    <tr>
-      <td><strong>🏢 Subestaciones:</strong> Mantenimiento Integral a 415 S/E.</td>
-      <td><strong>📉 NDI:</strong> Meta Nacional = 150.347 Disparos/año.</td>
-    </tr>
-    <tr>
-      <td><strong>⚡ Media Tensión (MIMT):</strong> 965 Circuitos Prioritarios.</td>
-      <td><strong>⏳ DPI / CAIDI:</strong> Meta Nacional = 1,01 Horas/evento.</td>
-    </tr>
-    <tr>
-      <td><strong>🔌 Baja Tensión:</strong> 7.114 Sectores con Transformadores.</td>
-      <td><strong>🎯 Objetivo:</strong> Reducción drástica de fallas no programadas.</td>
-    </tr>
-  </tbody>
-</table>
+El presente documento establece el marco conceptual, matemático y de gobernanza de datos que rige el **Sistema de Medición de Metas 2026 para el Área de Distribución** de CORPOELEC, fundamentado en la documentación oficial emitida por la Gerencia General de Planificación de Distribución (GGPD) mediante la serie de memorandos `GGP-M-001-2026-01` al `GGP-M-024-2026-01` y el consolidado maestro `METAS 2026 1ER Y 2DO NIVEL.xlsx`.
 
-<hr/>
+Este análisis resuelve de manera definitiva la dispersión operativa histórica y define el alineamiento funcional exacto de los seis módulos de software que componen el **Repositorio Maestro de Distribución (SIGI, SCTIS, SCMTP, SCEIN, SCPPE y SCGCC)**.
 
-<h1>3. Especificación Técnica de los Indicadores</h1>
+---
 
-<h2>3.1. Indicadores de Primer Nivel (Calidad de Servicio y Continuidad del SEN)</h2>
-<p>
-Representan el resultado final percibido por los usuarios y la estabilidad de la red troncal de distribución. Se calculan mensualmente para los 24 estados del país:
-</p>
+## 🏛️ 2. Arquitectura de Medición: Relación Causal (1er y 2do Nivel)
 
-<table>
-  <thead>
-    <tr>
-      <th>Indicador</th>
-      <th>Equivalente Internacional IEEE</th>
-      <th>Unidad</th>
-      <th>Meta Anual 2026</th>
-      <th>Definición y Propósito Estratégico</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td class="highlight-cell">TTI</td>
-      <td>SAIDI (System Average Interruption Duration Index)</td>
-      <td>Horas</td>
-      <td><strong>42,79</strong></td>
-      <td>Tiempo total acumulado en horas que los usuarios del SEN permanecieron sin servicio eléctrico.</td>
-    </tr>
-    <tr>
-      <td class="highlight-cell">FMI</td>
-      <td>SAIFI (System Average Interruption Frequency Index)</td>
-      <td>Veces</td>
-      <td><strong>42,49</strong></td>
-      <td>Frecuencia promedio de interrupciones que experimentó un usuario conectado a la red de distribución.</td>
-    </tr>
-    <tr>
-      <td class="highlight-cell">NDI</td>
-      <td>Total Outage Events</td>
-      <td>Disparos</td>
-      <td><strong>150.347</strong></td>
-      <td>Número absoluto de eventos de disparo o apertura de interruptores/reconectadores en Media Tensión.</td>
-    </tr>
-    <tr>
-      <td class="highlight-cell">DPI</td>
-      <td>CAIDI (Customer Average Interruption Duration Index)</td>
-      <td>Horas</td>
-      <td><strong>1,01</strong></td>
-      <td>Duración promedio por cada interrupción: DPI = TTI / FMI. Mide la celeridad de las cuadrillas de guardia.</td>
-    </tr>
-  </tbody>
-</table>
+El modelo de gestión de CORPOELEC opera bajo una estricta relación bidireccional de **Causa Operativa $\leftrightarrow$ Efecto en la Red**:
 
-<h2>3.2. Indicadores de Segundo Nivel (Plan Operativo de Mantenimiento Preventivo)</h2>
-<p>
-Representan el volumen físico de mantenimiento planificado ejecutado sobre el parque eléctrico para neutralizar las causas raíces de los disparos:
-</p>
+```mermaid
+graph TD
+    subgraph SegundoNivel["2DO NIVEL: CAUSA OPERATIVA (Plan de Mantenimiento Preventivo / Activos)"]
+        AP["💡 Alumbrado Público (AP)
+- Meta: 60.808 Instalaciones"]
+        PP["🌳 Pica y Poda de Corredores (PP)
+- Meta: 64.162 km"]
+        SE["🏢 Subestaciones de Distribución (SE)
+- Meta: 415 Subestaciones"]
+        MT["⚡ Mantenimiento Integral Media Tensión (MIMT)
+- Meta: 965 Circuitos"]
+        BT["🔌 Redes de Baja Tensión (BT)
+- Meta: 7.114 Sectores"]
+    end
 
-<table>
-  <thead>
-    <tr>
-      <th>Actividad / Indicador</th>
-      <th>Unidad</th>
-      <th>Meta Nacional 2026</th>
-      <th>Criterio de Selección y Justificación Técnica</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td class="highlight-cell">Alumbrado Público (AP)</td>
-      <td>Puntos / Instalaciones</td>
-      <td><strong>60.808</strong></td>
-      <td>Mantenimiento al <strong>5% semestral</strong> del parque nacional caracterizado (2.432.312 puntos en los 24 estados).</td>
-    </tr>
-    <tr>
-      <td class="highlight-cell">Pica y Poda (PP)</td>
-      <td>Kilómetros (km)</td>
-      <td><strong>64.162</strong></td>
-      <td>Desmalezamiento y despeje de corredores en circuitos donde la causa histórica de disparo es vegetación.</td>
-    </tr>
-    <tr>
-      <td class="highlight-cell">Subestaciones de Distribución (SE)</td>
-      <td>Subestaciones</td>
-      <td><strong>415</strong></td>
-      <td>Intervención integral electromecánica (transformadores de potencia, celdas, disyuntores y servicios auxiliares).</td>
-    </tr>
-    <tr>
-      <td class="highlight-cell">Mantenimiento Media Tensión (MIMT)</td>
-      <td>Circuitos</td>
-      <td><strong>965</strong></td>
-      <td>Circuitos seleccionados bajo el algoritmo oficial de criticidad 60/40 de la GGPD.</td>
-    </tr>
-    <tr>
-      <td class="highlight-cell">Redes de Baja Tensión (BT)</td>
-      <td>Sectores</td>
-      <td><strong>7.114</strong></td>
-      <td>Sectores residenciales y comerciales vinculados a <strong>Transformadores Fallados/Quemados durante 2025</strong>.</td>
-    </tr>
-  </tbody>
-</table>
+    subgraph PrimerNivel["1ER NIVEL: EFECTO EN CALIDAD DE SERVICIO (Continuidad y Confiabilidad SEN)"]
+        TTI["⏱️ TTI / SAIDI: Tiempo Total de Interrupciones
+- Meta Nacional: 42,79 Horas/año"]
+        FMI["📊 FMI / SAIFI: Frecuencia Media de Interrupciones
+- Meta Nacional: 42,49 Veces/año"]
+        NDI["📉 NDI: Número Total de Interrupciones
+- Meta Nacional: 150.347 Disparos/año"]
+        DPI["⏳ DPI / CAIDI: Duración Promedio de Interrupción
+- Meta Nacional: 1,01 Horas/evento"]
+    end
 
-<hr/>
+    subgraph FinanzasPOA["PLANIFICACIÓN ESTRATÉGICA & RECURSOS (POA / PRTSEN)"]
+        POA["🏛️ POA 2026 (Acción #4)
+- Presupuesto y Obras PRTSEN"]
+    end
 
-<h1>4. Fórmulas Matemáticas y Reglas de Negocio Oficiales</h1>
-<p>
-De acuerdo con lo estipulado en la página 2 de los Memorandos Oficiales emitidos por la GGPD (Serie <code>GGP-M-XXX-2026-01</code>):
-</p>
+    FinanzasPOA -->|Financia Activos y Materiales| SegundoNivel
+    SegundoNivel -->|Reduce Fallas y Disparos| PrimerNivel
+```
 
-<div class="formula-box">
-  <strong>A. ALGORITMO DE CRITICIDAD Y SELECCIÓN DE CIRCUITOS (MIMT):</strong><br/>
-  Para priorizar los circuitos de Media Tensión a intervenir:<br/><br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;<strong>Índice de Impacto = (0.60 × NDI) + (0.40 × TTI)</strong><br/><br/>
-  <strong>Reglas Aplicadas:</strong><br/>
-  1. <strong>Criterio de Pareto (60%):</strong> Se ordenan los circuitos de mayor a menor impacto y se seleccionan aquellos que acumulan el 60% del impacto total de fallas del estado.<br/>
-  2. <strong>Cota Mínima Obligatoria:</strong> En ningún caso la meta de un estado puede ser inferior al 10% de su parque total de circuitos.<br/>
-  3. <strong>Filtro de Restricciones Operativas:</strong> Se priorizan los circuitos incluidos en el plan PRTSEN y con restricciones operativas de carga o aislamiento.
-</div>
+---
 
-<div class="formula-box">
-  <strong>B. CRITERIO PARA PICA Y PODA:</strong><br/>
-  Se seleccionan exclusivamente los circuitos cuya causa probable de disparo en las Tiras de Interrupción (SCTIS) fue clasificada como <em>"Vegetación y Condiciones Atmosféricas"</em>.
-</div>
+## 📊 3. Especificación Técnica de los Indicadores
 
-<div class="formula-box">
-  <strong>C. CRITERIO PARA REDES DE BAJA TENSIÓN (BT):</strong><br/>
-  La meta se construye a partir de los transformadores de distribución quemados en 2025. Cada estado debe incluir obligatoriamente en su programación el mantenimiento de los sectores afectados por cada transformador fallado, corrigiendo desbalances de carga, tomas no autorizadas y protecciones secundarias.
-</div>
+### 3.1. Indicadores de Primer Nivel (Calidad de Servicio y Continuidad del SEN)
+Representan el **resultado final percibido por los usuarios y la estabilidad del SEN**. Se miden mensualmente en los 24 estados y a escala nacional:
 
-<hr/>
+| Indicador | Nombre Oficial / Estándar IEEE | Unidad | Meta Anual Nacional 2026 | Propósito Estratégico |
+| :--- | :--- | :---: | :---: | :--- |
+| **TTI** | Tiempo Total de Interrupciones (SAIDI) | Horas | **42,79** | Mide el tiempo total acumulado que los usuarios permanecieron sin servicio. |
+| **FMI** | Frecuencia Media de Interrupciones (SAIFI) | Veces | **42,49** | Mide la cantidad promedio de veces que un usuario experimentó corte de servicio. |
+| **NDI** | Número de Interrupciones | Disparos | **150.347** | Volumen total de eventos de interrupción (automáticos y manuales) en media tensión. |
+| **DPI** | Duración Promedio de Interrupciones (CAIDI) | Horas | **1,01** | Eficiencia de respuesta de las cuadrillas: $\text{DPI} = \frac{\text{TTI}}{\text{FMI}}$. |
 
-<h1>5. Mapeo Maestro de Software en el Repositorio</h1>
-<p>
-Cada aplicación del Repositorio Maestro cumple un rol específico en el ciclo de medición:
-</p>
+---
 
-<table>
-  <thead>
-    <tr>
-      <th>Software / Módulo</th>
-      <th>Puerto</th>
-      <th>Nivel de Medición</th>
-      <th>Entidades y Datos que Alimenta</th>
-      <th>Misión Estratégica en el SEN</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>SCTIS v2.0</strong></td>
-      <td><code>3002</code></td>
-      <td><strong>1er Nivel (Efecto)</strong></td>
-      <td>Tiras de Interrupción, Disparos, Causas</td>
-      <td>Registra en tiempo real los eventos de falla y calcula automáticamente TTI, FMI, NDI y DPI por circuito y estado.</td>
-    </tr>
-    <tr>
-      <td><strong>SCMTP / SGTA</strong></td>
-      <td><code>3003</code></td>
-      <td><strong>2do Nivel (Operativo)</strong></td>
-      <td>Minutas, Cuadrillas, Órdenes de Trabajo</td>
-      <td>Registra el avance físico diario de Pica y Poda (km), Mantenimiento MT y Sectores BT ejecutados por cuadrillas.</td>
-    </tr>
-    <tr>
-      <td><strong>SCEIN</strong></td>
-      <td><code>3005</code></td>
-      <td><strong>2do Nivel (Subestaciones)</strong></td>
-      <td>Equipos Indisponibles, Bahías, S/E</td>
-      <td>Controla el mantenimiento preventivo y correctivo de las 415 Subestaciones y la disponibilidad de disyuntores/relés.</td>
-    </tr>
-    <tr>
-      <td><strong>SCPPE / SAMC</strong></td>
-      <td><code>3004</code></td>
-      <td><strong>Estratégico / Inversión</strong></td>
-      <td>PRTSEN (821 Proyectos), POA 2026 (AE#4)</td>
-      <td>Presupuesta y gestiona los recursos financieros plurianuales (2025-2031) que sustentan el plan de mantenimiento.</td>
-    </tr>
-    <tr>
-      <td><strong>SIGI</strong></td>
-      <td><code>3001</code></td>
-      <td><strong>Consolidador Maestro</strong></td>
-      <td>Tablero Ejecutivo Nacional (24 Estados)</td>
-      <td>Cruza en vivo la <strong>Meta Programada en el Memo vs. Ejecución Real</strong> consolidando SCTIS, SCMTP, SCEIN y SCPPE.</td>
-    </tr>
-    <tr>
-      <td><strong>SCGCC</strong></td>
-      <td><code>3006</code></td>
-      <td><strong>Trazabilidad Documental</strong></td>
-      <td>Memorandos GGP-M-001/024, Oficios</td>
-      <td>Gestiona y custodia los memorandos oficiales de asignación de metas y las respuestas formales de las gerencias estadales.</td>
-    </tr>
-  </tbody>
-</table>
+### 3.2. Indicadores de Segundo Nivel (Plan Operativo de Mantenimiento Preventivo)
+Representan la **ejecución física de mantenimiento programado** en el parque eléctrico para erradicar las causas de falla:
 
-<hr/>
+| Indicador | Nombre Oficial | Unidad | Meta Nacional 2026 | Criterio de Selección y Fórmula Base |
+| :--- | :--- | :---: | :---: | :--- |
+| **AP** | Mantenimiento de Alumbrado Público | Puntos | **60.808** | **5% semestral** sobre el parque nacional caracterizado (**2.432.312 puntos**). |
+| **PP** | Pica y Poda en Corredores de Líneas | Kilómetros (km) | **64.162** | Circuitos con historial de disparos por causa *Vegetación / Condiciones Atmosféricas*. |
+| **SE** | Mantenimiento de Subestaciones | Instalaciones | **415** | Mantenimiento electromecánico integral a subestaciones de distribución prioritarias. |
+| **MIMT / MT**| Mantenimiento Integral de Media Tensión | Circuitos | **965** | Circuitos de alto impacto ponderado por la fórmula oficial de criticidad. |
+| **BT** | Mantenimiento de Redes de Baja Tensión | Sectores | **7.114** | Sectores asociados a **Transformadores Fallados / Quemados durante el ejercicio 2025**. |
 
-<h1>6. Diagnóstico Histórico y Causa Raíz de la Dispersión de Instrumentos</h1>
-<p>
-La revisión documental permite explicar por qué existían tantos instrumentos aislados en CORPOELEC:
-</p>
-<li><strong>Aislamiento en Silos Departamentales:</strong> Operaciones (Despacho), Mantenimiento de Redes, Mantenimiento de Subestaciones y Planificación utilizaban sistemas propios y hojas de cálculo desconectadas.</li>
-<li><strong>Confusión entre Causa y Efecto:</strong> Los analistas funcionales intentaban capturar en un solo formato masivo tanto el mantenimiento físico como las interrupciones, sobrecargando al personal técnico en las regiones.</li>
-<li><strong>Falta de un BaaS Unificado:</strong> La emisión de memorandos en papel forzaba a los 24 estados a reportar en archivos Excel heterogéneos. Con <strong>InsForge PostgreSQL</strong> y el Repositorio Maestro, la información fluye de forma automática y normalizada bajo la norma <strong>ISO 8000-110</strong>.</li>
+---
 
-<div class="footer-box">
-  <strong>CERTIFICACIÓN INDUSTRIAL SEN · ISO 8000-110 · ISO 55000 · ISO 27001:2022 · ISACA COBIT 2019</strong><br/>
-  GERENCIA GENERAL DE PLANIFICACIÓN DE DISTRIBUCIÓN (GGPD) — CORPORACIÓN ELÉCTRICA NACIONAL (CORPOELEC) 2026
-</div>
+## 🧮 4. Fórmulas Matemáticas y Reglas de Negocio Oficiales
 
-</body>
-</html>
+Extraídas de las directrices de la Gerencia Nacional de Gestión de Planificación (Memorando `GGP-M-XXX`):
+
+### 4.1. Fórmula de Criticidad e Impacto para Selección de Circuitos (MIMT)
+Para determinar cuáles circuitos deben intervenirse prioritariamente en cada estado:
+
+$$\text{Impacto del Circuito} = (0.60 \times \text{NDI}) + (0.40 \times \text{TTI})$$
+
+* **Criterio de Pareto (60%):** Se ordenan los circuitos de mayor a menor impacto acumulado, seleccionando aquellos que explican el **60% del impacto total** en el estado.
+* **Cota Mínima Obligatoria:** En ningún caso la meta estadal puede ser inferior al **10% del total de circuitos** operativos de la entidad federal.
+* **Filtro de Restricciones Operativas:** Se consideran prioritarios aquellos circuitos con restricciones registradas en la cartera PRTSEN y levantamientos técnicos de campo.
+
+### 4.2. Regla de Mantenimiento de Redes de Baja Tensión (BT)
+* La base de cálculo se construye a partir de los **transformadores dañados durante el año anterior (2025)**.
+* **Regla Preventiva:** Cada estado debe incluir obligatoriamente dentro del plan los sectores afectados por cada transformador fallado, corrigiendo el balance de cargas y sobrecargas para evitar la recurrencia del daño.
+
+---
+
+## 🗺️ 5. Matriz de Mapeo de Software en el Repositorio Maestro
+
+El siguiente esquema articula la responsabilidad operativa y el flujo de datos de cada aplicación refactorizada:
+
+```text
+┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                   SIGI (CONSOLA CENTRAL - PUERTO 3001)                           │
+│     Consolidador Ejecutivo Nacional: Compara Meta Programada vs. Ejecución Real (1er y 2do Nivel) │
+└──────────────────────────┬────────────────────────────────────────────┬──────────────────────────┘
+                           │                                            │
+         ┌─────────────────┴─────────────────┐        ┌─────────────────┴─────────────────┐
+         │                                   │        │                                   │
+         ▼                                   ▼        ▼                                   ▼
+┌──────────────────┐               ┌──────────────────┐┌──────────────────┐     ┌──────────────────┐
+│   SCTIS v2.0     │               │   SCMTP / SGTA   ││     SCEIN        │     │   SCPPE / SAMC   │
+│  (PUERTO 3002)   │               │  (PUERTO 3003)   ││  (PUERTO 3005)   │     │  (PUERTO 3004)   │
+├──────────────────┤               ├──────────────────┤├──────────────────┤     ├──────────────────┤
+│ 1ER NIVEL:       │               │ 2DO NIVEL:       ││ 2DO NIVEL:       │     │ ESTRATÉGICO:     │
+│ • Tiras de Fallas│               │ • Pica y Poda(km)││ • 415 Subestac.  │     │ • 821 PRTSEN     │
+│ • TTI / FMI / NDI│               │ • Circuitos MIMT ││ • Transformadores│     │ • POA 2026 (AE#4)│
+│ • Causa Raíz     │               │ • Sectores BT    ││ • Interruptores  │     │ • Cronograma $   │
+└──────────────────┘               └──────────────────┘└──────────────────┘     └──────────────────┘
+         ▲                                                                                ▲
+         │                                                                                │
+         └─────────────────────────────────┬──────────────────────────────────────────────┘
+                                           │
+                                ┌──────────┴──────────┐
+                                │     SCGCC v1.0      │
+                                │   (PUERTO 3006)     │
+                                ├─────────────────────┤
+                                │ TRAZABILIDAD:       │
+                                │ • Memos GGP-M-001/24│
+                                │ • Oficios y Minutas │
+                                └─────────────────────┘
+```
+
+---
+
+## 🔍 6. Diagnóstico: Causa de la Dispersión Histórica de Instrumentos
+
+1. **Silos Departamentales:**
+   * Las áreas de Despacho (Operaciones), Mantenimiento de Líneas, Subestaciones y Planificación operaban con sistemas y hojas de cálculo no integrados.
+2. **Confusión entre Causa y Efecto:**
+   * Se diseñaban instrumentos masivos intentando registrar eventos de calidad (1er nivel) y tareas físicas (2do nivel) en un mismo formulario, sobrecargando al personal de campo.
+3. **Pérdida de Trazabilidad:**
+   * La emisión de memorandos en papel/PDF obligaba a cada estado a responder mediante archivos dispersos, sin una base de datos centralizada como InsForge PostgreSQL.
+
+---
+
+## 📌 7. Hoja de Ruta para Integración en el Repositorio Maestro
+
+1. **SCPPE-REF (Completado):**
+   * Cartera de 821 proyectos vinculada a la Acción #4 del POA 2026.
+   * Ficha Técnica Oficial con cronograma plurianual de inversión (2025–2031).
+2. **SIGI-REF (Próxima Fase):**
+   * Incorporar el **Tablero Ejecutivo de Metas 2026 (1er y 2do Nivel)** para contrastar mensualmente la cuota del memorando contra la data consolidada de SCTIS, SCMTP y SCEIN.
+3. **SCGCC-REF (Próxima Fase):**
+   * Catalogar los 24 Memorandos Oficiales (`GGP-M-001-2026-01` a `GGP-M-024-2026-01`) como documentos base de gestión en el módulo de correspondencia corporativa.
+
+---
+
+```text
+====================================================================================================
+CERTIFICACIÓN INDUSTRIAL SEN · ISO 8000-110 · ISO 55000 · ISO 27001:2022 · ISACA COBIT 2019
+GERENCIA GENERAL DE PLANIFICACIÓN DE DISTRIBUCIÓN (GGPD) — CORPOELEC 2026
+====================================================================================================
+```

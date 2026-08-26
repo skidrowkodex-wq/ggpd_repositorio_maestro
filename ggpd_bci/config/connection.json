@@ -1,0 +1,19 @@
+{
+  "alias": "insforge-base-conocimientos-automatizacion",
+  "project_name": "GGPD Base de Conocimientos Inteligente (BCI)",
+  "organization": "CORPOELEC — Gerencia General de Planificación de Distribución (GGPD)",
+  "host": "jd3uejbz.ap-southeast.database.insforge.app",
+  "port": 5432,
+  "database": "insforge",
+  "user": "postgres",
+  "sslmode": "require",
+  "api_endpoint": "https://jd3uejbz.ap-southeast.insforge.app",
+  "connection_uri": "postgresql://postgres:***REMOVED***@jd3uejbz.ap-southeast.database.insforge.app:5432/insforge?sslmode=require",
+  "architecture_layers": {
+    "L1": "knowledge.mae_hechos_l1 (Puertos, URLs, Metas 2026, Constantes)",
+    "L2": "knowledge.mae_decisiones_l2 (Dictámenes, ADRs, Auditorías Forenses)",
+    "L3": "knowledge.mae_documentos_rag (Chunks RAG con tsvector y pgvector)",
+    "L4": "knowledge.mae_grafo_codigo (Codegraph de las 6 aplicaciones)",
+    "L5": "knowledge.mae_sesiones_handoff (Continuidad y Memoria Multi-Agente)"
+  }
+}

@@ -1,0 +1,328 @@
+# DIAGNÓSTICO ESTRUCTURAL, ANÁLISIS DEL REPOSITORIO GGC Y MODELO OPERATIVO REAL DE PROCESOS — DISTRIBUCIÓN CORPOELEC (GGPD / GGD)
+
+**Código Documental:** `DOC-GGPD-2026-DIAG-PROC-001`  
+**Fecha:** 26 de Agosto de 2026  
+**Área Emisora:** Equipo de Automatización, Arquitectura de Datos e Ingeniería de Software con IA — Planificación de Distribución (GGPD)  
+**Marco Normativo de Referencia:** ISO 8000-110 (Calidad de Datos), ISO 55000/55001 (Gestión de Activos Físicos), ISO 27001 (Seguridad de la Información), ISACA COBIT 2019 (Gobernanza de TI y Procesos Operativos)
+
+---
+
+## Executive Summary (Resumen Ejecutivo)
+
+La auditoría analítica y forense practicada sobre el repositorio institucional `/repo_ggc` (contentivo de **1,400 archivos** y **285 directorios**) revela la radiografía exacta del ecosistema de gestión técnica, operativa y de planificación de la **Gerencia General de Distribución (GGD)** y su **Gerencia de Gestión de Planificación de Distribución (GGPD)**.
+
+El análisis confirma plenamente la hipótesis de partida: **la organización padece una profunda fragmentación procedimental y conceptual**, originada en la coexistencia no resuelta de **tres eras organizacionales distintas**:
+1. **La era de las Ex-Operadoras (pre-2007):** Culturas técnicas, nomenclaturas y taxonomías de activos dispares (CADAFE, La Electricidad de Caracas - EDC, ENELVEN, ENELBAR, ELEVAL, ELEBOL, CALIFE).
+2. **La era de la Centralización Administrativa y Reactiva (2007–2020):** Creación de CORPOELEC sin una unificación semántica ni tecnológica de los procesos de campo, acentuada por la gestión de contingencia ("apagar fuegos").
+3. **La era de la Hiper-Fiscalización y Canales Paralelos (2021–2026):** Superposición de demandas políticas y de contingencia (Sistema 1x10 del Buen Gobierno, asignaciones por WhatsApp, planes extraordinarios PRTSEN) sobre estructuras presupuestarias rígidas (POA formal) y reportes semanales en hojas de cálculo desvinculadas.
+
+A continuación se expone el desglose integral del repositorio, el modelo de procesos real que opera en la práctica, las patologías de negocio identificadas y la arquitectura de solución implementada en el **Repositorio Maestro**.
+
+---
+
+## 1. Radiografía Integral y Taxonomía del Repositorio `/repo_ggc`
+
+El repositorio `/repo_ggc` está estructurado en 5 macro-carpetas que reflejan las presiones y canales que compiten por la atención de la gerencia:
+
+```mermaid
+graph TD
+    REPO["/repo_ggc (1,400 archivos / 285 carpetas)"]
+    
+    REPO --> F1["1. 1x10 del Buen Gobierno
+- (20 archivos PPT diarios)"]
+    REPO --> F2["2. _PTRSEN
+- (821 proyectos, fichas, TRX, INT)"]
+    REPO --> F3["3. _Seg. y Control
+- (Formatos 2026, Metas, Tiras, RO, EI, Flota)"]
+    REPO --> F4["4. _Gerencia Nacional
+- (Minutas VC, Gestión TH, Correspondencia, Memos)"]
+    REPO --> F5["5. Z_INF
+- (Modelos de datos base y normalización)"]
+
+    F1 --> P1["Presión Política / Reporte Situacional Diario
+- (Luminarias + Transformadores)"]
+    F2 --> P2["Plan de Inversión y Recuperación Estructural
+- (Proyectos 2025-2031)"]
+    F3 --> P3["Mantenimiento Táctico e Indicadores
+- (1er Nivel: TTI/FMI | 2do Nivel: AP/PP/SE/MT/BT)"]
+    F4 --> P4["Gobernanza Administrativa y Contingencia
+- (Minutas post-sismo, asignaciones de tareas)"]
+    F5 --> P5["Catálogos y Códigos Maestros
+- (Árbol de personal y circuitos)"]
+```
+
+### Detalle por Macro-Componente:
+
+| Macro-Componente | Contenido Clave Detectado | Formatos / Herramientas | Hallazgo Operativo Crítico |
+| :--- | :--- | :--- | :--- |
+| **`1x10 del Buen Gobierno`** | 20 presentaciones ejecutivas (`PRESENTACION 1X10 DD.MM.2026 + CIERRE LUM Y TRX.ppt`). | Microsoft PowerPoint (PPT) | **Canal de Alta Prioridad Política:** Mide exclusivamente atención de solicitudes ciudadanas (Luminarias de Alumbrado Público y Transformadores de Distribución quemados). Desconectado del mantenimiento preventivo regular. |
+| **`_PTRSEN` (Plan de Transformación)** | Fichas de 821 proyectos estadales, levantamiento nacional de transformadores de potencia (660 S/E) e interruptores/reconectadores (3,892 circuitos). | Excel (`.xlsx`), Fichas tipo | **Plan Maestro de Inversión:** Proyectos de adecuación y rehabilitación. Opera como un "híbrido" que compite financieramente con el POA sin estar integrado en un ERP unificado. |
+| **`_Seg. y Control`** | - `007 INDICADORES DE 1ER NIVEL`: Tiras de interrupción, cálculo RIND (`RIND V5 2022.xlsm`), causas de falla.
+- - `010 REGISTROS 2026 / METAS`: Metas de 1er y 2do Nivel.
+- - `001 AVANCE DE PLANES`: Consolidado de AP, Pica y Poda, Sectores BT, Restricciones Operativas (RO), Equipos Indisponibles (EI) y Materiales.
+- - `006 TRANSFORMADORES`: Archivos Word/Excel de **"Transformadores aprobados por WhatsApp"** y estadísticas de stock.
+- - `002 FLOTA`: Reportes estadales de operatividad de vehículos.
+- - `Z - POA (RESTRICCIONES 2027)`: 24 archivos estadales de restricciones para el presupuesto 2027. | Excel (`.xls`, `.xlsx`, `.xlsm`), Word (`.docx`), PDF | **El Corazón del Desgaste Operativo:** Consolidación manual de 24 libros Excel enviados por correo o mensajería. Fórmulas rotas, desfases de hasta 4 meses, aprobaciones de emergencia por chats de WhatsApp transcritas a mano. |
+| **`_Gerencia Nacional`** | Minutas de Videoconferencia (`MINUTA REUNION 290626`, `100726`, `300726`), correlativo de correspondencia (`CORRELATIVO GGP.xlsx`), circulares de Talento Humano y evaluaciones de desempeño (`.xlsm`). | PDF, Word (`.doc`), Excel | **Coordinación Remota por Contingencia:** Documenta el impacto del terremoto del 24/06/2026 en la sede de Santa Rosa, la migración obligada al teletrabajo y la necesidad urgente de automatización. |
+| **`Z_INF`** | Formatos de normalización de circuitos y subestaciones (`GGD_GNP_FORM_PM_SE_NACIONAL_001_V1.xlsx`, `MODELO DISTRIBUCION.xls`). | Excel | **Intentos Previos de Estandarización:** Plantillas diseñadas pero no adoptadas universalmente por resistencia al cambio o carencia de un sistema web interactivo. |
+
+---
+
+## 2. Diagnóstico del Sesgo Procedimental Histórico: El Choque Ex-Operadoras vs Centralización
+
+El principal cuello de botella metodológico detectado en `/repo_ggc` es el **choque epistémico y cultural entre tres filosofías de gestión eléctrica que nunca fueron sintetizadas formalmente**:
+
+```mermaid
+timeline
+    title Evolución Histórica de los Procedimientos de Distribución
+    1980 - 2007 (Ex-Operadoras) : Descentralización técnica y presupuestaria
+                                : CADAFE (Áreas rurales, líneas extensas, mantenimiento por kilometraje)
+                                : La Electricidad de Caracas (Redes subterráneas densas, alta confiabilidad)
+                                : ENELVEN / ENELBAR (Sistemas térmicos de alta carga, índices IEEE 1366)
+    2007 - 2020 (Centralización CORPOELEC) : Unificación jurídica pero fragmentación operativa
+                                           : Centralización de compras de materiales
+                                           : Pérdida de autonomía presupuestaria de las regiones
+                                           : Proliferación de libros Excel locales para compensar
+    2021 - 2026 (Hiper-Reactividad y Digitalización) : Sala Situacional 1x10
+                                                     : Aprobación de transformadores por WhatsApp
+                                                     : Dispersión de métricas (1er Nivel vs 2do Nivel)
+                                                     : Proyecto Repositorio Maestro (Unificación InsForge)
+```
+
+### Manifestaciones Concretas del Sesgo en los Documentos:
+
+1. **Disparidad en la Taxonomía de Activos:**
+   - En la región Central/Capital (herencia EDC), un circuito se identifica por código alfanumérico y cámara subterránea (`SE COTA 905 - C-1`).
+   - En la región Occidental/Los Llanos (herencia CADAFE), el circuito se denomina por el pueblo o ramal rural (`LINEA BOCA DE UCHIRE 34,5KV`, `CIRCUITO SAMARIAPO`), muchas veces sin nivel de tensión normalizado o con nombres repetidos en distintos municipios.
+2. **Confusión en la Naturaleza de los Indicadores:**
+   - **Indicadores de 1er Nivel (Confiabilidad y Calidad de Servicio):** `TTI` (Tiempo Total de Interrupciones), `FMI` (Frecuencia Media de Interrupciones), `NDI` (Número de Interrupciones), `DPI` (Duración Promedio), `RIND` (Régimen de Interrupciones no Programadas). *Miden el impacto en el usuario final y la continuidad del flujo de potencia.*
+   - **Indicadores de 2do Nivel (Mantenimiento y Gestión Física):** Metros de pica y poda, circuitos mantenidos, luminarias sustituidas, subestaciones intervenidas, sectores de baja tensión normalizados, restricciones operativas levantadas. *Miden el esfuerzo físico-operativo y el consumo de insumos.*
+   - **El Sesgo Existente:** Las gerencias regionales confunden *la causa con el efecto*. Reportan que "cumplieron la meta de mantenimiento" (2do nivel) aun cuando los circuitos registran récords de interrupciones no programadas (1er nivel), porque **los mantenimientos se ejecutan donde es fácil podar y no donde el análisis de criticidad eléctrica lo demanda**.
+3. **El Síndrome de la "Autogestión Oculta":**
+   - Como se evidencia en la Minuta de Reunión `26-0004` (Punto 5): *"Existen proyectos ejecutados por los estados con mano de obra y materiales propios que no están reflejados en el POA ni tienen control financiero contractual... manejados de forma aislada por los gerentes regionales"*.
+   - Esta es una herencia directa de los antiguos distritos de CADAFE/EDC, que contaban con cajas de operaciones descentralizadas. Al centralizarse las finanzas corporativas, las regiones generaron canales paralelos de abastecimiento (convenios locales con gobernaciones/alcaldías) que rompen la trazabilidad de la Gestión de Activos (ISO 55000).
+
+---
+
+## 3. Modelo Real de Procesos de Distribución (Basado en lo que Realmente Miden)
+
+A partir de los 1,400 archivos analizados, el **Modelo de Procesos Real** que opera en CORPOELEC Distribución no responde al ciclo clásico de Deming (Plan-Do-Check-Act), sino a un **modelo desacoplado en 5 islas independientes**:
+
+```mermaid
+graph TB
+    subgraph ISLA 1: Presión Reactiva Diaria
+        A1["Solicitudes 1x10 / VenApp"] --> A2["Llamadas / Grupos WhatsApp"]
+        A2 --> A3["Aprobación de Emergencia TRX / Luminarias"]
+        A3 --> A4["Elaboración de Presentación PPT Diaria"]
+    end
+
+    subgraph ISLA 2: Planificación Teórica Desconectada
+        B1["Formulación POA Anual (Bs.)"] --> B2["Cartera PRTSEN (821 Proyectos)"]
+        B2 --> B3["Levantamiento de Restricciones Operativas (RO)"]
+        B3 --> B4["Desfase Financiero: Proyectos sin Techo Asignado"]
+    end
+
+    subgraph ISLA 3: Operaciones y Mantenimiento de Campo
+        C1["Cuadrillas Estadales de Pica y Poda / AP / BT"] --> C2["Llenado de Libros Excel Locales"]
+        C2 --> C3["Envío por Correo a Caracas (Fin de Mes / Asíncrono)"]
+        C3 --> C4["Consolidación Manual en GGPD (Fórmulas Rotas)"]
+    end
+
+    subgraph ISLA 4: Despacho y Registro de Fallas
+        D1["Ocurrencia de Evento / Avería en Red"] --> D2["Apertura de Interruptor / Reconectador"]
+        D2 --> D3["Registro en Tiras de Interrupción (SCTIS / Centros de Despacho)"]
+        D3 --> D4["Cálculo RIND / FMI / TTI (Con 1 a 2 meses de atraso)"]
+    end
+
+    subgraph ISLA 5: Recursos Humanos y Administrativos
+        E1["Evaluación de Desempeño Trimestral"] --> E2["Control de Asistencia / Permisos"]
+        E2 --> E3["Gestión de Correspondencia Externa (Oficios en Papel/PDF)"]
+    end
+
+    %% Relaciones Rotas o Débiles
+    A3 -.->|Desconexión: No actualiza el inventario físico| B3
+    C4 -.->|Desconexión: El mantenimiento no prioriza los circuitos de mayor TTI| D4
+    B2 -.->|Desconexión: El POA no financia los convenios regionales autogestionados| C1
+```
+
+### Tabla de Desconexión de Procesos:
+
+| Proceso Origen | Proceso Destino | Estado Actual de Conexión | Consecuencia Operativa |
+| :--- | :--- | :--- | :--- |
+| **Atención 1x10 (TRX y Alumbrado)** | **Gestión de Activos y Transformadores (SSEE / Circuitos)** | 🔴 **Totalmente Desconectado** | Se instalan transformadores de emergencia aprobados por WhatsApp sin registrar el serial COVENIN ni actualizar la hoja de carga del circuito en InsForge/PostgreSQL. |
+| **Tiras de Interrupción (SCTIS - 1er Nivel)** | **Programación de Pica y Poda / MTTO (2do Nivel)** | 🟠 **Débilmente Conectado (Manual)** | Las cuadrillas de pica y poda limpian líneas por conveniencia geográfica o requerimiento municipal, en lugar de atender los "Circuitos Más Fallados" identificados en el reporte de interrupciones. |
+| **Levantamiento de Restricciones Operativas (RO)** | **Formulación Presupuestaria (POA / PRTSEN)** | 🟠 **Parcialmente Conectado** | Se levantan 24 libros Excel con miles de seccionadores, cortacorrientes y aisladores dañados, pero la asignación presupuestaria centralizada compra materiales genéricos sin relación con las prioridades de campo. |
+| **Equipos Indisponibles en Subestaciones (SCEIN)** | **Mantenimiento Mayor de Potencia** | 🔴 **Silo Aislado** | Los transformadores de potencia y disyuntores fuera de servicio se registran en una hoja estática que no dispara órdenes de trabajo automáticas a las cuadrillas de Transmisión/Distribución. |
+| **Correspondencia Institucional (Oficios/Memorandos)** | **Seguimiento de Tareas y Minutas (SCMTP)** | 🔴 **Pérdida de Trazabilidad** | Las instrucciones emitidas en memorandos presidenciales o minutas se archivan como PDF en carpetas locales sin seguimiento de compromisos con fecha límite y responsable. |
+
+---
+
+## 4. Matriz Comparativa: Indicadores de 1er Nivel vs 2do Nivel
+
+El análisis de los archivos `METAS 2026 1ER Y 2DO NIVEL.xlsx` y `Reporte de Indicadores semanales_310726.xls` permite clarificar matemáticamente la frontera entre ambos niveles, resolviendo la confusión que expresan los técnicos y gerentes:
+
+```mermaid
+graph LR
+    subgraph 2do Nivel: ESFUERZO OPERATIVO (Insumos y Acciones)
+        N2_AP["AP: Instalaciones Mantenidas"]
+        N2_PP["P&P: Kilómetros Desmalezados"]
+        N2_SE["SE: Subestaciones Intervenidas"]
+        N2_MT["MT: Circuitos Normalizados"]
+        N2_BT["BT: Sectores Reparados"]
+        N2_RO["RO: Restricciones Solventadas"]
+        N2_EI["EI: Equipos Reemplazados"]
+    end
+
+    subgraph 1er Nivel: IMPACTO SISTÉMICO (Calidad del Servicio)
+        N1_NDI["NDI: Frecuencia Absoluta de Fallas"]
+        N1_DPI["DPI: Tiempo Promedio de Respuesta"]
+        N1_FMI["FMI: Tasa de Interrupción por Usuario"]
+        N1_TTI["TTI: Horas Totales sin Servicio"]
+        N1_RIND["RIND: Índice No Programado"]
+    end
+
+    N2_AP -->|Mitiga fallas secundarias| N1_NDI
+    N2_PP -->|Erradica contacto con ramas| N1_NDI
+    N2_RO -->|Reduce tiempos de maniobra| N1_DPI
+    N2_SE -->|Evita disparo de transformador| N1_TTI
+    N2_MT -->|Mejora aislamiento en troncal| N1_FMI
+
+    N1_NDI --> N1_FMI
+    N1_DPI --> N1_TTI
+```
+
+### Metas Nacionales 2026 Registradas en los Instrumentos:
+
+| Nivel | Indicador / Actividad | Unidad de Medida | Meta Nacional 2026 | Significado Físico / Estratégico |
+| :---: | :--- | :---: | :---: | :--- |
+| **1°** | **TTI (Tiempo Total de Interrupción)** | Horas / Año | **42.79 hrs** | Promedio de horas que un usuario del SEN permanece sin energía eléctrica al año. |
+| **1°** | **FMI (Frecuencia Media de Interrupción)** | Interrupciones / Año | **42.49 int/cte** | Cantidad promedio de veces que un usuario sufre un corte de servicio al año. |
+| **1°** | **NDI (Número de Interrupciones)** | Eventos totales | **150,347 fallas** | Volumen total absoluto de disparos de circuitos de distribución a nivel nacional. |
+| **1°** | **DPI (Duración Promedio de Interrupción)** | Horas / Evento | **1.007 hrs** | Tiempo medio que tarda una cuadrilla en restablecer el servicio tras una falla. |
+| **2°** | **Mantenimiento Alumbrado Público (AP)** | Puntos / Instalaciones | **60,808 luminarias** | Meta física de sustitución y reparación de alumbrado vial y comunal. |
+| **2°** | **Pica y Poda / Corredores de Líneas (P&P)** | Kilómetros | **64,162 km** | Desmalezamiento preventivo en servidumbres de paso de líneas de media y alta tensión. |
+| **2°** | **Mantenimiento de Subestaciones (SE)** | Instalaciones | **415 S/E** | Mantenimiento preventivo electromecánico a patios de transformación. |
+| **2°** | **Mantenimiento de Redes Media Tensión (MT)** | Circuitos | **965 circuitos** | Normalización de aislamiento, seccionamiento y herrajes en troncales. |
+| **2°** | **Mantenimiento de Baja Tensión (BT)** | Sectores | **7,114 sectores** | Reemplazo de conectores, acometidas, tableros y balanceo de cargas en BT. |
+
+---
+
+## 5. Patologías Operativas y Causas Raíz del Retrabajo
+
+Del examen minucioso de los documentos, minutas de reunión y correspondencia, emergen con claridad las **5 causas raíz que generan contradicción y retrabajo**:
+
+```mermaid
+graph TD
+    CR1["1. Ausencia de un Modelo de Datos Canónico Único"] --> EFF1["Cada estado envía nombres distintos para la misma Subestación o Circuito"]
+    CR2["2. Gobernanza Reactiva ('Apagar Fuegos')"] --> EFF2["Priorización por emergencias de WhatsApp en lugar de planificación técnica"]
+    CR3["3. Asincronía Intergerencial y Departamental"] --> EFF3["Distribución no sabe qué compró Procura ni qué proyectos aprobó Finanzas"]
+    CR4["4. Ruptura de Canal: Hojas de Cálculo vs Sistemas Web"] --> EFF4["Consolidación manual de 24 Excels cada mes con fórmulas truncadas"]
+    CR5["5. Desconocimiento del Marco Metrológico (1er vs 2do Nivel)"] --> EFF5["Se solicitan desarrollos de software sin saber qué variable matemática alimentar"]
+
+    EFF1 --> RETRABAJO["RETRABAJO PERMANENTE, DESGASTE TÉCNICO Y PÉRDIDA DE CONFIABILIDAD DEL SEN"]
+    EFF2 --> RETRABAJO
+    EFF3 --> RETRABAJO
+    EFF4 --> RETRABAJO
+    EFF5 --> RETRABAJO
+```
+
+### Análisis Detallado de las Patologías:
+
+1. **La "Torre de Babel" de Nombres de Activos:**
+   - Como declaró el Ing. Yván Cipirán en la Minuta `26-0004`: *"La falta de un consolidado actualizado de subestaciones y circuitos ha sido el principal obstáculo para el éxito de las automatizaciones previas. La IA no puede procesar los instrumentos debido a la inconsistencia en los nombres y estructuras"*.
+   - Un mismo circuito es nombrado como `CIRC. PTO AYACUCHO 13.8`, `PUERTO AYACUCHO 1`, `ALIMENTADOR 8`, o `PTO_AYACUCHO_II` según quién elabore el reporte.
+2. **La Trampa de los Grupos de WhatsApp:**
+   - La carpeta `repo_ggc/_Seg. y Control/006 TRANSFORMADORES/TRANSFORMADORES APROBADO WHATSAPP 2026/` contiene archivos Word con capturas y transcripciones de mensajes de chat donde se aprueban transformadores de 25, 37.5 y 50 kVA.
+   - **Riesgo Operativo:** Este mecanismo salta los controles de inventario, no exige orden de trabajo, no verifica si el transformador quemado tenía garantía, y no registra las coordenadas geográficas de la nueva instalación.
+3. **El Híbrido PRTSEN vs POA:**
+   - El PRTSEN tiene 821 proyectos con presupuestos en dólares/euros estimados por ingeniería de campo. El POA corporativo tiene techos en Bolívares con partidas presupuestarias cerradas.
+   - Al no existir un sistema que traduzca automáticamente un proyecto de inversión física a su respectiva partida de gasto público, los ingenieros deben redactar dos fichas distintas para la misma obra.
+4. **Desincronización Intergerencial (GGD vs GGT vs CGGTH vs ATIT):**
+   - **Distribución (GGD) vs Transmisión (GGT):** Disputa permanente sobre el límite de custodia en las barras de 13.8 kV y 34.5 kV de las subestaciones compartidas.
+   - **Distribución vs Talento Humano (CGGTH):** La circular de evaluación de desempeño trimestral exige metas individuales, pero no están sincronizadas con las metas de reducción del FMI/TTI del circuito asignado al técnico.
+   - **Distribución vs ATIT:** Carencia histórica de soluciones ágiles internas, lo que forzó a la GGPD a construir soluciones departamentales basadas en software propio e Inteligencia Artificial.
+
+---
+
+## 6. La Solución Arquitectónica: Unificación en el Repositorio Maestro
+
+El **Repositorio Maestro de CORPOELEC (GGPD)**, implementado sobre **InsForge BaaS (PostgreSQL) y React/TypeScript**, erradica de raíz toda la problemática identificada en `/repo_ggc`, estructurando la operación en 6 sistemas interconectados bajo un **Esquema Canónico Universal**:
+
+```mermaid
+graph TB
+    subgraph CAPA MAESTRA TRANSVERSAL: core.*
+        CORE_ORG["core.dim_organizaciones
+- (Árbol Universal MPPEE/CORPOELEC/Gobernaciones)"]
+        CORE_SE["core.mae_subestaciones
+- (871 Subestaciones Certificadas)"]
+        CORE_CTO["core.mae_circuitos
+- (4,207 Circuitos Normalizados)"]
+        CORE_IAM["core.mae_usuarios_sistema
+- (Autenticación Segura ISO 27001)"]
+    end
+
+    subgraph SISTEMAS DE 1ER Y 2DO NIVEL (APLICACIONES MAESTRAS)
+        SYS_SCTIS["SCTIS-REF (Puerto 3002)
+- Tiras de Interrupción & Despacho
+- Cálculo en Vivo: TTI, FMI, NDI, DPI"]
+        SYS_SCEIN["SCEIN-REF (Puerto 3005)
+- Equipos Indisponibles SSEE
+- Transformadores de Potencia e Interruptores"]
+        SYS_SCPPE["SCPPE-REF (Puerto 3004)
+- Planificación SEN, POA 2026/2027
+- PRTSEN (821 Proyectos) y Viáticos"]
+        SYS_SCMTP["SCMTP-REF (Puerto 3003)
+- Gestión de Minutas y Tareas SEN
+- Compromisos Videoconferencias y Seguimiento"]
+        SYS_SCGCC["SCGCC-REF (Puerto 3006)
+- Correspondencia Corporativa Cero Papel
+- Firmas Hash SHA-256 y QR Auditado"]
+        SYS_SIGI["SIGI-REF (Puerto 3001)
+- Consola Central de Gestión & Ingesta
+- Control de Mantenimiento 2do Nivel (AP/PP/BT)"]
+    end
+
+    CORE_SE --> SYS_SCTIS
+    CORE_SE --> SYS_SCEIN
+    CORE_SE --> SYS_SCPPE
+    CORE_SE --> SYS_SIGI
+    
+    CORE_CTO --> SYS_SCTIS
+    CORE_CTO --> SYS_SCPPE
+    CORE_CTO --> SYS_SIGI
+
+    CORE_ORG --> SYS_SCPPE
+    CORE_ORG --> SYS_SCGCC
+    CORE_ORG --> SYS_SCMTP
+
+    SYS_SCTIS -.->|Identifica Circuitos Críticos| SYS_SIGI
+    SYS_SIGI -.->|Genera Órdenes de Mantenimiento| SYS_SCMTP
+    SYS_SCGCC -.->|Deriva Oficios a Acciones| SYS_SCMTP
+```
+
+### Correspondencia Exacta: De la Patología en `repo_ggc` a la Solución en el Repositorio Maestro:
+
+| Carpeta / Instrumento en `repo_ggc` | Patología Actual | Módulo Solución en Repositorio Maestro | Beneficio Directo / Cero Retrabajo |
+| :--- | :--- | :--- | :--- |
+| `007 INDICADORES DE 1ER NIVEL` + `RIND.xlsm` | Tiras transcritas a mano, cálculo RIND manual con 60 días de atraso. | **SCTIS-REF (`sctis.mae_interrupciones_tiras`)** | Ingesta digital, homologación por alias (`cat_asset_alias`) y cálculo instantáneo de TTI, FMI, NDI y DPI en tiempo real. |
+| `003 EQUIPOS INDISPONIBLES` + `006 LEV TRX` | Libros Excel con disyuntores y transformadores de potencia quemados sin trazabilidad. | **SCEIN-REF (`scein.mae_equipos_indisponibles`)** | Catálogo auditado con estado de criticidad, causas de indisponibilidad y vinculación a órdenes de rehabilitación. |
+| `_PTRSEN (005 PROYECTOS)` + `Z - POA RESTRICCIONES` | Fichas aisladas en 24 carpetas, incompatibles con el presupuesto nacional. | **SCPPE-REF (`scppe.mae_proyectos_especiales` y `mae_poa_acciones`)** | Asistente de Formulación POA en 4 pasos, integración de los 821 proyectos PRTSEN y árbol organizacional recursivo. |
+| `Minutas VC GGPD` + `Avances de Tareas` | Minutas en PDF con compromisos que se olvidan o no tienen fecha de corte. | **SCMTP-REF (`scmtp.mae_minutas` y `mae_compromisos_tareas`)** | Registro estructurado de acuerdos, asignación de responsables, semáforo de vencimiento y trazabilidad ISO 9001. |
+| `Gestion de Correspondencia GGP` + `PDF CORRESP` | Registro manual en Excel (`CORRELATIVO GGP.xlsx`), oficios extraviados. | **SCGCC-REF (`scgcc.mae_correspondencias` y `mae_oficios_salida`)** | Cero papel, hash inmutable SHA-256, verificación pública por QR y derivación automática de oficios a tareas en SCMTP. |
+| `010 REGISTROS 2026` + `1x10 del Buen Gobierno` | PPTs diarios hechos a mano, 24 Excels de AP, P&P y BT consolidados con errores. | **SIGI-REF (`sigi.ingesta_registros_dinamicos`)** | Formularios web de carga estadal con validación previa de esquemas ISO 8000, eliminando el uso de correos y WhatsApp. |
+
+---
+
+## 7. Conclusiones y Hoja de Ruta Estratégica
+
+1. **La confusión de los trabajadores no es incompetencia técnica, es un síntoma de arquitectura ausente:**
+   Los ingenieros y técnicos de campo de CORPOELEC son altamente calificados, pero operan dentro de un marco de herramientas fragmentado que los obliga a reportar el mismo dato en 4 formatos incompatibles (1x10, POA, Mantenimiento y WhatsApp).
+2. **El Repositorio Maestro no es un experimento de software, es el nuevo estándar de gobernanza eléctrica:**
+   Al normalizar los 871 nodos de Subestación y los 4,207 Circuitos en `core.*`, el sistema actúa como un **árbitro de verdad única** bajo la norma ISO 8000-110.
+3. **El Siguiente Paso Inmediato:**
+   - Mantener las aplicaciones en producción VibeHost conectadas a InsForge BaaS (`ggpd-data-maestra-0002`).
+   - Bloquear el surgimiento de nuevos formatos aislados en Excel mediante la formalización del estándar web unificado.
+   - Capacitar a los enlaces estadales en el uso directo de las consolas refactorizadas, erradicando los flujos informales de mensajería.
+
+---
+*Documento elaborado y certificado por el Equipo de Automatización e Ingeniería de Sistemas con IA — Planificación de Distribución CORPOELEC.*

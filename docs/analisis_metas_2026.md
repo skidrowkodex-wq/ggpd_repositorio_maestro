@@ -34,22 +34,32 @@ El modelo de gestión de CORPOELEC opera bajo una estricta relación bidireccion
 ```mermaid
 graph TD
     subgraph SegundoNivel["2DO NIVEL: CAUSA OPERATIVA (Plan de Mantenimiento Preventivo / Activos)"]
-        AP["💡 Alumbrado Público (AP)<br/>Meta: 60.808 Instalaciones"]
-        PP["🌳 Pica y Poda de Corredores (PP)<br/>Meta: 64.162 km"]
-        SE["🏢 Subestaciones de Distribución (SE)<br/>Meta: 415 Subestaciones"]
-        MT["⚡ Mantenimiento Integral Media Tensión (MIMT)<br/>Meta: 965 Circuitos"]
-        BT["🔌 Redes de Baja Tensión (BT)<br/>Meta: 7.114 Sectores"]
+        AP["💡 Alumbrado Público (AP)
+- Meta: 60.808 Instalaciones"]
+        PP["🌳 Pica y Poda de Corredores (PP)
+- Meta: 64.162 km"]
+        SE["🏢 Subestaciones de Distribución (SE)
+- Meta: 415 Subestaciones"]
+        MT["⚡ Mantenimiento Integral Media Tensión (MIMT)
+- Meta: 965 Circuitos"]
+        BT["🔌 Redes de Baja Tensión (BT)
+- Meta: 7.114 Sectores"]
     end
 
     subgraph PrimerNivel["1ER NIVEL: EFECTO EN CALIDAD DE SERVICIO (Continuidad y Confiabilidad SEN)"]
-        TTI["⏱️ TTI / SAIDI: Tiempo Total de Interrupciones<br/>Meta Nacional: 42,79 Horas/año"]
-        FMI["📊 FMI / SAIFI: Frecuencia Media de Interrupciones<br/>Meta Nacional: 42,49 Veces/año"]
-        NDI["📉 NDI: Número Total de Interrupciones<br/>Meta Nacional: 150.347 Disparos/año"]
-        DPI["⏳ DPI / CAIDI: Duración Promedio de Interrupción<br/>Meta Nacional: 1,01 Horas/evento"]
+        TTI["⏱️ TTI / SAIDI: Tiempo Total de Interrupciones
+- Meta Nacional: 42,79 Horas/año"]
+        FMI["📊 FMI / SAIFI: Frecuencia Media de Interrupciones
+- Meta Nacional: 42,49 Veces/año"]
+        NDI["📉 NDI: Número Total de Interrupciones
+- Meta Nacional: 150.347 Disparos/año"]
+        DPI["⏳ DPI / CAIDI: Duración Promedio de Interrupción
+- Meta Nacional: 1,01 Horas/evento"]
     end
 
     subgraph FinanzasPOA["PLANIFICACIÓN ESTRATÉGICA & RECURSOS (POA / PRTSEN)"]
-        POA["🏛️ POA 2026 (Acción #4)<br/>Presupuesto y Obras PRTSEN"]
+        POA["🏛️ POA 2026 (Acción #4)
+- Presupuesto y Obras PRTSEN"]
     end
 
     FinanzasPOA -->|Financia Activos y Materiales| SegundoNivel

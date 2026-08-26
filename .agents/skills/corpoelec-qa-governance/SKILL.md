@@ -122,4 +122,58 @@ All applications incorporated into the Repositorio Maestro must reach **Industri
 * Zero mock/placeholder code in production paths.
 * Active security headers (OWASP, rate limiting, CORS) on Express/Node/Python servers.
 * Full test coverage for critical business logic (ETL parsers, triggers, auth flows).
-* Clean separation of concerns between shared assets (`common.assets` / `activos_red`) and app-specific domains.
+* Clean separation of concerns between shared assets (`common.assets` / `core.*`) and app-specific domains.
+
+---
+
+## 6. METROLOGÍA DE METAS SEN 2026: 1ER vs 2DO NIVEL (`DOC-GGPD-2026-METAS-001`)
+
+Every developer, data engineer, and QA agent MUST distinguish mathematically between **Impact Indicators (1st Level)** and **Operational Effort Indicators (2nd Level)**:
+
+### A. 1er Nivel: Confiabilidad y Calidad del Servicio (Impacto en Usuarios)
+* **TTI (SAIDI)**: Tiempo Total de Interrupciones (Meta 2026: **42.79 hrs/año**).
+* **FMI (SAIFI)**: Frecuencia Media de Interrupciones (Meta 2026: **42.49 int/cte/año**).
+* **NDI**: Número Total de Interrupciones absolutas (Meta 2026: **150,347 fallas**).
+* **DPI (CAIDI)**: Duración Promedio por Interrupción ($\text{DPI} = \frac{\text{TTI}}{\text{FMI}}$, Meta 2026: **1.01 hrs/evento**).
+* **RIND**: Régimen de Interrupciones No Programadas (Ponderación oficial por carga MW).
+* **Gestor de Software**: **`SCTIS-REF`** (Puerto `3002`) & **`SIGI-REF`** (Puerto `3001`).
+
+### B. 2do Nivel: Mantenimiento Físico y Gestión de Activos (Causa Operativa)
+* **AP**: Mantenimiento de Alumbrado Público (Meta: **60,808 luminarias**).
+* **PP**: Pica y Poda en Corredores de Líneas MT (Meta: **64,162 km**).
+* **SE**: Mantenimiento Electromecánico de Subestaciones (Meta: **415 S/E**).
+* **MIMT / MT**: Mantenimiento Integral de Media Tensión (Meta: **965 circuitos**, calculados mediante fórmula de criticidad: $\text{Impacto} = 0.60 \times \text{NDI} + 0.40 \times \text{TTI}$ bajo Pareto 60%).
+* **BT**: Mantenimiento de Sectores de Baja Tensión (Meta: **7,114 sectores**, base transformadores fallados 2025).
+* **RO / EI**: Restricciones Operativas y Equipos Indisponibles.
+* **Gestor de Software**: **`SIGI-REF`** (Puerto `3001`), **`SCMTP-REF`** (Puerto `3003`) & **`SCEIN-REF`** (Puerto `3005`).
+
+---
+
+## 7. DIAGNÓSTICO FORENSE DE PROCESOS & AUDITORÍA `/repo_ggc` (`DOC-GGPD-2026-DIAG-PROC-001`)
+
+Audit findings on the legacy repository `/repo_ggc` (1,400 files / 285 dirs) must guide future architectural refactoring:
+1. **Deconstrucción del Sesgo Ex-Operadoras**: Erradicar discrepancias taxonómicas heredadas de CADAFE, EDC, ENELVEN y ELEVAL mediante el catálogo maestro unificado `core.mae_subestaciones` (871) y `core.mae_circuitos` (4,207).
+2. **Erradicación de las 5 Islas Desconectadas**:
+   - *Isla 1 (1x10 / WhatsApp)* $\leftrightarrow$ *Isla 2 (POA / PRTSEN)* $\leftrightarrow$ *Isla 3 (Excels de Mantenimiento)* $\leftrightarrow$ *Isla 4 (Tiras SCTIS)* $\leftrightarrow$ *Isla 5 (Correspondencia / Minutas)*.
+3. **Cero Retrabajo**: Ninguna aplicación nueva debe crearse para replicar hojas de cálculo locales; toda funcionalidad debe canalizarse por los 6 sistemas refactorizados en InsForge BaaS.
+
+---
+
+## 8. GOBERNANZA DE SOFTWARE Y CANALES DE CONTROL (`DOC-GGPD-2026-GOB-001`)
+
+Directrices vinculantes para el diseño y operación de los sistemas del Repositorio Maestro:
+
+### A. La Regla de Oro Institucional
+> **"Lo que no esté registrado en InsForge PostgreSQL (`ggpd-data-maestra-0002`), NO EXISTE."**
+* Se prohíbe tramitar requerimientos de materiales, transformadores o viáticos por mensajería instantánea (WhatsApp) a estados con retraso en el reporte.
+* En salas situacionales y reuniones ministeriales, se proyecta exclusivamente la data en tiempo real de **`SIGI`** y **`SCTIS`**. Si un estado no reporta, aparece en **ROJO / 0%** ante la Junta Directiva.
+
+### B. Prohibición de la "Super-App Gerencial Punitiva" & Segregación de Funciones (ISACA COBIT 2019)
+Está estrictamente prohibido mezclar en una sola pantalla analítica de datos, gestión de tareas y emisión de sanciones disciplinarias. Se aplica el **Flujo Desacoplado**:
+1. **`SIGI-REF` (Torre de Control / BI)**: Observa desvíos de TTI/FMI y cumplimiento de mantenimiento.
+2. **`SCMTP-REF` (Workflow Táctico)**: Recibe con 1 clic la instrucción desde SIGI y crea la tarea con plazo de 72h y responsable formal.
+3. **`SCGCC-REF` (Formalización Legal)**: Si el estado reincide o vence el plazo, genera el memorando oficial con firma digital inmutable (Hash SHA-256) y código QR, con copia a Talento Humano (CGGTH).
+
+### C. Principio de Valor Operativo
+El software debe ahorrar tiempo al personal de campo: cada módulo debe permitir exportar automáticamente el **Informe Mensual Estadal en PDF/Word** con gráficos oficiales para la Gobernación, eliminando la duplicación de digitación manual.
+

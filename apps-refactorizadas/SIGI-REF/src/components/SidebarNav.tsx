@@ -20,7 +20,7 @@ import {
   Menu,
   X,
   Info,
-  HelpCircle,
+  Brain,
   UploadCloud,
   FolderTree
 } from 'lucide-react';
@@ -54,6 +54,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
     { id: 'procesos_drive', label: '5. Procesos & Data Lake', icon: FolderTree, desc: 'Aprovisionamiento Nube', hideForVisor: true },
     { id: 'drive', label: '6. Visor Google Drive', icon: Cloud, desc: 'Documentos Nube', hideForVisor: true },
     { id: 'usuarios', label: '7. Gestión Usuarios SSO', icon: Users, desc: 'Directorio & Permisos', hideForVisor: true },
+    { id: 'bci_iam', label: '8. Gobernanza BCI / IAM', icon: Brain, desc: 'Tokens de IA & ISO 27001', hideForVisor: true },
   ];
 
   const navItems = rawNavItems.filter(item => !isVisorEstadal || !item.hideForVisor);
