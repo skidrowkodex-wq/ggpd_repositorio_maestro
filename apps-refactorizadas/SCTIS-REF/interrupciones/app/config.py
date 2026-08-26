@@ -25,9 +25,9 @@ class Config:
     GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
     GEMINI_MODEL = os.getenv('GEMINI_MODEL', 'gemini-2.5-flash')
 
-    SUPABASE_URL = os.getenv('SUPABASE_URL', '')
-    SUPABASE_ANON_KEY = os.getenv('SUPABASE_ANON_KEY', '')
-    SUPABASE_SERVICE_KEY = os.getenv('SUPABASE_SERVICE_KEY', '')
+    INSFORGE_URL = os.getenv('INSFORGE_URL', os.getenv('VITE_INSFORGE_URL', 'https://wxkeqf37.ap-southeast.insforge.app'))
+    INSFORGE_API_KEY = os.getenv('INSFORGE_API_KEY', os.getenv('VITE_INSFORGE_API_KEY', '***REMOVED***'))
+    INSFORGE_PROJECT_ID = os.getenv('INSFORGE_PROJECT_ID', 'ggpd-data-maestra-0002')
 
     FIREBASE_PROJECT_ID = os.getenv('FIREBASE_PROJECT_ID', '')
     FIREBASE_CLIENT_EMAIL = os.getenv('FIREBASE_CLIENT_EMAIL', '')

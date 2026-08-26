@@ -82,11 +82,11 @@ export function ViaticosControlView() {
                 ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-400 border-emerald-300 dark:border-emerald-800' 
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700'
             }`}>
-              {isFromSupabase ? 'En vivo Supabase' : 'Vista Conectada'}
+              {isFromSupabase ? 'En vivo InsForge PostgreSQL' : 'Vista Conectada'}
             </span>
           </div>
           <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-            Gestión de Rendiciones y Triggers de Validación Presupuestaria DDL en Supabase (<code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded font-mono">trg_validar_presupuesto_viatico</code>).
+            Gestión de Rendiciones y Triggers de Validación Presupuestaria DDL en InsForge (<code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded font-mono">trg_validar_presupuesto_viatico</code>).
           </p>
         </div>
 

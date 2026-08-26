@@ -13,6 +13,7 @@ El presente directorio contiene la documentación técnica, funcional y operativ
 | :--- | :--- | :--- | :--- |
 | **GGPD-SCGCC-DOCFUN-001** | **Informe de Avance & Definición Funcional** | Justificación institucional, matriz de prioridades por verbos rectores, custodia ISO 15489 y estado de avance solicitado vs. entregado. | [`SCGCC_DOCFUN_v1_Informe_Avance_Solicitantes.md`](./SCGCC_DOCFUN_v1_Informe_Avance_Solicitantes.md) |
 | **GGPD-SCGCC-DOCTEC-002** | **Documento Técnico & Arquitectura** | Esquema de base de datos PostgreSQL `scgcc.*`, seguridad RBAC/RLS, integración SCMTP y API Storage. | [`SCGCC_DOCTEC_v1_Arquitectura_Gobernanza.md`](./SCGCC_DOCTEC_v1_Arquitectura_Gobernanza.md) |
+| **GGPD-SCGCC-ESTFAC-003** | **Dictamen de Factibilidad & Hoja de Ruta V2.0** | Análisis de gobernanza RUP, gestión con ATIT, infraestructura cloud, mensajería 'cero papel' y expansión multi-gerencial. | [`GGPD_SCGCC_ESTUDIO_FACTIBILIDAD_EXPANSION_V01.md`](./GGPD_SCGCC_ESTUDIO_FACTIBILIDAD_EXPANSION_V01.md) |
 
 ---
 

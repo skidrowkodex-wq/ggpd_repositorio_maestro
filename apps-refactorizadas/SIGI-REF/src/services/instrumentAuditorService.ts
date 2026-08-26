@@ -13,7 +13,6 @@ import {
   MasterCatalog, 
   MasterCatalogItem 
 } from '../types/ingestion';
-import { supabase } from '../lib/supabase';
 import { getLegacyCatalogs } from './legacyCatalogService';
 
 const STORAGE_KEY_CATALOGS = 'CORPOELEC_SIGI_MDM_CATALOGS_V1';

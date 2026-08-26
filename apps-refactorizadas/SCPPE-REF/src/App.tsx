@@ -16,6 +16,7 @@ import { getInitialUser, logoutUser } from './services/authService';
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => getInitialUser());
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     const saved = localStorage.getItem('scppe_theme');
     return saved === 'dark';
@@ -59,6 +60,8 @@ export default function App() {
         onLogout={handleLogout}
         darkMode={darkMode}
         onToggleDarkMode={() => setDarkMode(!darkMode)}
+        onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)}
+        isMobileMenuOpen={mobileMenuOpen}
       />
 
       <div className="flex-1 flex overflow-hidden">
@@ -66,9 +69,11 @@ export default function App() {
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           userRole={currentUser?.rol}
+          isMobileOpen={mobileMenuOpen}
+          onCloseMobile={() => setMobileMenuOpen(false)}
         />
 
-        <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-7xl mx-auto w-full">
+        <main className="flex-1 p-3 sm:p-6 md:p-8 overflow-y-auto max-w-7xl mx-auto w-full min-w-0">
           {activeTab === 'dashboard' && <DashboardOverview />}
           {activeTab === 'prtsen' && <PrtsenProjectsView />}
           {activeTab === 'rds' && <RdsPsExplorerView />}
@@ -83,5 +88,3 @@ export default function App() {
     </div>
   );
 }
-
-

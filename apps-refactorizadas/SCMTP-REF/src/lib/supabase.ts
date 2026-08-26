@@ -1,12 +1,11 @@
-import { createClient } from '@supabase/supabase-js';
 import { SupabaseConfig, TareaCompromiso, PendienteArea, MinutaReunion } from '../types';
 
-const STORAGE_KEY = 'corpoelec_supabase_config';
+const STORAGE_KEY = 'corpoelec_insforge_config';
 
 export function getStoredSupabaseConfig(): SupabaseConfig {
   const metaEnv = (import.meta as any).env || {};
-  const envUrl = (metaEnv.VITE_SUPABASE_URL || metaEnv.SUPABASE_URL || '').trim();
-  const envAnonKey = (metaEnv.VITE_SUPABASE_ANON_KEY || metaEnv.SUPABASE_ANON_KEY || '').trim();
+  const envUrl = (metaEnv.VITE_INSFORGE_URL || metaEnv.INSFORGE_URL || 'https://wxkeqf37.ap-southeast.insforge.app').trim();
+  const envAnonKey = (metaEnv.VITE_INSFORGE_API_KEY || metaEnv.INSFORGE_API_KEY || '***REMOVED***').trim();
 
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved) {
@@ -32,46 +31,134 @@ export function saveSupabaseConfig(config: SupabaseConfig): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
 }
 
-let supabaseInstance: any = null;
+class InsforgeTableQuery {
+  private baseUrl: string;
+  private apiKey: string;
+  private tableName: string;
+
+  constructor(baseUrl: string, apiKey: string, tableName: string) {
+    this.baseUrl = baseUrl.replace(/\/+$/, '');
+    this.apiKey = apiKey;
+    this.tableName = tableName;
+  }
+
+  private getHeaders() {
+    return {
+      'apikey': this.apiKey,
+      'Authorization': `Bearer ${this.apiKey}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+  }
+
+  private resolveEndpoint(viewPreferred: boolean = true) {
+    if (viewPreferred) {
+      if (this.tableName === 'minutas') return 'v_scmtp_minutas';
+      if (this.tableName === 'compromisos_tareas') return 'v_scmtp_compromisos_tareas';
+      if (this.tableName === 'pendientes_area') return 'v_scmtp_pendientes_area';
+    }
+    return this.tableName;
+  }
+
+  async select(columns: string = '*', options?: { count?: string; head?: boolean }): Promise<{ data: any[] | null; error: any }> {
+    try {
+      const target = this.resolveEndpoint(true);
+      const res = await fetch(`${this.baseUrl}/api/database/records/${target}?limit=500`, {
+        method: 'GET',
+        headers: this.getHeaders(),
+      });
+      if (!res.ok) {
+        return { data: null, error: { message: `HTTP ${res.status}: ${res.statusText}` } };
+      }
+      const data = await res.json();
+      return { data: Array.isArray(data) ? data : [], error: null };
+    } catch (err: any) {
+      return { data: null, error: err };
+    }
+  }
+
+  async insert(records: any | any[]): Promise<{ data: any | null; error: any }> {
+    try {
+      const target = this.resolveEndpoint(false);
+      const payload = Array.isArray(records) ? records : [records];
+      const res = await fetch(`${this.baseUrl}/api/database/records/${target}`, {
+        method: 'POST',
+        headers: this.getHeaders(),
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const errText = await res.text();
+        return { data: null, error: { message: errText } };
+      }
+      const data = await res.json();
+      return { data, error: null };
+    } catch (err: any) {
+      return { data: null, error: err };
+    }
+  }
+
+  async upsert(records: any | any[]): Promise<{ data: any | null; error: any }> {
+    return this.insert(records);
+  }
+
+  delete() {
+    return {
+      eq: async (column: string, value: any): Promise<{ data: any | null; error: any }> => {
+        try {
+          const target = this.resolveEndpoint(false);
+          const res = await fetch(`${this.baseUrl}/api/database/records/${target}?${column}=eq.${value}`, {
+            method: 'DELETE',
+            headers: this.getHeaders(),
+          });
+          return { data: null, error: res.ok ? null : { message: `HTTP ${res.status}` } };
+        } catch (err: any) {
+          return { data: null, error: err };
+        }
+      }
+    };
+  }
+}
+
+class InsforgeClient {
+  private url: string;
+  private key: string;
+
+  constructor(url: string, key: string) {
+    this.url = url;
+    this.key = key;
+  }
+
+  from(tableName: string) {
+    return new InsforgeTableQuery(this.url, this.key, tableName);
+  }
+}
+
+let insforgeInstance: any = null;
 
 export function getSupabaseClient(): any {
   const config = getStoredSupabaseConfig();
   if (!config.url || !config.anonKey) {
     return null;
   }
-  if (!supabaseInstance) {
-    supabaseInstance = createClient(config.url, config.anonKey, {
-      db: {
-        schema: 'sctap',
-      },
-    });
+  if (!insforgeInstance) {
+    insforgeInstance = new InsforgeClient(config.url, config.anonKey);
   }
-  return supabaseInstance;
+  return insforgeInstance;
 }
 
-
 export function resetSupabaseClient() {
-  supabaseInstance = null;
+  insforgeInstance = null;
 }
 
 export const SUPABASE_SQL_SCHEMA = `-- SQL Schema para CORPOELEC - Gestor de Tareas y Minutas
--- Esquema: sctap (Seguimiento y Control de Tareas Asignadas Planificación)
--- Copia y ejecuta este script en el Editor SQL de tu proyecto Supabase
+-- Esquema: scmtp (Seguimiento y Control de Minutas y Tareas Planificación)
+-- Desplegado en InsForge PostgreSQL (ggpd-data-maestra-0002)
 
--- 1. Crear el esquema personalizado sctap
-CREATE SCHEMA IF NOT EXISTS sctap;
+CREATE SCHEMA IF NOT EXISTS scmtp;
 
--- Permisos de acceso al esquema sctap para API anon y usuarios autenticados
-GRANT USAGE ON SCHEMA sctap TO anon, authenticated, service_role;
-GRANT ALL ON ALL TABLES IN SCHEMA sctap TO anon, authenticated, service_role;
-GRANT ALL ON ALL SEQUENCES IN SCHEMA sctap TO anon, authenticated, service_role;
-ALTER DEFAULT PRIVILEGES IN SCHEMA sctap GRANT ALL ON TABLES TO anon, authenticated, service_role;
-ALTER DEFAULT PRIVILEGES IN SCHEMA sctap GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
-
--- 2. Tabla de Minutas en el esquema sctap
-CREATE TABLE IF NOT EXISTS sctap.minutas (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  numero VARCHAR(50) NOT NULL UNIQUE,
+CREATE TABLE IF NOT EXISTS scmtp.mae_minutas (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  numero VARCHAR(50) UNIQUE NOT NULL,
   fecha VARCHAR(20) NOT NULL,
   fecha_iso DATE,
   hora VARCHAR(20),
@@ -84,13 +171,13 @@ CREATE TABLE IF NOT EXISTS sctap.minutas (
   proxima_fecha_seguimiento VARCHAR(50),
   elaborado_por TEXT,
   nombre_archivo VARCHAR(255),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 3. Tabla de Compromisos / Tareas Asignadas en el esquema sctap
-CREATE TABLE IF NOT EXISTS sctap.compromisos_tareas (
+CREATE TABLE IF NOT EXISTS scmtp.mae_compromisos_tareas (
   id VARCHAR(100) PRIMARY KEY,
-  minuta_numero VARCHAR(50) REFERENCES sctap.minutas(numero) ON DELETE SET NULL,
+  minuta_numero VARCHAR(50) REFERENCES scmtp.mae_minutas(numero) ON DELETE SET NULL,
   minuta_fecha VARCHAR(20),
   responsable VARCHAR(150) NOT NULL,
   compromiso TEXT NOT NULL,
@@ -103,47 +190,34 @@ CREATE TABLE IF NOT EXISTS sctap.compromisos_tareas (
   area_gestion VARCHAR(100),
   observaciones TEXT,
   historial_avances JSONB DEFAULT '[]'::jsonb,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 4. Tabla de Pendientes por Área en el esquema sctap
-CREATE TABLE IF NOT EXISTS sctap.pendientes_area (
+CREATE TABLE IF NOT EXISTS scmtp.mae_pendientes_area (
   id VARCHAR(100) PRIMARY KEY,
   area VARCHAR(100) NOT NULL,
   pendiente TEXT NOT NULL,
   depende_de VARCHAR(150),
   estado VARCHAR(50) DEFAULT 'Pendiente',
   observacion TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
-
--- Habilitar RLS (Row Level Security) y permitir acceso de lectura/escritura pública en el esquema sctap
-ALTER TABLE sctap.minutas ENABLE ROW LEVEL SECURITY;
-ALTER TABLE sctap.compromisos_tareas ENABLE ROW LEVEL SECURITY;
-ALTER TABLE sctap.pendientes_area ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Permitir todo acceso público en minutas" ON sctap.minutas FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Permitir todo acceso público en compromisos_tareas" ON sctap.compromisos_tareas FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "Permitir todo acceso público en pendientes_area" ON sctap.pendientes_area FOR ALL USING (true) WITH CHECK (true);
 `;
 
 export async function testSupabaseConnection(url: string, anonKey: string): Promise<boolean> {
   try {
-    const client = createClient(url, anonKey, {
-      db: {
-        schema: 'sctap',
-      },
+    const res = await fetch(`${url.replace(/\/+$/, '')}/api/database/records/v_scmtp_minutas?limit=1`, {
+      method: 'GET',
+      headers: {
+        'apikey': anonKey,
+        'Authorization': `Bearer ${anonKey}`,
+      }
     });
-    const { error } = await client.from('minutas').select('count', { count: 'exact', head: true });
-    // If the table doesn't exist yet, error code is usually 42P01 or similar, but the connection itself succeeded
-    if (!error || error.code === '42P01' || (error.message && error.message.includes('relation'))) {
-      return true;
-    }
-    return false;
+    return res.ok;
   } catch (err) {
-    console.error('Error probando conexión a Supabase:', err);
+    console.error('Error probando conexión a InsForge:', err);
     return false;
   }
 }
-

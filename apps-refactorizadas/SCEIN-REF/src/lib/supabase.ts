@@ -1,89 +1,112 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+/**
+ * ==============================================================================
+ * CORPOELEC - GERENCIA GENERAL DE PLANIFICACIÓN DE DISTRIBUCIÓN (GGPD)
+ * CLIENTE MAESTRO DE DATOS - INSFORGE POSTGRESQL (SCEIN V3.0)
+ * ==============================================================================
+ */
 
-export function getSupabaseClient(customUrl?: string, customKey?: string, schema: string = 'scei'): SupabaseClient<any, any, any> | null {
+export function getSupabaseClient(customUrl?: string, customKey?: string, schema: string = 'scein'): any {
   const metaEnv = (import.meta as any).env || {};
   const clean = (val?: string) => (val || '').trim().replace(/^["']|["']$/g, '');
-  const url = clean(customUrl || metaEnv.VITE_SUPABASE_URL || metaEnv.SUPABASE_URL);
-  const key = clean(customKey || metaEnv.VITE_SUPABASE_ANON_KEY || metaEnv.SUPABASE_ANON_KEY || metaEnv.SUPABASE_KEY);
+  const url = clean(customUrl || metaEnv.VITE_INSFORGE_URL || metaEnv.INSFORGE_URL || 'https://wxkeqf37.ap-southeast.insforge.app');
+  const key = clean(customKey || metaEnv.VITE_INSFORGE_API_KEY || metaEnv.INSFORGE_API_KEY || '***REMOVED***');
 
-  if (!url || !key || (!url.startsWith('http://') && !url.startsWith('https://'))) {
-    return null;
-  }
+  if (!url || !key) return null;
 
-  try {
-    return createClient(url, key, {
-      db: {
-        schema: schema,
-      },
-    });
-  } catch (err) {
-    console.error('Error instanciando cliente de Supabase:', err);
-    return null;
-  }
+  return {
+    from: (tableName: string) => {
+      const getHeaders = () => ({
+        'apikey': key,
+        'Authorization': `Bearer ${key}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      });
+
+      const resolveEndpoint = () => {
+        if (tableName === 'equipment_records') return 'v_scein_equipos_indisponibles';
+        if (tableName === 'institutional_documents' || tableName === 'technical_documents') return 'institutional_documents';
+        if (tableName === 'audit_logs') return 'audit_logs';
+        return tableName;
+      };
+
+      const resolveWriteEndpoint = () => {
+        if (tableName === 'equipment_records') return 'mae_equipos_indisponibles';
+        if (tableName === 'institutional_documents' || tableName === 'technical_documents') return 'mae_documentos_institucionales';
+        if (tableName === 'audit_logs') return 'mae_auditorias';
+        return tableName;
+      };
+
+      return {
+        select: async (cols: string = '*') => {
+          try {
+            const res = await fetch(`${url.replace(/\/+$/, '')}/api/database/records/${resolveEndpoint()}?limit=500`, {
+              method: 'GET',
+              headers: getHeaders(),
+            });
+            if (!res.ok) return { data: null, error: { message: `HTTP ${res.status}` } };
+            const data = await res.json();
+            return { data: Array.isArray(data) ? data : [], error: null };
+          } catch (err: any) {
+            return { data: null, error: err };
+          }
+        },
+        insert: async (records: any | any[]) => {
+          try {
+            const res = await fetch(`${url.replace(/\/+$/, '')}/api/database/records/${resolveWriteEndpoint()}`, {
+              method: 'POST',
+              headers: getHeaders(),
+              body: JSON.stringify(Array.isArray(records) ? records : [records]),
+            });
+            const data = await res.json();
+            return { data, error: res.ok ? null : { message: 'Insert error' } };
+          } catch (err: any) {
+            return { data: null, error: err };
+          }
+        },
+        upsert: async (records: any | any[]) => {
+          return this?.insert ? this.insert(records) : { data: records, error: null };
+        }
+      };
+    }
+  };
 }
 
-export async function testSupabaseConnection(url: string, key: string, schema: string = 'scei') {
+export async function testSupabaseConnection(url?: string, key?: string, schema: string = 'scein') {
+  const targetUrl = (url || 'https://wxkeqf37.ap-southeast.insforge.app').replace(/\/+$/, '');
+  const targetKey = key || '***REMOVED***';
   const startTime = performance.now();
-  if (!url || !key) {
-    return {
-      success: false,
-      message: 'Debes proporcionar tanto la URL del proyecto Supabase como la clave API (anon key).',
-      latencyMs: 0,
-    };
-  }
 
   try {
-    const client = createClient(url, key, {
-      db: {
-        schema: schema,
+    const res = await fetch(`${targetUrl}/api/database/records/v_scein_equipos_indisponibles?limit=1`, {
+      method: 'GET',
+      headers: {
+        'apikey': targetKey,
+        'Authorization': `Bearer ${targetKey}`,
       },
     });
 
-    // Intentar una consulta ligera para verificar conectividad con Supabase REST API en el esquema configurado
-    const { data, error } = await client.from('_connection_test_check').select('*').limit(1);
-    const endTime = performance.now();
-    const latencyMs = Math.round(endTime - startTime);
+    const latencyMs = Math.round(performance.now() - startTime);
 
-    if (error) {
-      // Si el error es PGRST204 o 42P01 (tabla no existe) o error de relación, la conexión con el servidor Supabase fue EXITOSA.
-      if (
-        error.code === '42P01' || 
-        error.code === 'PGRST204' || 
-        error.code === 'PGRST106' ||
-        error.message.includes('relation') ||
-        error.message.includes('does not exist') ||
-        error.message.includes('schema') ||
-        error.code === 'PGRST301'
-      ) {
-        return {
-          success: true,
-          message: `¡Conexión exitosa a Supabase en el esquema "${schema}"! El servidor respondió correctamente.`,
-          latencyMs,
-          details: `Respuesta del servidor PostgREST (esquema "${schema}"): [${error.code}] ${error.message}`,
-        };
-      }
-
-      // Si hay error de autenticación o URL inválida
+    if (res.ok) {
+      const data = await res.json();
       return {
-        success: false,
-        message: `Error al conectar con Supabase en el esquema "${schema}": ${error.message}`,
+        success: true,
+        message: `¡Conexión exitosa a InsForge PostgreSQL (Esquema "scein")!`,
         latencyMs,
-        errorCode: error.code,
+        data,
       };
     }
 
     return {
-      success: true,
-      message: `¡Conexión exitosa con el servidor Supabase en el esquema "${schema}"!`,
+      success: false,
+      message: `Error HTTP ${res.status} al conectar con InsForge`,
       latencyMs,
-      data,
     };
   } catch (err: any) {
-    const endTime = performance.now();
     return {
       success: false,
-      message: `Error de red o configuración: ${err.message || 'No se pudo contactar al host de Supabase'}`,
-      latencyMs: Math.round(endTime - startTime),
+      message: `Error de red: ${err.message || 'No se pudo contactar a InsForge'}`,
+      latencyMs: Math.round(performance.now() - startTime),
     };
   }
 }

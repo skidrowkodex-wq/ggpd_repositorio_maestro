@@ -361,6 +361,13 @@ export const MOCK_PROYECTOS_GGD: ProyectoGGD[] = [
     codigo_convenio: 'CONV-GGD-2026-MER-02',
     nombre: 'Sustitución de Cortacorrientes y Aislamiento en Circuito Alberto Adriani',
     ente_cofinanciador: 'GOBERNACION',
+    ente_cofinanciador_id: 'GOB_TACHIRA',
+    ente_cofinanciador_nombre: 'Gobernación del Estado Mérida',
+    ente_cofinanciador_siglas: 'GOB-MERIDA',
+    ente_cofinanciador_tipo: 'GOBERNACION',
+    gerencia_responsable_id: 'CORPOELEC_GGD',
+    gerencia_responsable_nombre: 'Gerencia General de Distribución',
+    gerencia_responsable_siglas: 'GGD',
     ente_nombre: 'Gobernación del Estado Mérida',
     estado: 'MERIDA',
     region: 'LOS ANDES',
@@ -373,4 +380,25 @@ export const MOCK_PROYECTOS_GGD: ProyectoGGD[] = [
     observaciones: 'Ejecutado por Gobernación. En proceso de solicitud de regularización para migrar a PRTSEN.',
   },
 ];
+
+export const MOCK_ORGANIZACIONES: any[] = [
+  { id: 'MPPEE', parent_id: null, tipo_id: 'MINISTERIO', tipo_nombre: 'Ministerio / Órgano Rector', codigo_siglas: 'MPPEE', nombre_oficial: 'Ministerio del Poder Popular para la Energía Eléctrica', sector: 'PUBLICO_NACIONAL' },
+  { id: 'CORPOELEC', parent_id: 'MPPEE', tipo_id: 'EMPRESA_MATRIZ', tipo_nombre: 'Empresa Matriz / Corporación', codigo_siglas: 'CORPOELEC', nombre_oficial: 'Corporación Eléctrica Nacional, S.A.', sector: 'ELECTRICO' },
+  { id: 'FUNDELEC', parent_id: 'MPPEE', tipo_id: 'ENTE_ADSCRITO', tipo_nombre: 'Ente Adscrito / Instituto Autónomo', codigo_siglas: 'FUNDELEC', nombre_oficial: 'Fundación para el Desarrollo del Servicio Eléctrico', sector: 'ELECTRICO' },
+  { id: 'CNEE', parent_id: 'MPPEE', tipo_id: 'ENTE_ADSCRITO', tipo_nombre: 'Ente Adscrito / Instituto Autónomo', codigo_siglas: 'CNEE', nombre_oficial: 'Centro Nacional de Despacho y Operación Eléctrica', sector: 'ELECTRICO' },
+  { id: 'CORPOELEC_GGD', parent_id: 'CORPOELEC', tipo_id: 'GERENCIA_GENERAL', tipo_nombre: 'Gerencia General', codigo_siglas: 'GGD', nombre_oficial: 'Gerencia General de Distribución', sector: 'ELECTRICO' },
+  { id: 'CORPOELEC_GGPD', parent_id: 'CORPOELEC', tipo_id: 'GERENCIA_GENERAL', tipo_nombre: 'Gerencia General', codigo_siglas: 'GGPD', nombre_oficial: 'Gerencia General de Gestión de Planificación de Distribución', sector: 'ELECTRICO' },
+  { id: 'CORPOELEC_GGT', parent_id: 'CORPOELEC', tipo_id: 'GERENCIA_GENERAL', tipo_nombre: 'Gerencia General', codigo_siglas: 'GGT', nombre_oficial: 'Gerencia General de Transmisión', sector: 'ELECTRICO' },
+  { id: 'GGPD_DIV_PLANIF', parent_id: 'CORPOELEC_GGPD', tipo_id: 'DIVISION_UNIDAD', tipo_nombre: 'División / Coordinación Operativa', codigo_siglas: 'DIV-PLANIF', nombre_oficial: 'División de Planificación Técnica y Estudios SEN', sector: 'ELECTRICO' },
+  { id: 'GGPD_DIV_AUTO', parent_id: 'CORPOELEC_GGPD', tipo_id: 'DIVISION_UNIDAD', tipo_nombre: 'División / Coordinación Operativa', codigo_siglas: 'DIV-AUTO', nombre_oficial: 'División de Automatización e Ingeniería de Productos con IA', sector: 'ELECTRICO' },
+  { id: 'GGPD_DIV_PROY', parent_id: 'CORPOELEC_GGPD', tipo_id: 'DIVISION_UNIDAD', tipo_nombre: 'División / Coordinación Operativa', codigo_siglas: 'DIV-PROY', nombre_oficial: 'División de Formulación y Proyectos PRTSEN', sector: 'ELECTRICO' },
+  { id: 'GOB_MIRANDA', parent_id: null, tipo_id: 'GOBERNACION', tipo_nombre: 'Gobernación de Estado', codigo_siglas: 'GOB-MIRANDA', nombre_oficial: 'Gobernación del Estado Bolivariano de Miranda', sector: 'REGIONAL_MUNICIPAL' },
+  { id: 'GOB_ZULIA', parent_id: null, tipo_id: 'GOBERNACION', tipo_nombre: 'Gobernación de Estado', codigo_siglas: 'GOB-ZULIA', nombre_oficial: 'Gobernación del Estado Zulia', sector: 'REGIONAL_MUNICIPAL' },
+  { id: 'GOB_TACHIRA', parent_id: null, tipo_id: 'GOBERNACION', tipo_nombre: 'Gobernación de Estado', codigo_siglas: 'GOB-TACHIRA', nombre_oficial: 'Gobernación del Estado Táchira', sector: 'REGIONAL_MUNICIPAL' },
+  { id: 'GOB_CARABOBO', parent_id: null, tipo_id: 'GOBERNACION', tipo_nombre: 'Gobernación de Estado', codigo_siglas: 'GOB-CARABOBO', nombre_oficial: 'Gobernación del Estado Carabobo', sector: 'REGIONAL_MUNICIPAL' },
+  { id: 'ALC_CARACAS', parent_id: null, tipo_id: 'ALCALDIA', tipo_nombre: 'Alcaldía de Municipio', codigo_siglas: 'ALC-LIBERTADOR', nombre_oficial: 'Alcaldía del Municipio Bolivariano Libertador', sector: 'REGIONAL_MUNICIPAL' },
+  { id: 'ALC_MARACAIBO', parent_id: null, tipo_id: 'ALCALDIA', tipo_nombre: 'Alcaldía de Municipio', codigo_siglas: 'ALC-MARACAIBO', nombre_oficial: 'Alcaldía del Municipio Maracaibo', sector: 'REGIONAL_MUNICIPAL' },
+  { id: 'CONV_COMUNAL_01', parent_id: null, tipo_id: 'CONVENIO_COMUNAL', tipo_nombre: 'Consejo Comunal / Poder Popular', codigo_siglas: 'CC-PETARE', nombre_oficial: 'Consejo Comunal Unión Petare Sur', sector: 'COMUNAL' },
+];
+
 

@@ -10,6 +10,38 @@ export interface UserProfile {
   gerencia: string;
 }
 
+export type TipoOrganizacionSector = 'ELECTRICO' | 'PUBLICO_NACIONAL' | 'REGIONAL_MUNICIPAL' | 'COMUNAL' | 'OTRO';
+
+export interface TipoOrganizacion {
+  id: string;
+  nombre: string;
+  nivel_jerarquico: number;
+  sector: TipoOrganizacionSector;
+}
+
+export interface OrganizacionNodo {
+  id: string;
+  parent_id?: string | null;
+  organizacion_padre_nombre?: string;
+  organizacion_padre_siglas?: string;
+  tipo_id: string;
+  tipo_nombre?: string;
+  nivel_jerarquico?: number;
+  sector?: TipoOrganizacionSector;
+  codigo_siglas: string;
+  nombre_oficial: string;
+  rif?: string;
+  codigo_estado?: string;
+  nombre_estado?: string;
+  codigo_region?: string;
+  nombre_region?: string;
+  titular_nombre?: string;
+  titular_cargo?: string;
+  titular_email?: string;
+  es_tenant_activo?: boolean;
+  activo?: boolean;
+}
+
 export interface ProyectoPRTSEN {
   id: string;
   codigo_rds: string;
@@ -28,6 +60,25 @@ export interface ProyectoPRTSEN {
   accion_poa_codigo?: string;
   accion_poa_nombre?: string;
   match_metodo: 'EXACTO' | 'FUZZY' | 'SIN_MATCH';
+  unidad_ejecutora_id?: string;
+  unidad_ejecutora_nombre?: string;
+  unidad_ejecutora_siglas?: string;
+  ente_financiador_id?: string;
+  ente_financiador_nombre?: string;
+  ente_financiador_siglas?: string;
+  alcance?: string;
+  impacto_sen?: string;
+  situacion_actual?: string;
+  municipio?: string;
+  direccion?: string;
+  nivel_tension_kv?: string;
+  tiempo_ejecucion_meses?: number;
+  capacidad_o_km?: string;
+  unidad_capacidad?: string;
+  familias_beneficiadas?: string;
+  desembolsos_plurianual?: Record<string, number>;
+  observaciones?: string;
+  fotografia_url?: string;
 }
 
 export interface SubestacionRDS {
@@ -57,6 +108,8 @@ export interface AccionPOA {
   codigo: string;
   nombre: string;
   unidad_ejecutora: string;
+  unidad_ejecutora_id?: string;
+  unidad_ejecutora_siglas?: string;
   ponderacion: number;
   presupuesto_asignado_bs: number;
   presupuesto_ejecutado_bs: number;
@@ -89,6 +142,8 @@ export interface ViaticoControl {
   tipo_cierre: 'RENDICION_NORMAL' | 'REINTEGRO' | 'REEMBOLSO' | 'EXCEPCIONAL';
   estado: 'PENDIENTE' | 'APROBADO' | 'COMPLETADO' | 'EXCEPCIONAL';
   origen_fondos: string;
+  unidad_solicitante_id?: string;
+  gerencia_emisora_id?: string;
 }
 
 export interface ConciliacionPresupuestaria {
@@ -108,7 +163,14 @@ export interface ProyectoGGD {
   id: string;
   codigo_convenio: string;
   nombre: string;
-  ente_cofinanciador: 'RECURSOS_PROPIOS' | 'GOBERNACION' | 'ALCALDIA' | 'CONVENIO_LOCAL';
+  ente_cofinanciador: string;
+  ente_cofinanciador_id?: string;
+  ente_cofinanciador_nombre?: string;
+  ente_cofinanciador_siglas?: string;
+  ente_cofinanciador_tipo?: string;
+  gerencia_responsable_id?: string;
+  gerencia_responsable_nombre?: string;
+  gerencia_responsable_siglas?: string;
   ente_nombre: string;
   estado: string;
   region: string;
@@ -120,4 +182,3 @@ export interface ProyectoGGD {
   responsable_ggd: string;
   observaciones?: string;
 }
-

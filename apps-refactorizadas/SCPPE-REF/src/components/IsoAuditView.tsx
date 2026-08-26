@@ -33,11 +33,11 @@ export function IsoAuditView() {
                 ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-400 border-emerald-300 dark:border-emerald-800' 
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700'
             }`}>
-              {isFromSupabase ? 'En vivo Supabase' : 'Vista Conectada'}
+              {isFromSupabase ? 'En vivo InsForge PostgreSQL' : 'Vista Conectada'}
             </span>
           </div>
           <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-            Trazabilidad de cambios, Triggers de Auditoría Automáticos y Políticas Row Level Security (RLS) en Supabase.
+            Trazabilidad de cambios, Triggers de Auditoría Automáticos y Políticas Row Level Security (RLS) en InsForge.
           </p>
         </div>
 
@@ -47,7 +47,7 @@ export function IsoAuditView() {
           className="p-2 rounded-md bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-semibold transition-colors self-start md:self-auto flex items-center gap-2 shadow-sm"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-          <span>Actualizar Supabase</span>
+          <span>Actualizar InsForge</span>
         </button>
       </div>
 
@@ -58,8 +58,8 @@ export function IsoAuditView() {
             <span className="text-xs font-bold uppercase">ISO 27001 Seguridad</span>
             <Lock className="w-4 h-4" />
           </div>
-          <div className="text-xl font-bold font-mono text-slate-900 dark:text-white">73 Políticas RLS</div>
-          <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Habilitadas en las 54 tablas de los 8 esquemas en Supabase.</p>
+          <div className="text-xl font-bold font-mono text-slate-900 dark:text-white">Políticas RLS Activas</div>
+          <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Habilitadas en los esquemas core, scppe, sigi, scgcc de InsForge.</p>
         </div>
 
         <div className="p-4 industrial-card space-y-2 shadow-sm">
@@ -73,11 +73,11 @@ export function IsoAuditView() {
 
         <div className="p-4 industrial-card space-y-2 shadow-sm">
           <div className="flex items-center justify-between text-sky-700 dark:text-cyan-400">
-            <span className="text-xs font-bold uppercase">Espejo Supabase</span>
+            <span className="text-xs font-bold uppercase">Espejo InsForge</span>
             <Database className="w-4 h-4" />
           </div>
-          <div className="text-xl font-bold font-mono text-slate-900 dark:text-white">361 Objetos</div>
-          <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Sincronización exacta local vs cloud (`samc`, `maestro`, `prtsen`).</p>
+          <div className="text-xl font-bold font-mono text-slate-900 dark:text-white">Cloud BaaS</div>
+          <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Instancia ggpd-data-maestra-0002 con alta disponibilidad.</p>
         </div>
       </div>
 
@@ -87,7 +87,7 @@ export function IsoAuditView() {
         {loading ? (
           <div className="p-8 text-center text-xs text-slate-600 dark:text-slate-400 flex items-center justify-center gap-2">
             <RefreshCw className="w-4 h-4 animate-spin text-corpo-red dark:text-corpo-blue" />
-            <span className="font-medium">Cargando logs de auditoría desde Supabase...</span>
+            <span className="font-medium">Cargando logs de auditoría desde InsForge...</span>
           </div>
         ) : (
           <div className="space-y-3">

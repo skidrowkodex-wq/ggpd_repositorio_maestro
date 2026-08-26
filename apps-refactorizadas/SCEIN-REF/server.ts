@@ -1,7 +1,6 @@
 import express, { Request, Response } from 'express';
 import path from 'path';
 import crypto from 'crypto';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 const app = express();
 const PORT = 3000;
@@ -967,87 +966,99 @@ function addAuditLog(username: string, userId: string | undefined, actionType: s
   }
 }
 
-// Get Supabase Client configured for "scei" schema
-function getSupabaseClient(): SupabaseClient<any, any, any> | null {
+// Get InsForge Client for SCEIN
+function getSupabaseClient(): any {
   const clean = (val?: string) => (val || '').trim().replace(/^["']|["']$/g, '');
   const url = clean(
-    process.env.VITE_SUPABASE_URL ||
-    process.env.SUPABASE_URL ||
-    process.env.NEXT_PUBLIC_SUPABASE_URL
+    process.env.VITE_INSFORGE_URL ||
+    process.env.INSFORGE_URL ||
+    'https://wxkeqf37.ap-southeast.insforge.app'
   );
 
   const key = clean(
-    process.env.VITE_SUPABASE_ANON_KEY ||
-    process.env.SUPABASE_ANON_KEY ||
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.SUPABASE_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    process.env.VITE_INSFORGE_API_KEY ||
+    process.env.INSFORGE_API_KEY ||
+    '***REMOVED***'
   );
 
-  if (!url || !key || (!url.startsWith('http://') && !url.startsWith('https://'))) return null;
-  try {
-    return createClient(url, key, { db: { schema: 'scei' } });
-  } catch (e) {
-    return null;
-  }
-}
+  if (!url || !key) return null;
 
-// Try auto-seeding users and tables in Supabase on server start
-let autoSeedRan = false;
-async function autoSeedSupabase() {
-  if (autoSeedRan) return;
-  autoSeedRan = true;
+  return {
+    from: (tableName: string) => {
+      const getHeaders = () => ({
+        'apikey': key,
+        'Authorization': `Bearer ${key}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      });
 
-  const supabase = getSupabaseClient();
-  if (!supabase) return;
+      const resolveEndpoint = () => {
+        if (tableName === 'equipment_records') return 'v_scein_equipos_indisponibles';
+        if (tableName === 'institutional_documents' || tableName === 'technical_documents') return 'institutional_documents';
+        if (tableName === 'audit_logs') return 'audit_logs';
+        return tableName;
+      };
 
-  try {
-    // Attempt to read users
-    const { data: existingUsers, error: userError } = await supabase.from('users').select('id');
-    if (userError && (userError.code === '42P01' || userError.code === 'PGRST106')) {
-      console.log('Notice: Supabase schema "scei" tables do not exist yet. Using active server engine and memory buffer.');
-      return;
+      const resolveWriteEndpoint = () => {
+        if (tableName === 'equipment_records') return 'mae_equipos_indisponibles';
+        if (tableName === 'institutional_documents' || tableName === 'technical_documents') return 'mae_documentos_institucionales';
+        if (tableName === 'audit_logs') return 'mae_auditorias';
+        return tableName;
+      };
+
+      let filterState: string | null = null;
+
+      return {
+        eq: function(col: string, val: string) {
+          if (col === 'state_code') filterState = val;
+          return this;
+        },
+        select: async (cols: string = '*') => {
+          try {
+            const endpoint = resolveEndpoint();
+            const qs = filterState ? `?state_code=eq.${filterState}&limit=500` : '?limit=500';
+            const res = await fetch(`${url.replace(/\/+$/, '')}/api/database/records/${endpoint}${qs}`, {
+              method: 'GET',
+              headers: getHeaders(),
+            });
+            if (!res.ok) return { data: null, error: { message: `HTTP ${res.status}` } };
+            const data = await res.json();
+            return { data: Array.isArray(data) ? data : [], error: null };
+          } catch (err: any) {
+            return { data: null, error: err };
+          }
+        },
+        insert: async (records: any | any[]) => {
+          try {
+            const endpoint = resolveWriteEndpoint();
+            const res = await fetch(`${url.replace(/\/+$/, '')}/api/database/records/${endpoint}`, {
+              method: 'POST',
+              headers: getHeaders(),
+              body: JSON.stringify(Array.isArray(records) ? records : [records]),
+            });
+            const data = await res.json();
+            return { data, error: res.ok ? null : { message: 'Insert error' } };
+          } catch (err: any) {
+            return { data: null, error: err };
+          }
+        },
+        upsert: async (records: any | any[]) => {
+          try {
+            const endpoint = resolveWriteEndpoint();
+            const res = await fetch(`${url.replace(/\/+$/, '')}/api/database/records/${endpoint}`, {
+              method: 'POST',
+              headers: getHeaders(),
+              body: JSON.stringify(Array.isArray(records) ? records : [records]),
+            });
+            const data = await res.json();
+            return { data, error: res.ok ? null : { message: 'Upsert error' } };
+          } catch (err: any) {
+            return { data: null, error: err };
+          }
+        }
+      };
     }
-
-    if (!existingUsers || existingUsers.length === 0) {
-      console.log('Seeding initial default users into Supabase scei.users...');
-      for (const u of memoryUsers) {
-        await supabase.from('users').upsert({
-          id: u.id,
-          username: u.username,
-          email: u.email,
-          password_salt: u.password_salt,
-          password_hash: u.password_hash,
-          full_name: u.full_name,
-          role: u.role,
-          state_code: u.state_code,
-          is_active: u.is_active,
-          created_at: u.created_at
-        });
-      }
-    }
-
-    // Attempt to seed initial equipment
-    const { data: existingEquip } = await supabase.from('equipment_records').select('record_id').limit(1);
-    if (!existingEquip || existingEquip.length === 0) {
-      console.log('Seeding initial equipment records into Supabase scei.equipment_records...');
-      for (const eq of memoryEquipment) {
-        await supabase.from('equipment_records').upsert(eq);
-      }
-    }
-
-    // Seed/upsert official technical documents into Supabase
-    console.log('Seeding official technical documents into Supabase scei.technical_documents...');
-    for (const doc of memoryDocuments) {
-      await supabase.from('technical_documents').upsert(doc);
-    }
-  } catch (e) {
-    console.log('Supabase check completed.');
-  }
-}
-
-if (!process.env.VERCEL) {
-  autoSeedSupabase().catch(() => {});
+  };
 }
 
 // ----------------------

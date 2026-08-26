@@ -14,7 +14,7 @@ import {
   DataLakeFolderNode 
 } from '../types/ingestion';
 import { VENEZUELAN_STATES } from '../mockData/portalData';
-import { supabase } from '../lib/supabase';
+import { insforge, isInsforgeConfigured } from './insforgeClient';
 import { getMasterCatalogs } from './instrumentAuditorService';
 
 const STORAGE_KEY_PROCESSES = 'CORPOELEC_SIGI_PROCESSES_V1';
@@ -212,26 +212,18 @@ export const getStoredProcesses = (): ProcessDefinition[] => {
 };
 
 /**
- * Sincroniza procesos desde Supabase hacia la caché local
+ * Sincroniza procesos desde InsForge hacia la caché local
  */
 export const syncProcessesFromSupabase = async (): Promise<ProcessDefinition[]> => {
   try {
-    if (!supabase) return getStoredProcesses();
+    if (!isInsforgeConfigured) return getStoredProcesses();
 
-    // Intentar consultar esquema sigi o public
-    let response = await supabase
-      .schema('sigi')
-      .from('cat_procesos_ingesta')
+    const { data, error } = await insforge.database
+      .from('v_sigi_procesos_ingesta')
       .select('*');
 
-    if (response.error) {
-      response = await supabase
-        .from('cat_procesos_ingesta')
-        .select('*');
-    }
-
-    if (response.data && response.data.length > 0) {
-      const mapped: ProcessDefinition[] = response.data.map((row: any) => ({
+    if (!error && data && data.length > 0) {
+      const mapped: ProcessDefinition[] = data.map((row: any) => ({
         id: row.id,
         code: row.code,
         name: row.name,
@@ -261,7 +253,7 @@ export const syncProcessesFromSupabase = async (): Promise<ProcessDefinition[]> 
       return mergedList;
     }
   } catch (err) {
-    console.warn('Supabase offline o tabla aún no creada, utilizando caché local:', err);
+    console.warn('InsForge offline o tabla aún no creada, utilizando caché local:', err);
   }
   return getStoredProcesses();
 };
@@ -278,8 +270,8 @@ export const saveProcessDefinition = (process: ProcessDefinition): void => {
   }
   localStorage.setItem(STORAGE_KEY_PROCESSES, JSON.stringify(updated));
 
-  // Sincronización en segundo plano con Supabase si está disponible
-  if (supabase) {
+  // Sincronización en segundo plano con InsForge
+  if (isInsforgeConfigured) {
     const payload = {
       id: process.id,
       code: process.code,
@@ -300,13 +292,9 @@ export const saveProcessDefinition = (process: ProcessDefinition): void => {
 
     (async () => {
       try {
-        if (!supabase) return;
-        const resSigi = await supabase.schema('sigi').from('cat_procesos_ingesta').upsert(payload);
-        if (resSigi.error) {
-          await supabase.from('cat_procesos_ingesta').upsert(payload);
-        }
+        await insforge.database.from('cat_procesos_ingesta').upsert(payload);
       } catch (err) {
-        console.warn('Error sincronizando proceso con Supabase:', err);
+        console.warn('Error sincronizando proceso con InsForge:', err);
       }
     })();
   }
@@ -317,16 +305,12 @@ export const deleteProcessDefinition = (id: string): void => {
   const updated = current.filter(p => p.id !== id);
   localStorage.setItem(STORAGE_KEY_PROCESSES, JSON.stringify(updated));
 
-  if (supabase) {
+  if (isInsforgeConfigured) {
     (async () => {
       try {
-        if (!supabase) return;
-        const resSigi = await supabase.schema('sigi').from('cat_procesos_ingesta').delete().eq('id', id);
-        if (resSigi.error) {
-          await supabase.from('cat_procesos_ingesta').delete().eq('id', id);
-        }
+        await insforge.database.from('cat_procesos_ingesta').delete().eq('id', id);
       } catch (err) {
-        console.warn('Error eliminando proceso en Supabase:', err);
+        console.warn('Error eliminando proceso en InsForge:', err);
       }
     })();
   }
@@ -350,38 +334,36 @@ export const saveSubmissionRecord = (submission: IngestionSubmission, recordsPay
   const updated = [submission, ...current];
   localStorage.setItem(STORAGE_KEY_SUBMISSIONS, JSON.stringify(updated.slice(0, 100)));
 
-  // Sincronizar lote con Supabase
-  if (supabase) {
+  // Sincronizar lote con InsForge
+  if (isInsforgeConfigured) {
     const dbRecord = {
-      batch_id: submission.batchId,
-      process_id: submission.processId,
-      state_code: submission.stateCode,
-      uploaded_by: submission.uploadedBy,
-      timestamp: submission.timestamp,
-      original_file_name: submission.originalFileName,
-      normalized_file_name: submission.normalizedFileName,
-      gdrive_folder_path: submission.gdriveFolderPath,
-      conforme_count: submission.conformeCount,
-      no_conforme_count: submission.noConformeCount,
-      status: submission.status,
-      remediation_task_id: submission.remediationTaskId || null,
-      records_payload: recordsPayload,
-      metadata_auditoria: {
-        source: 'PORTAL_SIGI_INGESTA_HUB',
-        userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'Node/Agent',
-        savedAt: new Date().toISOString()
+      id: submission.batchId || `batch-${Date.now()}`,
+      proceso_id: submission.processId,
+      codigo_estado: submission.stateCode,
+      creado_por: submission.uploadedBy,
+      datos_json: {
+        timestamp: submission.timestamp,
+        original_file_name: submission.originalFileName,
+        normalized_file_name: submission.normalizedFileName,
+        gdrive_folder_path: submission.gdriveFolderPath,
+        conforme_count: submission.conformeCount,
+        no_conforme_count: submission.noConformeCount,
+        status: submission.status,
+        remediation_task_id: submission.remediationTaskId || null,
+        records_payload: recordsPayload,
+        metadata_auditoria: {
+          source: 'PORTAL_SIGI_INGESTA_HUB',
+          userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'Node/Agent',
+          savedAt: new Date().toISOString()
+        }
       }
     };
 
     (async () => {
       try {
-        if (!supabase) return;
-        const resSigi = await supabase.schema('sigi').from('ingesta_registros_dinamicos').insert(dbRecord);
-        if (resSigi.error) {
-          await supabase.from('ingesta_registros_dinamicos').insert(dbRecord);
-        }
+        await insforge.database.from('ingesta_registros_dinamicos').insert([dbRecord]);
       } catch (err) {
-        console.warn('Error guardando lote en Supabase:', err);
+        console.warn('Error guardando lote en InsForge:', err);
       }
     })();
   }

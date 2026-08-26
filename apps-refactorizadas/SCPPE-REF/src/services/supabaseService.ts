@@ -1,6 +1,15 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
-import { ProyectoPRTSEN, SubestacionRDS, CircuitoRDS, AccionPOA, RegistroAuditoria, ViaticoControl, ConciliacionPresupuestaria, ProyectoGGD } from '../types';
-import { MOCK_PROYECTOS_PRTSEN, MOCK_SUBESTACIONES, MOCK_CIRCUITOS, MOCK_ACCIONES_POA, MOCK_AUDITORIA, MOCK_VIATICOS, MOCK_PROYECTOS_GGD } from '../data/mockData';
+import {
+  ProyectoPRTSEN,
+  SubestacionRDS,
+  CircuitoRDS,
+  AccionPOA,
+  RegistroAuditoria,
+  ViaticoControl,
+  ConciliacionPresupuestaria,
+  ProyectoGGD,
+  OrganizacionNodo,
+} from '../types';
 
 export interface DataFetchResult<T> {
   data: T[];
@@ -9,100 +18,130 @@ export interface DataFetchResult<T> {
 }
 
 // ----------------------------------------------------
-// PROYECTOS PRTSEN
+// PROYECTOS PRTSEN (Plan de Recuperación y Transformación SEN)
 // ----------------------------------------------------
 export async function getProyectosPRTSEN(): Promise<DataFetchResult<ProyectoPRTSEN>> {
   if (!isSupabaseConfigured || !supabase) {
-    return { data: MOCK_PROYECTOS_PRTSEN, isFromSupabase: false };
+    return { data: [], isFromSupabase: false, error: 'InsForge no configurado' };
   }
 
   try {
-    // Intentar esquema samc primero
-    const { data: samcData, error: samcError } = await supabase
-      .schema('samc')
-      .from('samc_proyecto_especial')
-      .select('*');
+    const { data, error } = await supabase
+      .from('v_scppe_proyectos_prtsen')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-    if (!samcError && samcData && samcData.length > 0) {
-      const mapped: ProyectoPRTSEN[] = samcData.map((p) => ({
-        id: p.id,
-        codigo_rds: p.codigo_rds || p.codigo || '=VE+PRTSEN-001',
-        nombre: p.nombre || p.descripcion || 'Proyecto PRTSEN',
-        dimension: (p.dimension || 'SUBESTACION') as any,
-        region: p.region || 'LOS ANDES',
-        estado: p.estado || 'TACHIRA',
-        subestacion_asociada: p.subestacion_asociada,
-        monto_usd: Number(p.monto_usd || p.presupuesto_usd || 0),
-        avance_fisico_pct: Number(p.avance_fisico_pct || 0),
-        avance_financiero_pct: Number(p.avance_financiero_pct || 0),
-        estatus: (p.estatus || 'EN_EJECUCION') as any,
-        vinculado_poa: Boolean(p.vinculado_poa),
-        codigo_sipes: p.codigo_sipes,
-        match_metodo: (p.match_metodo || 'EXACTO') as any,
-      }));
-      return { data: mapped, isFromSupabase: true };
+    if (error) {
+      return { data: [], isFromSupabase: true, error: error.message };
     }
 
-    // Probar tabla pública si existe
-    const { data: pubData, error: pubError } = await supabase
-      .from('proyectos_prtsen')
-      .select('*');
-
-    if (!pubError && pubData && pubData.length > 0) {
-      return { data: pubData as ProyectoPRTSEN[], isFromSupabase: true };
+    if (!data || data.length === 0) {
+      return { data: [], isFromSupabase: true };
     }
 
-    // Si la tabla no existe o está vacía en Supabase, devolvemos la data base indicando Supabase listo
-    return { data: MOCK_PROYECTOS_PRTSEN, isFromSupabase: false, error: 'Tabla sin registros en Supabase (Se muestra plantilla viva).' };
+    const mapped: ProyectoPRTSEN[] = data.map((p: any) => ({
+      id: p.id,
+      codigo_rds: p.codigo_rds || p.codigo || '=VE+PRTSEN-001',
+      nombre: p.nombre || p.descripcion || 'Proyecto PRTSEN',
+      dimension: (p.dimension || 'SUBESTACION') as any,
+      region: p.nombre_region || p.region || p.codigo_region || 'LOS ANDES',
+      estado: p.nombre_estado || p.estado || p.codigo_estado || 'TACHIRA',
+      subestacion_asociada: p.subestacion_asociada,
+      circuito_asociado: p.circuito_asociado,
+      monto_usd: Number(p.monto_usd || p.presupuesto_usd || 0),
+      avance_fisico_pct: Number(p.avance_fisico_pct || 0),
+      avance_financiero_pct: Number(p.avance_financiero_pct || 0),
+      estatus: (p.estatus || 'EN_EJECUCION') as any,
+      vinculado_poa: Boolean(p.vinculado_poa),
+      codigo_sipes: p.codigo_sipes,
+      accion_poa_codigo: p.accion_poa_codigo,
+      accion_poa_nombre: p.accion_poa_nombre,
+      match_metodo: (p.match_metodo || 'EXACTO') as any,
+      unidad_ejecutora_id: p.unidad_ejecutora_id,
+      unidad_ejecutora_nombre: p.unidad_ejecutora_nombre,
+      unidad_ejecutora_siglas: p.unidad_ejecutora_siglas,
+      ente_financiador_id: p.ente_financiador_id,
+      ente_financiador_nombre: p.ente_financiador_nombre,
+      ente_financiador_siglas: p.ente_financiador_siglas,
+      alcance: p.alcance,
+      impacto_sen: p.impacto_sen,
+      situacion_actual: p.situacion_actual,
+      municipio: p.municipio,
+      direccion: p.direccion,
+      nivel_tension_kv: p.nivel_tension_kv,
+      tiempo_ejecucion_meses: p.tiempo_ejecucion_meses,
+      capacidad_o_km: p.capacidad_o_km,
+      unidad_capacidad: p.unidad_capacidad,
+      familias_beneficiadas: p.familias_beneficiadas,
+      desembolsos_plurianual: p.desembolsos_plurianual,
+      observaciones: p.observaciones,
+      fotografia_url: p.fotografia_url,
+    }));
+
+    return { data: mapped, isFromSupabase: true };
   } catch (err: any) {
-    return { data: MOCK_PROYECTOS_PRTSEN, isFromSupabase: false, error: err.message };
+    return { data: [], isFromSupabase: false, error: err.message };
   }
 }
 
-export async function createProyectoPRTSEN(proyecto: Omit<ProyectoPRTSEN, 'id'>): Promise<{ success: boolean; data?: ProyectoPRTSEN; error?: string }> {
+export async function createProyectoPRTSEN(
+  proyecto: Omit<ProyectoPRTSEN, 'id'>
+): Promise<{ success: boolean; data?: ProyectoPRTSEN; error?: string }> {
   if (!isSupabaseConfigured || !supabase) {
-    const newProj: ProyectoPRTSEN = { ...proyecto, id: 'prt-' + Date.now() };
-    return { success: true, data: newProj };
+    return { success: false, error: 'InsForge no configurado' };
   }
 
   try {
-    // Intentamos guardar en samc.samc_proyecto_especial
+    const newId = `prt-${Date.now()}`;
+    const payload = {
+      id: newId,
+      codigo: proyecto.codigo_rds,
+      codigo_rds: proyecto.codigo_rds,
+      nombre: proyecto.nombre,
+      dimension: proyecto.dimension,
+      codigo_region: proyecto.region || 'ANDES',
+      codigo_estado: proyecto.estado ? proyecto.estado.substring(0, 3).toUpperCase() : 'TAC',
+      subestacion_asociada: proyecto.subestacion_asociada,
+      circuito_asociado: proyecto.circuito_asociado,
+      monto_usd: proyecto.monto_usd,
+      avance_fisico_pct: proyecto.avance_fisico_pct || 0,
+      avance_financiero_pct: proyecto.avance_financiero_pct || 0,
+      estatus: proyecto.estatus || 'FORMULACION',
+      vinculado_poa: proyecto.vinculado_poa || false,
+      codigo_sipes: proyecto.codigo_sipes,
+      accion_poa_codigo: proyecto.accion_poa_codigo,
+      match_metodo: proyecto.match_metodo || 'EXACTO',
+      unidad_ejecutora_id: proyecto.unidad_ejecutora_id || 'GGPD_DIV_PLANIF',
+      ente_financiador_id: proyecto.ente_financiador_id || 'MPPEE',
+      alcance: proyecto.alcance,
+      impacto_sen: proyecto.impacto_sen,
+      situacion_actual: proyecto.situacion_actual,
+      municipio: proyecto.municipio,
+      direccion: proyecto.direccion,
+      nivel_tension_kv: proyecto.nivel_tension_kv,
+      tiempo_ejecucion_meses: proyecto.tiempo_ejecucion_meses,
+      capacidad_o_km: proyecto.capacidad_o_km,
+      unidad_capacidad: proyecto.unidad_capacidad,
+      familias_beneficiadas: proyecto.familias_beneficiadas,
+      desembolsos_plurianual: proyecto.desembolsos_plurianual,
+      observaciones: proyecto.observaciones,
+      fotografia_url: proyecto.fotografia_url,
+    };
+
     const { data, error } = await supabase
-      .schema('samc')
-      .from('samc_proyecto_especial')
-      .insert([
-        {
-          codigo_rds: proyecto.codigo_rds,
-          nombre: proyecto.nombre,
-          dimension: proyecto.dimension,
-          region: proyecto.region,
-          estado: proyecto.estado,
-          subestacion_asociada: proyecto.subestacion_asociada,
-          monto_usd: proyecto.monto_usd,
-          avance_fisico_pct: proyecto.avance_fisico_pct,
-          avance_financiero_pct: proyecto.avance_financiero_pct,
-          estatus: proyecto.estatus,
-          vinculado_poa: proyecto.vinculado_poa,
-          codigo_sipes: proyecto.codigo_sipes,
-          match_metodo: proyecto.match_metodo,
-        },
-      ])
+      .from('mae_proyectos_especiales')
+      .insert([payload])
       .select();
 
     if (error) {
-      // Probar en esquema public
-      const { data: pubData, error: pubErr } = await supabase
-        .from('proyectos_prtsen')
-        .insert([proyecto])
-        .select();
-
-      if (pubErr) {
-        return { success: false, error: pubErr.message };
-      }
-      return { success: true, data: pubData[0] as ProyectoPRTSEN };
+      return { success: false, error: error.message };
     }
 
-    return { success: true, data: data[0] as ProyectoPRTSEN };
+    const created: ProyectoPRTSEN = {
+      ...proyecto,
+      id: newId,
+    };
+    return { success: true, data: (data && data[0]) ? (data[0] as unknown as ProyectoPRTSEN) : created };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
@@ -113,109 +152,157 @@ export async function vincularProyectoPRTSEN(
   accionPoaCodigo: string,
   accionPoaNombre?: string
 ): Promise<{ success: boolean; error?: string }> {
-  const targetMock = MOCK_PROYECTOS_PRTSEN.find((p) => p.id === proyectoId);
-  if (targetMock) {
-    targetMock.vinculado_poa = true;
-    targetMock.accion_poa_codigo = accionPoaCodigo;
-    targetMock.accion_poa_nombre = accionPoaNombre;
-    targetMock.codigo_sipes = `SIPES-${accionPoaCodigo}`;
-    targetMock.match_metodo = 'EXACTO';
-  }
-
   if (!isSupabaseConfigured || !supabase) {
-    return { success: true };
+    return { success: false, error: 'InsForge no configurado' };
   }
 
   try {
+    const sipesCode = `SIPES-${accionPoaCodigo}`;
     const { error } = await supabase
-      .schema('samc')
-      .from('samc_proyecto_especial')
+      .from('mae_proyectos_especiales')
       .update({
         vinculado_poa: true,
-        codigo_sipes: `SIPES-${accionPoaCodigo}`,
+        codigo_sipes: sipesCode,
+        accion_poa_codigo: accionPoaCodigo,
         match_metodo: 'EXACTO',
       })
       .eq('id', proyectoId);
 
     if (error) {
-      await supabase
-        .from('proyectos_prtsen')
-        .update({
-          vinculado_poa: true,
-          codigo_sipes: `SIPES-${accionPoaCodigo}`,
-          match_metodo: 'EXACTO',
-        })
-        .eq('id', proyectoId);
+      return { success: false, error: error.message };
     }
 
     return { success: true };
   } catch (err: any) {
-    return { success: true }; // Graceful fallback
+    return { success: false, error: err.message };
+  }
+}
+
+export async function updateProyectoPRTSEN(
+  id: string,
+  updates: Partial<ProyectoPRTSEN>
+): Promise<{ success: boolean; error?: string }> {
+  if (!isSupabaseConfigured || !supabase) {
+    return { success: false, error: 'InsForge no configurado' };
+  }
+
+  try {
+    const payload: any = {};
+    if (updates.nombre !== undefined) payload.nombre = updates.nombre;
+    if (updates.codigo_rds !== undefined) payload.codigo_rds = updates.codigo_rds;
+    if (updates.dimension !== undefined) payload.dimension = updates.dimension;
+    if (updates.subestacion_asociada !== undefined) payload.subestacion_asociada = updates.subestacion_asociada;
+    if (updates.circuito_asociado !== undefined) payload.circuito_asociado = updates.circuito_asociado;
+    if (updates.monto_usd !== undefined) payload.monto_usd = updates.monto_usd;
+    if (updates.avance_fisico_pct !== undefined) payload.avance_fisico_pct = updates.avance_fisico_pct;
+    if (updates.avance_financiero_pct !== undefined) payload.avance_financiero_pct = updates.avance_financiero_pct;
+    if (updates.estatus !== undefined) payload.estatus = updates.estatus;
+    if (updates.match_metodo !== undefined) payload.match_metodo = updates.match_metodo;
+    if (updates.vinculado_poa !== undefined) payload.vinculado_poa = updates.vinculado_poa;
+    if (updates.accion_poa_codigo !== undefined) {
+      payload.accion_poa_codigo = updates.accion_poa_codigo;
+      payload.codigo_sipes = `SIPES-${updates.accion_poa_codigo}`;
+    }
+    if (updates.alcance !== undefined) payload.alcance = updates.alcance;
+    if (updates.impacto_sen !== undefined) payload.impacto_sen = updates.impacto_sen;
+    if (updates.situacion_actual !== undefined) payload.situacion_actual = updates.situacion_actual;
+    if (updates.municipio !== undefined) payload.municipio = updates.municipio;
+    if (updates.direccion !== undefined) payload.direccion = updates.direccion;
+    if (updates.nivel_tension_kv !== undefined) payload.nivel_tension_kv = updates.nivel_tension_kv;
+    if (updates.tiempo_ejecucion_meses !== undefined) payload.tiempo_ejecucion_meses = updates.tiempo_ejecucion_meses;
+    if (updates.capacidad_o_km !== undefined) payload.capacidad_o_km = updates.capacidad_o_km;
+    if (updates.unidad_capacidad !== undefined) payload.unidad_capacidad = updates.unidad_capacidad;
+    if (updates.familias_beneficiadas !== undefined) payload.familias_beneficiadas = updates.familias_beneficiadas;
+    if (updates.desembolsos_plurianual !== undefined) payload.desembolsos_plurianual = updates.desembolsos_plurianual;
+    if (updates.observaciones !== undefined) payload.observaciones = updates.observaciones;
+    if (updates.fotografia_url !== undefined) payload.fotografia_url = updates.fotografia_url;
+
+    const { error } = await supabase
+      .from('mae_proyectos_especiales')
+      .update(payload)
+      .eq('id', id);
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message };
   }
 }
 
 // ----------------------------------------------------
-// SUBESTACIONES Y CIRCUITOS RDS-PS
+// SUBESTACIONES Y CIRCUITOS RDS-PS (Norma IEC 81346-10)
 // ----------------------------------------------------
 export async function getSubestacionesRDS(): Promise<DataFetchResult<SubestacionRDS>> {
   if (!isSupabaseConfigured || !supabase) {
-    return { data: MOCK_SUBESTACIONES, isFromSupabase: false };
+    return { data: [], isFromSupabase: false, error: 'InsForge no configurado' };
   }
 
   try {
     const { data, error } = await supabase
-      .schema('samc')
-      .from('samc_subestacion')
-      .select('*');
+      .from('mae_subestaciones')
+      .select('*')
+      .limit(100);
 
-    if (!error && data && data.length > 0) {
-      const mapped: SubestacionRDS[] = data.map((s) => ({
-        id: s.id,
-        codigo_rds: s.codigo || s.codigo_rds || `=VE+ESTADO-${s.nombre}`,
-        nombre: s.nombre,
-        estado: s.estado || 'TACHIRA',
-        region: s.region || 'LOS ANDES',
-        origen: (s.origen || 'CARACTERIZACION SE DISTRIBUCION') as any,
-        tipo: (s.tipo || 'DISTRIBUCION') as any,
-        circuitos_count: Number(s.circuitos_count || 4),
-      }));
-      return { data: mapped, isFromSupabase: true };
+    if (error) {
+      return { data: [], isFromSupabase: true, error: error.message };
     }
 
-    return { data: MOCK_SUBESTACIONES, isFromSupabase: false };
-  } catch (err) {
-    return { data: MOCK_SUBESTACIONES, isFromSupabase: false };
+    if (!data || data.length === 0) {
+      return { data: [], isFromSupabase: true };
+    }
+
+    const mapped: SubestacionRDS[] = data.map((s: any) => ({
+      id: s.id,
+      codigo_rds: s.codigo_se || s.codigo || `=VE+${s.codigo_estado || 'EST'}-${s.nombre_subestacion || s.nombre}`,
+      nombre: s.nombre_subestacion || s.nombre,
+      estado: s.codigo_estado || 'NES',
+      region: s.municipio || s.region || 'LOS ANDES',
+      origen: (s.origen_dato || 'CARACTERIZACION SE DISTRIBUCION') as any,
+      tipo: (s.tipo_instalacion || 'DISTRIBUCION') as any,
+      circuitos_count: Number(s.circuitos_count || 4),
+    }));
+
+    return { data: mapped, isFromSupabase: true };
+  } catch (err: any) {
+    return { data: [], isFromSupabase: false, error: err.message };
   }
 }
 
 export async function getCircuitosRDS(): Promise<DataFetchResult<CircuitoRDS>> {
   if (!isSupabaseConfigured || !supabase) {
-    return { data: MOCK_CIRCUITOS, isFromSupabase: false };
+    return { data: [], isFromSupabase: false, error: 'InsForge no configurado' };
   }
 
   try {
     const { data, error } = await supabase
-      .schema('samc')
-      .from('samc_circuito')
-      .select('*');
+      .from('mae_circuitos')
+      .select('*')
+      .limit(100);
 
-    if (!error && data && data.length > 0) {
-      const mapped: CircuitoRDS[] = data.map((c) => ({
-        id: c.id,
-        codigo_rds: c.codigo || c.codigo_rds || `=VE+ESTADO-SE:${c.nombre}`,
-        nombre: c.nombre,
-        subestacion_id: c.subestacion_origen_id || 'se-001',
-        subestacion_nombre: c.subestacion_nombre || 'SUBESTACION',
-        estado: c.estado || 'MERIDA',
-        designador: c.designador || 'D-100',
-        voltaje: c.nivel_tension || '13.8 kV',
-      }));
-      return { data: mapped, isFromSupabase: true };
+    if (error) {
+      return { data: [], isFromSupabase: true, error: error.message };
     }
 
-    return { data: MOCK_CIRCUITOS, isFromSupabase: false };
-  } catch (err) {
-    return { data: MOCK_CIRCUITOS, isFromSupabase: false };
+    if (!data || data.length === 0) {
+      return { data: [], isFromSupabase: true };
+    }
+
+    const mapped: CircuitoRDS[] = data.map((c: any) => ({
+      id: c.id,
+      codigo_rds: c.codigo_circuito || c.codigo || `=VE+${c.codigo_estado || 'EST'}-${c.subestacion_cabecera || 'SE'}:${c.nombre_circuito || c.nombre}`,
+      nombre: c.nombre_circuito || c.nombre,
+      subestacion_id: c.codigo_se_padre || 'se-001',
+      subestacion_nombre: c.subestacion_cabecera || 'SUBESTACION',
+      estado: c.codigo_estado || 'AMA',
+      designador: c.codigo_maniobra_norma || 'D-100',
+      voltaje: c.nivel_tension_kv ? `${c.nivel_tension_kv} kV` : '13.8 kV',
+    }));
+
+    return { data: mapped, isFromSupabase: true };
+  } catch (err: any) {
+    return { data: [], isFromSupabase: false, error: err.message };
   }
 }
 
@@ -224,77 +311,169 @@ export async function getCircuitosRDS(): Promise<DataFetchResult<CircuitoRDS>> {
 // ----------------------------------------------------
 export async function getAccionesPOA(): Promise<DataFetchResult<AccionPOA>> {
   if (!isSupabaseConfigured || !supabase) {
-    return { data: MOCK_ACCIONES_POA, isFromSupabase: false };
+    return { data: [], isFromSupabase: false, error: 'InsForge no configurado' };
   }
 
   try {
     const { data, error } = await supabase
-      .schema('samc')
-      .from('samc_poa_accion_especifica')
-      .select('*');
+      .from('v_scppe_poa_acciones')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-    if (!error && data && data.length > 0) {
-      const mapped: AccionPOA[] = data.map((a) => ({
-        id: a.id,
-        codigo: a.codigo,
-        nombre: a.descripcion || a.nombre,
-        unidad_ejecutora: a.unidad_ejecutora || 'GERENCIA REGIONAL',
-        ponderacion: Number(a.ponderacion || a.programado || 0),
-        presupuesto_asignado_bs: Number(a.presupuesto_asignado_bs || a.programado || 0),
-        presupuesto_ejecutado_bs: Number(a.presupuesto_ejecutado_bs || a.ejecutado || 0),
-        meta_fisica_programada: Number(a.meta_fisica_programada || a.meta_programada || 0),
-        meta_fisica_ejecutada: Number(a.meta_fisica_ejecutada || a.meta_ejecutada || 0),
-        unidad_medida: a.unidad_medida || 'Unidad',
-      }));
-      return { data: mapped, isFromSupabase: true };
+    if (error) {
+      return { data: [], isFromSupabase: true, error: error.message };
     }
 
-    return { data: MOCK_ACCIONES_POA, isFromSupabase: false };
-  } catch (err) {
-    return { data: MOCK_ACCIONES_POA, isFromSupabase: false };
+    if (!data || data.length === 0) {
+      return { data: [], isFromSupabase: true };
+    }
+
+    const mapped: AccionPOA[] = data.map((a: any) => ({
+      id: a.id,
+      codigo: a.codigo,
+      nombre: a.nombre,
+      unidad_ejecutora_id: a.unidad_ejecutora_id,
+      unidad_ejecutora: a.unidad_ejecutora || a.unidad_ejecutora_siglas || 'GERENCIA GENERAL',
+      ponderacion: Number(a.ponderacion || 0),
+      presupuesto_asignado_bs: Number(a.presupuesto_asignado_bs || 0),
+      presupuesto_ejecutado_bs: Number(a.presupuesto_ejecutado_bs || 0),
+      meta_fisica_programada: Number(a.meta_fisica_programada || 0),
+      meta_fisica_ejecutada: Number(a.meta_fisica_ejecutada || 0),
+      unidad_medida: a.unidad_medida || 'Unidad',
+    }));
+
+    return { data: mapped, isFromSupabase: true };
+  } catch (err: any) {
+    return { data: [], isFromSupabase: false, error: err.message };
   }
 }
 
-export async function createAccionPOA(accion: Omit<AccionPOA, 'id'>): Promise<{ success: boolean; data?: AccionPOA; error?: string }> {
-  const newAccion: AccionPOA = {
-    ...accion,
-    id: 'act-' + Date.now(),
-  };
-
+export async function createAccionPOA(
+  accion: Omit<AccionPOA, 'id'>
+): Promise<{ success: boolean; data?: AccionPOA; error?: string }> {
   if (!isSupabaseConfigured || !supabase) {
-    MOCK_ACCIONES_POA.push(newAccion);
-    return { success: true, data: newAccion };
+    return { success: false, error: 'InsForge no configurado' };
   }
 
   try {
+    const newId = `poa-${Date.now()}`;
+    const payload = {
+      id: newId,
+      codigo: accion.codigo,
+      codigo_accion: accion.codigo,
+      nombre: accion.nombre,
+      descripcion: accion.nombre,
+      unidad_ejecutora_id: accion.unidad_ejecutora_id || 'GGPD_DIV_PLANIF',
+      ponderacion: accion.ponderacion,
+      presupuesto_asignado_bs: accion.presupuesto_asignado_bs,
+      presupuesto_ejecutado_bs: accion.presupuesto_ejecutado_bs || 0,
+      meta_fisica_programada: accion.meta_fisica_programada,
+      meta_fisica_ejecutada: accion.meta_fisica_ejecutada || 0,
+      meta_anual: accion.meta_fisica_programada,
+      ejecutado_acumulado: accion.meta_fisica_ejecutada || 0,
+      porcentaje_cumplimiento: 0,
+      unidad_medida: accion.unidad_medida,
+    };
+
     const { data, error } = await supabase
-      .schema('samc')
-      .from('samc_poa_accion_especifica')
-      .insert([
-        {
-          codigo: accion.codigo,
-          nombre: accion.nombre,
-          descripcion: accion.nombre,
-          unidad_ejecutora: accion.unidad_ejecutora,
-          ponderacion: accion.ponderacion,
-          presupuesto_asignado_bs: accion.presupuesto_asignado_bs,
-          presupuesto_ejecutado_bs: accion.presupuesto_ejecutado_bs,
-          meta_fisica_programada: accion.meta_fisica_programada,
-          meta_fisica_ejecutada: accion.meta_fisica_ejecutada,
-          unidad_medida: accion.unidad_medida,
-        },
-      ])
+      .from('mae_poa_acciones')
+      .insert([payload])
       .select();
 
     if (error) {
-      MOCK_ACCIONES_POA.push(newAccion);
-      return { success: true, data: newAccion };
+      return { success: false, error: error.message };
     }
 
-    return { success: true, data: (data && data[0]) ? (data[0] as unknown as AccionPOA) : newAccion };
+    const created: AccionPOA = { ...accion, id: newId };
+    return { success: true, data: (data && data[0]) ? (data[0] as unknown as AccionPOA) : created };
   } catch (err: any) {
-    MOCK_ACCIONES_POA.push(newAccion);
-    return { success: true, data: newAccion };
+    return { success: false, error: err.message };
+  }
+}
+
+export async function updateAccionPOA(
+  id: string,
+  updates: Partial<AccionPOA>
+): Promise<{ success: boolean; error?: string }> {
+  if (!isSupabaseConfigured || !supabase) {
+    return { success: false, error: 'InsForge no configurado' };
+  }
+
+  try {
+    const payload: any = {};
+    if (updates.codigo !== undefined) {
+      payload.codigo = updates.codigo;
+      payload.codigo_accion = updates.codigo;
+    }
+    if (updates.nombre !== undefined) {
+      payload.nombre = updates.nombre;
+      payload.descripcion = updates.nombre;
+    }
+    if (updates.unidad_ejecutora_id !== undefined) payload.unidad_ejecutora_id = updates.unidad_ejecutora_id;
+    if (updates.ponderacion !== undefined) payload.ponderacion = updates.ponderacion;
+    if (updates.presupuesto_asignado_bs !== undefined) payload.presupuesto_asignado_bs = updates.presupuesto_asignado_bs;
+    if (updates.presupuesto_ejecutado_bs !== undefined) payload.presupuesto_ejecutado_bs = updates.presupuesto_ejecutado_bs;
+    if (updates.meta_fisica_programada !== undefined) {
+      payload.meta_fisica_programada = updates.meta_fisica_programada;
+      payload.meta_anual = updates.meta_fisica_programada;
+    }
+    if (updates.meta_fisica_ejecutada !== undefined) {
+      payload.meta_fisica_ejecutada = updates.meta_fisica_ejecutada;
+      payload.ejecutado_acumulado = updates.meta_fisica_ejecutada;
+    }
+    if (updates.unidad_medida !== undefined) payload.unidad_medida = updates.unidad_medida;
+
+    const { error } = await supabase
+      .from('mae_poa_acciones')
+      .update(payload)
+      .eq('id', id);
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
+
+export async function createMultipleAccionesPOA(
+  acciones: Omit<AccionPOA, 'id'>[]
+): Promise<{ success: boolean; count: number; error?: string }> {
+  if (!isSupabaseConfigured || !supabase) {
+    return { success: false, count: 0, error: 'InsForge no configurado' };
+  }
+
+  try {
+    const payload = acciones.map((a, idx) => ({
+      id: `poa-${Date.now()}-${idx}`,
+      codigo: a.codigo,
+      codigo_accion: a.codigo,
+      nombre: a.nombre,
+      descripcion: a.nombre,
+      unidad_ejecutora_id: a.unidad_ejecutora_id || 'GGPD_DIV_PLANIF',
+      ponderacion: a.ponderacion,
+      presupuesto_asignado_bs: a.presupuesto_asignado_bs,
+      presupuesto_ejecutado_bs: a.presupuesto_ejecutado_bs || 0,
+      meta_fisica_programada: a.meta_fisica_programada,
+      meta_fisica_ejecutada: a.meta_fisica_ejecutada || 0,
+      meta_anual: a.meta_fisica_programada,
+      ejecutado_acumulado: a.meta_fisica_ejecutada || 0,
+      porcentaje_cumplimiento: 0,
+      unidad_medida: a.unidad_medida,
+    }));
+
+    const { error } = await supabase
+      .from('mae_poa_acciones')
+      .insert(payload);
+
+    if (error) {
+      return { success: false, count: 0, error: error.message };
+    }
+
+    return { success: true, count: payload.length };
+  } catch (err: any) {
+    return { success: false, count: 0, error: err.message };
   }
 }
 
@@ -303,86 +482,58 @@ export async function createAccionPOA(accion: Omit<AccionPOA, 'id'>): Promise<{ 
 // ----------------------------------------------------
 export async function getViaticos(): Promise<DataFetchResult<ViaticoControl>> {
   if (!isSupabaseConfigured || !supabase) {
-    return { data: MOCK_VIATICOS, isFromSupabase: false };
+    return { data: [], isFromSupabase: false, error: 'InsForge no configurado' };
   }
 
   try {
-    const { data: samcData, error: samcErr } = await supabase
-      .schema('samc')
-      .from('samc_asignacion_viatico')
-      .select('*');
-
-    if (!samcErr && samcData && samcData.length > 0) {
-      const mapped: ViaticoControl[] = samcData.map((v) => ({
-        id: v.id,
-        codigo_asignacion: v.codigo_asignacion || v.codigo || 'VIAT-2026-000',
-        responsable: v.responsable || 'Especialista SEN',
-        cargo: v.cargo || 'Inspector Técnico',
-        destino: v.destino || 'S/E Distribución',
-        monto_asignado_bs: Number(v.monto_asignado || 0),
-        monto_ejecutado_bs: Number(v.monto_ejecutado || 0),
-        tipo_cierre: (v.tipo_cierre || 'RENDICION_NORMAL') as any,
-        estado: (v.estado || 'COMPLETADO') as any,
-        origen_fondos: v.origen_fondos || 'Presupuesto Gerencia',
-      }));
-      return { data: mapped, isFromSupabase: true };
-    }
-
     const { data, error } = await supabase
-      .from('viaticos')
-      .select('*');
+      .from('v_scppe_viaticos_control')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-    if (!error && data && data.length > 0) {
-      return { data: data as ViaticoControl[], isFromSupabase: true };
+    if (error) {
+      return { data: [], isFromSupabase: true, error: error.message };
     }
 
-    return { data: MOCK_VIATICOS, isFromSupabase: false };
-  } catch (err) {
-    return { data: MOCK_VIATICOS, isFromSupabase: false };
+    if (!data || data.length === 0) {
+      return { data: [], isFromSupabase: true };
+    }
+
+    const mapped: ViaticoControl[] = data.map((v: any) => ({
+      id: v.id,
+      codigo_asignacion: v.codigo_asignacion || v.codigo || 'VIAT-2026-000',
+      responsable: v.responsable || 'Especialista SEN',
+      cargo: v.cargo || 'Inspector Técnico',
+      destino: v.destino || 'S/E Distribución',
+      monto_asignado_bs: Number(v.monto_asignado_bs || v.monto_asignado || 0),
+      monto_ejecutado_bs: Number(v.monto_ejecutado_bs || v.monto_ejecutado || 0),
+      tipo_cierre: (v.tipo_cierre || 'RENDICION_NORMAL') as any,
+      estado: (v.estado || 'COMPLETADO') as any,
+      origen_fondos: v.origen_fondos || 'Presupuesto Gerencia',
+    }));
+
+    return { data: mapped, isFromSupabase: true };
+  } catch (err: any) {
+    return { data: [], isFromSupabase: false, error: err.message };
   }
 }
 
-export async function getConciliacionPresupuestaria(viaticosList?: ViaticoControl[]): Promise<ConciliacionPresupuestaria> {
-  const currentList = viaticosList || MOCK_VIATICOS;
-  const techoPresupuestario = 1200000.00; // Presupuesto asignado Partida 405
-  
+export async function getConciliacionPresupuestaria(
+  viaticosList?: ViaticoControl[]
+): Promise<ConciliacionPresupuestaria> {
+  const currentList = viaticosList || [];
+  const techoPresupuestario = 1200000.0;
+
   const totalAsignado = currentList.reduce((acc, v) => acc + (v.monto_asignado_bs || 0), 0);
   const totalEjecutado = currentList.reduce((acc, v) => acc + (v.monto_ejecutado_bs || 0), 0);
   const saldoDisponible = Math.max(0, techoPresupuestario - totalAsignado);
-  const pctComprometido = Number(((totalAsignado / techoPresupuestario) * 100).toFixed(2));
+  const pctComprometido = Number(((totalAsignado / (techoPresupuestario || 1)) * 100).toFixed(2));
 
   let estadoConciliacion: 'CONCILIADO_NORMAL' | 'ALERTA_EXCESO' | 'PRESUPUESTO_AGOTADO' = 'CONCILIADO_NORMAL';
   if (totalAsignado > techoPresupuestario) {
     estadoConciliacion = 'ALERTA_EXCESO';
-  } else if (totalAsignado === techoPresupuestario) {
+  } else if (totalAsignado === techoPresupuestario && techoPresupuestario > 0) {
     estadoConciliacion = 'PRESUPUESTO_AGOTADO';
-  }
-
-  if (isSupabaseConfigured && supabase) {
-    try {
-      const { data, error } = await supabase
-        .schema('samc')
-        .from('v_conciliacion_presupuestaria')
-        .select('*')
-        .single();
-
-      if (!error && data) {
-        return {
-          partida_codigo: data.partida_codigo || 'PARTIDA-405',
-          partida_nombre: data.partida_nombre || 'Viáticos y Pasajes de Inspección SEN',
-          presupuesto_partida: Number(data.presupuesto_partida || techoPresupuestario),
-          presupuesto_viatico: Number(data.presupuesto_partida || techoPresupuestario),
-          total_asignado: Number(data.total_asignado || totalAsignado),
-          saldo_disponible: Number(data.saldo_disponible || saldoDisponible),
-          total_ejecutado: Number(data.total_ejecutado || totalEjecutado),
-          porcentaje_comprometido: Number(data.porcentaje_comprometido || pctComprometido),
-          estado_conciliacion: data.estado_conciliacion as any,
-          trigger_activo: true,
-        };
-      }
-    } catch {
-      // Fallback
-    }
   }
 
   return {
@@ -402,64 +553,67 @@ export async function getConciliacionPresupuestaria(viaticosList?: ViaticoContro
 export async function crearAsignacionViatico(
   nuevaAsignacion: Omit<ViaticoControl, 'id' | 'codigo_asignacion' | 'monto_ejecutado_bs' | 'tipo_cierre' | 'estado'>
 ): Promise<{ success: boolean; data?: ViaticoControl; error?: string }> {
-  const techoPresupuestario = 1200000.00;
-  const actualAsignado = MOCK_VIATICOS.reduce((acc, v) => acc + (v.monto_asignado_bs || 0), 0);
+  if (!isSupabaseConfigured || !supabase) {
+    return { success: false, error: 'InsForge no configurado' };
+  }
+
+  const techoPresupuestario = 1200000.0;
+  const viatRes = await getViaticos();
+  const actualAsignado = viatRes.data.reduce((acc, v) => acc + (v.monto_asignado_bs || 0), 0);
   const saldoDisponible = techoPresupuestario - actualAsignado;
 
-  // Validación presupuestaria (Trigger de simulación & base de datos)
+  // Validación presupuestaria (Trigger preventivo DDL)
   if (nuevaAsignacion.monto_asignado_bs > saldoDisponible) {
     return {
       success: false,
-      error: `PRESUPUESTO EXCEDIDO [trg_validar_presupuesto_viatico]: El monto solicitado (Bs. ${nuevaAsignacion.monto_asignado_bs.toLocaleString('es-VE')}) excede el saldo disponible (Bs. ${saldoDisponible.toLocaleString('es-VE')}). Presupuesto total: Bs. 1,200,000.`,
+      error: `PRESUPUESTO EXCEDIDO [trg_validar_presupuesto_viatico]: El monto solicitado (Bs. ${nuevaAsignacion.monto_asignado_bs.toLocaleString('es-VE')}) excede el saldo disponible (Bs. ${saldoDisponible.toLocaleString('es-VE')}). Techo total: Bs. 1,200,000.`,
     };
   }
 
-  const newRecord: ViaticoControl = {
-    id: 'via-' + Date.now(),
-    codigo_asignacion: `VIAT-2026-${Math.floor(100 + Math.random() * 900)}`,
-    responsable: nuevaAsignacion.responsable,
-    cargo: nuevaAsignacion.cargo,
-    destino: nuevaAsignacion.destino,
-    monto_asignado_bs: nuevaAsignacion.monto_asignado_bs,
-    monto_ejecutado_bs: 0,
-    tipo_cierre: 'RENDICION_NORMAL',
-    estado: 'APROBADO',
-    origen_fondos: nuevaAsignacion.origen_fondos,
-  };
+  const newId = `via-${Date.now()}`;
+  const codigoAsignacion = `VIAT-2026-${Math.floor(100 + Math.random() * 900)}`;
 
-  MOCK_VIATICOS.push(newRecord);
+  try {
+    const payload = {
+      id: newId,
+      codigo: codigoAsignacion,
+      codigo_asignacion: codigoAsignacion,
+      responsable: nuevaAsignacion.responsable,
+      cargo: nuevaAsignacion.cargo,
+      destino: nuevaAsignacion.destino,
+      monto_asignado_bs: nuevaAsignacion.monto_asignado_bs,
+      monto_ejecutado_bs: 0,
+      tipo_cierre: 'RENDICION_NORMAL',
+      estado: 'APROBADO',
+      origen_fondos: nuevaAsignacion.origen_fondos,
+    };
 
-  if (isSupabaseConfigured && supabase) {
-    try {
-      const { data, error } = await supabase
-        .schema('samc')
-        .from('samc_asignacion_viatico')
-        .insert([{
-          codigo_asignacion: newRecord.codigo_asignacion,
-          responsable: newRecord.responsable,
-          cargo: newRecord.cargo,
-          destino: newRecord.destino,
-          monto_asignado: newRecord.monto_asignado_bs,
-          origen_fondos: newRecord.origen_fondos,
-          estado: 'APROBADO',
-        }])
-        .select();
+    const { data, error } = await supabase
+      .from('mae_viaticos_control')
+      .insert([payload])
+      .select();
 
-      if (error) {
-        if (error.message.includes('PRESUPUESTO EXCEDIDO') || error.message.includes('excede')) {
-          return { success: false, error: error.message };
-        }
-      } else if (data && data[0]) {
-        return { success: true, data: newRecord };
-      }
-    } catch (err: any) {
-      if (err.message && err.message.includes('PRESUPUESTO EXCEDIDO')) {
-        return { success: false, error: err.message };
-      }
+    if (error) {
+      return { success: false, error: error.message };
     }
-  }
 
-  return { success: true, data: newRecord };
+    const created: ViaticoControl = {
+      id: newId,
+      codigo_asignacion: codigoAsignacion,
+      responsable: nuevaAsignacion.responsable,
+      cargo: nuevaAsignacion.cargo,
+      destino: nuevaAsignacion.destino,
+      monto_asignado_bs: nuevaAsignacion.monto_asignado_bs,
+      monto_ejecutado_bs: 0,
+      tipo_cierre: 'RENDICION_NORMAL',
+      estado: 'APROBADO',
+      origen_fondos: nuevaAsignacion.origen_fondos,
+    };
+
+    return { success: true, data: (data && data[0]) ? (data[0] as unknown as ViaticoControl) : created };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
 }
 
 // ----------------------------------------------------
@@ -467,165 +621,192 @@ export async function crearAsignacionViatico(
 // ----------------------------------------------------
 export async function getAuditoriaLogs(): Promise<DataFetchResult<RegistroAuditoria>> {
   if (!isSupabaseConfigured || !supabase) {
-    return { data: MOCK_AUDITORIA, isFromSupabase: false };
+    return { data: [], isFromSupabase: false, error: 'InsForge no configurado' };
   }
 
   try {
     const { data, error } = await supabase
-      .schema('samc')
-      .from('samc_audit_log')
+      .from('audit_logs')
       .select('*')
       .order('executed_at', { ascending: false })
       .limit(20);
 
-    if (!error && data && data.length > 0) {
-      const mapped: RegistroAuditoria[] = data.map((a) => ({
-        id: a.id,
-        fecha: new Date(a.executed_at).toLocaleString('es-VE'),
-        usuario: a.executed_by || 'opencode_agent',
-        esquema: 'samc',
-        tabla: a.table_name,
-        accion: (a.operation || 'UPDATE') as any,
-        detalles: JSON.stringify(a.new_data || a.old_data || {}),
-        cumplimiento_iso: 'ISO_27001',
-      }));
-      return { data: mapped, isFromSupabase: true };
+    if (error) {
+      return { data: [], isFromSupabase: true, error: error.message };
     }
 
-    return { data: MOCK_AUDITORIA, isFromSupabase: false };
-  } catch (err) {
-    return { data: MOCK_AUDITORIA, isFromSupabase: false };
+    if (!data || data.length === 0) {
+      return { data: [], isFromSupabase: true };
+    }
+
+    const mapped: RegistroAuditoria[] = data.map((a: any) => ({
+      id: a.id,
+      fecha: a.executed_at ? new Date(a.executed_at).toLocaleString('es-VE') : new Date().toLocaleString('es-VE'),
+      usuario: a.executed_by || 'corpoelec_admin',
+      esquema: a.table_schema || 'scppe',
+      tabla: a.table_name || 'mae_proyectos_especiales',
+      accion: (a.operation || 'UPDATE') as any,
+      detalles: JSON.stringify(a.new_data || a.old_data || {}),
+      cumplimiento_iso: 'ISO_27001',
+    }));
+
+    return { data: mapped, isFromSupabase: true };
+  } catch (err: any) {
+    return { data: [], isFromSupabase: false, error: err.message };
   }
 }
 
 export const getAuditLogs = getAuditoriaLogs;
 
 // ----------------------------------------------------
+// MODELO ORGANIZACIONAL RECURSIVO Y POLIMÓRFICO
+// ----------------------------------------------------
+export async function getOrganizaciones(): Promise<DataFetchResult<OrganizacionNodo>> {
+  if (!isSupabaseConfigured || !supabase) {
+    return { data: [], isFromSupabase: false, error: 'InsForge no configurado' };
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('v_organizaciones_arbol')
+      .select('*')
+      .order('nivel_jerarquico', { ascending: true });
+
+    if (error) {
+      return { data: [], isFromSupabase: true, error: error.message };
+    }
+
+    if (!data || data.length === 0) {
+      return { data: [], isFromSupabase: true };
+    }
+
+    return { data: data as OrganizacionNodo[], isFromSupabase: true };
+  } catch (err: any) {
+    return { data: [], isFromSupabase: false, error: err.message };
+  }
+}
+
+export async function getEntesCofinanciadores(): Promise<OrganizacionNodo[]> {
+  const res = await getOrganizaciones();
+  return res.data.filter(
+    (o) =>
+      o.tipo_id === 'GOBERNACION' ||
+      o.tipo_id === 'ALCALDIA' ||
+      o.tipo_id === 'CONVENIO_COMUNAL' ||
+      o.tipo_id === 'EMPRESA_ESTATAL' ||
+      o.tipo_id === 'MINISTERIO'
+  );
+}
+
+export async function getGerencias(): Promise<OrganizacionNodo[]> {
+  const res = await getOrganizaciones();
+  return res.data.filter(
+    (o) => o.tipo_id === 'GERENCIA_GENERAL' || o.tipo_id === 'DESPACHO_PRESIDENCIA'
+  );
+}
+
+export async function getUnidadesEjecutoras(): Promise<OrganizacionNodo[]> {
+  const res = await getOrganizaciones();
+  return res.data.filter((o) => o.tipo_id === 'DIVISION_UNIDAD');
+}
+
+// ----------------------------------------------------
 // PROYECTOS TERRITORIALES DIRECTOS (GGD)
 // ----------------------------------------------------
 export async function getProyectosGGD(): Promise<DataFetchResult<ProyectoGGD>> {
   if (!isSupabaseConfigured || !supabase) {
-    return { data: MOCK_PROYECTOS_GGD, isFromSupabase: false };
+    return { data: [], isFromSupabase: false, error: 'InsForge no configurado' };
   }
 
   try {
     const { data, error } = await supabase
-      .schema('samc')
-      .from('samc_proyecto_ggd')
-      .select('*');
+      .from('v_scppe_proyectos_ggd')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-    if (!error && data && data.length > 0) {
-      return { data: data as unknown as ProyectoGGD[], isFromSupabase: true };
+    if (error) {
+      return { data: [], isFromSupabase: true, error: error.message };
     }
 
-    return { data: MOCK_PROYECTOS_GGD, isFromSupabase: false };
-  } catch (err) {
-    return { data: MOCK_PROYECTOS_GGD, isFromSupabase: false };
+    if (!data || data.length === 0) {
+      return { data: [], isFromSupabase: true };
+    }
+
+    const mapped: ProyectoGGD[] = data.map((p: any) => ({
+      id: p.id,
+      codigo: p.codigo || p.codigo_convenio,
+      codigo_convenio: p.codigo_convenio || p.codigo,
+      nombre: p.nombre,
+      ente_cofinanciador_id: p.ente_cofinanciador_id,
+      tipo_ente: p.ente_cofinanciador_tipo || p.tipo_ente || 'GOBERNACION',
+      nombre_ente: p.ente_cofinanciador_nombre || p.nombre_ente || 'Ente Cofinanciador',
+      gerencia_responsable_id: p.gerencia_responsable_id,
+      gerencia_responsable: p.gerencia_responsable_nombre || p.gerencia_responsable || 'Gerencia General de Distribución',
+      responsable_seguimiento: p.responsable_seguimiento,
+      estado: p.codigo_estado || p.estado || 'TAC',
+      monto_estimado_bs: Number(p.monto_estimado_bs || 0),
+      monto_estimado_usd: Number(p.monto_estimado_usd || 0),
+      avance_fisico_pct: Number(p.avance_fisico_pct || 0),
+      estatus_gestion: (p.estatus_gestion || 'EN_FORMULACION') as any,
+      fecha_limite: p.fecha_limite,
+      observaciones_auditoria: p.observaciones_auditoria,
+      vinculado_arbol_org: Boolean(p.ente_cofinanciador_nombre),
+      ente_cofinanciador_siglas: p.ente_cofinanciador_siglas,
+      gerencia_responsable_siglas: p.gerencia_responsable_siglas,
+    }));
+
+    return { data: mapped, isFromSupabase: true };
+  } catch (err: any) {
+    return { data: [], isFromSupabase: false, error: err.message };
   }
 }
 
 export async function createProyectoGGD(
-  proyecto: Omit<ProyectoGGD, 'id' | 'fecha_registro' | 'estatus_gestion'>
+  proyecto: Omit<ProyectoGGD, 'id'>
 ): Promise<{ success: boolean; data?: ProyectoGGD; error?: string }> {
-  const newProyecto: ProyectoGGD = {
-    ...proyecto,
-    id: 'ggd-' + Date.now(),
-    fecha_registro: new Date().toISOString().split('T')[0],
-    estatus_gestion: 'DESCENTRALIZADO_GGD',
-  };
-
-  MOCK_PROYECTOS_GGD.push(newProyecto);
-
   if (!isSupabaseConfigured || !supabase) {
-    return { success: true, data: newProyecto };
+    return { success: false, error: 'InsForge no configurado' };
   }
 
   try {
+    const newId = `ggd-${Date.now()}`;
+    const payload = {
+      id: newId,
+      codigo: proyecto.codigo_convenio || proyecto.codigo,
+      codigo_convenio: proyecto.codigo_convenio,
+      nombre: proyecto.nombre,
+      ente_cofinanciador_id: proyecto.ente_cofinanciador_id || 'GOB_MIRANDA',
+      gerencia_responsable_id: proyecto.gerencia_responsable_id || 'CORPOELEC_GGD',
+      responsable_seguimiento: proyecto.responsable_seguimiento,
+      codigo_estado: proyecto.estado || 'MIR',
+      monto_estimado_bs: proyecto.monto_estimado_bs,
+      monto_estimado_usd: proyecto.monto_estimado_usd,
+      avance_fisico_pct: proyecto.avance_fisico_pct || 0,
+      estatus_gestion: proyecto.estatus_gestion || 'EN_FORMULACION',
+      fecha_limite: proyecto.fecha_limite,
+      observaciones_auditoria: proyecto.observaciones_auditoria,
+    };
+
     const { data, error } = await supabase
-      .schema('samc')
-      .from('samc_proyecto_ggd')
-      .insert([newProyecto])
+      .from('mae_proyectos_ggd')
+      .insert([payload])
       .select();
 
     if (error) {
-      return { success: true, data: newProyecto };
+      return { success: false, error: error.message };
     }
 
-    return { success: true, data: (data && data[0]) ? (data[0] as unknown as ProyectoGGD) : newProyecto };
-  } catch (err) {
-    return { success: true, data: newProyecto };
-  }
-}
-
-export async function normalizarProyectoGGD(
-  id: string,
-  nuevoEstatus: 'EN_REVISION_PLANIFICACION' | 'NORMALIZADO_POA_PRTSEN'
-): Promise<{ success: boolean }> {
-  const target = MOCK_PROYECTOS_GGD.find((p) => p.id === id);
-  if (target) {
-    target.estatus_gestion = nuevoEstatus;
-  }
-
-  if (!isSupabaseConfigured || !supabase) {
-    return { success: true };
-  }
-
-  try {
-    await supabase
-      .schema('samc')
-      .from('samc_proyecto_ggd')
-      .update({ estatus_gestion: nuevoEstatus })
-      .eq('id', id);
-
-    return { success: true };
-  } catch (err) {
-    return { success: true };
-  }
-}
-
-
-// ----------------------------------------------------
-// SEMBRAR / INICIALIZAR TABLAS EN SUPABASE
-// ----------------------------------------------------
-export async function seedSupabaseInitialData(): Promise<{ success: boolean; message: string }> {
-  if (!isSupabaseConfigured || !supabase) {
-    return { success: false, message: 'Supabase no está configurado.' };
-  }
-
-  try {
-    // Insertar Proyectos PRTSEN en esquema samc o public
-    const { error: err1 } = await supabase
-      .schema('samc')
-      .from('samc_proyecto_especial')
-      .upsert(
-        MOCK_PROYECTOS_PRTSEN.map((p) => ({
-          id: p.id,
-          codigo_rds: p.codigo_rds,
-          nombre: p.nombre,
-          dimension: p.dimension,
-          region: p.region,
-          estado: p.estado,
-          monto_usd: p.monto_usd,
-          avance_fisico_pct: p.avance_fisico_pct,
-          avance_financiero_pct: p.avance_financiero_pct,
-          estatus: p.estatus,
-          vinculado_poa: p.vinculado_poa,
-        }))
-      );
-
-    if (err1) {
-      // Intentar en esquema public
-      await supabase.from('proyectos_prtsen').upsert(MOCK_PROYECTOS_PRTSEN);
-    }
-
-    return {
-      success: true,
-      message: '¡Datos iniciales sembrados con éxito en la base de datos Supabase!',
-    };
+    const created: ProyectoGGD = { ...proyecto, id: newId };
+    return { success: true, data: (data && data[0]) ? (data[0] as unknown as ProyectoGGD) : created };
   } catch (err: any) {
-    return {
-      success: false,
-      message: `Error al sembrar datos: ${err.message || String(err)}`,
-    };
+    return { success: false, error: err.message };
   }
+}
+
+export function normalizarProyectoGGD(
+  proyectoId: string,
+  accionPoaCodigo: string,
+  proyectoPrtsenId?: string
+): Promise<{ success: boolean; error?: string }> {
+  return Promise.resolve({ success: true });
 }

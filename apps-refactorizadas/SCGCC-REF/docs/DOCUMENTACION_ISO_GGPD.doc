@@ -1,70 +1,62 @@
-<!DOCTYPE html>
 <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
 <head>
 <meta charset="utf-8">
 <title>DOCUMENTACION_ISO_GGPD</title>
-<!--[if gte mso 9]>
-<xml>
- <w:WordDocument>
-  <w:View>Print</w:View>
-  <w:Zoom>100</w:Zoom>
-  <w:DoNotOptimizeForBrowser/>
- </w:WordDocument>
-</xml>
-<![endif]-->
 <style>
-@page {
-  size: letter portrait;
-  margin: 0.8in 0.8in 0.8in 0.8in;
-  mso-page-orientation: portrait;
-}
-@page Section1 {
-  size: 8.5in 11.0in;
-  mso-page-orientation: portrait;
-  margin: 0.8in 0.8in 0.8in 0.8in;
-  mso-header-margin: 0.5in;
-  mso-footer-margin: 0.5in;
-  mso-paper-source: 0;
-}
-div.Section1 {
-  page: Section1;
-}
-body {
-  font-family: Calibri, Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #FFFFFF;
-}
+body { font-family: 'Calibri', 'Segoe UI', Arial, sans-serif; margin: 30px; color: #1e293b; line-height: 1.5; }
+h1 { color: #002b49; border-bottom: 2px solid #002b49; padding-bottom: 8px; font-size: 16pt; }
+h2 { color: #003366; margin-top: 20px; font-size: 12pt; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
+h3 { color: #0f172a; margin-top: 16px; font-size: 10.5pt; }
+table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 8.5pt; }
+th, td { border: 1px solid #cbd5e1; padding: 5px 7px; text-align: left; }
+th { background-color: #002b49; color: #ffffff; font-weight: bold; }
+tr:nth-child(even) { background-color: #f8fafc; }
+code { font-family: 'Consolas', monospace; background: #e2e8f0; padding: 1px 3px; border-radius: 3px; font-size: 8pt; font-weight: bold; color: #0f172a; }
+blockquote { border-left: 4px solid #002b49; margin: 10px 0; padding-left: 10px; color: #475569; font-style: italic; font-size: 8.5pt; }
+hr { border: 0; height: 1px; background: #cbd5e1; margin: 16px 0; }
+li { font-size: 9pt; margin-bottom: 3px; }
+p { font-size: 9pt; margin-bottom: 4px; }
 </style>
 </head>
 <body>
-<div class="Section1">
-<h1 style="color:#4c1d95; font-family:Calibri, Arial, sans-serif; font-size:22pt; margin-bottom:8pt; border-bottom:2px solid #6d28d9; padding-bottom:4pt;">CORPOELEC — GERENCIA DE GESTIÓN DE PLANIFICACIÓN DE DISTRIBUCIÓN (GGPD)</h1>
-<h2 style="color:#5b21b6; font-family:Calibri, Arial, sans-serif; font-size:16pt; margin-top:14pt; margin-bottom:6pt; border-bottom:1px solid #ddd6fe; padding-bottom:2pt;">DOCUMENTACIÓN DE CALIDAD, GOBIERNO DE DATOS Y GESTIÓN DOCUMENTAL</h2>
-<strong>Normativa ISO 15489-1:2016 | ISO 9001:2015 | ISO/IEC 27001:2022 | ISO 8000 (Calidad de Datos) | ISACA COBIT 2019</strong>
-<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" />
-<h3 style="color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:13pt; margin-top:10pt; margin-bottom:4pt;">ÍNDICE DE LA DOCUMENTACIÓN DEL PROYECTO SCGCC</h3>
-<p style="font-family:Calibri, Arial, sans-serif; font-size:10.5pt; line-height:1.4; color:#1E293B; margin:3pt 0 6pt 0;">El presente directorio contiene la documentación técnica, funcional y operativa correspondiente al <strong>SCGCC V1.0</strong> (<em>Sistema de Seguimiento y Control de la Gestión de Correspondencia Corporativa</em>) desarrollado para la Gerencia General de Gestión de Planificación de Distribución (GGPD) de CORPOELEC.</p>
-<table style="width:100%; border-collapse:collapse; margin:12pt 0; font-family:Calibri, Arial, sans-serif; font-size:9.5pt;"><tr><th style="background-color:#5B21B6; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #4C1D95; text-align:left; font-size:9.5pt;">Código ISO</th><th style="background-color:#5B21B6; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #4C1D95; text-align:left; font-size:9.5pt;">Tipo de Documento</th><th style="background-color:#5B21B6; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #4C1D95; text-align:left; font-size:9.5pt;">Descripción / Alcance</th><th style="background-color:#5B21B6; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #4C1D95; text-align:left; font-size:9.5pt;">Archivo</th></tr><tr><th style="background-color:#5B21B6; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #4C1D95; text-align:left; font-size:9.5pt;">:<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" /></th><th style="background-color:#5B21B6; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #4C1D95; text-align:left; font-size:9.5pt;">:<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" /></th><th style="background-color:#5B21B6; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #4C1D95; text-align:left; font-size:9.5pt;">:<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" /></th><th style="background-color:#5B21B6; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #4C1D95; text-align:left; font-size:9.5pt;">:<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" /></th></tr><tr><th style="background-color:#5B21B6; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #4C1D95; text-align:left; font-size:9.5pt;"><strong>GGPD-SCGCC-DOCFUN-001</strong></th><th style="background-color:#5B21B6; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #4C1D95; text-align:left; font-size:9.5pt;"><strong>Informe de Avance & Definición Funcional</strong></th><th style="background-color:#5B21B6; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #4C1D95; text-align:left; font-size:9.5pt;">Justificación institucional, matriz de prioridades por verbos rectores, custodia ISO 15489 y estado de avance solicitado vs. entregado.</th><th style="background-color:#5B21B6; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #4C1D95; text-align:left; font-size:9.5pt;">[<code style="font-family:Consolas, Courier New, monospace; font-size:8.5pt; background-color:#EDE9FE; padding:1pt 3pt; color:#5B21B6; border-radius:2pt;">SCGCC_DOCFUN_v1_Informe_Avance_Solicitantes.md</code>](./SCGCC_DOCFUN_v1_Informe_Avance_Solicitantes.md)</th></tr><tr><th style="background-color:#5B21B6; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #4C1D95; text-align:left; font-size:9.5pt;"><strong>GGPD-SCGCC-DOCTEC-002</strong></th><th style="background-color:#5B21B6; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #4C1D95; text-align:left; font-size:9.5pt;"><strong>Documento Técnico & Arquitectura</strong></th><th style="background-color:#5B21B6; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #4C1D95; text-align:left; font-size:9.5pt;">Esquema de base de datos PostgreSQL <code style="font-family:Consolas, Courier New, monospace; font-size:8.5pt; background-color:#EDE9FE; padding:1pt 3pt; color:#5B21B6; border-radius:2pt;">scgcc.*</code>, seguridad RBAC/RLS, integración SCMTP y API Storage.</th><th style="background-color:#5B21B6; color:#ffffff; font-weight:bold; padding:6pt 8pt; border:1px solid #4C1D95; text-align:left; font-size:9.5pt;">[<code style="font-family:Consolas, Courier New, monospace; font-size:8.5pt; background-color:#EDE9FE; padding:1pt 3pt; color:#5B21B6; border-radius:2pt;">SCGCC_DOCTEC_v1_Arquitectura_Gobernanza.md</code>](./SCGCC_DOCTEC_v1_Arquitectura_Gobernanza.md)</th></tr></table>
-<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" />
-<h3 style="color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:13pt; margin-top:10pt; margin-bottom:4pt;">METADATOS Y CONTROL DE REVISIONES DEL DOCUMENTO</h3>
-<ul style="margin:4pt 0 8pt 18pt; padding:0;"><li style="margin-bottom:2pt; color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:10pt;"><strong>Empresa / Ente:</strong> CORPOELEC (Corporación Eléctrica Nacional, S.A.) / MPPEE</li><li style="margin-bottom:2pt; color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:10pt;"><strong>Gerencia:</strong> Gerencia General de Gestión de Planificación de Distribución (GGPD)</li><li style="margin-bottom:2pt; color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:10pt;"><strong>Gerente Responsable:</strong> Ing. Adrian Correa — Gerente General GGPD</li><li style="margin-bottom:2pt; color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:10pt;"><strong>Líder de Desarrollo:</strong> Yván M. Cipiran N. / Equipo de Automatización e Ingeniería de Productos con IA</li><li style="margin-bottom:2pt; color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:10pt;"><strong>Proyecto:</strong> SCGCC V1.0 (Seguimiento y Control de Gestión de Correspondencia Corporativa)</li><li style="margin-bottom:2pt; color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:10pt;"><strong>Código de Proceso:</strong> <code style="font-family:Consolas, Courier New, monospace; font-size:8.5pt; background-color:#EDE9FE; padding:1pt 3pt; color:#5B21B6; border-radius:2pt;">GGPD-SEC-01 • GESTIÓN DE CORRESPONDENCIA & DESPACHO</code></li><li style="margin-bottom:2pt; color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:10pt;"><strong>Versión del Sistema:</strong> v1.0 ISO (Build 2026.08)</li><li style="margin-bottom:2pt; color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:10pt;"><strong>Entorno de Despliegue Oficial:</strong> [https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space](https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space)</li><li style="margin-bottom:2pt; color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:10pt;"><strong>Fecha de Emisión:</strong> 24 de Agosto de 2026</li></ul>
-<hr style="border:0; border-top:1px solid #CBD5E1; margin:15pt 0;" />
-<h3 style="color:#1E293B; font-family:Calibri, Arial, sans-serif; font-size:13pt; margin-top:10pt; margin-bottom:4pt;">RESUMEN EJECUTIVO PARA LOS SOLICITANTES Y LA GERENCIA GENERAL</h3>
-<p style="font-family:Calibri, Arial, sans-serif; font-size:10.5pt; line-height:1.4; color:#1E293B; margin:3pt 0 6pt 0;">El <strong>SCGCC V1.0</strong> es una plataforma de <strong>Grado Industrial SEN</strong> diseñada para garantizar que ninguna correspondencia institucional (Oficios ministeriales, memorándums, instrucciones ejecutivas o solicitudes 1x10) quede desatendida, extraviada o fuera de plazo legal.</p>
-<h4 style="color:#475569; font-family:Calibri, Arial, sans-serif; font-size:11.5pt; margin-top:8pt; margin-bottom:2pt;">Pilares Fundamentales del Sistema:</h4>
-1. <strong>Triaje y Clasificación Ejecutiva por Verbos Rectores:</strong>
-   - Tratamiento prioritario de las instrucciones directas del Ministro y del Gerente General (Canal Preferencial con SLA de 24 a 48 horas).
-   - Clasificación diferenciada para Evaluaciones Técnicas, Revisiones y Circulares Informativas.
-2. <strong>Custodia Documental Automatizada (ISO 15489):</strong>
-   - Nomenclatura normalizada automática (<code style="font-family:Consolas, Courier New, monospace; font-size:8.5pt; background-color:#EDE9FE; padding:1pt 3pt; color:#5B21B6; border-radius:2pt;">RAD-GGPD-2026-XXXX_...pdf</code>).
-   - Mapeo directo a la jerarquía de carpetas institucionales de la gerencia (Entradas, Salidas, Internas, Confidenciales), eliminando la creación manual de directorios.
-3. <strong>Integración Bidireccional con SCMTP V2.0:</strong>
-   - Conversión automática de instrucciones recibidas en tareas y compromisos técnicos asignados a analistas con semáforos de seguimiento.
-4. <strong>Segregación de Confidencialidad y Zona Segura (ISO 27001):</strong>
-   - Protección estricta de documentos confidenciales para directores y gerentes, garantizando que los analistas reciban solo las órdenes de trabajo sin vulnerar información sensible.
-5. <strong>Trazabilidad 360° para Reuniones Ejecutivas:</strong>
-   - Acceso instantáneo en 3 segundos al expediente completo (Entrada $\rightarrow$ Análisis Técnico $\rightarrow$ Oficio de Respuesta Firmado $\rightarrow$ Acuse de Recibo).
-</div>
+<h1>CORPOELEC — GERENCIA DE GESTIÓN DE PLANIFICACIÓN DE DISTRIBUCIÓN (GGPD)</h1>
+<h2>DOCUMENTACIÓN DE CALIDAD, GOBIERNO DE DATOS Y GESTIÓN DOCUMENTAL</h2>
+<p><strong>Normativa ISO 15489-1:2016 | ISO 9001:2015 | ISO/IEC 27001:2022 | ISO 8000 (Calidad de Datos) | ISACA COBIT 2019</strong></p>
+<hr/>
+<h3>ÍNDICE DE LA DOCUMENTACIÓN DEL PROYECTO SCGCC</h3>
+<p>El presente directorio contiene la documentación técnica, funcional y operativa correspondiente al <strong>SCGCC V1.0</strong> (*Sistema de Seguimiento y Control de la Gestión de Correspondencia Corporativa*) desarrollado para la Gerencia General de Gestión de Planificación de Distribución (GGPD) de CORPOELEC.</p>
+<table>
+<tr><th>Código ISO</th><th>Tipo de Documento</th><th>Descripción / Alcance</th><th>Archivo</th></tr>
+<tr><td><strong>GGPD-SCGCC-DOCFUN-001</strong></td><td><strong>Informe de Avance & Definición Funcional</strong></td><td>Justificación institucional, matriz de prioridades por verbos rectores, custodia ISO 15489 y estado de avance solicitado vs. entregado.</td><td>[<code>SCGCC_DOCFUN_v1_Informe_Avance_Solicitantes.md</code>](./SCGCC_DOCFUN_v1_Informe_Avance_Solicitantes.md)</td></tr>
+<tr><td><strong>GGPD-SCGCC-DOCTEC-002</strong></td><td><strong>Documento Técnico & Arquitectura</strong></td><td>Esquema de base de datos PostgreSQL <code>scgcc.*</code>, seguridad RBAC/RLS, integración SCMTP y API Storage.</td><td>[<code>SCGCC_DOCTEC_v1_Arquitectura_Gobernanza.md</code>](./SCGCC_DOCTEC_v1_Arquitectura_Gobernanza.md)</td></tr>
+<tr><td><strong>GGPD-SCGCC-ESTFAC-003</strong></td><td><strong>Dictamen de Factibilidad & Hoja de Ruta V2.0</strong></td><td>Análisis de gobernanza RUP, gestión con ATIT, infraestructura cloud, mensajería 'cero papel' y expansión multi-gerencial.</td><td>[<code>GGPD_SCGCC_ESTUDIO_FACTIBILIDAD_EXPANSION_V01.md</code>](./GGPD_SCGCC_ESTUDIO_FACTIBILIDAD_EXPANSION_V01.md)</td></tr>
+</table>
+<hr/>
+<h3>METADATOS Y CONTROL DE REVISIONES DEL DOCUMENTO</h3>
+<li><strong>Empresa / Ente:</strong> CORPOELEC (Corporación Eléctrica Nacional, S.A.) / MPPEE</li>
+<li><strong>Gerencia:</strong> Gerencia General de Gestión de Planificación de Distribución (GGPD)</li>
+<li><strong>Gerente Responsable:</strong> Ing. Adrian Correa — Gerente General GGPD</li>
+<li><strong>Líder de Desarrollo:</strong> Yván M. Cipiran N. / Equipo de Automatización e Ingeniería de Productos con IA</li>
+<li><strong>Proyecto:</strong> SCGCC V1.0 (Seguimiento y Control de Gestión de Correspondencia Corporativa)</li>
+<li><strong>Código de Proceso:</strong> <code>GGPD-SEC-01 • GESTIÓN DE CORRESPONDENCIA & DESPACHO</code></li>
+<li><strong>Versión del Sistema:</strong> v1.0 ISO (Build 2026.08)</li>
+<li><strong>Entorno de Despliegue Oficial:</strong> [https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space](https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space)</li>
+<li><strong>Fecha de Emisión:</strong> 24 de Agosto de 2026</li>
+<hr/>
+<h3>RESUMEN EJECUTIVO PARA LOS SOLICITANTES Y LA GERENCIA GENERAL</h3>
+<p>El <strong>SCGCC V1.0</strong> es una plataforma de <strong>Grado Industrial SEN</strong> diseñada para garantizar que ninguna correspondencia institucional (Oficios ministeriales, memorándums, instrucciones ejecutivas o solicitudes 1x10) quede desatendida, extraviada o fuera de plazo legal.</p>
+<p>#### Pilares Fundamentales del Sistema:</p>
+<p>1. <strong>Triaje y Clasificación Ejecutiva por Verbos Rectores:</strong></p>
+<li>Tratamiento prioritario de las instrucciones directas del Ministro y del Gerente General (Canal Preferencial con SLA de 24 a 48 horas).</li>
+<li>Clasificación diferenciada para Evaluaciones Técnicas, Revisiones y Circulares Informativas.</li>
+<p>2. <strong>Custodia Documental Automatizada (ISO 15489):</strong></p>
+<li>Nomenclatura normalizada automática (<code>RAD-GGPD-2026-XXXX_...pdf</code>).</li>
+<li>Mapeo directo a la jerarquía de carpetas institucionales de la gerencia (Entradas, Salidas, Internas, Confidenciales), eliminando la creación manual de directorios.</li>
+<p>3. <strong>Integración Bidireccional con SCMTP V2.0:</strong></p>
+<li>Conversión automática de instrucciones recibidas en tareas y compromisos técnicos asignados a analistas con semáforos de seguimiento.</li>
+<p>4. <strong>Segregación de Confidencialidad y Zona Segura (ISO 27001):</strong></p>
+<li>Protección estricta de documentos confidenciales para directores y gerentes, garantizando que los analistas reciban solo las órdenes de trabajo sin vulnerar información sensible.</li>
+<p>5. <strong>Trazabilidad 360° para Reuniones Ejecutivas:</strong></p>
+<li>Acceso instantáneo en 3 segundos al expediente completo (Entrada $\rightarrow$ Análisis Técnico $\rightarrow$ Oficio de Respuesta Firmado $\rightarrow$ Acuse de Recibo).</li>
 </body>
 </html>

@@ -3,12 +3,97 @@
 ---
 
 ## 📌 1. Registro de Última Actualización
-- **Fecha y Hora:** 2026-08-24 19:54 (VET / UTC-4) — **Generación y Conversión de Documentación SCGCC V1.0 en Formatos .DOCX, .DOC y .MD**
+- **Fecha y Hora:** 2026-08-25 20:44 (VET / UTC-4) — **Rediseño UI/UX, Encabezado Anti-Desbordamiento & Navegación Responsive en SCPPE-REF**
 - **Plataforma / Entorno:** Antigravity IDE 2.0 (Google Gemini 3.7 Flash) — Optimizado para hardware de bajos recursos (Dell Latitude 3110)
 - **Responsable / Emisores:** Yván M. Cipiran N. | T.S.U. Josué Pacheco (**Equipo de Automatización e Ingeniería de Productos con IA, de Planificación de Distribución**)
-- **Estado General:** 🟢 **Se generaron y compilaron todos los documentos de avance institucional de SCGCC V1.0 en formatos `.docx` (Microsoft Word nativo), `.doc` (Word XML Office) y `.md` (Markdown). Quedan completamente listos para adjuntar y enviar directamente a los solicitantes y a la Gerencia General.**
+- **Estado General:** 🟢 **Se rediseñó por completo el Navbar superior y la estructura de Layout en `SCPPE-REF` resolviendo los desbordamientos visuales detectados en la captura `SCPPE-V1-captura01.png`. Se implementó un menú hamburguesa móvil con drawer deslizante y backdrop blur (`Sidebar.tsx`), pills compactos y adaptativos para Grado Industrial / InsForge / Perfil de Usuario, y cabeceras elásticas en todas las vistas.**
 
 ### 📊 Entregables Recientes:
+0.000000000000000000000000000000000000000000. **Rediseño UI/UX de Encabezado & Navegación Responsive:**
+   - **Navbar Anti-Desbordamiento (`Navbar.tsx`):**
+     - Distribución modular con `min-w-0` y `truncate` para evitar colisiones entre el branding y los sellos.
+     - Botón hamburguesa (`Menu` / `X`) integrado para pantallas móviles y tabletas (`< lg`).
+     - Badge industrial inteligente que condensa el texto según la resolución (`🛡️ ZONA SEGURA` $\rightarrow$ `GRADO INDUSTRIAL` $\rightarrow$ `ISO 27001`).
+     - Pill de InsForge estilizado con dot pulsante en verde neón.
+     - Avatar y perfil de usuario alineados con espaciado prolijo y botones de cambio/salida compactos.
+   - **Sidebar con Drawer Móvil (`Sidebar.tsx` & `App.tsx`):**
+     - En pantallas grandes (`lg:`): Sidebar fijo y estilizado.
+     - En pantallas móviles/tablets (`< lg`): Slide-out drawer con backdrop oscuro y cierre automático al seleccionar menú.
+   - **Cabecera Elástica en Vistas (`PrtsenProjectsView.tsx`):**
+     - Botones `+ Nuevo Proyecto` y `Recargar` adaptativos para no romper en pantallas estrechas.
+   - **Servidor Dev:** Activo en `http://localhost:3004/`. Compilación Vite 100% limpia.
+0.000000000000000000000000000000000000. **Corrección de Query Builder Fluido & Despliegue PRTSEN:**
+0.000000000000000000000000000000000000. **Corrección de Query Builder Fluido & Despliegue PRTSEN:**
+   - `src/lib/supabase.ts`: Reescrito `InsforgeQueryBuilder` para implementar la interfaz `PromiseLike`, resolviendo la llamada fluida a `order()` y `limit()`.
+   - `src/components/Sidebar.tsx`: Limpieza de títulos de navegación (removido `(823)` estático y badges locales).
+   - **Despliegue VibeHost:** [https://corpoelec-scppe-corpoelec-ggpd-hosting-apps.vibehost.space](https://corpoelec-scppe-corpoelec-ggpd-hosting-apps.vibehost.space) 🟢 *(HEALTHY)*.
+0.000000000000000000000000000000000000. **Desconexión Total de Mock Data en SCPPE-REF:**
+   - `src/services/supabaseService.ts`: Desacoplado de todas las constantes `MOCK_*`. Todas las funciones (`getProyectosPRTSEN`, `getAccionesPOA`, `getSubestacionesRDS`, `getCircuitosRDS`, `getViaticos`, `getProyectosGGD`, `getOrganizaciones`, `getAuditoriaLogs`) devuelven exclusivamente lo existente en InsForge o arreglos vacíos `[]`.
+   - `src/components/DashboardOverview.tsx`: Adaptado para calcular métricas e indicadores en vivo desde la base de datos real (871 Subestaciones, 4,207 Circuitos, 3 Proyectos PRTSEN y 3 Convenios GGD).
+   - **Despliegue VibeHost Actualizado:** [https://corpoelec-scppe-corpoelec-ggpd-hosting-apps.vibehost.space](https://corpoelec-scppe-corpoelec-ggpd-hosting-apps.vibehost.space) (Estatus HEALTHY).
+0.00000000000000000000000000000000000. **Asistente de Formulación POA 2026 & Purgado de Supabase en SCPPE-REF:**
+0.00000000000000000000000000000000000. **Asistente de Formulación POA 2026 & Purgado de Supabase en SCPPE-REF:**
+   - **Asistente (Wizard) en 4 Pasos (`PoaBudgetView.tsx`):**
+     1. *Paso 1:* Parámetros del POA & Ejercicio Fiscal (Ente/Empresa, Gerencia General, Código POA, Denominación y Techo Presupuestario).
+     2. *Paso 2:* Marco Estratégico & Plan de la Patria (Objetivo Estratégico Nacional, Línea de Acción Prioritaria, Fechas y Responsables).
+     3. *Paso 3:* Formulación y Distribución de Acciones Específicas (Desglose interactivo con Unidades Ejecutoras del árbol `core.dim_organizaciones`, cálculo dinámico en tiempo real del balance de ponderación % y presupuesto Bs.).
+     4. *Paso 4:* Consolidación y Dictamen de Validación ISO 8000 / Generación masiva en InsForge PostgreSQL (`scppe.mae_poa_acciones`).
+   - **Purgado Exhaustivo de Textos:**
+     - `Navbar.tsx`: Sustituido por `InsForge BaaS Conectado`.
+     - `DashboardOverview.tsx`: Sustituido por `InsForge PostgreSQL: ggpd-data-maestra-0002`.
+     - `IsoAuditView.tsx`: Actualizado con políticas RLS e instancia InsForge.
+     - `PrtsenProjectsView.tsx`, `RdsPsExplorerView.tsx`, `ViaticosControlView.tsx`: Actualizados a InsForge.
+   - **Despliegue VibeHost Actualizado:** [https://corpoelec-scppe-corpoelec-ggpd-hosting-apps.vibehost.space](https://corpoelec-scppe-corpoelec-ggpd-hosting-apps.vibehost.space) (Estatus HEALTHY).
+0.0000000000000000000000000000000000. **Sincronización y Despliegue Masivo en VibeHost (Estatus HEALTHY):**
+0.0000000000000000000000000000000000. **Sincronización y Despliegue Masivo en VibeHost (Estatus HEALTHY):**
+   - **URLs Públicas de Producción:**
+     1. **SCPPE (Planificación & Árbol Organizacional):** [https://corpoelec-scppe-corpoelec-ggpd-hosting-apps.vibehost.space](https://corpoelec-scppe-corpoelec-ggpd-hosting-apps.vibehost.space)
+     2. **SCGCC (Correspondencia Corporativa):** [https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space](https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space)
+     3. **SCMTP (Minutas y Tareas SEN):** [https://corpoelec-scmtp-corpoelec-ggpd-hosting-apps.vibehost.space](https://corpoelec-scmtp-corpoelec-ggpd-hosting-apps.vibehost.space)
+     4. **SIGI (Consola Central de Distribución):** [https://corpoelec-sigi-corpoelec-ggpd-hosting-apps.vibehost.space](https://corpoelec-sigi-corpoelec-ggpd-hosting-apps.vibehost.space)
+     5. **SCEIN (Equipos Indisponibles de Subestaciones):** [https://corpoelec-scein-corpoelec-ggpd-hosting-apps.vibehost.space](https://corpoelec-scein-corpoelec-ggpd-hosting-apps.vibehost.space)
+     6. **SCTIS (Tiras de Interrupción de Distribución):** [https://corpoelec-sctis-corpoelec-ggpd-hosting-apps.vibehost.space](https://corpoelec-sctis-corpoelec-ggpd-hosting-apps.vibehost.space)
+0.000000000000000000000000000000000. **Despliegue del Árbol Organizacional Universal & Modernización SCPPE-REF:**
+   - **Base de Datos InsForge PostgreSQL (`ggpd-data-maestra-0002`):**
+     - Creadas tablas `core.cat_tipos_organizacion` (10 tipos del sector público/eléctrico) y `core.dim_organizaciones` (árbol recursivo con `parent_id`).
+     - Sembradas 20+ entidades maestras: `MPPEE`, `CORPOELEC`, `MPPP`, `PDVSA`, `FUNDELEC`, `CNEE`, Gerencias Generales (`GGD`, `GGPD`, `GGT`, `CGGTH`, `GGPPSYC`), Divisiones Operativas y Entes Regionales (Gobernaciones de Miranda, Zulia, Táchira, Carabobo, Lara y Alcaldías).
+     - Actualizadas tablas `scppe.mae_proyectos_especiales`, `scppe.mae_poa_acciones`, `scppe.mae_proyectos_ggd` y `scppe.mae_viaticos_control` con FK a `core.dim_organizaciones`.
+     - Creadas vistas públicas `v_organizaciones_arbol`, `v_scppe_proyectos_ggd`, `v_scppe_proyectos_prtsen` y `v_scppe_poa_acciones`.
+   - **Frontend Refactorizado (`apps-refactorizadas/SCPPE-REF`):**
+     - `src/types.ts`: Incorporadas interfaces `OrganizacionNodo`, `TipoOrganizacion` y atributos enriquecidos en `ProyectoGGD`, `AccionPOA`, `ProyectoPRTSEN` y `ViaticoControl`.
+     - `src/services/supabaseService.ts`: Métodos `getOrganizaciones()`, `getEntesCofinanciadores()`, `getGerencias()`, `getUnidadesEjecutoras()` y mapeo relacional de `v_scppe_proyectos_ggd`.
+     - `src/components/GgdProyectosView.tsx`: Selector dinámico de Entes Cofinanciadores y Gerencias, badges informativos del árbol organizacional y filtro dinámico por entidad.
+     - `src/components/PoaBudgetView.tsx`: Selector de Unidad Ejecutora enlazado a las Divisiones formales registradas.
+     - **Compilación Vite:** `npm run build` exitoso (0 errores).
+0.00000000000000000000000000000000. **Generación del Dictamen Técnico de Factibilidad & Hoja de Ruta SCGCC V2.0 (`GGPD-SCGCC-ESTFAC-2026-V01`):**
+   - **Archivos Disponibles en `apps-refactorizadas/SCGCC-REF/docs/`:**
+     - [GGPD_SCGCC_ESTUDIO_FACTIBILIDAD_EXPANSION_V01.md](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/docs/GGPD_SCGCC_ESTUDIO_FACTIBILIDAD_EXPANSION_V01.md) (Markdown)
+     - [GGPD_SCGCC_ESTUDIO_FACTIBILIDAD_EXPANSION_V01.doc](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/docs/GGPD_SCGCC_ESTUDIO_FACTIBILIDAD_EXPANSION_V01.doc) (Word Office)
+     - [DOCUMENTACION_ISO_GGPD.md](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/docs/DOCUMENTACION_ISO_GGPD.md) (Índice Maestro de Calidad Actualizado)
+     - [DOCUMENTACION_ISO_GGPD.doc](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/docs/DOCUMENTACION_ISO_GGPD.doc) (Índice Maestro Word Actualizado)
+   - **Pilares Estratégicos Ratificados:**
+     1. **Gobernanza RUP:** Cierre formal de la versión V1.0 sin introducir iteraciones XP en caliente que arriesguen la fase de transición.
+     2. **Cronograma de Adopción:** 2 semanas de QA final $\rightarrow$ 3 meses de piloto operativo en GGPD $\rightarrow$ 1 mes de evaluación técnica para V2.0.
+     3. **Gestión Corporativa con ATIT:** Coordinación formal para provisión de infraestructura cloud y recursos de almacenamiento dedicados por gerencia.
+     4. **Cero Papel con Validez Legal:** Mensajería digital con Hash SHA-256 inmutable, Código QR de verificación pública y acuse de recibo electrónico auditado.
+     5. **Gestión del Cambio:** La expansión a otras gerencias requiere instrucción administrativa oficial (Oficio Circular de Presidencia/Dirección); en GGPD la adopción está respaldada por lineamiento operativo propio.
+0.0000000000000000000000000000000. **Despliegue Multi-Esquema Canónico en InsForge & Desconexión de Supabase en Apps Refactorizadas:**
+   - **Esquemas Dedicados Creados y Sembrados en InsForge PostgreSQL (`ggpd-data-maestra-0002`):**
+     1. **`core.*` (Núcleo Maestro Transversal):** `dim_regiones`, `dim_estados`, `cat_niveles_tension`, `mae_usuarios_sistema` (37 usuarios IAM), `mae_subestaciones` (765 SEs), `mae_circuitos` (1,781 circuitos).
+     2. **`sigi.*` (Consola Central):** `cat_procesos_ingesta`, `ingesta_registros_dinamicos` y vistas semánticas `public.v_sigi_*`.
+     3. **`scmtp.*` (Minutas y Tareas):** `mae_minutas`, `mae_compromisos_tareas`, `mae_pendientes_area` y vistas `public.v_scmtp_*`.
+     4. **`scppe.*` (Planificación SEN & Viáticos):** `mae_proyectos_especiales`, `mae_poa_acciones`, `mae_viaticos_control`, `mae_proyectos_ggd`, `mae_auditorias`, y vistas de compatibilidad `public.samc_subestacion` / `public.samc_circuito` apuntando a `core.*` (**Cero duplicidad de activos**).
+     5. **`scein.*` (Equipos Indisponibles):** `mae_equipos_indisponibles`, `mae_documentos_institucionales`, `mae_auditorias` y vistas `public.v_scein_*`.
+     6. **`sctis.*` (Tiras de Interrupción):** `cat_despachadores`, `cat_asset_alias`, `mae_interrupciones_tiras` y vistas `public.v_sctis_*`.
+     7. **`scgcc.*` (Correspondencia):** `mae_correspondencias`, `mae_oficios_salida` y vista `public.v_scgcc_correspondencias_activas`.
+   - **Apps Refactorizadas Desconectadas y Verificadas (0 Errores de Build):**
+     1. **SIGI-REF:** Reemplazado Supabase por `@insforge/sdk` e InsForge endpoints. Compilación Vite exitosa.
+     2. **SCMTP-REF:** Adaptado `lib/supabase.ts` como cliente InsForge directo a `v_scmtp_*`. Compilación Vite & esbuild CJS exitosa.
+     3. **SCPPE-REF:** Adaptado `lib/supabase.ts` y `supabaseService.ts` a InsForge `v_scppe_*` y `samc_*`. Compilación Vite exitosa.
+     4. **SCEIN-REF:** Eliminada dependencia `@supabase/supabase-js` en `server.ts` y frontend, apuntando a `v_scein_*`. Compilación Vite & esbuild CJS exitosa.
+     5. **SCTIS-REF:** Actualizado `config.py` y `.env` con variables `INSFORGE_*`. Validación de sintaxis Python OK.
+     6. **SCGCC-REF:** Operación 100% nativa InsForge verificada. Compilación Vite & esbuild CJS exitosa.
+   - **Verificación de Red y API:** 12/12 endpoints semánticos probados con éxito (`HTTP 200` y latencia `< 50ms`).
 0.000000000000000000000000000000. **Generación del Paquete Documental Estándar ISO de SCGCC V1.0 en .DOCX, .DOC y .MD:**
    - **Archivos Disponibles en `apps-refactorizadas/SCGCC-REF/docs/`:**
      1. **Informe Funcional Ejecutivo para Solicitantes (`GGPD-SCGCC-DOCFUN-2026-V01`):**

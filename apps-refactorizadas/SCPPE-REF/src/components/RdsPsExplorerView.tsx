@@ -51,7 +51,7 @@ export function RdsPsExplorerView() {
                 ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-400 border-emerald-300 dark:border-emerald-800' 
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700'
             }`}>
-              {isFromSupabase ? 'En vivo Supabase' : 'Vista Conectada'}
+              {isFromSupabase ? 'En vivo InsForge PostgreSQL' : 'Vista Conectada'}
             </span>
           </div>
           <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
@@ -65,7 +65,7 @@ export function RdsPsExplorerView() {
           className="p-2 rounded-md bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-semibold transition-colors self-start md:self-auto flex items-center gap-2 shadow-sm"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-          <span>Actualizar desde Supabase</span>
+          <span>Actualizar desde InsForge</span>
         </button>
       </div>
 
