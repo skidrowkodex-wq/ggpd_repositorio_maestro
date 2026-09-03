@@ -203,15 +203,19 @@ export type AuditLog = RegistroAuditoria;
 
 export interface ViaticoControl {
   id: string;
-  codigo_asignacion: string;
-  responsable: string;
-  cargo: string;
+  numero_solicitud: string;
+  empleado_nombre: string;
+  empleado_cedula: string;
   destino: string;
-  monto_asignado_bs: number;
-  monto_ejecutado_bs: number;
-  tipo_cierre: 'RENDICION_NORMAL' | 'REINTEGRO' | 'REEMBOLSO' | 'EXCEPCIONAL';
-  estado: 'PENDIENTE' | 'APROBADO' | 'COMPLETADO' | 'EXCEPCIONAL';
-  origen_fondos: string;
+  fecha_inicio: string;
+  fecha_fin: string;
+  dias_duracion: number;
+  monto_calculado_usd: number;
+  monto_calculado_bs: number;
+  estatus_flujo: 'PENDIENTE' | 'APROBADO' | 'COMPLETADO' | 'ANULADO' | 'RECHAZADO';
+  motivo_comision?: string;
+  proyecto_asociado_id?: string;
+  proyecto_asociado_nombre?: string;
   unidad_solicitante_id?: string;
   gerencia_emisora_id?: string;
 }

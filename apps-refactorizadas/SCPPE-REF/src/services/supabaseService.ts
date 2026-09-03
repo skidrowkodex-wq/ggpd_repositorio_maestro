@@ -14,9 +14,7 @@ import {
   ComprobanteFiscalViatico,
 } from '../types';
 import {
-  MOCK_PROYECTOS_PRTSEN,
   CATALOGO_PARTIDAS_APU_SEN,
-  MOCK_COMPROBANTES_VIATICO,
   TASA_BCV_OFICIAL,
   TABULADOR_VIATICOS_CORPOELEC_2026,
 } from '../data/mockData';
@@ -32,7 +30,7 @@ export interface DataFetchResult<T> {
 // ----------------------------------------------------
 export async function getProyectosPRTSEN(): Promise<DataFetchResult<ProyectoPRTSEN>> {
   if (!isSupabaseConfigured || !supabase) {
-    return { data: MOCK_PROYECTOS_PRTSEN, isFromSupabase: false, error: 'InsForge no configurado' };
+    return { data: [], isFromSupabase: false, error: 'InsForge no configurado' };
   }
 
   try {
@@ -42,11 +40,11 @@ export async function getProyectosPRTSEN(): Promise<DataFetchResult<ProyectoPRTS
       .order('created_at', { ascending: false });
 
     if (error) {
-      return { data: MOCK_PROYECTOS_PRTSEN, isFromSupabase: false, error: error.message };
+      return { data: [], isFromSupabase: false, error: error.message };
     }
 
     if (!data || data.length === 0) {
-      return { data: MOCK_PROYECTOS_PRTSEN, isFromSupabase: true };
+      return { data: [], isFromSupabase: true };
     }
 
     const mapped: ProyectoPRTSEN[] = data.map((p: any) => ({
@@ -106,7 +104,7 @@ export async function getProyectosPRTSEN(): Promise<DataFetchResult<ProyectoPRTS
 
     return { data: mapped, isFromSupabase: true };
   } catch (err: any) {
-    return { data: MOCK_PROYECTOS_PRTSEN, isFromSupabase: false, error: err.message };
+    return { data: [], isFromSupabase: false, error: err.message };
   }
 }
 
@@ -258,12 +256,6 @@ export async function updateProyectoPRTSEN(
     if (updates.computos_apu !== undefined) payload.computos_apu = updates.computos_apu;
     if (updates.monto_calculado_apu_usd !== undefined) payload.monto_calculado_apu_usd = updates.monto_calculado_apu_usd;
     if (updates.tasa_bcv_referencia !== undefined) payload.tasa_bcv_referencia = updates.tasa_bcv_referencia;
-
-    // Actualización reactiva en caché local para persistencia inmediata
-    const idx = MOCK_PROYECTOS_PRTSEN.findIndex(p => p.id === id);
-    if (idx !== -1) {
-      MOCK_PROYECTOS_PRTSEN[idx] = { ...MOCK_PROYECTOS_PRTSEN[idx], ...updates };
-    }
 
     const { error } = await supabase
       .from('mae_proyectos_especiales')
@@ -548,16 +540,22 @@ export async function getViaticos(): Promise<DataFetchResult<ViaticoControl>> {
     }
 
     const mapped: ViaticoControl[] = data.map((v: any) => ({
-      id: v.id,
-      codigo_asignacion: v.codigo_asignacion || v.codigo || 'VIAT-2026-000',
-      responsable: v.responsable || 'Especialista SEN',
-      cargo: v.cargo || 'Inspector Técnico',
-      destino: v.destino || 'S/E Distribución',
-      monto_asignado_bs: Number(v.monto_asignado_bs || v.monto_asignado || 0),
-      monto_ejecutado_bs: Number(v.monto_ejecutado_bs || v.monto_ejecutado || 0),
-      tipo_cierre: (v.tipo_cierre || 'RENDICION_NORMAL') as any,
-      estado: (v.estado || 'COMPLETADO') as any,
-      origen_fondos: v.origen_fondos || 'Presupuesto Gerencia',
+      id: v.id || v.numero_solicitud,
+      numero_solicitud: v.numero_solicitud || 'SCPPE-VIAT-N/A',
+      empleado_nombre: v.empleado_nombre || 'Empleado CORPOELEC',
+      empleado_cedula: v.empleado_cedula || 'V-00000000',
+      destino: v.destino || 'Misión de Inspección SEN',
+      fecha_inicio: v.fecha_inicio || '',
+      fecha_fin: v.fecha_fin || '',
+      dias_duracion: Number(v.dias_duracion || 0),
+      monto_calculado_usd: Number(v.monto_calculado_usd || 0),
+      monto_calculado_bs: Number(v.monto_calculado_bs || 0),
+      estatus_flujo: (v.estatus_flujo || 'PENDIENTE') as any,
+      motivo_comision: v.motivo_comision || undefined,
+      proyecto_asociado_id: v.proyecto_asociado_id || undefined,
+      proyecto_asociado_nombre: v.proyecto_asociado_nombre || undefined,
+      unidad_solicitante_id: v.unidad_solicitante_id || undefined,
+      gerencia_emisora_id: v.gerencia_emisora_id || undefined,
     }));
 
     return { data: mapped, isFromSupabase: true };
@@ -579,22 +577,61 @@ export function getPartidasAPU(): PartidaAPU[] {
 }
 
 export async function getComprobantesViatico(asignacionId?: string): Promise<ComprobanteFiscalViatico[]> {
-  if (asignacionId) {
-    return MOCK_COMPROBANTES_VIATICO.filter(c => c.asignacion_id === asignacionId);
+  if (!isSupabaseConfigured || !supabase) return [];
+
+  try {
+    let query = supabase.from('mae_comprobantes_viatico').select('*');
+    if (asignacionId) {
+      query = query.eq('asignacion_id', asignacionId);
+    }
+    const { data, error } = await query.order('fecha_emision', { ascending: false });
+    if (error || !data) return [];
+    return (data as any[]).map((c: any) => ({
+      id: c.id,
+      asignacion_id: c.asignacion_id,
+      rif_proveedor: c.rif_proveedor,
+      razon_social: c.razon_social,
+      numero_factura: c.numero_factura,
+      numero_control: c.numero_control,
+      fecha_emision: c.fecha_emision,
+      concepto: c.concepto,
+      monto_bs: Number(c.monto_bs || 0),
+      monto_usd: c.monto_usd ? Number(c.monto_usd) : undefined,
+      valido_seniat: Boolean(c.valido_seniat),
+    }));
+  } catch (err) {
+    return [];
   }
-  return [...MOCK_COMPROBANTES_VIATICO];
 }
 
 export async function registrarComprobanteViatico(
   comprobante: Omit<ComprobanteFiscalViatico, 'id'>
 ): Promise<{ success: boolean; data?: ComprobanteFiscalViatico; error?: string }> {
-  const newComp: ComprobanteFiscalViatico = {
-    ...comprobante,
-    id: `comp-${Date.now()}`,
-    valido_seniat: true,
-  };
-  MOCK_COMPROBANTES_VIATICO.unshift(newComp);
-  return { success: true, data: newComp };
+  if (!isSupabaseConfigured || !supabase) {
+    return { success: false, error: 'InsForge no configurado' };
+  }
+  try {
+    const { data, error } = await supabase
+      .from('mae_comprobantes_viatico')
+      .insert([{
+        asignacion_id: comprobante.asignacion_id,
+        rif_proveedor: comprobante.rif_proveedor,
+        razon_social: comprobante.razon_social,
+        numero_factura: comprobante.numero_factura,
+        numero_control: comprobante.numero_control,
+        fecha_emision: comprobante.fecha_emision,
+        concepto: comprobante.concepto,
+        monto_bs: comprobante.monto_bs,
+        monto_usd: comprobante.monto_usd,
+        valido_seniat: comprobante.valido_seniat ?? true,
+      }])
+      .select()
+      .single();
+    if (error) return { success: false, error: error.message };
+    return { success: true, data: data as ComprobanteFiscalViatico };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
 }
 
 export async function getConciliacionPresupuestaria(
@@ -605,8 +642,8 @@ export async function getConciliacionPresupuestaria(
   const techoPresupuestarioUsd = 25000.0;
   const techoPresupuestario = Math.round(techoPresupuestarioUsd * TASA_BCV_OFICIAL);
 
-  const totalAsignado = currentList.reduce((acc, v) => acc + (v.monto_asignado_bs || 0), 0);
-  const totalEjecutado = currentList.reduce((acc, v) => acc + (v.monto_ejecutado_bs || 0), 0);
+  const totalAsignado = currentList.reduce((acc, v) => acc + (v.monto_calculado_bs || 0), 0);
+  const totalEjecutado = currentList.reduce((acc, v) => acc + (v.monto_calculado_usd || 0), 0);
   const saldoDisponible = Math.max(0, techoPresupuestario - totalAsignado);
   const pctComprometido = Number(((totalAsignado / (techoPresupuestario || 1)) * 100).toFixed(2));
 
@@ -632,38 +669,39 @@ export async function getConciliacionPresupuestaria(
 }
 
 export async function crearAsignacionViatico(
-  nuevaAsignacion: Omit<ViaticoControl, 'id' | 'codigo_asignacion' | 'monto_ejecutado_bs' | 'tipo_cierre' | 'estado'>
+  nuevaAsignacion: Omit<ViaticoControl, 'id' | 'numero_solicitud' | 'monto_calculado_usd' | 'estatus_flujo'>
 ): Promise<{ success: boolean; data?: ViaticoControl; error?: string }> {
   const techoPresupuestarioUsd = 25000.0;
   const techoPresupuestario = Math.round(techoPresupuestarioUsd * TASA_BCV_OFICIAL);
   const viatRes = await getViaticos();
-  const actualAsignado = viatRes.data.reduce((acc, v) => acc + (v.monto_asignado_bs || 0), 0);
+  const actualAsignado = viatRes.data.reduce((acc, v) => acc + (v.monto_calculado_bs || 0), 0);
   const saldoDisponible = techoPresupuestario - actualAsignado;
 
   // Validación presupuestaria (Trigger preventivo DDL)
-  if (nuevaAsignacion.monto_asignado_bs > saldoDisponible) {
+  if (nuevaAsignacion.monto_calculado_bs > saldoDisponible) {
     return {
       success: false,
-      error: `PRESUPUESTO EXCEDIDO [trg_validar_presupuesto_viatico]: El monto solicitado (Bs. ${nuevaAsignacion.monto_asignado_bs.toLocaleString('es-VE')}) excede el saldo disponible (Bs. ${saldoDisponible.toLocaleString('es-VE')}). Techo Partida 405: Bs. ${techoPresupuestario.toLocaleString('es-VE')} ($25,000 USD @ Tasa BCV ${TASA_BCV_OFICIAL}).`,
+      error: `PRESUPUESTO EXCEDIDO [trg_validar_presupuesto_viatico]: El monto solicitado (Bs. ${nuevaAsignacion.monto_calculado_bs.toLocaleString('es-VE')}) excede el saldo disponible (Bs. ${saldoDisponible.toLocaleString('es-VE')}). Techo Partida 405: Bs. ${techoPresupuestario.toLocaleString('es-VE')} ($25,000 USD @ Tasa BCV ${TASA_BCV_OFICIAL}).`,
     };
   }
 
   const newId = `via-${Date.now()}`;
-  const codigoAsignacion = `VIAT-2026-${Math.floor(100 + Math.random() * 900)}`;
+  const nuevoMontoUsd = Number((nuevaAsignacion.monto_calculado_bs / TASA_BCV_OFICIAL).toFixed(2));
 
   try {
     const payload = {
       id: newId,
-      codigo: codigoAsignacion,
-      codigo_asignacion: codigoAsignacion,
-      responsable: nuevaAsignacion.responsable,
-      cargo: nuevaAsignacion.cargo,
+      numero_solicitud: `SCPPE-VIAT-${Math.floor(100 + Math.random() * 900)}`,
+      empleado_nombre: nuevaAsignacion.empleado_nombre,
+      empleado_cedula: nuevaAsignacion.empleado_cedula || 'V-00000000',
       destino: nuevaAsignacion.destino,
-      monto_asignado_bs: nuevaAsignacion.monto_asignado_bs,
-      monto_ejecutado_bs: 0,
-      tipo_cierre: 'RENDICION_NORMAL',
-      estado: 'APROBADO',
-      origen_fondos: nuevaAsignacion.origen_fondos,
+      fecha_inicio: nuevaAsignacion.fecha_inicio,
+      fecha_fin: nuevaAsignacion.fecha_fin,
+      dias_duracion: nuevaAsignacion.dias_duracion || 1,
+      monto_calculado_usd: nuevoMontoUsd,
+      monto_calculado_bs: nuevaAsignacion.monto_calculado_bs,
+      estatus_flujo: 'PENDIENTE',
+      motivo_comision: nuevaAsignacion.motivo_comision || null,
     };
 
     const { data, error } = await supabase
@@ -677,15 +715,17 @@ export async function crearAsignacionViatico(
 
     const created: ViaticoControl = {
       id: newId,
-      codigo_asignacion: codigoAsignacion,
-      responsable: nuevaAsignacion.responsable,
-      cargo: nuevaAsignacion.cargo,
+      numero_solicitud: payload.numero_solicitud,
+      empleado_nombre: nuevaAsignacion.empleado_nombre,
+      empleado_cedula: payload.empleado_cedula,
       destino: nuevaAsignacion.destino,
-      monto_asignado_bs: nuevaAsignacion.monto_asignado_bs,
-      monto_ejecutado_bs: 0,
-      tipo_cierre: 'RENDICION_NORMAL',
-      estado: 'APROBADO',
-      origen_fondos: nuevaAsignacion.origen_fondos,
+      fecha_inicio: nuevaAsignacion.fecha_inicio,
+      fecha_fin: nuevaAsignacion.fecha_fin,
+      dias_duracion: payload.dias_duracion,
+      monto_calculado_usd: nuevoMontoUsd,
+      monto_calculado_bs: nuevaAsignacion.monto_calculado_bs,
+      estatus_flujo: 'PENDIENTE',
+      motivo_comision: nuevaAsignacion.motivo_comision,
     };
 
     return { success: true, data: (data && data[0]) ? (data[0] as unknown as ViaticoControl) : created };

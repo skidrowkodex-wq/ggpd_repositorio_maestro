@@ -18,11 +18,13 @@ export function ViaticosControlView() {
   const [modalError, setModalError] = useState<string | null>(null);
   const [modalSuccess, setModalSuccess] = useState<string | null>(null);
 
-  const [formResponsable, setFormResponsable] = useState('');
-  const [formCargo, setFormCargo] = useState('Especialista de Campo SEN');
+  const [formEmpleadoNombre, setFormEmpleadoNombre] = useState('');
+  const [formEmpleadoCedula, setFormEmpleadoCedula] = useState('V-00000000');
   const [formDestino, setFormDestino] = useState('');
+  const [formMotivoComision, setFormMotivoComision] = useState('Inspección técnica SEN');
+  const [formFechaInicio, setFormFechaInicio] = useState('');
+  const [formFechaFin, setFormFechaFin] = useState('');
   const [formMontoBs, setFormMontoBs] = useState<number>(200000);
-  const [formOrigenFondos, setFormOrigenFondos] = useState('PRESUPUESTO_GERENCIA');
 
   const loadData = async () => {
     setLoading(true);
@@ -57,26 +59,33 @@ export function ViaticosControlView() {
     setModalError(null);
     setModalSuccess(null);
 
-    if (!formResponsable.trim() || !formDestino.trim() || formMontoBs <= 0) {
-      setModalError('Complete todos los campos obligatorios y un monto válido.');
+    if (!formEmpleadoNombre.trim() || !formDestino.trim() || formMontoBs <= 0 || !formFechaInicio || !formFechaFin) {
+      setModalError('Complete los campos obligatorios del empleado, destino, fechas y un monto válido.');
       setModalLoading(false);
       return;
     }
 
+    const diasDuracion = Math.max(1, Math.ceil((new Date(formFechaFin).getTime() - new Date(formFechaInicio).getTime()) / (1000 * 60 * 60 * 24)) + 1);
+
     const result = await crearAsignacionViatico({
-      responsable: formResponsable,
-      cargo: formCargo,
+      empleado_nombre: formEmpleadoNombre,
+      empleado_cedula: formEmpleadoCedula,
       destino: formDestino,
-      monto_asignado_bs: formMontoBs,
-      origen_fondos: formOrigenFondos === 'PRESUPUESTO_GERENCIA' ? 'Presupuesto de Gerencia (Partida 405)' : formOrigenFondos,
+      fecha_inicio: formFechaInicio,
+      fecha_fin: formFechaFin,
+      dias_duracion: diasDuracion,
+      monto_calculado_bs: formMontoBs,
+      motivo_comision: formMotivoComision,
     });
 
     if (!result.success) {
       setModalError(result.error || 'Error de validación presupuestaria.');
     } else {
-      setModalSuccess(`Asignación ${result.data?.codigo_asignacion} registrada dentro del techo del Fondo de Inspección Técnica ($25,000 USD @ tasa BCV ${tasaBCV}) conforme al tabulador multimoneda vigente.`);
-      setFormResponsable('');
+      setModalSuccess(`Asignación ${result.data?.numero_solicitud} registrada dentro del techo del Fondo de Inspección Técnica ($25,000 USD @ tasa BCV ${tasaBCV}) conforme al tabulador multimoneda vigente.`);
+      setFormEmpleadoNombre('');
       setFormDestino('');
+      setFormFechaInicio('');
+      setFormFechaFin('');
       loadData();
     }
     setModalLoading(false);
@@ -269,45 +278,48 @@ export function ViaticosControlView() {
                 <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
                   <thead className="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-400 uppercase text-[10px] tracking-wider font-bold">
                     <tr>
-                      <th className="p-3">Código</th>
-                      <th className="p-3">Responsable / Cargo</th>
+                      <th className="p-3">Solicitud</th>
+                      <th className="p-3">Empleado / Cédula</th>
                       <th className="p-3">Destino / Misión</th>
-                      <th className="p-3">Asignado vs Ejecutado</th>
-                      <th className="p-3">Tipo de Cierre</th>
-                      <th className="p-3">Origen de Fondos</th>
+                      <th className="p-3">Período</th>
+                      <th className="p-3">Monto USD / Bs.</th>
+                      <th className="p-3">Estatus</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                     {viaticos.map((v) => (
                       <tr key={v.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
-                        <td className="p-3 font-mono font-bold text-red-700 dark:text-indigo-300">{v.codigo_asignacion}</td>
+                        <td className="p-3 font-mono font-bold text-red-700 dark:text-indigo-300">{v.numero_solicitud}</td>
                         <td className="p-3">
-                          <span className="font-bold text-slate-900 dark:text-slate-100 block">{v.responsable}</span>
-                          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">{v.cargo}</span>
+                          <span className="font-bold text-slate-900 dark:text-slate-100 block">{v.empleado_nombre}</span>
+                          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">C.I. {v.empleado_cedula}</span>
                         </td>
                         <td className="p-3 font-semibold text-slate-800 dark:text-slate-300">{v.destino}</td>
+                        <td className="p-3 text-[11px] text-slate-600 dark:text-slate-400">
+                          <span className="block font-mono">{v.fecha_inicio} → {v.fecha_fin}</span>
+                          <span className="text-[10px]">{v.dias_duracion} día(s)</span>
+                        </td>
                         <td className="p-3">
                           <div className="font-mono text-xs">
-                            <span className="text-slate-900 dark:text-white font-bold">Bs. {v.monto_ejecutado_bs.toLocaleString('es-VE')}</span>
-                            <span className="text-slate-500 dark:text-slate-400 block text-[10px]">de Bs. {v.monto_asignado_bs.toLocaleString('es-VE')}</span>
+                            <span className="text-slate-900 dark:text-white font-bold">USD {v.monto_calculado_usd.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                            <span className="text-slate-500 dark:text-slate-400 block text-[10px]">Bs. {v.monto_calculado_bs.toLocaleString('es-VE')}</span>
                           </div>
                         </td>
                         <td className="p-3">
                           <span
                             className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                              v.tipo_cierre === 'REINTEGRO'
+                              v.estatus_flujo === 'COMPLETADO'
                                 ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800'
-                                : v.tipo_cierre === 'REEMBOLSO'
-                                ? 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-corpo-accent border border-amber-300 dark:border-amber-800'
-                                : v.tipo_cierre === 'EXCEPCIONAL'
-                                ? 'bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-400 border border-rose-300 dark:border-rose-800'
-                                : 'bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-corpo-blue border border-indigo-300 dark:border-indigo-800'
+                                : v.estatus_flujo === 'APROBADO'
+                                ? 'bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-corpo-blue border border-indigo-300 dark:border-indigo-800'
+                                : v.estatus_flujo === 'ANULADO' || v.estatus_flujo === 'RECHAZADO'
+                                ? 'bg-red-100 dark:bg-red-950 text-red-800 dark:text-red-400 border border-red-300 dark:border-red-800'
+                                : 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-corpo-accent border border-amber-300 dark:border-amber-800'
                             }`}
                           >
-                            {v.tipo_cierre.replace('_', ' ')}
+                            {v.estatus_flujo.replace('_', ' ')}
                           </span>
                         </td>
-                        <td className="p-3 text-[11px] text-slate-600 dark:text-slate-400 font-medium max-w-xs">{v.origen_fondos}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -564,39 +576,38 @@ $$ LANGUAGE plpgsql;`}
 
             <form onSubmit={handleCrearAsignacion} className="space-y-3 text-xs">
               <div>
-                <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Nombre del Responsable</label>
+                <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Empleado de Campo Responsable</label>
                 <input
                   type="text"
                   required
                   placeholder="Ej. Ing. Miguel Rodríguez"
-                  value={formResponsable}
-                  onChange={(e) => setFormResponsable(e.target.value)}
+                  value={formEmpleadoNombre}
+                  onChange={(e) => setFormEmpleadoNombre(e.target.value)}
                   className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded font-medium text-slate-900 dark:text-white"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Cargo / Especialidad</label>
+                  <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Cédula</label>
                   <input
                     type="text"
                     required
-                    value={formCargo}
-                    onChange={(e) => setFormCargo(e.target.value)}
+                    placeholder="V-12345678"
+                    value={formEmpleadoCedula}
+                    onChange={(e) => setFormEmpleadoCedula(e.target.value)}
                     className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded font-medium text-slate-900 dark:text-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Origen de Fondos</label>
-                  <select
-                    value={formOrigenFondos}
-                    onChange={(e) => setFormOrigenFondos(e.target.value)}
+                  <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Motivo de Comisión</label>
+                  <input
+                    type="text"
+                    required
+                    value={formMotivoComision}
+                    onChange={(e) => setFormMotivoComision(e.target.value)}
                     className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded font-medium text-slate-900 dark:text-white"
-                  >
-                    <option value="PRESUPUESTO_GERENCIA">Presupuesto Gerencia</option>
-                    <option value="FONDOS_ESPECIALES">Fondos Especiales PRTSEN</option>
-                    <option value="FONDOS_RESERVA">Fondos Reserva SEN</option>
-                  </select>
+                  />
                 </div>
               </div>
 
@@ -610,6 +621,29 @@ $$ LANGUAGE plpgsql;`}
                   onChange={(e) => setFormDestino(e.target.value)}
                   className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded font-medium text-slate-900 dark:text-white"
                 />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Fecha Inicio</label>
+                  <input
+                    type="date"
+                    required
+                    value={formFechaInicio}
+                    onChange={(e) => setFormFechaInicio(e.target.value)}
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded font-medium text-slate-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Fecha Fin</label>
+                  <input
+                    type="date"
+                    required
+                    value={formFechaFin}
+                    onChange={(e) => setFormFechaFin(e.target.value)}
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded font-medium text-slate-900 dark:text-white"
+                  />
+                </div>
               </div>
 
               <div>
