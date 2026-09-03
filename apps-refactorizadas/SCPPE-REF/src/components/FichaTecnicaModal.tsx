@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ProyectoPRTSEN } from '../types';
+import { ProyectoPRTSEN, TipoActivoElectrico, NivelTensionNormalizado } from '../types';
 import { updateProyectoPRTSEN } from '../services/supabaseService';
 import {
   Printer,
@@ -20,7 +20,12 @@ import {
   Save,
   RefreshCw,
   Sparkles,
-  AlertCircle
+  AlertCircle,
+  Gauge,
+  Cable,
+  Calculator,
+  ReceiptText,
+  TrendingUp
 } from 'lucide-react';
 
 interface FichaTecnicaModalProps {
@@ -28,6 +33,35 @@ interface FichaTecnicaModalProps {
   onClose: () => void;
   onUpdated: () => void;
 }
+
+const TIPOS_ACTIVO: TipoActivoElectrico[] = [
+  'SUBESTACION_POTENCIA',
+  'LINEA_DISTRIBUCION_AEREA',
+  'CIRCUITO_SUBTERRANEO',
+  'BANCO_TRANSFORMACION_CT',
+  'PROTECCION_Y_SECCIONAMIENTO',
+];
+
+const NIVELES_TENSION: NivelTensionNormalizado[] = [
+  '765 kV', '400 kV', '230 kV', '115 kV', '34.5 kV', '13.8 kV', '4.16 kV', '208/120 V',
+];
+
+const CRITICIDADES = ['CRITICA_SOBRECARGA', 'ALTA_REGULACION', 'MEDIA', 'NORMAL'] as const;
+
+const ETIQUETA_TIPO_ACTIVO: Record<TipoActivoElectrico, string> = {
+  SUBESTACION_POTENCIA: 'Subestación de Potencia',
+  LINEA_DISTRIBUCION_AEREA: 'Línea Aérea de Distribución',
+  CIRCUITO_SUBTERRANEO: 'Circuito Subterráneo',
+  BANCO_TRANSFORMACION_CT: 'Banco de Transformación de CT',
+  PROTECCION_Y_SECCIONAMIENTO: 'Protección y Seccionamiento',
+};
+
+const CRITICIDAD_CLASES: Record<string, string> = {
+  CRITICA_SOBRECARGA: 'bg-red-100 dark:bg-red-950 text-red-800 dark:text-red-400 border border-red-300 dark:border-red-800',
+  ALTA_REGULACION: 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-corpo-accent border border-amber-300 dark:border-amber-800',
+  MEDIA: 'bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-400 border border-blue-300 dark:border-blue-800',
+  NORMAL: 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800',
+};
 
 export function FichaTecnicaModal({ proyecto, onClose, onUpdated }: FichaTecnicaModalProps) {
   const [isEditing, setIsEditing] = useState(false);
@@ -58,6 +92,18 @@ export function FichaTecnicaModal({ proyecto, onClose, onUpdated }: FichaTecnica
     avance_fisico_pct: proyecto.avance_fisico_pct || 0,
     monto_usd: proyecto.monto_usd || 0,
     desembolsos: initDesembolsos,
+    // Extensiones de Ingeniería Eléctrica
+    tipo_activo: proyecto.tipo_activo || 'SUBESTACION_POTENCIA',
+    tension_nominal_kv: proyecto.tension_nominal_kv || '13.8 kV',
+    capacidad_mva: proyecto.capacidad_mva || 0,
+    tipo_conductor: proyecto.tipo_conductor || '',
+    longitud_km: proyecto.longitud_km || 0,
+    icc_ka: proyecto.icc_ka || 0,
+    delta_v_pct: proyecto.delta_v_pct || 0,
+    factor_potencia: proyecto.factor_potencia || 0,
+    criticidad_tecnica: proyecto.criticidad_tecnica || 'NORMAL',
+    // Extensiones de Cómputos Métricos y APU
+    computos_apu: proyecto.computos_apu || [],
   });
 
   const handlePrint = () => {
@@ -97,6 +143,46 @@ export function FichaTecnicaModal({ proyecto, onClose, onUpdated }: FichaTecnica
 
   const totalDesembolsosEdit = aniosDesembolso.reduce((acc, yr) => acc + (Number(editData.desembolsos[yr]) || 0), 0);
 
+  const montoCalculadoAPUUsd = editData.computos_apu.reduce((acc, c) => acc + c.subtotal_usd, 0);
+
+  const agregarComputoAPU = () => {
+    setEditData(prev => ({
+      ...prev,
+      computos_apu: [
+        ...prev.computos_apu,
+        {
+          partida_codigo: `PART-ELEC-${String(prev.computos_apu.length + 1).padStart(2, '0')}`,
+          partida_descripcion: '',
+          unidad: 'KM',
+          cantidad: 0,
+          precio_unitario_usd: 0,
+          subtotal_usd: 0,
+        },
+      ],
+    }));
+  };
+
+  const actualizarComputoAPU = (idx: number, campo: string, valor: string | number) => {
+    setEditData(prev => {
+      const nuevos = prev.computos_apu.map((c, i) => (i === idx ? { ...c, [campo]: valor } : c));
+      // Recalcular subtotal si cambia cantidad o precio unitario
+      return {
+        ...prev,
+        computos_apu: nuevos.map(c => ({
+          ...c,
+          subtotal_usd: Number((Number(c.cantidad || 0) * Number(c.precio_unitario_usd || 0)).toFixed(2)),
+        })),
+      };
+    });
+  };
+
+  const eliminarComputoAPU = (idx: number) => {
+    setEditData(prev => ({
+      ...prev,
+      computos_apu: prev.computos_apu.filter((_, i) => i !== idx),
+    }));
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -116,6 +202,19 @@ export function FichaTecnicaModal({ proyecto, onClose, onUpdated }: FichaTecnica
       avance_fisico_pct: Number(editData.avance_fisico_pct),
       monto_usd: Number(editData.monto_usd),
       desembolsos_plurianual: editData.desembolsos,
+      // Extensiones de Ingeniería Eléctrica
+      tipo_activo: editData.tipo_activo,
+      tension_nominal_kv: editData.tension_nominal_kv,
+      capacidad_mva: Number(editData.capacidad_mva),
+      tipo_conductor: editData.tipo_conductor,
+      longitud_km: Number(editData.longitud_km),
+      icc_ka: Number(editData.icc_ka),
+      delta_v_pct: Number(editData.delta_v_pct),
+      factor_potencia: Number(editData.factor_potencia),
+      criticidad_tecnica: editData.criticidad_tecnica,
+      // Extensiones de Cómputos Métricos y APU
+      computos_apu: editData.computos_apu,
+      monto_calculado_apu_usd: montoCalculadoAPUUsd,
     });
 
     if (res.success) {
@@ -382,6 +481,133 @@ export function FichaTecnicaModal({ proyecto, onClose, onUpdated }: FichaTecnica
             </div>
           </div>
 
+          {/* ================================================================= */}
+          {/* SECCIÓN DE INGENIERÍA ELÉCTRICA DE GRADO INDUSTRIAL                */}
+          {/* ================================================================= */}
+          <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3 bg-white dark:bg-slate-900/50 print:bg-white">
+            <h3 className="text-xs uppercase font-extrabold tracking-wider text-slate-900 dark:text-slate-100 flex items-center gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-2">
+              <Gauge className="w-4 h-4 text-amber-600" />
+              <span>Ingeniería Eléctrica de Grado Industrial</span>
+              {proyecto.criticidad_tecnica && (
+                <span className={`ml-auto px-2 py-0.5 rounded text-[10px] font-bold uppercase ${CRITICIDAD_CLASES[proyecto.criticidad_tecnica] || 'bg-slate-100 text-slate-700'}`}>
+                  {proyecto.criticidad_tecnica.replace('_', ' ')}
+                </span>
+              )}
+            </h3>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+              <div>
+                <span className="text-slate-500 block text-[10px]">Tipo de Activo</span>
+                <strong className="text-slate-800 dark:text-slate-200">
+                  {proyecto.tipo_activo ? (ETIQUETA_TIPO_ACTIVO[proyecto.tipo_activo] || proyecto.tipo_activo) : 'N/D'}
+                </strong>
+              </div>
+              <div>
+                <span className="text-slate-500 block text-[10px]">Tensión Nominal</span>
+                <strong className="text-purple-600 dark:text-purple-400 font-mono">{proyecto.tension_nominal_kv || 'N/D'}</strong>
+              </div>
+              <div>
+                <span className="text-slate-500 block text-[10px]">Capacidad / Potencia</span>
+                <strong className="text-slate-800 dark:text-slate-200 font-mono">
+                  {proyecto.capacidad_mva ? `${proyecto.capacidad_mva} MVA` : 'N/D'}
+                </strong>
+              </div>
+              <div>
+                <span className="text-slate-500 block text-[10px]">Criticidad Técnica</span>
+                <strong className="text-slate-800 dark:text-slate-200">{proyecto.criticidad_tecnica || 'N/D'}</strong>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs pt-2 border-t border-slate-100 dark:border-slate-800/60">
+              <div>
+                <span className="text-slate-500 block text-[10px]">Conductor</span>
+                <strong className="text-slate-800 dark:text-slate-200">{proyecto.tipo_conductor || 'N/D'}</strong>
+              </div>
+              <div>
+                <span className="text-slate-500 block text-[10px]">Longitud</span>
+                <strong className="text-slate-800 dark:text-slate-200 font-mono">
+                  {proyecto.longitud_km ? `${proyecto.longitud_km} km` : 'N/D'}
+                </strong>
+              </div>
+              <div>
+                <span className="text-slate-500 block text-[10px]">ICC Corto Circuito</span>
+                <strong className="text-amber-700 dark:text-corpo-accent font-mono">
+                  {proyecto.icc_ka ? `${proyecto.icc_ka} kA` : 'N/D'}
+                </strong>
+              </div>
+              <div>
+                <span className="text-slate-500 block text-[10px]">Caída de Tensión</span>
+                <strong className={`font-mono ${(proyecto.delta_v_pct || 0) <= 5 ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-700 dark:text-red-400'}`}>
+                  {proyecto.delta_v_pct !== undefined ? `${proyecto.delta_v_pct}%` : 'N/D'}
+                </strong>
+                {proyecto.delta_v_pct !== undefined && (
+                  <span className="block text-[9px] text-slate-400">Límite NEC/IEEE ≤ 5%</span>
+                )}
+              </div>
+              <div>
+                <span className="text-slate-500 block text-[10px]">Factor de Potencia</span>
+                <strong className="text-slate-800 dark:text-slate-200 font-mono">
+                  {proyecto.factor_potencia ? `${proyecto.factor_potencia}` : 'N/D'}
+                </strong>
+              </div>
+            </div>
+          </div>
+
+          {/* ================================================================= */}
+          {/* COMPUTOS MÉTRICOS Y PRESUPUESTO POR APU (ANÁLISIS DE PRECIOS)      */}
+          {/* ================================================================= */}
+          <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3 bg-white dark:bg-slate-900/50 print:bg-white">
+            <h3 className="text-xs uppercase font-extrabold tracking-wider text-slate-900 dark:text-slate-100 flex items-center gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-2">
+              <Calculator className="w-4 h-4 text-emerald-600" />
+              <span>Cómputos Métricos & Presupuesto por APU ($ USD)</span>
+              {(proyecto.computos_apu?.length ?? 0) > 0 && (
+                <span className="ml-auto text-[10px] font-mono font-bold text-emerald-700 dark:text-emerald-400">
+                  Subtotal APU: ${(proyecto.computos_apu || []).reduce((acc, c) => acc + c.subtotal_usd, 0).toLocaleString('en-US')} USD
+                </span>
+              )}
+            </h3>
+
+            {(proyecto.computos_apu && proyecto.computos_apu.length > 0) ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs font-mono">
+                  <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-wider">
+                    <tr>
+                      <th className="p-2 border border-slate-200 dark:border-slate-800">Partida</th>
+                      <th className="p-2 border border-slate-200 dark:border-slate-800">Descripción</th>
+                      <th className="p-2 border border-slate-200 dark:border-slate-800 text-right">Und</th>
+                      <th className="p-2 border border-slate-200 dark:border-slate-800 text-right">Cantidad</th>
+                      <th className="p-2 border border-slate-200 dark:border-slate-800 text-right">P.U. USD</th>
+                      <th className="p-2 border border-slate-200 dark:border-slate-800 text-right">Subtotal USD</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {proyecto.computos_apu.map((c, i) => (
+                      <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                        <td className="p-2 border border-slate-200 dark:border-slate-800 font-bold text-red-700 dark:text-corpo-blue">{c.partida_codigo}</td>
+                        <td className="p-2 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300">{c.partida_descripcion}</td>
+                        <td className="p-2 border border-slate-200 dark:border-slate-800 text-right">{c.unidad}</td>
+                        <td className="p-2 border border-slate-200 dark:border-slate-800 text-right font-bold text-slate-900 dark:text-slate-100">{c.cantidad}</td>
+                        <td className="p-2 border border-slate-200 dark:border-slate-800 text-right">{c.precio_unitario_usd.toLocaleString('en-US')}</td>
+                        <td className="p-2 border border-slate-200 dark:border-slate-800 text-right font-bold text-emerald-700 dark:text-emerald-400">{c.subtotal_usd.toLocaleString('en-US')}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-xs text-slate-500 dark:text-slate-400 italic">
+                Sin cómputos métricos registrados. Active la edición para desglosar el presupuesto por APU.
+              </p>
+            )}
+
+            {proyecto.tasa_bcv_referencia && (
+              <div className="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/60 text-[10px] font-mono text-slate-500 dark:text-slate-400">
+                <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Tasa BCV de referencia: <strong className="text-slate-700 dark:text-slate-300">Bs. {proyecto.tasa_bcv_referencia} / USD</strong></span>
+              </div>
+            )}
+          </div>
+
           {/* Avance Físico y Trazabilidad */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 text-xs">
             <div className="space-y-1.5">
@@ -588,6 +814,232 @@ export function FichaTecnicaModal({ proyecto, onClose, onUpdated }: FichaTecnica
                     </span>
                   )}
                 </div>
+              </div>
+
+              {/* Edición de Ingeniería Eléctrica de Grado Industrial */}
+              <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl space-y-3">
+                <div className="flex items-center gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-2">
+                  <Gauge className="w-4 h-4 text-amber-600" />
+                  <label className="font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
+                    <span>Ingeniería Eléctrica de Grado Industrial</span>
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="space-y-1">
+                    <label className="font-bold text-slate-800 dark:text-slate-200 text-[11px]">Tipo de Activo Eléctrico</label>
+                    <select
+                      value={editData.tipo_activo}
+                      onChange={(e) => setEditData({ ...editData, tipo_activo: e.target.value as TipoActivoElectrico })}
+                      className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded font-medium text-slate-900 dark:text-white text-xs"
+                    >
+                      {TIPOS_ACTIVO.map(t => (
+                        <option key={t} value={t}>{ETIQUETA_TIPO_ACTIVO[t]}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="font-bold text-slate-800 dark:text-slate-200 text-[11px]">Tensión Nominal</label>
+                    <select
+                      value={editData.tension_nominal_kv}
+                      onChange={(e) => setEditData({ ...editData, tension_nominal_kv: e.target.value as NivelTensionNormalizado })}
+                      className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded font-mono font-medium text-slate-900 dark:text-white text-xs"
+                    >
+                      {NIVELES_TENSION.map(n => (
+                        <option key={n} value={n}>{n}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="font-bold text-slate-800 dark:text-slate-200 text-[11px]">Criticidad Técnica</label>
+                    <select
+                      value={editData.criticidad_tecnica}
+                      onChange={(e) => setEditData({ ...editData, criticidad_tecnica: e.target.value as any })}
+                      className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded font-medium text-slate-900 dark:text-white text-xs"
+                    >
+                      {CRITICIDADES.map(c => (
+                        <option key={c} value={c}>{c.replace('_', ' ')}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                  <div className="space-y-1">
+                    <label className="font-bold text-slate-800 dark:text-slate-200 text-[11px]">Capacidad (MVA)</label>
+                    <input
+                      type="number"
+                      min={0}
+                      step={0.1}
+                      value={editData.capacidad_mva}
+                      onChange={(e) => setEditData({ ...editData, capacidad_mva: Number(e.target.value) })}
+                      className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded font-mono font-medium text-slate-900 dark:text-white text-xs"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="font-bold text-slate-800 dark:text-slate-200 text-[11px]">Longitud (km)</label>
+                    <input
+                      type="number"
+                      min={0}
+                      step={0.1}
+                      value={editData.longitud_km}
+                      onChange={(e) => setEditData({ ...editData, longitud_km: Number(e.target.value) })}
+                      className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded font-mono font-medium text-slate-900 dark:text-white text-xs"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="font-bold text-slate-800 dark:text-slate-200 text-[11px]">ICC Cortocircuito (kA)</label>
+                    <input
+                      type="number"
+                      min={0}
+                      step={0.1}
+                      value={editData.icc_ka}
+                      onChange={(e) => setEditData({ ...editData, icc_ka: Number(e.target.value) })}
+                      className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded font-mono font-medium text-slate-900 dark:text-white text-xs"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="font-bold text-slate-800 dark:text-slate-200 text-[11px]">Caída Tensión (%)</label>
+                    <input
+                      type="number"
+                      min={0}
+                      step={0.1}
+                      value={editData.delta_v_pct}
+                      onChange={(e) => setEditData({ ...editData, delta_v_pct: Number(e.target.value) })}
+                      className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded font-mono font-medium text-slate-900 dark:text-white text-xs"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="font-bold text-slate-800 dark:text-slate-200 text-[11px]">Factor de Potencia</label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={1}
+                      step={0.01}
+                      value={editData.factor_potencia}
+                      onChange={(e) => setEditData({ ...editData, factor_potencia: Number(e.target.value) })}
+                      className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded font-mono font-medium text-slate-900 dark:text-white text-xs"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-800 dark:text-slate-200 text-[11px]">Tipo de Conductor</label>
+                  <input
+                    type="text"
+                    placeholder="Ej. Arvidal 336.4 MCM, ACSR..."
+                    value={editData.tipo_conductor}
+                    onChange={(e) => setEditData({ ...editData, tipo_conductor: e.target.value })}
+                    className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded font-medium text-slate-900 dark:text-white text-xs"
+                  />
+                </div>
+              </div>
+
+              {/* Edición de Cómputos Métricos y APU */}
+              <div className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-2">
+                  <div>
+                    <label className="font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
+                      <Calculator className="w-4 h-4 text-emerald-600" />
+                      <span>Cómputos Métricos & Presupuesto por APU ($ USD)</span>
+                    </label>
+                    <span className="text-[10px] text-slate-500">Desglosa el presupuesto por partidas (QECS / APU ONAPRE)</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={agregarComputoAPU}
+                    className="px-2 py-1 rounded bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-300 font-bold text-[10px] border border-emerald-200 dark:border-emerald-800 flex items-center gap-1 self-start"
+                  >
+                    <FileText className="w-3 h-3" />
+                    <span>+ Agregar Partida</span>
+                  </button>
+                </div>
+
+                {editData.computos_apu.length > 0 ? (
+                  <div className="space-y-2">
+                    {editData.computos_apu.map((c, idx) => (
+                      <div key={idx} className="grid grid-cols-12 gap-2 items-center bg-slate-50 dark:bg-slate-950/60 p-2 rounded border border-slate-200 dark:border-slate-800">
+                        <div className="col-span-12 sm:col-span-3 space-y-0.5">
+                          <label className="text-[9px] font-bold text-slate-500 uppercase">Partida</label>
+                          <input
+                            type="text"
+                            value={c.partida_codigo}
+                            onChange={(e) => actualizarComputoAPU(idx, 'partida_codigo', e.target.value)}
+                            className="w-full p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded font-mono font-medium text-slate-900 dark:text-white text-[11px]"
+                          />
+                        </div>
+                        <div className="col-span-12 sm:col-span-3 space-y-0.5">
+                          <label className="text-[9px] font-bold text-slate-500 uppercase">Descripción</label>
+                          <input
+                            type="text"
+                            value={c.partida_descripcion}
+                            onChange={(e) => actualizarComputoAPU(idx, 'partida_descripcion', e.target.value)}
+                            className="w-full p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded font-medium text-slate-900 dark:text-white text-[11px]"
+                          />
+                        </div>
+                        <div className="col-span-2 space-y-0.5">
+                          <label className="text-[9px] font-bold text-slate-500 uppercase">Und</label>
+                          <input
+                            type="text"
+                            value={c.unidad}
+                            onChange={(e) => actualizarComputoAPU(idx, 'unidad', e.target.value)}
+                            className="w-full p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded font-mono font-medium text-slate-900 dark:text-white text-[11px]"
+                          />
+                        </div>
+                        <div className="col-span-2 space-y-0.5">
+                          <label className="text-[9px] font-bold text-slate-500 uppercase">Cantidad</label>
+                          <input
+                            type="number"
+                            min={0}
+                            step={0.01}
+                            value={c.cantidad}
+                            onChange={(e) => actualizarComputoAPU(idx, 'cantidad', Number(e.target.value))}
+                            className="w-full p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded font-mono font-medium text-slate-900 dark:text-white text-[11px]"
+                          />
+                        </div>
+                        <div className="col-span-2 space-y-0.5">
+                          <label className="text-[9px] font-bold text-slate-500 uppercase">P.U. USD</label>
+                          <input
+                            type="number"
+                            min={0}
+                            step={0.01}
+                            value={c.precio_unitario_usd}
+                            onChange={(e) => actualizarComputoAPU(idx, 'precio_unitario_usd', Number(e.target.value))}
+                            className="w-full p-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded font-mono font-medium text-slate-900 dark:text-white text-[11px]"
+                          />
+                        </div>
+                        <div className="col-span-12 sm:col-span-3 flex items-center justify-between gap-1 mt-1 sm:mt-3">
+                          <span className="text-[11px] font-mono font-bold text-emerald-700 dark:text-emerald-400">
+                            = ${c.subtotal_usd.toLocaleString('en-US')}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => eliminarComputoAPU(idx)}
+                            className="p-1 rounded bg-red-50 dark:bg-red-950 hover:bg-red-100 text-red-600 dark:text-red-400"
+                            title="Eliminar partida"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-slate-500 dark:text-slate-400 italic">
+                    Sin partidas. Use "+ Agregar Partida" para desglosar el presupuesto por APU.
+                  </p>
+                )}
+
+                {editData.computos_apu.length > 0 && (
+                  <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <span className="text-slate-500">
+                      Total Cómputos Métricos:
+                    </span>
+                    <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400">
+                      ${montoCalculadoAPUUsd.toLocaleString('en-US')} USD
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">

@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
-import { ViaticoControl, ConciliacionPresupuestaria } from '../types';
-import { getViaticos, getConciliacionPresupuestaria, crearAsignacionViatico } from '../services/supabaseService';
-import { RefreshCw, ShieldAlert, CheckCircle2, PlusCircle, AlertTriangle, FileSpreadsheet, Scale, Lock } from 'lucide-react';
+import { ViaticoControl, ConciliacionPresupuestaria, ComprobanteFiscalViatico } from '../types';
+import { getViaticos, getConciliacionPresupuestaria, crearAsignacionViatico, getTasaBCV, getTabuladorViaticos, getComprobantesViatico } from '../services/supabaseService';
+import { RefreshCw, ShieldAlert, CheckCircle2, PlusCircle, AlertTriangle, FileSpreadsheet, Scale, Lock, ReceiptText, Wallet, Banknote, Gauge, TrendingUp } from 'lucide-react';
 
 export function ViaticosControlView() {
   const [viaticos, setViaticos] = useState<ViaticoControl[]>([]);
   const [conciliacion, setConciliacion] = useState<ConciliacionPresupuestaria | null>(null);
   const [loading, setLoading] = useState(true);
   const [isFromSupabase, setIsFromSupabase] = useState(false);
-  const [activeTab, setActiveTab] = useState<'ASIGNACIONES' | 'CONCILIACION'>('ASIGNACIONES');
+  const [activeTab, setActiveTab] = useState<'ASIGNACIONES' | 'CONCILIACION' | 'COMPROBANTES'>('ASIGNACIONES');
+  const [comprobantes, setComprobantes] = useState<ComprobanteFiscalViatico[]>([]);
+  const [comprobantesLoading, setComprobantesLoading] = useState(false);
   
   // Modal de Nueva Asignación
   const [showModal, setShowModal] = useState(false);
@@ -31,7 +33,19 @@ export function ViaticosControlView() {
     const conc = await getConciliacionPresupuestaria(res.data);
     setConciliacion(conc);
     setLoading(false);
+
+    // Cargar comprobantes fiscales
+    setComprobantesLoading(true);
+    const comps = await getComprobantesViatico();
+    setComprobantes(comps);
+    setComprobantesLoading(false);
   };
+
+  const tasaBCV = getTasaBCV();
+  const tabulador = getTabuladorViaticos();
+
+  const totalComprobantesUSD = comprobantes.reduce((acc, c) => acc + (c.monto_usd || c.monto_bs / tasaBCV), 0);
+  const totalComprobantesBs = comprobantes.reduce((acc, c) => acc + c.monto_bs, 0);
 
   useEffect(() => {
     loadData();
@@ -60,7 +74,7 @@ export function ViaticosControlView() {
     if (!result.success) {
       setModalError(result.error || 'Error de validación presupuestaria.');
     } else {
-      setModalSuccess(`Asignación ${result.data?.codigo_asignacion} registrada exitosamente dentro del techo presupuestario.`);
+      setModalSuccess(`Asignación ${result.data?.codigo_asignacion} registrada dentro del techo del Fondo de Inspección Técnica ($25,000 USD @ tasa BCV ${tasaBCV}) conforme al tabulador multimoneda vigente.`);
       setFormResponsable('');
       setFormDestino('');
       loadData();
@@ -189,6 +203,18 @@ export function ViaticosControlView() {
         >
           <Scale className="w-4 h-4" />
           <span>Vista de Conciliación Presupuestaria (v_conciliacion_presupuestaria)</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('COMPROBANTES')}
+          className={`pb-2 text-xs font-bold transition-colors flex items-center gap-1.5 border-b-2 ${
+            activeTab === 'COMPROBANTES'
+              ? 'border-red-700 dark:border-corpo-blue text-red-700 dark:text-corpo-blue'
+              : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+          }`}
+        >
+          <ReceiptText className="w-4 h-4" />
+          <span>Comprobantes Fiscales SENIAT</span>
         </button>
       </div>
 
@@ -369,6 +395,133 @@ $$ LANGUAGE plpgsql;`}
         </div>
       )}
 
+      {/* PESTAÑA 3: COMPROBANTES FISCALES SENIAT & TABULADOR MULTIMONEDA */}
+      {activeTab === 'COMPROBANTES' && (
+        <div className="space-y-6">
+          {/* Tabulador Oficial CORPOELEC 2026 y Tasa BCV */}
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <div className="p-4 industrial-card space-y-1 shadow-sm">
+              <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+                <Banknote className="w-3.5 h-3.5" /> Tarifa diaria Pernocta
+              </span>
+              <h4 className="text-lg font-bold text-slate-900 dark:text-white font-mono">${tabulador.tarifa_diaria_pernocta_usd} USD</h4>
+              <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Hospedaje e imprevistos</p>
+            </div>
+            <div className="p-4 industrial-card space-y-1 shadow-sm">
+              <span className="text-[10px] font-bold text-amber-700 dark:text-corpo-accent uppercase tracking-wider flex items-center gap-1">
+                <Gauge className="w-3.5 h-3.5" /> Tarifa diaria Alimentación
+              </span>
+              <h4 className="text-lg font-bold text-slate-900 dark:text-white font-mono">${tabulador.tarifa_diaria_alimentacion_usd} USD</h4>
+              <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Desayuno, almuerzo y cena</p>
+            </div>
+            <div className="p-4 industrial-card space-y-1 shadow-sm">
+              <span className="text-[10px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider flex items-center gap-1">
+                <Wallet className="w-3.5 h-3.5" /> Movilización Base
+              </span>
+              <h4 className="text-lg font-bold text-slate-900 dark:text-white font-mono">${tabulador.tarifa_movilizacion_base_usd} USD</h4>
+              <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Transporte interurbano / peajes</p>
+            </div>
+            <div className="p-4 industrial-card space-y-1 shadow-sm">
+              <span className="text-[10px] font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider flex items-center gap-1">
+                <TrendingUp className="w-3.5 h-3.5" /> Tasa BCV Oficial
+              </span>
+              <h4 className="text-lg font-bold text-slate-900 dark:text-white font-mono">Bs. {tasaBCV} / USD</h4>
+              <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Referencia oficial índice multimoneda</p>
+            </div>
+          </div>
+
+          {/* Tabla de Comprobantes Fiscales */}
+          <div className="p-5 industrial-card space-y-4 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
+              <div>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <ReceiptText className="w-5 h-5 text-emerald-600" />
+                  Comprobantes Fiscales Validados SENIAT
+                </h3>
+                <p className="text-xs text-slate-600 dark:text-slate-400">
+                  Rendiciones de viáticos con factura electrónica RIF verificada y control independiente.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 font-mono text-xs">
+                <span className="px-2.5 py-1 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800 font-bold">
+                  Total: ${totalComprobantesUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })} USD
+                </span>
+                <span className="px-2.5 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 font-bold">
+                  Bs. {totalComprobantesBs.toLocaleString('es-VE')}
+                </span>
+              </div>
+            </div>
+
+            {comprobantesLoading ? (
+              <div className="p-8 text-center text-xs text-slate-600 dark:text-slate-400 flex items-center justify-center gap-2">
+                <RefreshCw className="w-4 h-4 animate-spin text-corpo-red dark:text-corpo-blue" />
+                <span className="font-medium">Cargando comprobantes fiscales...</span>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
+                  <thead className="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-400 uppercase text-[10px] tracking-wider font-bold">
+                    <tr>
+                      <th className="p-3">Asignación</th>
+                      <th className="p-3">Proveedor / RIF</th>
+                      <th className="p-3">Factura / Control</th>
+                      <th className="p-3">Fecha</th>
+                      <th className="p-3">Concepto</th>
+                      <th className="p-3 text-right">Monto Bs.</th>
+                      <th className="p-3 text-right">Equiv. USD</th>
+                      <th className="p-3 text-center">Estatus SENIAT</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                    {comprobantes.map((c) => (
+                      <tr key={c.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                        <td className="p-3 font-mono font-bold text-red-700 dark:text-indigo-300">{c.asignacion_id}</td>
+                        <td className="p-3">
+                          <span className="font-bold text-slate-900 dark:text-slate-100 block">{c.razon_social}</span>
+                          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">RIF: {c.rif_proveedor}</span>
+                        </td>
+                        <td className="p-3 font-mono text-slate-600 dark:text-slate-400">
+                          <span className="block">N° {c.numero_factura}</span>
+                          <span className="text-[10px]">Control {c.numero_control}</span>
+                        </td>
+                        <td className="p-3 font-mono text-slate-600 dark:text-slate-400">{c.fecha_emision}</td>
+                        <td className="p-3">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-corpo-blue border border-indigo-300 dark:border-indigo-800">
+                            {c.concepto.replace('_', ' ')}
+                          </span>
+                        </td>
+                        <td className="p-3 text-right font-mono font-bold text-slate-900 dark:text-white">Bs. {c.monto_bs.toLocaleString('es-VE')}</td>
+                        <td className="p-3 text-right font-mono font-bold text-emerald-700 dark:text-emerald-400">
+                          ${(c.monto_usd || c.monto_bs / tasaBCV).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        </td>
+                        <td className="p-3 text-center">
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold inline-flex items-center gap-1 ${
+                            c.valido_seniat
+                              ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800'
+                              : 'bg-red-100 dark:bg-red-950 text-red-800 dark:text-red-400 border border-red-300 dark:border-red-800'
+                          }`}>
+                            {c.valido_seniat ? <CheckCircle2 className="w-3 h-3" /> : <AlertTriangle className="w-3 h-3" />}
+                            {c.valido_seniat ? 'VALIDO' : 'RECHAZADO'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {/* Nota de auditoría fiscal */}
+          <div className="p-4 bg-slate-50 dark:bg-slate-950/60 rounded border border-slate-200 dark:border-slate-800 flex items-start gap-2 text-xs text-slate-600 dark:text-slate-400">
+            <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-corpo-accent shrink-0 mt-0.5" />
+            <p>
+              <strong className="text-slate-900 dark:text-slate-100">Validez fiscal ISO 8000:</strong> cada comprobante exige RIF de proveedor vigente, factura con número de control independiente y verificación SENIAT. La equivalencia USD se calcula con la Tasa BCV oficial del día (Bs. {tasaBCV} / USD) conforme al tabulador multimoneda CORPOELEC 2026.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* MODAL PRUEBA DE ASIGNACIÓN CON TRIGGER DE VALIDACIÓN PRESUPUESTARIA */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
@@ -471,7 +624,7 @@ $$ LANGUAGE plpgsql;`}
                   className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded font-mono font-bold text-slate-900 dark:text-white"
                 />
                 <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 block">
-                  Pruebe colocar un monto superior al saldo disponible (ej. Bs. 600,000) para comprobar la activación del trigger.
+                  Pruebe colocar un monto superior al saldo disponible (ej. Bs. 2,000,000) para comprobar la activación del trigger sobre el techo indexado a tasa BCV (${(25000).toLocaleString('en-US')} USD).
                 </span>
               </div>
 

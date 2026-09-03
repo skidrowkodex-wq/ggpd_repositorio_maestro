@@ -9,7 +9,17 @@ import {
   ConciliacionPresupuestaria,
   ProyectoGGD,
   OrganizacionNodo,
+  PartidaAPU,
+  ComputoMetricoProyecto,
+  ComprobanteFiscalViatico,
 } from '../types';
+import {
+  MOCK_PROYECTOS_PRTSEN,
+  CATALOGO_PARTIDAS_APU_SEN,
+  MOCK_COMPROBANTES_VIATICO,
+  TASA_BCV_OFICIAL,
+  TABULADOR_VIATICOS_CORPOELEC_2026,
+} from '../data/mockData';
 
 export interface DataFetchResult<T> {
   data: T[];
@@ -22,7 +32,7 @@ export interface DataFetchResult<T> {
 // ----------------------------------------------------
 export async function getProyectosPRTSEN(): Promise<DataFetchResult<ProyectoPRTSEN>> {
   if (!isSupabaseConfigured || !supabase) {
-    return { data: [], isFromSupabase: false, error: 'InsForge no configurado' };
+    return { data: MOCK_PROYECTOS_PRTSEN, isFromSupabase: false, error: 'InsForge no configurado' };
   }
 
   try {
@@ -32,11 +42,11 @@ export async function getProyectosPRTSEN(): Promise<DataFetchResult<ProyectoPRTS
       .order('created_at', { ascending: false });
 
     if (error) {
-      return { data: [], isFromSupabase: true, error: error.message };
+      return { data: MOCK_PROYECTOS_PRTSEN, isFromSupabase: false, error: error.message };
     }
 
     if (!data || data.length === 0) {
-      return { data: [], isFromSupabase: true };
+      return { data: MOCK_PROYECTOS_PRTSEN, isFromSupabase: true };
     }
 
     const mapped: ProyectoPRTSEN[] = data.map((p: any) => ({
@@ -76,11 +86,27 @@ export async function getProyectosPRTSEN(): Promise<DataFetchResult<ProyectoPRTS
       desembolsos_plurianual: p.desembolsos_plurianual,
       observaciones: p.observaciones,
       fotografia_url: p.fotografia_url,
+
+      // Atributos de Ingeniería Eléctrica
+      tipo_activo: p.tipo_activo,
+      tension_nominal_kv: p.tension_nominal_kv,
+      capacidad_mva: p.capacidad_mva ? Number(p.capacidad_mva) : undefined,
+      tipo_conductor: p.tipo_conductor,
+      longitud_km: p.longitud_km ? Number(p.longitud_km) : undefined,
+      icc_ka: p.icc_ka ? Number(p.icc_ka) : undefined,
+      delta_v_pct: p.delta_v_pct ? Number(p.delta_v_pct) : undefined,
+      factor_potencia: p.factor_potencia ? Number(p.factor_potencia) : undefined,
+      criticidad_tecnica: p.criticidad_tecnica,
+
+      // Atributos de Cómputos Métricos y APU
+      computos_apu: p.computos_apu,
+      monto_calculado_apu_usd: p.monto_calculado_apu_usd ? Number(p.monto_calculado_apu_usd) : undefined,
+      tasa_bcv_referencia: p.tasa_bcv_referencia ? Number(p.tasa_bcv_referencia) : TASA_BCV_OFICIAL,
     }));
 
     return { data: mapped, isFromSupabase: true };
   } catch (err: any) {
-    return { data: [], isFromSupabase: false, error: err.message };
+    return { data: MOCK_PROYECTOS_PRTSEN, isFromSupabase: false, error: err.message };
   }
 }
 
@@ -216,6 +242,28 @@ export async function updateProyectoPRTSEN(
     if (updates.desembolsos_plurianual !== undefined) payload.desembolsos_plurianual = updates.desembolsos_plurianual;
     if (updates.observaciones !== undefined) payload.observaciones = updates.observaciones;
     if (updates.fotografia_url !== undefined) payload.fotografia_url = updates.fotografia_url;
+
+    // Atributos de Ingeniería Eléctrica
+    if (updates.tipo_activo !== undefined) payload.tipo_activo = updates.tipo_activo;
+    if (updates.tension_nominal_kv !== undefined) payload.tension_nominal_kv = updates.tension_nominal_kv;
+    if (updates.capacidad_mva !== undefined) payload.capacidad_mva = updates.capacidad_mva;
+    if (updates.tipo_conductor !== undefined) payload.tipo_conductor = updates.tipo_conductor;
+    if (updates.longitud_km !== undefined) payload.longitud_km = updates.longitud_km;
+    if (updates.icc_ka !== undefined) payload.icc_ka = updates.icc_ka;
+    if (updates.delta_v_pct !== undefined) payload.delta_v_pct = updates.delta_v_pct;
+    if (updates.factor_potencia !== undefined) payload.factor_potencia = updates.factor_potencia;
+    if (updates.criticidad_tecnica !== undefined) payload.criticidad_tecnica = updates.criticidad_tecnica;
+
+    // Atributos de Cómputos Métricos y APU
+    if (updates.computos_apu !== undefined) payload.computos_apu = updates.computos_apu;
+    if (updates.monto_calculado_apu_usd !== undefined) payload.monto_calculado_apu_usd = updates.monto_calculado_apu_usd;
+    if (updates.tasa_bcv_referencia !== undefined) payload.tasa_bcv_referencia = updates.tasa_bcv_referencia;
+
+    // Actualización reactiva en caché local para persistencia inmediata
+    const idx = MOCK_PROYECTOS_PRTSEN.findIndex(p => p.id === id);
+    if (idx !== -1) {
+      MOCK_PROYECTOS_PRTSEN[idx] = { ...MOCK_PROYECTOS_PRTSEN[idx], ...updates };
+    }
 
     const { error } = await supabase
       .from('mae_proyectos_especiales')
@@ -518,11 +566,44 @@ export async function getViaticos(): Promise<DataFetchResult<ViaticoControl>> {
   }
 }
 
+export function getTasaBCV(): number {
+  return TASA_BCV_OFICIAL;
+}
+
+export function getTabuladorViaticos() {
+  return TABULADOR_VIATICOS_CORPOELEC_2026;
+}
+
+export function getPartidasAPU(): PartidaAPU[] {
+  return CATALOGO_PARTIDAS_APU_SEN;
+}
+
+export async function getComprobantesViatico(asignacionId?: string): Promise<ComprobanteFiscalViatico[]> {
+  if (asignacionId) {
+    return MOCK_COMPROBANTES_VIATICO.filter(c => c.asignacion_id === asignacionId);
+  }
+  return [...MOCK_COMPROBANTES_VIATICO];
+}
+
+export async function registrarComprobanteViatico(
+  comprobante: Omit<ComprobanteFiscalViatico, 'id'>
+): Promise<{ success: boolean; data?: ComprobanteFiscalViatico; error?: string }> {
+  const newComp: ComprobanteFiscalViatico = {
+    ...comprobante,
+    id: `comp-${Date.now()}`,
+    valido_seniat: true,
+  };
+  MOCK_COMPROBANTES_VIATICO.unshift(newComp);
+  return { success: true, data: newComp };
+}
+
 export async function getConciliacionPresupuestaria(
   viaticosList?: ViaticoControl[]
 ): Promise<ConciliacionPresupuestaria> {
   const currentList = viaticosList || [];
-  const techoPresupuestario = 1200000.0;
+  // Techo presupuestario de inspección técnica indexado al tabulador multimoneda (Fondo $25,000 USD @ Tasa BCV)
+  const techoPresupuestarioUsd = 25000.0;
+  const techoPresupuestario = Math.round(techoPresupuestarioUsd * TASA_BCV_OFICIAL);
 
   const totalAsignado = currentList.reduce((acc, v) => acc + (v.monto_asignado_bs || 0), 0);
   const totalEjecutado = currentList.reduce((acc, v) => acc + (v.monto_ejecutado_bs || 0), 0);
@@ -538,7 +619,7 @@ export async function getConciliacionPresupuestaria(
 
   return {
     partida_codigo: 'PARTIDA-405',
-    partida_nombre: 'Viáticos y Pasajes de Inspección SEN',
+    partida_nombre: 'Viáticos y Pasajes de Inspección Técnica SEN (Indexado BCV)',
     presupuesto_partida: techoPresupuestario,
     presupuesto_viatico: techoPresupuestario,
     total_asignado: totalAsignado,
@@ -553,11 +634,8 @@ export async function getConciliacionPresupuestaria(
 export async function crearAsignacionViatico(
   nuevaAsignacion: Omit<ViaticoControl, 'id' | 'codigo_asignacion' | 'monto_ejecutado_bs' | 'tipo_cierre' | 'estado'>
 ): Promise<{ success: boolean; data?: ViaticoControl; error?: string }> {
-  if (!isSupabaseConfigured || !supabase) {
-    return { success: false, error: 'InsForge no configurado' };
-  }
-
-  const techoPresupuestario = 1200000.0;
+  const techoPresupuestarioUsd = 25000.0;
+  const techoPresupuestario = Math.round(techoPresupuestarioUsd * TASA_BCV_OFICIAL);
   const viatRes = await getViaticos();
   const actualAsignado = viatRes.data.reduce((acc, v) => acc + (v.monto_asignado_bs || 0), 0);
   const saldoDisponible = techoPresupuestario - actualAsignado;
@@ -566,7 +644,7 @@ export async function crearAsignacionViatico(
   if (nuevaAsignacion.monto_asignado_bs > saldoDisponible) {
     return {
       success: false,
-      error: `PRESUPUESTO EXCEDIDO [trg_validar_presupuesto_viatico]: El monto solicitado (Bs. ${nuevaAsignacion.monto_asignado_bs.toLocaleString('es-VE')}) excede el saldo disponible (Bs. ${saldoDisponible.toLocaleString('es-VE')}). Techo total: Bs. 1,200,000.`,
+      error: `PRESUPUESTO EXCEDIDO [trg_validar_presupuesto_viatico]: El monto solicitado (Bs. ${nuevaAsignacion.monto_asignado_bs.toLocaleString('es-VE')}) excede el saldo disponible (Bs. ${saldoDisponible.toLocaleString('es-VE')}). Techo Partida 405: Bs. ${techoPresupuestario.toLocaleString('es-VE')} ($25,000 USD @ Tasa BCV ${TASA_BCV_OFICIAL}).`,
     };
   }
 

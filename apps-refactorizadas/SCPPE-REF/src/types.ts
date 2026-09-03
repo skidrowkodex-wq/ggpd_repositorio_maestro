@@ -42,6 +42,60 @@ export interface OrganizacionNodo {
   activo?: boolean;
 }
 
+export type TipoActivoElectrico =
+  | 'SUBESTACION_POTENCIA'
+  | 'LINEA_DISTRIBUCION_AEREA'
+  | 'CIRCUITO_SUBTERRANEO'
+  | 'BANCO_TRANSFORMACION_CT'
+  | 'PROTECCION_Y_SECCIONAMIENTO';
+
+export type NivelTensionNormalizado =
+  | '765 kV'
+  | '400 kV'
+  | '230 kV'
+  | '115 kV'
+  | '34.5 kV'
+  | '13.8 kV'
+  | '4.16 kV'
+  | '208/120 V';
+
+export interface PartidaAPU {
+  codigo: string;
+  partida_onapre: string;
+  descripcion: string;
+  unidad: string;
+  costo_unitario_usd: number;
+  desglose: {
+    materiales_pct: number;
+    equipos_pct: number;
+    mano_obra_pct: number;
+  };
+  rendimiento_diario?: string;
+}
+
+export interface ComputoMetricoProyecto {
+  partida_codigo: string;
+  partida_descripcion: string;
+  unidad: string;
+  cantidad: number;
+  precio_unitario_usd: number;
+  subtotal_usd: number;
+}
+
+export interface ComprobanteFiscalViatico {
+  id: string;
+  asignacion_id: string;
+  rif_proveedor: string;
+  razon_social: string;
+  numero_factura: string;
+  numero_control: string;
+  fecha_emision: string;
+  concepto: 'HOSPEDAJE' | 'ALIMENTACION' | 'TRANSPORTE' | 'COMBUSTIBLE' | 'PEAJE' | 'OTRO';
+  monto_bs: number;
+  monto_usd?: number;
+  valido_seniat: boolean;
+}
+
 export interface ProyectoPRTSEN {
   id: string;
   codigo_rds: string;
@@ -79,6 +133,22 @@ export interface ProyectoPRTSEN {
   desembolsos_plurianual?: Record<string, number>;
   observaciones?: string;
   fotografia_url?: string;
+
+  // Extensiones de Ingeniería Eléctrica de Grado Industrial
+  tipo_activo?: TipoActivoElectrico;
+  tension_nominal_kv?: NivelTensionNormalizado;
+  capacidad_mva?: number;
+  tipo_conductor?: string;
+  longitud_km?: number;
+  icc_ka?: number;
+  delta_v_pct?: number;
+  factor_potencia?: number;
+  criticidad_tecnica?: 'CRITICA_SOBRECARGA' | 'ALTA_REGULACION' | 'MEDIA' | 'NORMAL';
+
+  // Extensiones de Presupuesto por Cómputos Métricos y APU
+  computos_apu?: ComputoMetricoProyecto[];
+  monto_calculado_apu_usd?: number;
+  tasa_bcv_referencia?: number;
 }
 
 export interface SubestacionRDS {

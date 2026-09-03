@@ -1,4 +1,14 @@
-import { ProyectoPRTSEN, SubestacionRDS, CircuitoRDS, AccionPOA, RegistroAuditoria, ViaticoControl, ProyectoGGD } from '../types';
+import {
+  ProyectoPRTSEN,
+  SubestacionRDS,
+  CircuitoRDS,
+  AccionPOA,
+  RegistroAuditoria,
+  ViaticoControl,
+  ProyectoGGD,
+  PartidaAPU,
+  ComprobanteFiscalViatico
+} from '../types';
 
 export const METRICAS_GENERALES = {
   total_proyectos_prtsen: 823,
@@ -17,6 +27,127 @@ export const METRICAS_GENERALES = {
   politicas_rls: 73,
 };
 
+export const TASA_BCV_OFICIAL = 68.50; // Bs. / USD de referencia oficial
+
+export const TABULADOR_VIATICOS_CORPOELEC_2026 = {
+  tarifa_diaria_pernocta_usd: 45.0, // Hospedaje e imprevistos
+  tarifa_diaria_alimentacion_usd: 25.0, // Desayuno, almuerzo y cena
+  tarifa_movilizacion_base_usd: 30.0, // Transporte interurbano / peajes
+  tasa_bcv: TASA_BCV_OFICIAL,
+};
+
+export const CATALOGO_PARTIDAS_APU_SEN: PartidaAPU[] = [
+  {
+    codigo: 'PART-ELEC-01',
+    partida_onapre: '404.01.01.00',
+    descripcion: 'Suministro, montaje y pruebas de Transformador de Potencia 115/13.8 kV trifásico con cambiador de tomas bajo carga (LTC)',
+    unidad: 'TRAFO',
+    costo_unitario_usd: 380000.0,
+    desglose: { materiales_pct: 82, equipos_pct: 10, mano_obra_pct: 8 },
+    rendimiento_diario: '1 unidad / 15 días',
+  },
+  {
+    codigo: 'PART-ELEC-02',
+    partida_onapre: '402.04.01.00',
+    descripcion: 'Tendido, flechado y tensado de conductor de aluminio Arvidal 336.4 MCM en línea aérea de Media Tensión (incluye aisladores y herrajes)',
+    unidad: 'KM-FASE',
+    costo_unitario_usd: 6200.0,
+    desglose: { materiales_pct: 65, equipos_pct: 15, mano_obra_pct: 20 },
+    rendimiento_diario: '1.2 km-fase / día',
+  },
+  {
+    codigo: 'PART-ELEC-03',
+    partida_onapre: '404.01.02.00',
+    descripcion: 'Excavación, hincado y plomado de poste tubular de hierro / concreto de 12 metros para líneas de distribución urbana/rural',
+    unidad: 'POSTE',
+    costo_unitario_usd: 850.0,
+    desglose: { materiales_pct: 55, equipos_pct: 25, mano_obra_pct: 20 },
+    rendimiento_diario: '4 postes / día',
+  },
+  {
+    codigo: 'PART-ELEC-04',
+    partida_onapre: '404.02.01.00',
+    descripcion: 'Instalación y conexionado de Reconectador Automático (Recloser) trifásico 13.8 kV en poste con control microprocesado y telemetría',
+    unidad: 'EQUIPO',
+    costo_unitario_usd: 18500.0,
+    desglose: { materiales_pct: 85, equipos_pct: 5, mano_obra_pct: 10 },
+    rendimiento_diario: '1 equipo / día',
+  },
+  {
+    codigo: 'PART-ELEC-05',
+    partida_onapre: '402.04.03.00',
+    descripcion: 'Construcción de Malla de Puesta a Tierra para Subestación con cable Cu desnudo 4/0 AWG, varillas Copperweld 5/8x2.4m y soldaduras exotérmicas',
+    unidad: 'PUNTO',
+    costo_unitario_usd: 350.0,
+    desglose: { materiales_pct: 60, equipos_pct: 10, mano_obra_pct: 30 },
+    rendimiento_diario: '6 puntos / día',
+  },
+  {
+    codigo: 'PART-ELEC-06',
+    partida_onapre: '403.03.01.00',
+    descripcion: 'Desmalezamiento, pica y poda técnica de vegetación en corredores de servidumbre de líneas aéreas de distribución (ancho 8m)',
+    unidad: 'KM',
+    costo_unitario_usd: 1200.0,
+    desglose: { materiales_pct: 10, equipos_pct: 30, mano_obra_pct: 60 },
+    rendimiento_diario: '1.5 km / día',
+  },
+];
+
+export const MOCK_COMPROBANTES_VIATICO: ComprobanteFiscalViatico[] = [
+  {
+    id: 'comp-001',
+    asignacion_id: 'via-001',
+    rif_proveedor: 'J-31456789-0',
+    razon_social: 'Hotel Valle de Santiago C.A.',
+    numero_factura: '004589',
+    numero_control: '00-014523',
+    fecha_emision: '2026-02-14',
+    concepto: 'HOSPEDAJE',
+    monto_bs: 65000.0,
+    monto_usd: 948.90,
+    valido_seniat: true,
+  },
+  {
+    id: 'comp-002',
+    asignacion_id: 'via-001',
+    rif_proveedor: 'J-40123987-1',
+    razon_social: 'Inversiones y Alimentos Los Andes C.A.',
+    numero_factura: '012984',
+    numero_control: '00-089123',
+    fecha_emision: '2026-02-15',
+    concepto: 'ALIMENTACION',
+    monto_bs: 35000.0,
+    monto_usd: 510.94,
+    valido_seniat: true,
+  },
+  {
+    id: 'comp-003',
+    asignacion_id: 'via-002',
+    rif_proveedor: 'J-29876543-2',
+    razon_social: 'Posada Turística El Orinoco C.A.',
+    numero_factura: '008741',
+    numero_control: '00-032156',
+    fecha_emision: '2026-02-18',
+    concepto: 'HOSPEDAJE',
+    monto_bs: 180000.0,
+    monto_usd: 2627.73,
+    valido_seniat: true,
+  },
+  {
+    id: 'comp-004',
+    asignacion_id: 'via-002',
+    rif_proveedor: 'J-30981245-5',
+    razon_social: 'Transportes y Fluviales del Sur S.R.L.',
+    numero_factura: '001248',
+    numero_control: '00-004582',
+    fecha_emision: '2026-02-19',
+    concepto: 'TRANSPORTE',
+    monto_bs: 120000.0,
+    monto_usd: 1751.82,
+    valido_seniat: true,
+  },
+];
+
 export const MOCK_PROYECTOS_PRTSEN: ProyectoPRTSEN[] = [
   {
     id: 'prt-001',
@@ -33,6 +164,32 @@ export const MOCK_PROYECTOS_PRTSEN: ProyectoPRTSEN[] = [
     vinculado_poa: true,
     codigo_sipes: 'SIPES-SEN-2026-0041',
     match_metodo: 'EXACTO',
+    tipo_activo: 'SUBESTACION_POTENCIA',
+    tension_nominal_kv: '115 kV',
+    capacidad_mva: 25,
+    icc_ka: 25,
+    delta_v_pct: 2.1,
+    factor_potencia: 0.94,
+    criticidad_tecnica: 'CRITICA_SOBRECARGA',
+    tasa_bcv_referencia: TASA_BCV_OFICIAL,
+    computos_apu: [
+      {
+        partida_codigo: 'PART-ELEC-01',
+        partida_descripcion: 'Suministro y montaje de Trafo de Potencia 115/13.8 kV 25 MVA',
+        unidad: 'TRAFO',
+        cantidad: 1,
+        precio_unitario_usd: 380000,
+        subtotal_usd: 380000,
+      },
+      {
+        partida_codigo: 'PART-ELEC-05',
+        partida_descripcion: 'Malla de puesta a tierra y adecuación de pararrayos',
+        unidad: 'PUNTO',
+        cantidad: 200,
+        precio_unitario_usd: 350,
+        subtotal_usd: 70000,
+      },
+    ],
   },
   {
     id: 'prt-002',
@@ -50,6 +207,42 @@ export const MOCK_PROYECTOS_PRTSEN: ProyectoPRTSEN[] = [
     vinculado_poa: true,
     codigo_sipes: 'SIPES-SEN-2026-0089',
     match_metodo: 'EXACTO',
+    tipo_activo: 'LINEA_DISTRIBUCION_AEREA',
+    tension_nominal_kv: '13.8 kV',
+    capacidad_mva: 8,
+    tipo_conductor: 'Arvidal 336.4 MCM',
+    longitud_km: 14.5,
+    icc_ka: 16,
+    delta_v_pct: 4.8,
+    factor_potencia: 0.89,
+    criticidad_tecnica: 'ALTA_REGULACION',
+    tasa_bcv_referencia: TASA_BCV_OFICIAL,
+    computos_apu: [
+      {
+        partida_codigo: 'PART-ELEC-02',
+        partida_descripcion: 'Tendido y flechado de Arvidal 336.4 MCM',
+        unidad: 'KM-FASE',
+        cantidad: 15,
+        precio_unitario_usd: 6200,
+        subtotal_usd: 93000,
+      },
+      {
+        partida_codigo: 'PART-ELEC-03',
+        partida_descripcion: 'Postes tubulares 12m con accesorios',
+        unidad: 'POSTE',
+        cantidad: 20,
+        precio_unitario_usd: 850,
+        subtotal_usd: 17000,
+      },
+      {
+        partida_codigo: 'PART-ELEC-06',
+        partida_descripcion: 'Pica y poda preventiva en corredor D-105',
+        unidad: 'KM',
+        cantidad: 8.3,
+        precio_unitario_usd: 1200,
+        subtotal_usd: 10000,
+      },
+    ],
   },
   {
     id: 'prt-003',
@@ -59,14 +252,40 @@ export const MOCK_PROYECTOS_PRTSEN: ProyectoPRTSEN[] = [
     region: 'ORIENTAL',
     estado: 'MONAGAS',
     subestacion_asociada: '=VE+MONAGAS-QUIRIQUIRE',
-    circuito_asociado: '=VE+MONAGAS-QUIRIQUIRE:4-QUIRIQUIRE D-405',
+    circuito_asociado: '=VE+MONAGAS-QUIRIQUIRE:D-405 QUIRIQUIRE',
     monto_usd: 95000,
     avance_fisico_pct: 40,
     avance_financiero_pct: 35,
     estatus: 'EN_EJECUCION',
     vinculado_poa: true,
     codigo_sipes: 'SIPES-SEN-2026-0112',
-    match_metodo: 'FUZZY',
+    match_metodo: 'EXACTO',
+    tipo_activo: 'PROTECCION_Y_SECCIONAMIENTO',
+    tension_nominal_kv: '13.8 kV',
+    capacidad_mva: 6,
+    icc_ka: 16,
+    delta_v_pct: 3.2,
+    factor_potencia: 0.91,
+    criticidad_tecnica: 'MEDIA',
+    tasa_bcv_referencia: TASA_BCV_OFICIAL,
+    computos_apu: [
+      {
+        partida_codigo: 'PART-ELEC-04',
+        partida_descripcion: 'Instalación de Reconectador Automático 13.8 kV',
+        unidad: 'EQUIPO',
+        cantidad: 4,
+        precio_unitario_usd: 18500,
+        subtotal_usd: 74000,
+      },
+      {
+        partida_codigo: 'PART-ELEC-05',
+        partida_descripcion: 'Malla de tierra y bajantes de pararrayos',
+        unidad: 'PUNTO',
+        cantidad: 60,
+        precio_unitario_usd: 350,
+        subtotal_usd: 21000,
+      },
+    ],
   },
   {
     id: 'prt-004',
