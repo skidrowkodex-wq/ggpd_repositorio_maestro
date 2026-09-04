@@ -41,3 +41,10 @@ ggpd_bci/config/*.env
 ggpd_bci/config/connection.json
 opencode.json
 .mcp.json
+
+# Directorios locales/temporales con datos y migraciones (no versionar)
+migrations/
+database/
+metas_drive/
+repo_ggc/
+corpoelec-bci-developer-kit/
