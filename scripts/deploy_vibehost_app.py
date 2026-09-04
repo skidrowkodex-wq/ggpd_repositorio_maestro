@@ -12,8 +12,8 @@ import hashlib
 from pathlib import Path
 import requests
 
-TOKEN = "***REMOVED***"
-WS_ID = "tao59mlv54m5mo1fclakvldq"
+TOKEN = os.getenv("VIBEHOST_TOKEN", "***REMOVED***")
+WS_ID = os.getenv("VIBEHOST_WS_ID", "tao59mlv54m5mo1fclakvldq")
 BASE_URL = "https://api.vibehost.com"
 
 HEADERS = {
