@@ -9,6 +9,12 @@
   2. **Purga de historial git con git-filter-repo** (remplazo `***REMOVED***` de: `ik_f581...`, `ik_7c3cbe2e...`, `cf0022...` BCI postgres, 2 tokens VibeHost y keys Supabase anon JWT). **Force-push a ambos remotos** — `origin`/`github-personal` (personal) y `github-innovacion` (institucional). Commit raíz purgado: `ea04112`. **Todos los SHAs de historia reescritos.**
   3. Los 84 commits quedan purgados; verificado 0 secretos reales en el historial (24 archivos solo cambiaron por reemplazo de secretos; 1400 archivos preservados).
   4. **Reposito local** reseteado a la historia purgada y alineado con ambos remotos en `ea04112`.
+   5. **Recompilación + REDEPLOY a VibeHost con la nueva key** (2026-09-04): las 5 apps frontend (`SIGI`, `SCGCC`, `SCMTP`, `SCPPE`, `SCEIN`) se recompilaron con el `.env` actualizado (nueva key `ik_b34460...` embebida, key vieja 0 restos) y se redeshplearon a VibeHost — todas `HEALTHY`:
+      - `sigi` → dep `p5le3yaks9oashwrjr2s5gd7` ✅ | `scgcc` → dep `j58sgxc977bnokm6rveiuk6w` ✅
+      - `scmtp` → dep `zksx1b8rvugpx7vtoxsrdm13` ✅ | `scppe` → dep `tc634zdufx6my098k068firn` ✅
+      - `scein` → dep `g6dmjaj9ti24r7i5d8d5aaf7` ✅ | `sctis` → dep `q7fwdeoogdbss4tyq99vm41p` ✅ (Flask runtime, solo reinicia con `.env`)
+      - **Verificación en vivo:** 6/6 URLs HTTP 200; bundles servidos contienen `ik_b34460...` con 0 ocurrencias de la key vieja.
+      - **Parche seguridad:** `scripts/deploy_vibehost_app.py` ahora lee `VIBEHOST_TOKEN`/`VIBEHOST_WS_ID` desde variables de entorno (commit `8a2eb27`), sin token hardcodeado.
 - **Plataforma / Entorno:** Antigravity IDE / CLI `agy` sobre Node 20 / Linux.
 - **Estado General:** 🟢 **Todas las apps *-REF leen y escriben 100% contra InsForge PostgreSQL (proyecto `ggpd-data-maestra-0002`, host `wxkeqf37`), sin data mock operativa.** Se eliminó el mock de minutas/compromisos/pendientes (SCMTP-REF), correspondencias y usuarios (SCGCC-REF), documentos y dashboards (SIGI-REF), y el redirector a backend Flask/SQLite con semillas hardcodeadas (SCTIS-REF). Los KPIs ahora se derivan de datos reales o muestran estado vacío. La BCI quedó conectada a su instancia InsForge separada (`jd3uejbz`, proyecto `ggpd-base-conocimientos-ia`) con funciones RPC seguras de emisión/estado/auditoría de tokens.
 - **Seguridad de credenciales (realizada):**
@@ -18,10 +24,10 @@
   4. Se limpiaron los remotos git quitando los tokens `ghp_` incrustados en las URLs.
   5. Commit `362e22d` + `cb6e1de` (sin secretos añadidos).
 - **⚠️ PENDIENTE / SIGUIENTE PASO:**
-  1. **✅ HECHO (2026-09-04): PURGA DE HISTORIAL GIT + ROTACIÓN API KEY principal.** Historial reescrito con `git-filter-repo` (secretos `***REMOVED***`) y force-push a ambos remotos en `ea04112`. Nueva API key `ik_b34460...` activa en las apps. Quedan **2 acciones manuales en dashboard** (no automatizables por CLI):
+  1. **✅ HECHO (2026-09-04): PURGA DE HISTORIAL GIT + ROTACIÓN API KEY principal + REDEPLOY las 6 apps.** Historial reescrito con `git-filter-repo` (secretos `***REMOVED***`) y force-push a ambos remotos en `80f05bc`/`8a2eb27`. Nueva API key `ik_b34460...` activa, recompilada y desplegada en las 6 apps (todas HEALTHY / HTTP 200). Quedan **3 acciones manuales en dashboard** (no automatizables por CLI):
      - **InsForge principal:** purgar/expirar manualmente los secretos reservados `API_KEY_OLD_*` en el dashboard (la key filtrada `ik_f581...` expira sola el 5/9; conviene purgarla ya).
      - **BCI (instancia `jd3uejbz`):** la password postgres filtrada `cf0022...` (en `ggpd_bci/config/connection.json` e `insforge_bci.env`) debe resetearse en el dashboard de InsForge (el CLI no resetea la password del usuario `postgres`). La API key de la BCI `ik_1fabec59...` **NO** estaba filtrada (segura, sin rotar).
-     - **VibeHost:** rotar el token `vh_pat_4qfh...` (estuvo en historial) y actualizar `.env.local`.
+     - **VibeHost:** rotar el token `vh_pat_4qfh...` (estuvo en historial) y actualizar `.env.local`. Mientras no se rote, el token sigue operativo (los deploys funcionan).
   2. Los datos reales en tablas nuevas (scppe.mae_comprobantes_viatico, scmtp.*, sctis.*, etc.) están mayormente vacíos (0 registros); el ETL de carga de datos reales sigue pendiente.
   3. Continuar con la unificación IAM / despliegue en VibeHost según pasos pendientes de la sesión de IAM (SIGI / SCGCC).
 - **Credenciales de prueba verdes:** `admin.ggpd` / `admin2026!.` y `blanca.gonzalez` / `Gonzalez2026!.`.
