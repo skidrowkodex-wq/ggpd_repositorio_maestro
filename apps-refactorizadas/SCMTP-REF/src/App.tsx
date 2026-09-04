@@ -18,39 +18,18 @@ import { EmailReportConfigModal } from './components/EmailReportConfigModal';
 import { Login } from './components/Login';
 
 import { MinutaReunion, TareaCompromiso, PendienteArea, SupabaseConfig, FilterState, TaskStatus, UserProfile, IsoAuditLogEntry, IsoDataQualityMetric } from './types';
-import { INITIAL_MINUTAS, INITIAL_COMPROMISOS, INITIAL_PENDIENTES_AREA, USER_PROFILES, INITIAL_AUDIT_LOGS, INITIAL_DATA_QUALITY_METRICS } from './data/initialData';
+import { USER_PROFILES } from './data/initialData';
 import { getStoredSupabaseConfig, getSupabaseClient } from './lib/supabase';
 import { getVisibleCompromisos } from './utils/authUtils';
 import { ShieldAlert, FileText, ArrowRight } from 'lucide-react';
 
 export default function App() {
-  const [minutasList, setMinutasList] = useState<MinutaReunion[]>(() => {
-    try {
-      const saved = localStorage.getItem('ggpd_minutas_v1');
-      return saved ? JSON.parse(saved) : INITIAL_MINUTAS;
-    } catch {
-      return INITIAL_MINUTAS;
-    }
-  });
+  const [minutasList, setMinutasList] = useState<MinutaReunion[]>([]);
   const [selectedMinutaId, setSelectedMinutaId] = useState<string>('all'); // 'all' or specific minuta id
   
-  const [compromisos, setCompromisos] = useState<TareaCompromiso[]>(() => {
-    try {
-      const saved = localStorage.getItem('ggpd_compromisos_v1');
-      return saved ? JSON.parse(saved) : INITIAL_COMPROMISOS;
-    } catch {
-      return INITIAL_COMPROMISOS;
-    }
-  });
+  const [compromisos, setCompromisos] = useState<TareaCompromiso[]>([]);
 
-  const [pendientes, setPendientes] = useState<PendienteArea[]>(() => {
-    try {
-      const saved = localStorage.getItem('ggpd_pendientes_v1');
-      return saved ? JSON.parse(saved) : INITIAL_PENDIENTES_AREA;
-    } catch {
-      return INITIAL_PENDIENTES_AREA;
-    }
-  });
+  const [pendientes, setPendientes] = useState<PendienteArea[]>([]);
 
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
@@ -122,16 +101,9 @@ export default function App() {
     }
   });
 
-  const [auditLogs, setAuditLogs] = useState<IsoAuditLogEntry[]>(() => {
-    try {
-      const saved = localStorage.getItem('ggpd_audit_logs_v1');
-      return saved ? JSON.parse(saved) : INITIAL_AUDIT_LOGS;
-    } catch {
-      return INITIAL_AUDIT_LOGS;
-    }
-  });
+  const [auditLogs, setAuditLogs] = useState<IsoAuditLogEntry[]>([]);
 
-  const [qualityMetrics, setQualityMetrics] = useState<IsoDataQualityMetric[]>(INITIAL_DATA_QUALITY_METRICS);
+  const [qualityMetrics, setQualityMetrics] = useState<IsoDataQualityMetric[]>([]);
 
   // Auto-save effects for persistence
   useEffect(() => {
@@ -411,7 +383,7 @@ export default function App() {
   };
 
   // Handle Import from Minuta AI Extractor
-  const handleImportMinuta = (newMinuta: MinutaReunion, newCompromisos: TareaCompromiso[], newPendientes: PendienteArea[]) => {
+  const handleImportMinuta = async (newMinuta: MinutaReunion, newCompromisos: TareaCompromiso[], newPendientes: PendienteArea[]) => {
     setMinutasList(prev => {
       const exists = prev.some(m => m.numero === newMinuta.numero);
       if (exists) {
@@ -423,6 +395,68 @@ export default function App() {
     setCompromisos(prev => [...newCompromisos, ...prev.filter(c => c.minutaNumero !== newMinuta.numero)]);
     setPendientes(prev => [...newPendientes, ...prev]);
     setActiveTab('dashboard');
+
+    const client = getSupabaseClient();
+    if (!client || !supabaseConfig.isConnected) return;
+
+    try {
+      await client.from('minutas').upsert({
+        numero: newMinuta.numero,
+        fecha: newMinuta.fecha,
+        fecha_iso: newMinuta.fechaISO,
+        hora: newMinuta.hora,
+        lugar: newMinuta.lugar,
+        coordinador: newMinuta.coordinador,
+        unidad_organizativa: newMinuta.unidadOrganizativa,
+        objetivo: newMinuta.objetivo,
+        compromisos_count: newCompromisos.length,
+        pendientes_count: newPendientes.length,
+        proxima_fecha_seguimiento: newMinuta.proximaFechaSeguimiento,
+        elaborado_por: newMinuta.elaboradoPor,
+        nombre_archivo: newMinuta.nombreArchivo,
+        updated_at: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.error('Error guardando minuta en Supabase:', err);
+    }
+
+    try {
+      for (const c of newCompromisos) {
+        await client.from('compromisos_tareas').insert({
+          id: c.id,
+          minuta_numero: c.minutaNumero,
+          minuta_fecha: c.minutaFecha,
+          responsable: c.responsable,
+          compromiso: c.compromiso,
+          plazo_text: c.plazoText,
+          plazo_fecha_iso: c.plazoFechaISO,
+          vinculacion_origen: c.vinculacionOrigen,
+          estado: c.estado,
+          prioridad: c.prioridad,
+          avance_porcentaje: c.avancePorcentaje,
+          area_gestion: c.areaGestion,
+          observaciones: c.observaciones,
+          historial_avances: c.historialAvances,
+        });
+      }
+    } catch (err) {
+      console.error('Error guardando compromisos en Supabase:', err);
+    }
+
+    try {
+      for (const p of newPendientes) {
+        await client.from('pendientes_area').insert({
+          id: p.id,
+          area: p.area,
+          pendiente: p.pendiente,
+          depende_de: p.dependeDe,
+          estado: p.estado,
+          observacion: p.observacion,
+        });
+      }
+    } catch (err) {
+      console.error('Error guardando pendientes en Supabase:', err);
+    }
   };
 
   // Auth handlers

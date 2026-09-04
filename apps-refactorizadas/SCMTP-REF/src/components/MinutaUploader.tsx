@@ -14,14 +14,6 @@ import {
   ShieldAlert
 } from 'lucide-react';
 import { MinutaReunion, TareaCompromiso, PendienteArea, UserProfile } from '../types';
-import { 
-  MINUTA_26_0004, 
-  MINUTA_26_0002, 
-  INITIAL_COMPROMISOS, 
-  INITIAL_PENDIENTES_AREA,
-  INITIAL_COMPROMISOS_26_0002,
-  INITIAL_PENDIENTES_26_0002 
-} from '../data/initialData';
 
 interface MinutaUploaderProps {
   onImportMinuta: (minuta: MinutaReunion, compromisos: TareaCompromiso[], pendientes: PendienteArea[]) => void;
@@ -155,24 +147,6 @@ export const MinutaUploader: React.FC<MinutaUploaderProps> = ({
     }
   };
 
-  // Load sample minuta 26-0004
-  const handleLoadSample0004 = () => {
-    setExtractedData({
-      minuta: MINUTA_26_0004,
-      compromisos: INITIAL_COMPROMISOS,
-      pendientes: INITIAL_PENDIENTES_AREA,
-    });
-  };
-
-  // Load sample minuta 26-0002
-  const handleLoadSample0002 = () => {
-    setExtractedData({
-      minuta: MINUTA_26_0002,
-      compromisos: INITIAL_COMPROMISOS_26_0002,
-      pendientes: INITIAL_PENDIENTES_26_0002,
-    });
-  };
-
   // Confirm and Import
   const handleConfirmImport = () => {
     if (!extractedData) return;
@@ -262,43 +236,6 @@ export const MinutaUploader: React.FC<MinutaUploaderProps> = ({
                   }}
                 />
               </label>
-            </div>
-
-            {/* Quick Sample Buttons for Minuta 26-0002 and 26-0004 */}
-            <div className="space-y-2">
-              <span className="text-xs font-bold text-slate-700 block">
-                Carga rápida de Minutas Oficiales Registradas:
-              </span>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <div className="bg-slate-100 p-3.5 rounded-xl border border-slate-200 flex items-center justify-between gap-2 text-xs">
-                  <div>
-                    <span className="font-extrabold text-[#002B49] block">Minuta #26-0002</span>
-                    <span className="text-slate-500 text-[11px]">29/06/2026 • Contingencia</span>
-                  </div>
-                  <button
-                    onClick={handleLoadSample0002}
-                    className="bg-[#002B49] hover:bg-slate-900 text-white px-3 py-1.5 rounded-lg font-bold text-xs transition-colors flex items-center space-x-1 cursor-pointer shadow-xs"
-                  >
-                    <Sparkles className="w-3 h-3 text-cyan-300" />
-                    <span>Cargar</span>
-                  </button>
-                </div>
-
-                <div className="bg-slate-100 p-3.5 rounded-xl border border-slate-200 flex items-center justify-between gap-2 text-xs">
-                  <div>
-                    <span className="font-extrabold text-[#002B49] block">Minuta #26-0004</span>
-                    <span className="text-slate-500 text-[11px]">30/07/2026 • Formularios IA</span>
-                  </div>
-                  <button
-                    onClick={handleLoadSample0004}
-                    className="bg-[#E30613] hover:bg-red-700 text-white px-3 py-1.5 rounded-lg font-bold text-xs transition-colors flex items-center space-x-1 cursor-pointer shadow-xs"
-                  >
-                    <Sparkles className="w-3 h-3 text-amber-300" />
-                    <span>Cargar</span>
-                  </button>
-                </div>
-              </div>
             </div>
 
             {errorMsg && (

@@ -3,12 +3,101 @@
 ---
 
 ## 📌 1. Registro de Última Actualización
-- **Fecha y Hora:** 2026-08-26 14:35 (VET / UTC-4) — **Formalización de la Taxonomía Multi-Proceso Medular SEN (G, T, D, C y Transversal) en InsForge BCI & Cierre de Sesión**
-- **Plataforma / Entorno:** Antigravity IDE 2.0 (Google Gemini 3.7 Flash) — Optimizado para hardware de bajos recursos (Dell Latitude 3110)
-- **Responsable / Emisores:** Yván M. Cipiran N. | T.S.U. Josué Pacheco (**Equipo de Automatización e Ingeniería de Productos con IA, de Planificación de Distribución**)
-- **Estado General:** 🟢 **Se implementó y verificó con éxito en InsForge (`jd3uejbz`) la migración `03_medular_processes_taxonomy.sql`, extendiendo la Base de Conocimiento Inteligente a los 4 Procesos Medulares de CORPOELEC (Generación, Transmisión, Distribución, Comercialización) más Gobernanza Transversal. Se crearon las 5 vistas semánticas públicas, se reclasificaron los 469 chunks RAG, se actualizó el SDK Python y Servidor MCP con filtro `proceso`, y se sincronizaron ambos repositorios privados en GitHub (`distribucion-corpoelec-automatizacion` y `skidrowkodex-wq`).**
+- **Fecha y Hora:** 2026-09-02 (VET / UTC-4) — **Conexión completa de SCPPE-REF a InsForge (Viáticos + Comprobantes Fiscales SENIAT) y eliminación de data mock**
+- **Plataforma / Entorno:** Antigravity IDE / CLI `agy` sobre Node 20 / Linux.
+- **Responsable / Emisores:** Equipo de Automatización e Ingeniería de Productos con IA (GGPD).
+- **Estado General:** 🟢 **Conectado a la base de datos real de InsForge.** Se rediseñó el módulo de Viáticos de SCPPE-REF a la schema real (`scppe.mae_viaticos_control`), se creó la tabla `scppe.mae_comprobantes_viatico` + vista pública `public.v_scppe_comprobantes_viatico`, y se agregaron triggers `INSTEAD OF INSERT/DELETE` a `v_scppe_viaticos_control` para habilitar la escritura vía API REST de InsForge. Se eliminó todo el data mock operativo (`MOCK_PROYECTOS_PRTSEN`, `MOCK_COMPROBANTES_VIATICO`); solo se conservan parámetros de negocio locales (tasa BCV, tabulador, catálogo APU). La app ahora lee y escribe directamente contra InsForge PostgreSQL.
+- **⚠️ PENDIENTE / SIGUIENTE PASO:**
+  1. Los parámetros de negocio locales (tasa BCV `68.50`, tabulador CORPOELEC, catálogo APU) se mantienen como config local documentada; decidir si migrarlos a tablas de BD si se desea cumplir "todo conectado a InsForge" al 100%.
+  2. Continuar con la unificación IAM / despliegue en VibeHost según los pasos pendientes de la sesión de IAM (SIGI / SCGCC).
+  3. Las tablas `scppe.mae_viaticos_control` y `scppe.mae_comprobantes_viatico` están actualmente vacías (0 registros); el ETL de carga de datos reales sigue pendiente.
+- **Credenciales de prueba verdes:** `admin.ggpd` / `admin2026!.` y `blanca.gonzalez` / `Gonzalez2026!.`.
+
+**⏱️ RESULTADO DE LA SESIÓN ANTERIOR (para continuidad):** El historial completo de entregables SCGCC/SIGI/SCPPE/SCMTP/SCEIN/SCTIS y despliegues previos se mantiene en las secciones siguientes de este archivo.
 
 ### 📊 Entregables y Estado de Despliegue:
+-22. **Conexión completa SCPPE-REF a InsForge — Viáticos, Comprobantes Fiscales y purga de mock ([`SCPPE-REF`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCPPE-REF)):**
+    - **URL Oficial en Vivo:** [https://corpoelec-scppe-corpoelec-ggpd-hosting-apps.vibehost.space](https://corpoelec-scppe-corpoelec-ggpd-hosting-apps.vibehost.space) 🟢 *(HEALTHY / HTTP 200 / Deployment ID: `oj3p0pnkayfr6947i0e8jdco`)*.
+    - **Commit:** `34e20fe` (pusheado a `main`). Rama `main`, push `bc9fafa..34e20fe`.
+    - **Archivos:** [`supabaseService.ts`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCPPE-REF/src/services/supabaseService.ts), [`types.ts`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCPPE-REF/src/types.ts), [`ViaticosControlView.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCPPE-REF/src/components/ViaticosControlView.tsx), [`supabase.ts`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCPPE-REF/src/lib/supabase.ts), [`mockData.ts`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCPPE-REF/src/data/mockData.ts) y [`17_samc_comprobante_viatico.sql`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCPPE-REF/db/schema_samc/17_samc_comprobante_viatico.sql).
+    - **Cambios en BD InsForge:** creada tabla `scppe.mae_comprobantes_viatico`; creada vista `public.v_scppe_comprobantes_viatico`; triggers `INSTEAD OF INSERT/DELETE` en `v_scppe_viaticos_control` para escritura vía API REST (la vista hacía JOIN y no era actualizable).
+    - **Mejoras:** mapeo de `getViaticos` a columnas reales de la BD (`numero_solicitud`, `empleado_nombre`, `empleado_cedula`, `fechas`, `dias_duracion`, `monto_calculado_usd/bs`, `estatus_flujo`, `motivo_comision`); `crearAsignacionViatico` y `getConciliacionPresupuestaria` alineados; UI de asignaciones rediseñada; comprobantes fiscales conectados. Data mock operativo eliminado.
+    - **Pendiente:** parámetros de negocio (tasa BCV/tabulador/APU) siguen en config local; ETL de datos reales pendiente.
+
+-21. **Diagnóstico Crítico de Reglas de Negocio & Skills de Especialidad ([`SCPPE-REF`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCPPE-REF)):**
+    - **Skills Instaladas:** [`electrical-engineer`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/.agents/skills/electrical-engineer), [`quantity-surveyor`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/.agents/skills/quantity-surveyor), [`financial-analyst`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/.agents/skills/financial-analyst) y [`construction-manager`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/.agents/skills/construction-manager) en `.agents/skills/`.
+    - **Dictamen:** Evaluación integral de procesos POA, PRTSEN, Viáticos y RDS-PS; roadmap y diseño de arquitectura desacoplada para la próxima aplicación técnica. Código de SCPPE-REF conservado intacto.
+
+-20. **Saneamiento y Purgado de Tareas Mock ([`SCGCC-REF`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF)):**
+    - **URL Oficial en Vivo:** [https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space](https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space) 🟢 *(HEALTHY / HTTP 200 / Deployment ID: `h19im9yqcumjq0vo2iw220fm`)*.
+    - **Archivos:** [`initialCorrespondencias.ts`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/data/initialCorrespondencias.ts) y [`App.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/App.tsx).
+    - **Mejoras:** Eliminadas todas las tareas SCMTP artificiales. Los documentos quedan en su estado real a la espera de derivación operativa voluntaria por parte de la secretaría o analistas. Llave `scgcc_records_v3` implementada.
+-19. **Ficha 360° Adaptativa y Vinculación Cruzada ([`SCGCC-REF`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF)):**
+    - **URL Oficial en Vivo:** [https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space](https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space) 🟢 *(HEALTHY / HTTP 200 / Deployment ID: `z54sqofieif60hpequq9d97u`)*.
+    - **Archivos:** [`ExecutiveBriefing360Modal.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/components/ExecutiveBriefing360Modal.tsx) y [`initialCorrespondencias.ts`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/data/initialCorrespondencias.ts).
+    - **Mejoras:** Panel "Preguntas de Directorio en 3 Segundos" (Destinatario, Antecedente y Dictamen Técnico), Timeline de 4 Estaciones inteligente para Salidas (`Antecedente ➔ Sustento ➔ Oficio Salida ➔ Despacho`), botones interactivos para saltar entre solicitud y oficio emitido, y extracto oficial visible.
+-18. **Doble Acción Drive en SCGCC V1.0 ([`SCGCC-REF`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF)):**
+    - **URL Oficial en Vivo:** [https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space](https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space) 🟢 *(HEALTHY / HTTP 200 / Deployment ID: `mwlo4uy8db1j6tofsphok93e`)*.
+    - **Archivos:** [`DocumentDetailModal.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/components/DocumentDetailModal.tsx) y [`CorrespondenceDashboard.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/components/CorrespondenceDashboard.tsx).
+    - **Mejoras:** Botón "Ver PDF" (visor directo del archivo) + botón "Carpeta Drive" (navegación del directorio contenedor) + botón general "Bóveda Drive 2026" en el encabezado del Tablero.
+-17. **Rutina de Copia Segura Automatizada (Google Apps Script v3.2.0):**
+    - **Función:** `copyExistingFilesToScgccCanonicalVault()` en [`scripts/google_apps_script_provisioner_2026.gs`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/scripts/google_apps_script_provisioner_2026.gs).
+    - **Principio:** Cero alteración de fuentes primarias (solo `makeCopy`). Clasificación inteligente por remitente (TTHH $\rightarrow$ `03_TALENTO_HUMANO_TTHH`, Presidencia/Ministro $\rightarrow$ `01_MPPEE_Y_PRESIDENCIA`, GGD $\rightarrow$ `02_GERENCIA_GRAL_DISTRIBUCION`, Plantillas $\rightarrow$ `03_PLANTILLAS_FORMATOS_2026`).
+-16. **Bóveda Canónica SCGCC 2026 en Google Drive ([`00_CORRESPONDENCIA_SCGCC_2026`](https://drive.google.com/drive/folders/1s5sOV__H7WbJRhsNHAqWgR8BIj0XHlI7)):**
+    - **ID Raíz SCGCC:** `1s5sOV__H7WbJRhsNHAqWgR8BIj0XHlI7` (ubicada en `_Gerencia Nacional`: `1yKwQ8hKGjCPHwukuADkv__Kp3gicJkBj`).
+    - **Script Actualizado:** [`scripts/google_apps_script_provisioner_2026.gs`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/scripts/google_apps_script_provisioner_2026.gs) (v3.2.0) con función `provisionScgccStructure()` para auto-aprovisionar entradas (`MPPEE`, `GGD`, `TTHH`, `Externos`), salidas despachadas (`Oficios con Acuse`, `Memos`), plantillas y respaldos de auditoría.
+    - **Documentación Oficial:** [`docs/NAC_2026_GGPD_MAPEO_ORIGENES_CORRESPONDENCIA_GGP_V01.md`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/docs/NAC_2026_GGPD_MAPEO_ORIGENES_CORRESPONDENCIA_GGP_V01.md).
+-15. **Sello Digital QR con Toggle Interactivo O&M ([`SCGCC-REF`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF)):**
+   - **URL Oficial en Vivo:** [https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space](https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space) 🟢 *(HEALTHY / HTTP 200 / Deployment ID: `bsx3glki10b1ggplryx6344q`)*.
+   - **Archivos:** [`QRCodeSeal.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/components/QRCodeSeal.tsx) y [`ResponseDraftModal.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/components/ResponseDraftModal.tsx).
+   - **Mejoras:** Switch en el editor y barra de herramientas en la vista previa oficial. Formato tradicional por defecto y formato moderno con QR listo para activación inmediata tras dictamen de O&M.
+-14. **Ajuste de Cargo Oficial de Autoridad en Radicación ([`SCGCC-REF`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF)):**
+   - **URL Oficial en Vivo:** [https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space](https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space) 🟢 *(HEALTHY / HTTP 200 / Deployment ID: `fdqy7h38iogj5o8o4q6jqg3r`)*.
+   - **Archivos:** [`SmartRadicationModal.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/components/SmartRadicationModal.tsx) y [`CorrespondenceDashboard.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/components/CorrespondenceDashboard.tsx).
+   - **Mejoras:** Texto de autoridad por defecto y placeholder corregido a `Ing. Adrián Correa - Gerente de Gestión de Planificación de Distribución (GGD)`.
+-13. **Persistencia Bidireccional Multi-Usuario & Auto-Sync Live ([`SCGCC-REF`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF)):**
+   - **URL Oficial en Vivo:** [https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space](https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space) 🟢 *(HEALTHY / HTTP 200 / Deployment ID: `ckzirxywyeurtla5ty4cjhsl`)*.
+   - **Archivos:** [`insforgeService.ts`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/services/insforgeService.ts) y [`App.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/App.tsx).
+   - **Mejoras:**
+     - Funciones `saveCorrespondenciaToDatabase`, `updateCorrespondenciaInDatabase` y `saveOficioToDatabase` conectadas a PostgREST con `Accept-Profile: scgcc` / `Content-Profile: scgcc`.
+     - Polling inteligente cada 4 segundos + sincronización instantánea al enfocar la pestaña (`focus` / `visibilitychange`).
+     - Visibilidad cruzada inmediata: cualquier documento radicado por un usuario se refleja en tiempo real en las pantallas de los demás analistas y administradores.
+-12. **Homologación Jerárquica de Adscripción Institucional ([`SCGCC-REF`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF)):**
+   - **URL Oficial en Vivo:** [https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space](https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space) 🟢 *(HEALTHY / HTTP 200 / Deployment ID: `eohwsg73l85pax190ssse797`)*.
+   - **Archivos:** [`initialCorrespondencias.ts`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/data/initialCorrespondencias.ts), [`ResponseDraftModal.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/components/ResponseDraftModal.tsx) y [`App.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/App.tsx).
+   - **Jerarquía Oficial Homologada:**
+     - Nivel Superior: **Gerencia General de Distribución (GGD)** (Gerente General: Ing. Carlos Reyes).
+     - Nivel Gerencia de Adscripción: **Gerencia de Gestión de Planificación de Distribución** (Gerente: Ing. Adrián Correa).
+     - Todo el personal técnico y administrativo adscrito a la Gerencia de Gestión de Planificación de Distribución.
+-11. **Menú Popover de Usuario & Cargo Institucional Oficial ([`SCGCC-REF`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF)):**
+   - **URL Oficial en Vivo:** [https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space](https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space) 🟢 *(HEALTHY / HTTP 200 / Deployment ID: `t6houwsflag69hp7ticc3upu`)*.
+   - **Archivos:** [`Navbar.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/components/Navbar.tsx) e [`initialCorrespondencias.ts`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/data/initialCorrespondencias.ts).
+   - **Mejoras:** Chip de usuario compacto con avatar gradiente y chevron; popover flotante con ficha técnica, rol, cargo extenso y botón rojo de logout institucional de alta accesibilidad. Cargo de Ing. Adrián Correa actualizado.
+-10. **Blindaje Total Anti-Desbordamiento & Navbar Ultra-Compacto ([`SCGCC-REF`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF)):**
+   - **URL Oficial en Vivo:** [https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space](https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space) 🟢 *(HEALTHY / HTTP 200 / Deployment ID: `sak3vaq8y162lyskss3lt7w8`)*.
+   - **Archivos:** [`Navbar.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/components/Navbar.tsx), [`App.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/App.tsx) e [`index.css`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/index.css).
+   - **Mejoras:** Protección `overflow-x: hidden` a nivel `html, body`, ancho fluido sin bloqueo rígido, badges compactos y adaptación 100% nativa a pantallas portátiles.
+-9. **Refinamiento Estético de Marca & Navbar ([`SCGCC-REF`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF)):**
+   - **URL Oficial en Vivo:** [https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space](https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space) 🟢 *(HEALTHY / HTTP 200 / Deployment ID: `ys5bld6vphfdsjsp2f6sw7zd`)*.
+   - **Componente:** [`Navbar.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/components/Navbar.tsx).
+   - **Mejoras:** Cápsula lateral reemplazada por subtítulo jerárquico `Despacho GGPD • Correspondencia`, reduciendo en 90px el ancho del bloque de marca y eliminando cualquier tensión visual en la barra.
+-8. **Optimización UI/UX del Header & Navbar ([`SCGCC-REF`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF)):**
+   - **URL Oficial en Vivo:** [https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space](https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space) 🟢 *(HEALTHY / HTTP 200 / Deployment ID: `bfqwfm3g1rbg7puutyj0kee4`)*.
+   - **Componente:** [`Navbar.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/components/Navbar.tsx).
+   - **Mejoras:** Botón `QA / BD` trasladado a la Barra Técnica Superior de seguridad industrial, espacio ampliado a `max-w-[240px]` para nombre y cargo institucional, y espaciado perfecto entre los 6 módulos de navegación.
+-7. **Estándar Pedagógico In-App & No-Repudio Operativo ([`SCGCC-REF`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF)):**
+   - **URL Oficial en Vivo:** [https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space](https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space) 🟢 *(HEALTHY / HTTP 200 / Deployment ID: `dn4fpp53dulwweektr1ro23q`)*.
+   - **Componente Central:** [`InteractiveGuideView.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/components/InteractiveGuideView.tsx).
+   - **Navegación:** Pestaña `Guía SEN` en [`Navbar.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/components/Navbar.tsx) y enrutador en [`App.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/App.tsx).
+   - **Funcionalidades:** Micro-aprendizaje contextual en 4 minutos, simulación de 3 casos reales de la GGPD, traductor de tecnicismos a la práctica y registro auditable de inducción completada con Hash SHA de integridad.
+-6. **Snapshot Canónico Pre-QA de SCGCC V1.0 ([`database/snapshots/`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/database/snapshots)):**
+   - **Snapshot JSON:** [`NAC_2026_GGPD_SNAPSHOT_SCGCC_PRE_QA_V01.json`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/database/snapshots/NAC_2026_GGPD_SNAPSHOT_SCGCC_PRE_QA_V01.json) *(27.0 KB | SHA-256: `323d7496...`)*.
+   - **Snapshot SQL DDL/DML:** [`NAC_2026_GGPD_SNAPSHOT_SCGCC_PRE_QA_V01.sql`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/database/snapshots/NAC_2026_GGPD_SNAPSHOT_SCGCC_PRE_QA_V01.sql) *(12.4 KB | SHA-256: `cbe5afc4...`)*.
+   - **Script de Restauración & Verificación:** [`scripts/restore_scgcc_snapshot.py`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/scripts/restore_scgcc_snapshot.py) (ejecutable para auditoría e importación).
+-5. **Ajuste de Identidad Institucional & QA en SCGCC V1.0 ([`SCGCC-REF`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF)):**
+   - **URL Oficial en Vivo:** [https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space](https://corpoelec-scgcc-corpoelec-ggpd-hosting-apps.vibehost.space) 🟢 *(HEALTHY / HTTP 200 / Deployment ID: `hna75bzgqxiyyghneke0sqt2`)*.
+   - **Componentes:** [`authContext.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/lib/authContext.tsx), [`initialCorrespondencias.ts`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/data/initialCorrespondencias.ts), [`types.ts`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/types.ts) y [`Navbar.tsx`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/src/components/Navbar.tsx).
+   - **Funcionalidad:** Mapeo automático de nombres canónicos y alias institucionales (`y_cipiran` $\rightarrow$ `Ing. Yván M. Cipiran N.`), auto-reconciliación en `localStorage` y ampliación del contenedor de visualización de perfil.
 -4. **Taxonomía Multi-Proceso Medular SEN ([`ggpd_bci/sql/03_medular_processes_taxonomy.sql`](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/ggpd_bci/sql/03_medular_processes_taxonomy.sql)):**
    - **Catálogo Oficial:** `knowledge.cat_procesos_medulares` (`DISTRIBUCION`, `COMERCIALIZACION`, `TRANSMISION`, `GENERACION`, `TRANSVERSAL`).
    - **Vistas Semánticas:** `v_knowledge_distribucion` (519 chunks), `v_knowledge_comercializacion` (227 chunks), `v_knowledge_transmision` (246 chunks), `v_knowledge_generacion` (133 chunks), `v_knowledge_interfases_solapadas` (444 chunks).
@@ -762,3 +851,29 @@ Todos los microservicios y el portal central se encuentran **activos y respondie
 
 
 
+
+---
+
+## 🏁 9. Cierre SIGI-REF — Erradicación Final de Data Mock (2026-09-03)
+- **Eliminado:** `apps-refactorizadas/SIGI-REF/src/data/minutasData.ts` (768 líneas de constantes mock `SCTAP_MINUTAS`, `SCTAP_COMPROMISOS`, `SCTAP_PENDIENTES`).
+- **Creado:** `src/services/scmtpService.ts` — fetch REST a vistas públicas `v_scmtp_minutas`, `v_scmtp_compromisos_tareas`, `v_scmtp_pendientes_area` (base `wxkeqf37.ap-southeast.insforge.app`), tipos `TareaCompromisoSCTAP`/`MinutaReunionSCTAP`/`PendienteAreaSCTAP` movidos al servicio, mappers con normalización de estado/prioridad/historial.
+- **Conectados:** `SCMTPDashboard.tsx` y `MinutarioSection.tsx` vía `fetchScmtpData()` en `useEffect`; arrancan en `[]` con estado de carga y estado vacío ("No hay compromisos en InsForge"). KGIs inventados (92.3/83.5/100/88.0) reemplazados por indicadores calculados de datos reales (% completado, % en ejecución, avance global, plazos vencidos). Curva S mock reemplazada por agregados por minuta reales. Números de minuta en filtros ahora dinámicos.
+- **Verificación:** `tsc --noEmit` sin errores; vistas vivas (minutas: 1, compromisos: 3, pendientes: 0); grep confirma cero importaciones de `minutasData`.
+- **Pendiente (datos faltantes en la vista):** `v_scmtp_minutas` no expone `participantes` ni URL de Drive; el componente los tolera como vacíos (botón Drive oculto si no hay URL). Considerar agregar columnas `participantes JSONB` y `drive_url` a `scmtp.mae_minutas` si se requieren.
+
+---
+
+## 🏁 10. Conexión BCI a InsForge REAL — Erradicación de Mock/localStorage (2026-09-03)
+- **Reescrito:** `apps-refactorizadas/SIGI-REF/src/services/bciManagementService.ts` (100% async, datos REALES, sin localStorage ni `INITIAL_TOKENS`/`INITIAL_AUDIT`).
+  - `fetchJson()` interno con headers `apikey` + `Authorization: Bearer` + `Content-Type` (const `BCI_URL`/`BCI_API_KEY` desde `import.meta.env.VITE_BCI_URL`/`VITE_BCI_API_KEY` con fallback a la instancia real `jd3uejbz.ap-southeast.insforge.app`).
+  - `getTokens()` → `GET /api/database/records/v_knowledge_tokens_activos?limit=500`.
+  - `getAuditLogs()` → `POST /api/database/rpc/fn_listar_auditoria_bci` `{p_limit:100}`.
+  - `getStats()` → calcula de datos reales (totalTokens, tokensActivos=ACTIVO, consultasHoy, latenciaPromedioMs de auditoría). `chunksTotales/hechosL1/decisionesL2/appsL4` = 0 (sin endpoint, no se inventan).
+  - `generateToken()` → `POST /api/database/rpc/fn_emitir_token_bci`, devuelve `{record, tokenPlain}` (usa `token_id`, `token_prefix`, `token_plain`).
+  - `updateTokenState()` → `POST /api/database/rpc/fn_actualizar_estado_token_bci`.
+  - `logAudit()` → no-op documentado (la audita el backend `fn_validar_token_bci`).
+  - Helper `toArray()` normaliza `{data}` / array plano / `{records}`.
+- **Ajustado:** `src/components/BciGovernanceModule.tsx` — carga async con `Promise.all` en `useEffect` (via `refreshData` con `useCallback`), estado inicial `[]` + `isLoading=true` + `error`, banner "Cargando…" y "No hay tokens BCI en InsForge" si vacío, estado vacío en tabla de auditoría, `generateToken`/`handleToggleState`/`handleRevoke` `await`, token de una sola vez mostrado en modal (ya existía `issuedTokenSecret`). Removida llamada a `logAudit` en sandbox.
+- **Añadido:** `src/vite-env.d.ts` — `VITE_BCI_URL?` y `VITE_BCI_API_KEY?` en `ImportMetaEnv`.
+- **Verificación:** `tsc --noEmit` sin errores (corrido con `node node_modules/typescript/bin/tsc` porque `npm` falla bajo Node 24 — ver sección InsForge de AGENTS.md). Grep confirma cero `localStorage`/`INITIAL_TOKENS`/`INITIAL_AUDIT`/`getStored*`/`setStored*`.
+- **Nota:** los endpoints BCI fueron verificados previamente por el usuario (HTTP 200). Credenciales BCI ya en `apps-refactorizadas/SIGI-REF/.env`. La API key no se expone en código fuente (usa `import.meta.env` con fallback).

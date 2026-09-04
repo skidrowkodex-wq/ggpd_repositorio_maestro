@@ -7,7 +7,7 @@
 
 const env = (import.meta as any).env || {};
 const insforgeUrl = (env.VITE_INSFORGE_URL || env.INSFORGE_URL || 'https://wxkeqf37.ap-southeast.insforge.app').trim();
-const insforgeApiKey = (env.VITE_INSFORGE_API_KEY || env.INSFORGE_API_KEY || '***REMOVED***').trim();
+const insforgeApiKey = (env.VITE_INSFORGE_API_KEY || env.INSFORGE_API_KEY || '').trim();
 
 export const isSupabaseConfigured = Boolean(insforgeUrl && insforgeApiKey);
 

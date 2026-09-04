@@ -15,8 +15,8 @@ export const IntegratedDashboard: React.FC = () => {
             <Activity className="h-5 w-5 text-emerald-500" />
           </div>
           <div className="mt-4">
-            <h4 className="text-3xl font-black text-slate-900 dark:text-white font-mono">1,248</h4>
-            <p className="text-[10px] font-medium text-slate-500 mt-1">Interrupciones Procesadas (Últimos 30 días)</p>
+            <h4 className="text-3xl font-black text-slate-900 dark:text-white font-mono">—</h4>
+            <p className="text-[10px] font-medium text-slate-500 mt-1">Interrupciones Procesadas (Últimos 30 días) · Sin datos InsForge</p>
           </div>
         </div>
 
@@ -27,8 +27,8 @@ export const IntegratedDashboard: React.FC = () => {
             <Database className="h-5 w-5 text-purple-500" />
           </div>
           <div className="mt-4">
-            <h4 className="text-3xl font-black text-slate-900 dark:text-white font-mono">Bs. 450K</h4>
-            <p className="text-[10px] font-medium text-slate-500 mt-1">Presupuesto Ejecutado Viáticos</p>
+            <h4 className="text-3xl font-black text-slate-900 dark:text-white font-mono">—</h4>
+            <p className="text-[10px] font-medium text-slate-500 mt-1">Presupuesto Ejecutado Viáticos · Sin datos InsForge</p>
           </div>
         </div>
 
@@ -39,8 +39,8 @@ export const IntegratedDashboard: React.FC = () => {
             <AlertTriangle className="h-5 w-5 text-amber-500" />
           </div>
           <div className="mt-4">
-            <h4 className="text-3xl font-black text-slate-900 dark:text-white font-mono">42</h4>
-            <p className="text-[10px] font-medium text-slate-500 mt-1">Equipos en Patio Indisponibles (TX/Int)</p>
+            <h4 className="text-3xl font-black text-slate-900 dark:text-white font-mono">—</h4>
+            <p className="text-[10px] font-medium text-slate-500 mt-1">Equipos en Patio Indisponibles (TX/Int) · Sin datos InsForge</p>
           </div>
         </div>
       </div>

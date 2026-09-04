@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { 
   bciManagementService, 
@@ -40,9 +40,20 @@ export const BciGovernanceModule: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'tokens' | 'audit' | 'sandbox' | 'mcp_guide'>('dashboard');
   
   // State
-  const [tokens, setTokens] = useState<BciTokenRecord[]>(() => bciManagementService.getTokens());
-  const [auditLogs, setAuditLogs] = useState<BciAuditRecord[]>(() => bciManagementService.getAuditLogs());
-  const [stats, setStats] = useState<BciStats>(() => bciManagementService.getStats());
+  const [tokens, setTokens] = useState<BciTokenRecord[]>([]);
+  const [auditLogs, setAuditLogs] = useState<BciAuditRecord[]>([]);
+  const [stats, setStats] = useState<BciStats>({
+    totalTokens: 0,
+    tokensActivos: 0,
+    consultasHoy: 0,
+    chunksTotales: 0,
+    latenciaPromedioMs: 0,
+    hechosL1Totales: 0,
+    decisionesL2Totales: 0,
+    appsL4Totales: 0
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   // Search Filters
   const [tokenSearch, setTokenSearch] = useState('');
@@ -68,47 +79,78 @@ export const BciGovernanceModule: React.FC = () => {
   const [isSandboxSearching, setIsSandboxSearching] = useState(false);
 
   // Refresh
-  const refreshData = () => {
-    setTokens(bciManagementService.getTokens());
-    setAuditLogs(bciManagementService.getAuditLogs());
-    setStats(bciManagementService.getStats());
-  };
+  const refreshData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const [tokenData, auditData, statsData] = await Promise.all([
+        bciManagementService.getTokens(),
+        bciManagementService.getAuditLogs(),
+        bciManagementService.getStats()
+      ]);
+      setTokens(tokenData);
+      setAuditLogs(auditData);
+      setStats(statsData);
+    } catch (err: any) {
+      setError(err?.message || 'Error al conectar con la BCI en InsForge');
+      setTokens([]);
+      setAuditLogs([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-  const handleCreateToken = (e: React.FormEvent) => {
+  useEffect(() => {
+    refreshData();
+  }, [refreshData]);
+
+  const handleCreateToken = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newUserName.trim() || !newUserEmail.trim()) return;
 
     const usernameSlug = newUserEmail.split('@')[0].replace(/\./g, '_').toLowerCase();
 
-    const { record, tokenPlain } = bciManagementService.generateToken({
-      usuario_id: usernameSlug,
-      nombre_desarrollador: newUserName,
-      correo_institucional: newUserEmail,
-      gerencia_division: 'Planificación de Distribución (GGPD)',
-      nivel_acceso: newUserRole,
-      dias_vigencia: newDays,
-      cuota_diaria: newQuota,
-      emitido_por: session.userCode || session.name || 'admin.ggpd'
-    });
+    try {
+      const { record, tokenPlain } = await bciManagementService.generateToken({
+        usuario_id: usernameSlug,
+        nombre_desarrollador: newUserName,
+        correo_institucional: newUserEmail,
+        gerencia_division: 'Planificación de Distribución (GGPD)',
+        nivel_acceso: newUserRole,
+        dias_vigencia: newDays,
+        cuota_diaria: newQuota,
+        emitido_por: session.userCode || session.name || 'admin.ggpd'
+      });
 
-    setIssuedTokenSecret(tokenPlain);
-    setIssuedRecord(record);
-    setIsIssueModalOpen(false);
-    setNewUserName('');
-    setNewUserEmail('');
-    refreshData();
-  };
-
-  const handleToggleState = (token: BciTokenRecord) => {
-    const newState = token.estado === 'ACTIVO' ? 'SUSPENDIDO' : 'ACTIVO';
-    bciManagementService.updateTokenState(token.id, newState);
-    refreshData();
-  };
-
-  const handleRevoke = (token: BciTokenRecord) => {
-    if (window.confirm(`¿Está seguro de revocar permanentemente el token de ${token.nombre_desarrollador}?`)) {
-      bciManagementService.updateTokenState(token.id, 'REVOCADO', 'Revocación manual desde Consola SIGI');
+      setIssuedTokenSecret(tokenPlain);
+      setIssuedRecord(record);
+      setIsIssueModalOpen(false);
+      setNewUserName('');
+      setNewUserEmail('');
       refreshData();
+    } catch (err: any) {
+      setError(err?.message || 'Error al emitir el token en la BCI');
+    }
+  };
+
+  const handleToggleState = async (token: BciTokenRecord) => {
+    const newState = token.estado === 'ACTIVO' ? 'SUSPENDIDO' : 'ACTIVO';
+    try {
+      await bciManagementService.updateTokenState(token.id, newState);
+      refreshData();
+    } catch (err: any) {
+      setError(err?.message || 'Error al actualizar el estado del token');
+    }
+  };
+
+  const handleRevoke = async (token: BciTokenRecord) => {
+    if (window.confirm(`¿Está seguro de revocar permanentemente el token de ${token.nombre_desarrollador}?`)) {
+      try {
+        await bciManagementService.updateTokenState(token.id, 'REVOCADO', 'Revocación manual desde Consola SIGI');
+        refreshData();
+      } catch (err: any) {
+        setError(err?.message || 'Error al revocar el token');
+      }
     }
   };
 
@@ -151,19 +193,7 @@ export const BciGovernanceModule: React.FC = () => {
       ];
       setSandboxResults(mockMatches);
       setIsSandboxSearching(false);
-
-      // Log test audit
-      bciManagementService.logAudit({
-        usuario_id: session.userCode || session.name || 'admin.ggpd',
-        nombre_desarrollador: session.name,
-        nivel_acceso: 'NIVEL_3_RESERVADO_DIRECTIVA',
-        tipo_consulta: 'SANDBOX_TESTER',
-        termino_busqueda: sandboxQuery,
-        chunks_retornados: mockMatches.length,
-        latencia_ms: 32,
-        client_agent: 'SIGI-BCI-Sandbox'
-      });
-      refreshData();
+      // La auditoría de la consulta la registra el backend (fn_validar_token_bci) de la BCI.
     }, 400);
   };
 
@@ -293,6 +323,33 @@ export const BciGovernanceModule: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Estado de carga / error / vacío de la BCI */}
+      {isLoading && (
+        <div className="flex items-center gap-3 p-4 rounded-2xl bg-slate-100 dark:bg-[#07172b] border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 text-xs font-semibold">
+          <RefreshCw className="h-4 w-4 animate-spin text-cyan-500" />
+          <span>Cargando datos de la BCI en InsForge…</span>
+        </div>
+      )}
+      {!isLoading && error && (
+        <div className="flex items-start gap-3 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs font-semibold">
+          <AlertTriangle className="h-5 w-5 shrink-0 text-rose-500" />
+          <div>
+            <strong>Error al conectar con la BCI (InsForge):</strong> {error}
+            <button
+              onClick={() => refreshData()}
+              className="ml-2 underline hover:opacity-80 cursor-pointer"
+            >
+              Reintentar
+            </button>
+          </div>
+        </div>
+      )}
+      {!isLoading && !error && activeTab === 'tokens' && tokens.length === 0 && (
+        <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-xs font-semibold">
+          No hay tokens BCI en InsForge. Emita el primer token para comenzar.
+        </div>
+      )}
 
       {/* VIEW 1: DASHBOARD & TELEMETRÍA */}
       {activeTab === 'dashboard' && (
@@ -591,7 +648,14 @@ export const BciGovernanceModule: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {filteredAudit.map((a) => (
+                  {filteredAudit.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="text-center py-8 text-slate-400">
+                        No hay eventos de auditoría registrados en la BCI.
+                      </td>
+                    </tr>
+                  ) : (
+                  filteredAudit.map((a) => (
                     <tr key={a.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors">
                       <td className="px-5 py-3.5 font-mono text-[11px] text-slate-500">
                         {new Date(a.created_at).toLocaleTimeString()}
@@ -615,7 +679,7 @@ export const BciGovernanceModule: React.FC = () => {
                         {a.client_agent}
                       </td>
                     </tr>
-                  ))}
+                  )))}
                 </tbody>
               </table>
             </div>

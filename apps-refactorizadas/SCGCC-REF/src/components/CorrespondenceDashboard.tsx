@@ -14,7 +14,8 @@ import {
   Sparkles,
   Zap,
   Search,
-  FileCheck
+  FileCheck,
+  Folder
 } from 'lucide-react';
 
 interface DashboardProps {
@@ -64,13 +65,25 @@ export const CorrespondenceDashboard: React.FC<DashboardProps> = ({
               Monitoreo centralizado de comunicaciones oficiales, expedientes digitalizados y derivación directa de instrucciones a compromisos operativos SCMTP.
             </p>
           </div>
-          <button
-            onClick={onOpenRadicacion}
-            className="flex items-center gap-2 px-5 py-2.5 bg-white text-purple-900 hover:bg-purple-50 rounded-xl font-extrabold text-sm shadow-lg shadow-purple-950/30 transition-all active:scale-95 whitespace-nowrap"
-          >
-            <FileText className="w-4 h-4 text-purple-700" />
-            <span>Radicar Nuevo Oficio</span>
-          </button>
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <a
+              href="https://drive.google.com/drive/folders/1s5sOV__H7WbJRhsNHAqWgR8BIj0XHlI7"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2.5 bg-purple-900/80 hover:bg-purple-900 text-purple-100 border border-purple-400/40 rounded-xl font-bold text-xs shadow-md transition-all whitespace-nowrap"
+              title="Abrir Bóveda Oficial 00_CORRESPONDENCIA_SCGCC_2026 en Google Drive"
+            >
+              <Folder className="w-4 h-4 text-purple-300" />
+              <span>Bóveda Drive 2026</span>
+            </a>
+            <button
+              onClick={onOpenRadicacion}
+              className="flex items-center gap-2 px-5 py-2.5 bg-white text-purple-900 hover:bg-purple-50 rounded-xl font-extrabold text-sm shadow-lg shadow-purple-950/30 transition-all active:scale-95 whitespace-nowrap"
+            >
+              <FileText className="w-4 h-4 text-purple-700" />
+              <span>Radicar Nuevo Oficio</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -90,7 +103,7 @@ export const CorrespondenceDashboard: React.FC<DashboardProps> = ({
               </span>
             </div>
             <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-snug max-w-2xl">
-              Órdenes directas del Gerente General de Distribución (<strong>Ing. Adrián Correa</strong>) remitidas a la GGPD (<strong>Ing. Carlos Reyes</strong>) con asignación prioritaria en SCMTP (SLA 24h-48h).
+              Órdenes e instrucciones emanadas de la Superioridad GGD y la Gerencia de Gestión de Planificación (<strong>Ing. Adrián Correa</strong>) con asignación prioritaria en SCMTP (SLA 24h-48h).
             </p>
           </div>
         </div>

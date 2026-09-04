@@ -1,16 +1,40 @@
-import React, { useState } from 'react';
-import { INITIAL_DOCUMENTS } from '../mockData/portalData';
+import React, { useState, useEffect } from 'react';
 import { DocumentItem } from '../types/sigi';
 import { useAuth } from '../context/AuthContext';
 import { logSecurityAuditEvent } from '../utils/securityUtils';
 import { INITIAL_INSTITUTIONAL_USERS } from '../mockData/usersCatalog';
-import { Cloud, Download, Lock, FileSpreadsheet, FileText, CheckCircle2, ExternalLink, FolderGit2 } from 'lucide-react';
+import { fetchDocumentsFromInsForge } from '../services/documentsService';
+import { Cloud, Download, Lock, FileSpreadsheet, FileText, CheckCircle2, ExternalLink, FolderGit2, Inbox, Loader2 } from 'lucide-react';
 
 export const DocumentViewer: React.FC = () => {
   const { session } = useAuth();
-  const [selectedDoc, setSelectedDoc] = useState<DocumentItem>(INITIAL_DOCUMENTS[0]);
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
+  const [selectedDoc, setSelectedDoc] = useState<DocumentItem | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const canDownload = selectedDoc.downloadAllowedRoles.includes(session.role);
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    fetchDocumentsFromInsForge()
+      .then((docs) => {
+        if (cancelled) return;
+        setDocuments(docs);
+        setSelectedDoc(docs.length > 0 ? docs[0] : null);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setDocuments([]);
+        setSelectedDoc(null);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const canDownload = selectedDoc ? selectedDoc.downloadAllowedRoles.includes(session.role) : false;
 
   const matchedUser = INITIAL_INSTITUTIONAL_USERS.find(u => 
     u.username.toLowerCase() === (session.name || '').toLowerCase() ||
@@ -97,46 +121,69 @@ export const DocumentViewer: React.FC = () => {
             Catálogo de Documentos Institucionales
           </h3>
 
-          {INITIAL_DOCUMENTS.map((doc: DocumentItem) => {
-            const isSelected = selectedDoc.id === doc.id;
-            return (
-              <div
-                key={doc.id}
-                onClick={() => setSelectedDoc(doc)}
-                className={`cursor-pointer rounded-2xl p-4 border transition-all shadow-sm overflow-hidden ${
-                  isSelected
-                    ? 'border-[#002b49] bg-blue-50/90 dark:border-[#00f2fe] dark:bg-[#112240]'
-                    : 'bg-white dark:bg-[#081427] border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
-                }`}
-              >
-                <div className="flex items-start justify-between min-w-0">
-                  <div className="flex items-center space-x-3 min-w-0 flex-1 overflow-hidden">
-                    <div className="p-2 rounded-xl bg-slate-100 dark:bg-[#0a192f] border border-slate-200 dark:border-slate-800 text-[#002b49] dark:text-[#00f2fe] shrink-0">
-                      {doc.fileType === 'spreadsheet' ? <FileSpreadsheet className="h-5 w-5 text-emerald-600 dark:text-emerald-400" /> : <FileText className="h-5 w-5 text-[#002b49] dark:text-[#00f2fe]" />}
-                    </div>
-                    <div className="min-w-0 flex-1 overflow-hidden">
-                      <span className="text-[10px] font-mono font-bold text-[#002b49] dark:text-cyan-300 block truncate" title={doc.code}>
-                        {doc.code}
-                      </span>
-                      <h4 className="text-xs font-black text-slate-900 dark:text-white truncate" title={doc.title}>
-                        {doc.title}
-                      </h4>
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-12 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-[#081427] text-slate-500 dark:text-slate-400">
+              <Loader2 className="h-8 w-8 animate-spin text-[#002b49] dark:text-[#00f2fe]" />
+              <span className="mt-3 text-xs font-bold">Cargando documentos desde InsForge...</span>
+            </div>
+          ) : documents.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-[#081427] text-slate-500 dark:text-slate-400">
+              <Inbox className="h-8 w-8 text-[#002b49] dark:text-[#00f2fe]" />
+              <span className="mt-3 text-xs font-bold">No hay documentos institucionales</span>
+              <span className="mt-1 text-[10px] font-medium text-slate-400 dark:text-slate-500">
+                La biblioteca se poblará cuando existan registros en InsForge (institutional_documents / technical_documents).
+              </span>
+            </div>
+          ) : (
+            documents.map((doc: DocumentItem) => {
+              const isSelected = selectedDoc?.id === doc.id;
+              return (
+                <div
+                  key={doc.id}
+                  onClick={() => setSelectedDoc(doc)}
+                  className={`cursor-pointer rounded-2xl p-4 border transition-all shadow-sm overflow-hidden ${
+                    isSelected
+                      ? 'border-[#002b49] bg-blue-50/90 dark:border-[#00f2fe] dark:bg-[#112240]'
+                      : 'bg-white dark:bg-[#081427] border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                  }`}
+                >
+                  <div className="flex items-start justify-between min-w-0">
+                    <div className="flex items-center space-x-3 min-w-0 flex-1 overflow-hidden">
+                      <div className="p-2 rounded-xl bg-slate-100 dark:bg-[#0a192f] border border-slate-200 dark:border-slate-800 text-[#002b49] dark:text-[#00f2fe] shrink-0">
+                        {doc.fileType === 'spreadsheet' ? <FileSpreadsheet className="h-5 w-5 text-emerald-600 dark:text-emerald-400" /> : <FileText className="h-5 w-5 text-[#002b49] dark:text-[#00f2fe]" />}
+                      </div>
+                      <div className="min-w-0 flex-1 overflow-hidden">
+                        <span className="text-[10px] font-mono font-bold text-[#002b49] dark:text-cyan-300 block truncate" title={doc.code}>
+                          {doc.code}
+                        </span>
+                        <h4 className="text-xs font-black text-slate-900 dark:text-white truncate" title={doc.title}>
+                          {doc.title}
+                        </h4>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="mt-3 flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-300 border-t border-slate-200 dark:border-slate-800/60 pt-2 font-medium">
-                  <span className="truncate">Estado: <strong className="text-slate-900 dark:text-white">{doc.stateCode}</strong></span>
-                  <span className="shrink-0 font-mono text-[10px] ml-2">{doc.updatedAt}</span>
+                  <div className="mt-3 flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-300 border-t border-slate-200 dark:border-slate-800/60 pt-2 font-medium">
+                    <span className="truncate">Categoría: <strong className="text-slate-900 dark:text-white">{doc.category || 'General'}</strong></span>
+                    <span className="shrink-0 font-mono text-[10px] ml-2">{doc.updatedAt}</span>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
 
         {/* Embedded Viewer Container */}
         <div className="lg:col-span-2 rounded-3xl bg-white dark:bg-[#081224] p-6 border border-slate-200 dark:border-slate-800 shadow-md flex flex-col justify-between space-y-4 min-w-0 overflow-hidden">
           
+          {!selectedDoc ? (
+            <div className="flex-1 flex flex-col items-center justify-center py-16 text-slate-500 dark:text-slate-400">
+              <Inbox className="h-10 w-10 text-[#002b49] dark:text-[#00f2fe]" />
+              <span className="mt-3 text-sm font-bold">No hay documento seleccionado</span>
+              <span className="mt-1 text-xs text-slate-400 dark:text-slate-500">Seleccione un documento del catálogo para visualizarlo.</span>
+            </div>
+          ) : (
+          <>
           {/* Document Toolbar */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-4 min-w-0">
             <div className="min-w-0 flex-1 overflow-hidden">
@@ -232,6 +279,8 @@ export const DocumentViewer: React.FC = () => {
           <div className="text-center text-[10px] text-slate-500 font-semibold">
             Control de descargas administrado dinámicamente según la Directiva COBIT MEA02.
           </div>
+          </>
+          )}
 
         </div>
 

@@ -20,10 +20,12 @@ import {
   Shield,
   Clock,
   User,
-  Plus
+  Plus,
+  GraduationCap,
+  ChevronDown
 } from 'lucide-react';
 
-export type ActiveTabType = 'dashboard' | 'registro' | 'firmas' | 'briefing360' | 'plantillas';
+export type ActiveTabType = 'dashboard' | 'registro' | 'firmas' | 'briefing360' | 'plantillas' | 'guia';
 
 interface NavbarProps {
   activeTab: ActiveTabType;
@@ -43,15 +45,35 @@ export const Navbar: React.FC<NavbarProps> = ({
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
-  // Close mobile drawer on ESC key
+  // Close mobile drawer and user menu on ESC key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsMobileMenuOpen(false);
+      if (e.key === 'Escape') {
+        setIsMobileMenuOpen(false);
+        setIsUserMenuOpen(false);
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  // Close user dropdown when clicking outside
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('#user-menu-container')) {
+        setIsUserMenuOpen(false);
+      }
+    };
+    if (isUserMenuOpen) {
+      document.addEventListener('mousedown', handleOutsideClick);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [isUserMenuOpen]);
 
   // Prevent background scroll when mobile drawer is open
   useEffect(() => {
@@ -68,6 +90,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const handleNavClick = (tab: ActiveTabType) => {
     setActiveTab(tab);
     setIsMobileMenuOpen(false);
+    setIsUserMenuOpen(false);
   };
 
   const navItems = [
@@ -113,6 +136,15 @@ export const Navbar: React.FC<NavbarProps> = ({
       desc: 'Formatos oficiales CORPOELEC',
       badge: null
     },
+    {
+      id: 'guia' as ActiveTabType,
+      label: 'Guía Pedagógica SEN',
+      shortLabel: 'Guía SEN',
+      icon: GraduationCap,
+      desc: 'Casos reales e inducción no-repudio',
+      badge: 'Norma',
+      badgeColor: 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
+    },
   ];
 
   const getUserInitials = (name?: string) => {
@@ -128,31 +160,42 @@ export const Navbar: React.FC<NavbarProps> = ({
     <>
       <header className="sticky top-0 z-40 w-full shadow-md bg-white dark:bg-[#072146] border-b border-purple-200 dark:border-purple-900/40 transition-colors duration-200">
         {/* Top Technical Bar (GGPD Industrial Security Standard) */}
-        <div className="w-full bg-gradient-to-r from-purple-800 via-purple-700 to-indigo-800 text-white text-[11px] font-mono h-7 px-3 sm:px-6 lg:px-8 flex items-center justify-between tracking-wide select-none">
-          <div className="flex items-center gap-2 truncate">
+        <div className="w-full bg-gradient-to-r from-purple-800 via-purple-700 to-indigo-800 text-white text-[11px] font-mono h-7 px-3 sm:px-4 lg:px-6 flex items-center justify-between tracking-wide select-none overflow-hidden">
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 overflow-hidden">
             <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
-            <span className="font-black whitespace-nowrap text-amber-300">🛡️ ZONA SEGURA DE GRADO INDUSTRIAL</span>
-            <span className="hidden md:inline text-purple-300">|</span>
-            <span className="hidden lg:inline text-purple-100 font-semibold truncate">CORPOELEC GGPD • SCGCC V1.0 • PROCESO GGPD-SEC-01</span>
+            <span className="font-black whitespace-nowrap text-amber-300 text-[10px] sm:text-[11px]">🛡️ ZONA SEGURA</span>
+            <span className="hidden sm:inline text-purple-300">|</span>
+            <span className="hidden md:inline text-purple-100 font-semibold truncate text-[10px] sm:text-[11px]">CORPOELEC GGPD • SCGCC V1.0</span>
           </div>
-          <div className="flex items-center gap-2 sm:gap-3 text-[10px] text-purple-200 shrink-0">
-            <span className="hidden sm:inline font-bold text-emerald-300 whitespace-nowrap">ISO 27001 · ISO 8000 · OWASP</span>
-            <span className="hidden md:inline text-purple-300">·</span>
-            <span className="hidden md:inline whitespace-nowrap">ISO 15489</span>
-            <span className="bg-purple-950/80 px-2 py-0.5 rounded text-white font-mono font-bold whitespace-nowrap border border-purple-400/30">PORT 3006</span>
+          <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] text-purple-200 shrink-0">
+            <span className="hidden lg:inline font-bold text-emerald-300 whitespace-nowrap">ISO 27001 · OWASP</span>
+            
+            {/* QA / BD Governance Button in Top Technical Bar */}
+            {(user?.rol === 'ADMINISTRADOR' || user?.rol === 'SUPERVISOR' || user?.id === 'usr-blanca') && onOpenQAModal && (
+              <button
+                onClick={onOpenQAModal}
+                title="Panel de Gobernanza de Datos & Sincronización QA (PostgreSQL)"
+                className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-950/90 hover:bg-emerald-900 text-emerald-300 border border-emerald-500/50 text-[9px] sm:text-[10px] font-mono font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+                <span>QA / BD</span>
+              </button>
+            )}
+
+            <span className="bg-purple-950/80 px-1.5 py-0.5 rounded text-white font-mono font-bold whitespace-nowrap border border-purple-400/30 text-[9px] sm:text-[10px]">PORT 3006</span>
           </div>
         </div>
 
-        {/* Main Navbar Body - Full fluid width with safety padding */}
-        <div className="w-full max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 gap-2 sm:gap-4">
+        {/* Main Navbar Body - Fluid responsive container with no horizontal overflow */}
+        <div className="w-full max-w-[1600px] mx-auto px-2 sm:px-4 lg:px-6">
+          <div className="flex items-center justify-between h-14 sm:h-16 gap-1 sm:gap-2">
             
             {/* 1. Left Section: Mobile Hamburger + Brand & Logo Container */}
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
               {/* Mobile / Tablet Hamburger Drawer Button (< xl) on Left */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="xl:hidden p-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-all relative shrink-0"
+                className="xl:hidden p-1.5 sm:p-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-all relative shrink-0"
                 aria-label="Abrir Menú de Navegación"
               >
                 {isMobileMenuOpen ? (
@@ -167,30 +210,27 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               {/* Logo & Brand Title */}
               <div 
-                className="flex items-center gap-2.5 cursor-pointer group select-none shrink-0" 
+                className="flex items-center gap-2 cursor-pointer group select-none shrink-0" 
                 onClick={() => handleNavClick('dashboard')}
               >
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-700 flex items-center justify-center text-white shadow-md shadow-purple-500/20 group-hover:scale-105 transition-transform shrink-0">
-                  <Mail className="w-5 h-5" />
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-700 flex items-center justify-center text-white shadow-md shadow-purple-500/20 group-hover:scale-105 transition-transform shrink-0">
+                  <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <div className="flex flex-col justify-center">
-                  <div className="flex items-center gap-2 whitespace-nowrap">
-                    <span className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white leading-none">
+                  <div className="flex items-center gap-1 whitespace-nowrap">
+                    <span className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white leading-none">
                       SCGCC <span className="text-purple-600 dark:text-purple-400">V1.0</span>
                     </span>
-                    <span className="hidden sm:inline-block text-[10px] bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 font-bold px-2 py-0.5 rounded-full border border-purple-300 dark:border-purple-800 leading-none shrink-0">
-                      Despacho GGP
-                    </span>
                   </div>
-                  <p className="hidden 2xl:block text-[11px] text-slate-500 dark:text-slate-400 font-medium leading-tight mt-0.5 whitespace-nowrap">
-                    Seguimiento y Control de Correspondencia
+                  <p className="text-[9px] sm:text-[10px] text-purple-600 dark:text-purple-400 font-bold leading-tight mt-0.5 whitespace-nowrap">
+                    Despacho GGPD • Correspondencia
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* 2. Desktop Navigation Links (>= xl) - Adaptive labels */}
-            <nav className="hidden xl:flex items-center gap-1 shrink-0">
+            {/* 2. Desktop Navigation Links (>= xl) - Ultra Compact & Fluid */}
+            <nav className="hidden xl:flex items-center gap-0.5 2xl:gap-1 flex-1 justify-center max-w-fit px-1">
               {navItems.map(item => {
                 const IconComponent = item.icon;
                 const isActive = activeTab === item.id;
@@ -198,19 +238,21 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <button
                     key={item.id}
                     onClick={() => handleNavClick(item.id)}
-                    className={`px-2.5 2xl:px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-150 flex items-center gap-1.5 whitespace-nowrap relative ${
+                    className={`px-2 2xl:px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-150 flex items-center gap-1 whitespace-nowrap relative ${
                       isActive
                         ? item.id === 'briefing360'
                           ? 'bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800 shadow-xs'
+                          : item.id === 'guia'
+                          ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 shadow-xs'
                           : 'bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 shadow-xs'
                         : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80'
                     }`}
                   >
-                    <IconComponent className={`w-3.5 h-3.5 ${item.id === 'briefing360' ? 'text-amber-500' : ''}`} />
+                    <IconComponent className={`w-3.5 h-3.5 shrink-0 ${item.id === 'briefing360' ? 'text-amber-500' : item.id === 'guia' ? 'text-emerald-500' : ''}`} />
                     <span className="hidden 2xl:inline">{item.label}</span>
                     <span className="2xl:hidden">{item.shortLabel}</span>
                     {item.badge && (
-                      <span className={`ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-bold ${item.badgeColor || 'bg-purple-200 text-purple-800'}`}>
+                      <span className={`ml-0.5 px-1 py-0.2 rounded-full text-[9px] font-bold ${item.badgeColor || 'bg-purple-200 text-purple-800'}`}>
                         {item.badge}
                       </span>
                     )}
@@ -220,22 +262,21 @@ export const Navbar: React.FC<NavbarProps> = ({
             </nav>
 
             {/* 3. Right Header Actions & User Profile */}
-            <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               {/* Quick Radication Action Button */}
               <button
                 onClick={onOpenRadicacionModal}
-                className="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-purple-600/20 transition-all active:scale-95 whitespace-nowrap shrink-0"
+                className="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-purple-600/20 transition-all active:scale-95 whitespace-nowrap shrink-0"
               >
-                <Plus className="w-4 h-4" />
-                <span className="hidden 2xl:inline">Radicar Entrada</span>
-                <span className="2xl:hidden text-xs">Radicar</span>
+                <Plus className="w-3.5 h-3.5" />
+                <span className="text-xs">Radicar</span>
               </button>
 
               {/* Theme Toggle Button */}
               <button
                 onClick={toggleTheme}
-                title={theme === 'dark' ? 'Cambiar a Tema Claro Corporativo' : 'Cambiar a Modo Oscuro Azul SEN'}
-                className="p-2 rounded-xl text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-colors shrink-0"
+                title={theme === 'dark' ? 'Cambiar a Tema Claro' : 'Cambiar a Modo Oscuro'}
+                className="p-1.5 rounded-xl text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-colors shrink-0"
                 aria-label="Alternar Tema"
               >
                 {theme === 'dark' ? (
@@ -245,40 +286,77 @@ export const Navbar: React.FC<NavbarProps> = ({
                 )}
               </button>
 
-              {/* QA / BD Governance Button (Admin & Supervisor) */}
-              {(user?.rol === 'ADMINISTRADOR' || user?.rol === 'SUPERVISOR' || user?.id === 'usr-blanca') && onOpenQAModal && (
-                <button
-                  onClick={onOpenQAModal}
-                  title="Panel de Gobernanza de Datos & Sincronización QA (PostgreSQL)"
-                  className="px-2.5 py-1.5 rounded-xl bg-purple-50 dark:bg-purple-950/60 hover:bg-purple-100 dark:hover:bg-purple-900/80 border border-purple-300 dark:border-purple-800 text-purple-700 dark:text-purple-300 text-xs font-bold transition-all flex items-center gap-1.5 shrink-0"
-                >
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
-                  <span className="hidden sm:inline">QA / BD</span>
-                </button>
-              )}
-
-              {/* User Profile Pill & Logout (Desktop >= xl) */}
+              {/* User Profile Pill & Dropdown (Desktop >= xl) */}
               {user && (
-                <div className="hidden xl:flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-700 shrink-0">
-                  <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 flex items-center justify-center font-bold text-xs border border-purple-300 dark:border-purple-800 shrink-0 shadow-xs select-none">
-                    {getUserInitials(user.nombre)}
-                  </div>
-                  <div className="text-right max-w-[100px] 2xl:max-w-[150px] truncate">
-                    <div className="text-xs font-bold text-slate-800 dark:text-slate-100 leading-tight truncate" title={user.nombre}>
-                      {user.nombre}
-                    </div>
-                    <div className="text-[10px] text-purple-600 dark:text-purple-400 font-semibold truncate leading-tight mt-0.5" title={user.cargo}>
-                      {user.cargo}
-                    </div>
-                  </div>
+                <div id="user-menu-container" className="hidden xl:relative xl:flex items-center pl-2 border-l border-slate-200 dark:border-slate-700 shrink-0">
                   <button
-                    onClick={logout}
-                    title="Cerrar sesión"
-                    className="p-1.5 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-xl transition-colors shrink-0"
-                    aria-label="Cerrar Sesión"
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    className="flex items-center gap-1.5 p-1 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-200 dark:hover:border-purple-900/60 group cursor-pointer"
+                    aria-label="Abrir Perfil de Usuario"
                   >
-                    <LogOut className="w-4 h-4" />
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-600 to-indigo-700 text-white flex items-center justify-center font-bold text-xs shadow-xs select-none group-hover:scale-105 transition-transform">
+                      {getUserInitials(user.nombre)}
+                    </div>
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200 max-w-[120px] 2xl:max-w-[160px] truncate">
+                      {user.nombre}
+                    </span>
+                    <ChevronDown className={`w-3.5 h-3.5 text-slate-400 group-hover:text-purple-600 transition-transform ${isUserMenuOpen ? 'rotate-180 text-purple-600' : ''}`} />
                   </button>
+
+                  {/* Dropdown Menu Modal Popover */}
+                  {isUserMenuOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-[#072146] border border-purple-200 dark:border-purple-900/80 rounded-2xl shadow-2xl p-4 space-y-3 z-50 animate-fadeIn">
+                      <div className="flex items-start gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-700 text-white flex items-center justify-center font-bold text-sm shadow-md shrink-0">
+                          {getUserInitials(user.nombre)}
+                        </div>
+                        <div className="space-y-0.5 flex-1 min-w-0">
+                          <div className="text-xs font-black text-slate-900 dark:text-white leading-snug">
+                            {user.nombre}
+                          </div>
+                          <div className="text-[10px] font-mono font-bold text-purple-600 dark:text-purple-400 truncate">
+                            @{user.username}
+                          </div>
+                          <div className="inline-block px-1.5 py-0.2 rounded bg-purple-100 dark:bg-purple-950 text-purple-800 dark:text-purple-300 text-[9px] font-mono font-bold uppercase mt-1">
+                            {user.rol || 'USUARIO'}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Cargo Institucional Completo */}
+                      <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#041426] border border-slate-200 dark:border-purple-900/40 space-y-1.5 text-[11px]">
+                        <div className="text-[10px] font-mono font-bold text-slate-400 dark:text-slate-500 uppercase">
+                          Cargo Institucional
+                        </div>
+                        <div className="font-semibold text-slate-800 dark:text-slate-200 leading-tight">
+                          {user.cargo || 'Funcionario Corporativo'}
+                        </div>
+                        {user.dependencia && (
+                          <div className="text-[10px] text-purple-600 dark:text-purple-400 font-medium leading-tight pt-0.5">
+                            {user.dependencia}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Security badge */}
+                      <div className="flex items-center gap-1.5 text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+                        <ShieldCheck className="w-3.5 h-3.5" />
+                        <span>Sesión Auditada ISO 27001</span>
+                      </div>
+
+                      {/* Prominent Clear Logout Button */}
+                      <button
+                        onClick={() => {
+                          setIsUserMenuOpen(false);
+                          logout();
+                        }}
+                        className="w-full py-2.5 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/50 dark:hover:bg-rose-900/70 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-xs active:scale-98 cursor-pointer"
+                      >
+                        <LogOut className="w-4 h-4 text-rose-600 dark:text-rose-400" />
+                        <span>Cerrar Sesión Institucional</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

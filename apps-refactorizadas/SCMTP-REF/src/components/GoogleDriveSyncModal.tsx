@@ -65,50 +65,25 @@ export const GoogleDriveSyncModal: React.FC<GoogleDriveSyncModalProps> = ({
     setSuccessMsg(null);
 
     try {
-      // Check if already imported
-      if (file.id === 'drive-20260730-260004' || file.id === 'drive-20260629-260002') {
-        // Trigger sample load directly
-        const res = await fetch('/api/drive/sync-file', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            fileId: file.id,
-            fileName: file.name,
-          })
-        });
+      const res = await fetch('/api/drive/sync-file', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fileId: file.id,
+          fileName: file.name,
+        })
+      });
 
-        const data = await res.json();
-        if (data.success && data.minuta) {
-          onImportFromDrive(
-            data.minuta,
-            data.minuta.compromisos || [],
-            data.minuta.pendientes || []
-          );
-          setSuccessMsg(`¡Minuta ${file.name} sincronizada e importada con éxito desde Google Drive!`);
-        } else {
-          setErrorMsg(data.error || 'No se pudo procesar la minuta');
-        }
+      const data = await res.json();
+      if (data.success && data.minuta) {
+        onImportFromDrive(
+          data.minuta,
+          data.minuta.compromisos || [],
+          data.minuta.pendientes || []
+        );
+        setSuccessMsg(`¡Minuta ${file.name} sincronizada e importada con éxito desde Google Drive!`);
       } else {
-        // Generic drive sync
-        const res = await fetch('/api/drive/sync-file', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            fileId: file.id,
-            fileName: file.name,
-          })
-        });
-        const data = await res.json();
-        if (data.success && data.minuta) {
-          onImportFromDrive(
-            data.minuta,
-            data.minuta.compromisos || [],
-            data.minuta.pendientes || []
-          );
-          setSuccessMsg(`¡Minuta ${file.name} sincronizada e importada correctamente!`);
-        } else {
-          setErrorMsg(data.error || 'Error al procesar el PDF de Google Drive');
-        }
+        setErrorMsg(data.error || 'Error al procesar el PDF de Google Drive');
       }
     } catch (err: any) {
       console.error(err);

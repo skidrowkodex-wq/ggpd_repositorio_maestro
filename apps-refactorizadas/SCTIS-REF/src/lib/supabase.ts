@@ -1,11 +1,21 @@
-import { SupabaseConfig, TareaCompromiso, PendienteArea, MinutaReunion } from '../types';
+import { SupabaseConfig } from '../types';
 
-const STORAGE_KEY = 'corpoelec_insforge_config';
+const STORAGE_KEY = 'corpoelec_sctis_insforge_config';
+const DEFAULT_URL = 'https://wxkeqf37.ap-southeast.insforge.app';
+const DEFAULT_KEY = '';
 
 export function getStoredSupabaseConfig(): SupabaseConfig {
   const metaEnv = (import.meta as any).env || {};
-  const envUrl = (metaEnv.VITE_INSFORGE_URL || metaEnv.INSFORGE_URL || 'https://wxkeqf37.ap-southeast.insforge.app').trim();
-  const envAnonKey = (metaEnv.VITE_INSFORGE_API_KEY || metaEnv.INSFORGE_API_KEY || '').trim();
+  const envUrl = (
+    metaEnv.VITE_INSFORGE_URL ||
+    metaEnv.INSFORGE_URL ||
+    DEFAULT_URL
+  ).trim();
+  const envAnonKey = (
+    metaEnv.VITE_INSFORGE_API_KEY ||
+    metaEnv.INSFORGE_API_KEY ||
+    DEFAULT_KEY
+  ).trim();
 
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved) {
@@ -51,18 +61,23 @@ class InsforgeTableQuery {
     };
   }
 
-  private resolveEndpoint(viewPreferred: boolean = true) {
-    if (viewPreferred) {
-      if (this.tableName === 'minutas') return 'v_scmtp_minutas';
-      if (this.tableName === 'compromisos_tareas') return 'v_scmtp_compromisos_tareas';
-      if (this.tableName === 'pendientes_area') return 'v_scmtp_pendientes_area';
+  // SCTIS: lecturas y escrituras pasan por las vistas públicas de InsForge.
+  // `public.v_sctis_tiras_interrupcion` ya es actualizable (triggers INSTEAD OF
+  // sobre sctis.mae_interrupciones_tiras, ver sql/06_sctis_exposicion_publica.sql)
+  // y `public.v_sctis_despachadores` expone el catálogo de despachadores.
+  private resolveEndpoint(operation: 'read' | 'write') {
+    if (this.tableName === 'tiras') {
+      return 'v_sctis_tiras_interrupcion';
+    }
+    if (this.tableName === 'despachadores') {
+      return 'v_sctis_despachadores';
     }
     return this.tableName;
   }
 
   async select(columns: string = '*', options?: { count?: string; head?: boolean }): Promise<{ data: any[] | null; error: any }> {
     try {
-      const target = this.resolveEndpoint(true);
+      const target = this.resolveEndpoint('read');
       const res = await fetch(`${this.baseUrl}/api/database/records/${target}?limit=500`, {
         method: 'GET',
         headers: this.getHeaders(),
@@ -79,7 +94,7 @@ class InsforgeTableQuery {
 
   async insert(records: any | any[]): Promise<{ data: any | null; error: any }> {
     try {
-      const target = this.resolveEndpoint(false);
+      const target = this.resolveEndpoint('write');
       const payload = Array.isArray(records) ? records : [records];
       const res = await fetch(`${this.baseUrl}/api/database/records/${target}`, {
         method: 'POST',
@@ -105,7 +120,7 @@ class InsforgeTableQuery {
     return {
       eq: async (column: string, value: any): Promise<{ data: any | null; error: any }> => {
         try {
-          const target = this.resolveEndpoint(false);
+          const target = this.resolveEndpoint('write');
           const res = await fetch(`${this.baseUrl}/api/database/records/${target}?${column}=eq.${value}`, {
             method: 'DELETE',
             headers: this.getHeaders(),
@@ -150,70 +165,14 @@ export function resetSupabaseClient() {
   insforgeInstance = null;
 }
 
-export const SUPABASE_SQL_SCHEMA = `-- SQL Schema para CORPOELEC - Gestor de Tareas y Minutas
--- Esquema: scmtp (Seguimiento y Control de Minutas y Tareas Planificación)
--- Desplegado en InsForge PostgreSQL (ggpd-data-maestra-0002)
-
-CREATE SCHEMA IF NOT EXISTS scmtp;
-
-CREATE TABLE IF NOT EXISTS scmtp.mae_minutas (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  numero VARCHAR(50) UNIQUE NOT NULL,
-  fecha VARCHAR(20) NOT NULL,
-  fecha_iso DATE,
-  hora VARCHAR(20),
-  lugar VARCHAR(100),
-  coordinador VARCHAR(150),
-  unidad_organizativa TEXT,
-  objetivo TEXT,
-  compromisos_count INT DEFAULT 0,
-  pendientes_count INT DEFAULT 0,
-  proxima_fecha_seguimiento VARCHAR(50),
-  elaborado_por TEXT,
-  nombre_archivo VARCHAR(255),
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE TABLE IF NOT EXISTS scmtp.mae_compromisos_tareas (
-  id VARCHAR(100) PRIMARY KEY,
-  minuta_numero VARCHAR(50) REFERENCES scmtp.mae_minutas(numero) ON DELETE SET NULL,
-  minuta_fecha VARCHAR(20),
-  responsable VARCHAR(150) NOT NULL,
-  compromiso TEXT NOT NULL,
-  plazo_text VARCHAR(100),
-  plazo_fecha_iso DATE,
-  vinculacion_origen VARCHAR(100),
-  estado VARCHAR(50) DEFAULT 'Pendiente',
-  prioridad VARCHAR(20) DEFAULT 'Media',
-  avance_porcentaje INT DEFAULT 0,
-  area_gestion VARCHAR(100),
-  observaciones TEXT,
-  historial_avances JSONB DEFAULT '[]'::jsonb,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE TABLE IF NOT EXISTS scmtp.mae_pendientes_area (
-  id VARCHAR(100) PRIMARY KEY,
-  area VARCHAR(100) NOT NULL,
-  pendiente TEXT NOT NULL,
-  depende_de VARCHAR(150),
-  estado VARCHAR(50) DEFAULT 'Pendiente',
-  observacion TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-`;
-
 export async function testSupabaseConnection(url: string, anonKey: string): Promise<boolean> {
   try {
-    const res = await fetch(`${url.replace(/\/+$/, '')}/api/database/records/v_scmtp_minutas?limit=1`, {
+    const res = await fetch(`${url.replace(/\/+$/, '')}/api/database/records/v_sctis_tiras_interrupcion?limit=1`, {
       method: 'GET',
       headers: {
         'apikey': anonKey,
         'Authorization': `Bearer ${anonKey}`,
-      }
+      },
     });
     return res.ok;
   } catch (err) {

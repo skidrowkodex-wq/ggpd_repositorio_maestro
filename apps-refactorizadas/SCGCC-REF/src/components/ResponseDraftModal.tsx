@@ -14,8 +14,10 @@ import {
   Calendar, 
   AlertCircle,
   FileCheck,
-  ShieldCheck
+  ShieldCheck,
+  QrCode
 } from 'lucide-react';
+import { QRCodeSeal } from './QRCodeSeal';
 
 interface ResponseDraftModalProps {
   isOpen: boolean;
@@ -43,12 +45,13 @@ export const ResponseDraftModal: React.FC<ResponseDraftModalProps> = ({
   const [cuerpoTexto, setCuerpoTexto] = useState('');
   const [conclusionesTecnicas, setConclusionesTecnicas] = useState('');
   const [firmanteNombre, setFirmanteNombre] = useState('Ing. Adrián Correa');
-  const [firmanteCargo, setFirmanteCargo] = useState('Gerente General de Distribución');
-  const [copias, setCopias] = useState('Ing. Carlos Reyes (Gerente Nacional de Planificación) • Archivo');
+  const [firmanteCargo, setFirmanteCargo] = useState('Gerente de Gestión de Planificación de Distribución');
+  const [copias, setCopias] = useState('Ing. Carlos Reyes (Gerente General de Distribución - GGD) • Archivo Central GGPD');
   const [anexos, setAnexos] = useState('Informe Técnico de Factibilidad • Matriz de Validación');
   const [previewMode, setPreviewMode] = useState<boolean>(false);
   const [isGeneratingAI, setIsGeneratingAI] = useState<boolean>(false);
   const [savedSuccess, setSavedSuccess] = useState<boolean>(false);
+  const [incluirQR, setIncluirQR] = useState<boolean>(false);
 
   // Initialize or reload from record
   useEffect(() => {
@@ -80,7 +83,7 @@ export const ResponseDraftModal: React.FC<ResponseDraftModalProps> = ({
         setReferenciaAntecedente(`${record.numeroDocumentoOrigen} (${record.correlativo})`);
         
         setCuerpoTexto(
-          `Por medio de la presente, tengo a bien dirigirme a usted con la finalidad de dar oportuna respuesta a la comunicación de la referencia, mediante la cual remite solicitud institucional para la atención del requerimiento en materia de redes y servicios de distribución eléctrica.\n\nAl respecto, cumplo con informarle que la Gerencia General de Planificación de Distribución (GGPD), a través de su equipo técnico y de ingeniería, ha realizado el análisis técnico de rigor, procediendo con la debida articulación operativa y verificación en campo.`
+          `Por medio de la presente, tengo a bien dirigirme a usted con la finalidad de dar oportuna respuesta a la comunicación de la referencia, mediante la cual remite solicitud institucional para la atención del requerimiento en materia de redes y servicios de distribución eléctrica.\n\nAl respecto, cumplo con informarle que la Gerencia de Gestión de Planificación de Distribución (GGPD), a través de su equipo técnico y de ingeniería, ha realizado el análisis técnico de rigor, procediendo con la debida articulación operativa y verificación en campo.`
         );
 
         setConclusionesTecnicas(
@@ -90,8 +93,8 @@ export const ResponseDraftModal: React.FC<ResponseDraftModalProps> = ({
         );
 
         setFirmanteNombre('Ing. Adrián Correa');
-        setFirmanteCargo('Gerente General de Distribución');
-        setCopias('Ing. Carlos Reyes (Gerente Nacional de Planificación) • Archivo Central GGPD');
+        setFirmanteCargo('Gerente de Gestión de Planificación de Distribución');
+        setCopias('Ing. Carlos Reyes (Gerente General de Distribución - GGD) • Archivo Central GGPD');
         setAnexos('Ficha Técnica de Evaluación • Constancia de Compromiso');
       }
       setSavedSuccess(false);
@@ -106,7 +109,7 @@ export const ResponseDraftModal: React.FC<ResponseDraftModalProps> = ({
     setIsGeneratingAI(true);
     setTimeout(() => {
       setCuerpoTexto(
-        `Por medio de la presente, en atención a su comunicación ${record.numeroDocumentoOrigen} de fecha ${record.fechaEmisionOrigen}, vinculada al expediente de radicación ${record.correlativo}, cumplo con informarle que la Gerencia General de Distribución (GGPD) ha culminado la evaluación técnica y de factibilidad integral.\n\nEn virtud de las atribuciones conferidas y tras la revisión efectuada por los especialistas de planificación, se emite el presente pronunciamiento formal ratificando la viabilidad del requerimiento e instruyendo las acciones de despliegue correspondientes de acuerdo con los planes operativos vigentes.`
+        `Por medio de la presente, en atención a su comunicación ${record.numeroDocumentoOrigen} de fecha ${record.fechaEmisionOrigen}, vinculada al expediente de radicación ${record.correlativo}, cumplo con informarle que la Gerencia de Gestión de Planificación de Distribución (GGPD) ha culminado la evaluación técnica y de factibilidad integral.\n\nEn virtud de las atribuciones conferidas y tras la revisión efectuada por los especialistas de planificación, se emite el presente pronunciamiento formal ratificando la viabilidad del requerimiento e instruyendo las acciones de despliegue correspondientes de acuerdo con los planes operativos vigentes.`
       );
       if (record.tareaScmtpTitulo) {
         setConclusionesTecnicas(
@@ -209,101 +212,141 @@ export const ResponseDraftModal: React.FC<ResponseDraftModalProps> = ({
             </div>
           ) : previewMode ? (
             /* OFFICIAL INSTITUTIONAL PREVIEW */
-            <div className="bg-white text-slate-900 p-8 sm:p-12 rounded-xl shadow-inner border border-slate-300 font-serif max-w-3xl mx-auto space-y-6">
+            <div className="space-y-4 max-w-3xl mx-auto">
               
-              {/* Membrete Oficial */}
-              <div className="border-b-2 border-purple-900 pb-4 flex items-center justify-between">
-                <div>
-                  <div className="text-[12px] font-black tracking-wider text-purple-900 uppercase">
-                    REPÚBLICA BOLIVARIANA DE VENEZUELA
+              {/* Toolbar de Formato O&M / Sello QR (No se imprime) */}
+              <div className="flex items-center justify-between bg-purple-50 dark:bg-purple-950/60 p-3 rounded-xl border border-purple-200 dark:border-purple-800 text-xs font-sans print:hidden shadow-sm">
+                <div className="flex items-center gap-2.5">
+                  <div className={`p-1.5 rounded-lg ${incluirQR ? 'bg-purple-600 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}>
+                    <QrCode className="w-4 h-4" />
                   </div>
-                  <div className="text-[11px] font-bold text-slate-800 uppercase">
-                    MINISTERIO DEL PODER POPULAR PARA LA ENERGÍA ELÉCTRICA
-                  </div>
-                  <div className="text-[11px] font-semibold text-slate-700">
-                    CORPORACIÓN ELÉCTRICA NACIONAL (CORPOELEC)
-                  </div>
-                  <div className="text-[10px] text-purple-700 font-mono font-bold mt-1">
-                    GERENCIA GENERAL DE GESTIÓN DE PLANIFICACIÓN DE DISTRIBUCIÓN (GGPD)
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-xs font-mono font-bold text-purple-900 bg-purple-50 px-2.5 py-1 rounded border border-purple-200">
-                    {numeroOficio || 'GGPD-OF-2026-XXXX'}
-                  </div>
-                  <div className="text-[10px] text-slate-500 font-sans mt-1">
-                    Caracas, {new Date().toLocaleDateString('es-VE', { day: '2-digit', month: 'long', year: 'numeric' })}
+                  <div>
+                    <span className="font-bold text-slate-800 dark:text-slate-200">
+                      Sello de Validación Criptográfica QR:
+                    </span>{' '}
+                    <span className={`font-semibold ${incluirQR ? 'text-purple-700 dark:text-purple-300' : 'text-slate-500'}`}>
+                      {incluirQR ? '🟢 Activado (Norma ISO 15489)' : '⚪ Desactivado (Formato Clásico O&M)'}
+                    </span>
                   </div>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setIncluirQR(!incluirQR)}
+                  className="px-3 py-1 text-xs font-bold rounded-lg bg-purple-600 hover:bg-purple-700 text-white shadow-sm transition-all"
+                >
+                  {incluirQR ? 'Quitar Sello QR' : 'Estampar Sello QR'}
+                </button>
               </div>
 
-              {/* Encabezado Protocolar */}
-              <div className="text-xs space-y-1 pt-2">
-                <div><strong>Ciudadano(a):</strong></div>
-                <div className="font-bold text-sm text-slate-900">{destinatarioNombre}</div>
-                <div className="text-slate-700">{destinatarioCargo}</div>
-                <div className="font-semibold text-purple-900">{destinatarioInstitucion}</div>
-                <div className="text-[11px] text-slate-500 italic mt-2">
-                  <strong>Referencia / Antecedente:</strong> {referenciaAntecedente}
-                </div>
-              </div>
-
-              {/* Asunto */}
-              <div className="bg-slate-100 p-2.5 rounded text-xs font-sans">
-                <strong>ASUNTO:</strong> {asunto}
-              </div>
-
-              {/* Cuerpo del Documento */}
-              <div className="text-xs leading-relaxed text-justify space-y-4 whitespace-pre-line text-slate-800">
-                {cuerpoTexto}
-              </div>
-
-              {/* Conclusiones / Puntos */}
-              {conclusionesTecnicas && (
-                <div className="pt-2">
-                  <div className="text-xs font-bold text-slate-900 uppercase font-sans mb-1">
-                    Conclusiones & Dictamen Técnico:
+              {/* Hoja de Oficio Oficial */}
+              <div className="bg-white text-slate-900 p-8 sm:p-12 rounded-xl shadow-inner border border-slate-300 font-serif space-y-6">
+                
+                {/* Membrete Oficial */}
+                <div className="border-b-2 border-purple-900 pb-4 flex items-center justify-between">
+                  <div>
+                    <div className="text-[12px] font-black tracking-wider text-purple-900 uppercase">
+                      REPÚBLICA BOLIVARIANA DE VENEZUELA
+                    </div>
+                    <div className="text-[11px] font-bold text-slate-800 uppercase">
+                      MINISTERIO DEL PODER POPULAR PARA LA ENERGÍA ELÉCTRICA
+                    </div>
+                    <div className="text-[11px] font-semibold text-slate-700">
+                      CORPORACIÓN ELÉCTRICA NACIONAL (CORPOELEC)
+                    </div>
+                    <div className="text-[10px] text-purple-700 font-mono font-bold mt-1">
+                      GERENCIA DE GESTIÓN DE PLANIFICACIÓN DE DISTRIBUCIÓN (GGPD)
+                    </div>
                   </div>
-                  <div className="text-xs leading-relaxed text-justify whitespace-pre-line bg-purple-50/50 p-3 rounded border border-purple-100 text-slate-800">
-                    {conclusionesTecnicas}
-                  </div>
-                </div>
-              )}
-
-              {/* Despedida Protocolar */}
-              <div className="text-xs pt-4 text-slate-800">
-                Sin otro particular al cual hacer referencia, reiterando nuestro compromiso con la estabilidad del Sistema Eléctrico Nacional (SEN), se suscribe.
-              </div>
-
-              {/* Firma Gerencial */}
-              <div className="pt-10 text-center">
-                <div className="inline-block border-t border-slate-700 pt-2 min-w-[280px]">
-                  <div className="text-xs font-bold uppercase text-slate-900">
-                    {firmanteNombre}
-                  </div>
-                  <div className="text-[11px] text-slate-700 font-sans">
-                    {firmanteCargo}
-                  </div>
-                  <div className="text-[9px] text-purple-800 font-mono mt-0.5">
-                    CORPOELEC • GGPD
+                  <div className="text-right">
+                    <div className="text-xs font-mono font-bold text-purple-900 bg-purple-50 px-2.5 py-1 rounded border border-purple-200">
+                      {numeroOficio || 'GGPD-OF-2026-XXXX'}
+                    </div>
+                    <div className="text-[10px] text-slate-500 font-sans mt-1">
+                      Caracas, {new Date().toLocaleDateString('es-VE', { day: '2-digit', month: 'long', year: 'numeric' })}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Pie de Copias & Anexos */}
-              <div className="border-t border-slate-200 pt-3 text-[9px] text-slate-500 font-sans flex justify-between">
-                <div>
-                  <strong>C.c.:</strong> {copias}
-                  <br />
-                  <strong>Anexos:</strong> {anexos}
+                {/* Encabezado Protocolar */}
+                <div className="text-xs space-y-1 pt-2">
+                  <div><strong>Ciudadano(a):</strong></div>
+                  <div className="font-bold text-sm text-slate-900">{destinatarioNombre}</div>
+                  <div className="text-slate-700">{destinatarioCargo}</div>
+                  <div className="font-semibold text-purple-900">{destinatarioInstitucion}</div>
+                  <div className="text-[11px] text-slate-500 italic mt-2">
+                    <strong>Referencia / Antecedente:</strong> {referenciaAntecedente}
+                  </div>
                 </div>
-                <div className="text-right">
-                  <strong>Elaborado por:</strong> {user?.nombre || 'Analista GGPD'}
-                  <br />
-                  <strong>Código de Seguridad:</strong> ISO-15489-CORPO-2026
-                </div>
-              </div>
 
+                {/* Asunto */}
+                <div className="bg-slate-100 p-2.5 rounded text-xs font-sans">
+                  <strong>ASUNTO:</strong> {asunto}
+                </div>
+
+                {/* Cuerpo del Documento */}
+                <div className="text-xs leading-relaxed text-justify space-y-4 whitespace-pre-line text-slate-800">
+                  {cuerpoTexto}
+                </div>
+
+                {/* Conclusiones / Puntos */}
+                {conclusionesTecnicas && (
+                  <div className="pt-2">
+                    <div className="text-xs font-bold text-slate-900 uppercase font-sans mb-1">
+                      Conclusiones & Dictamen Técnico:
+                    </div>
+                    <div className="text-xs leading-relaxed text-justify whitespace-pre-line bg-purple-50/50 p-3 rounded border border-purple-100 text-slate-800">
+                      {conclusionesTecnicas}
+                    </div>
+                  </div>
+                )}
+
+                {/* Despedida Protocolar */}
+                <div className="text-xs pt-4 text-slate-800">
+                  Sin otro particular al cual hacer referencia, reiterando nuestro compromiso con la estabilidad del Sistema Eléctrico Nacional (SEN), se suscribe.
+                </div>
+
+                {/* Firma Gerencial */}
+                <div className="pt-8 text-center">
+                  <div className="inline-block border-t border-slate-700 pt-2 min-w-[280px]">
+                    <div className="text-xs font-bold uppercase text-slate-900">
+                      {firmanteNombre}
+                    </div>
+                    <div className="text-[11px] text-slate-700 font-sans">
+                      {firmanteCargo}
+                    </div>
+                    <div className="text-[9px] text-purple-800 font-mono mt-0.5">
+                      CORPOELEC • GGPD
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sello QR de Validación Criptográfica (Opcional según O&M) */}
+                {incluirQR && (
+                  <div className="pt-2 border-t border-purple-100">
+                    <QRCodeSeal
+                      numeroOficio={numeroOficio}
+                      firmanteNombre={firmanteNombre}
+                      asunto={asunto}
+                      size={64}
+                    />
+                  </div>
+                )}
+
+                {/* Pie de Copias & Anexos */}
+                <div className="border-t border-slate-200 pt-3 text-[9px] text-slate-500 font-sans flex justify-between">
+                  <div>
+                    <strong>C.c.:</strong> {copias}
+                    <br />
+                    <strong>Anexos:</strong> {anexos}
+                  </div>
+                  <div className="text-right">
+                    <strong>Elaborado por:</strong> {user?.nombre || 'Analista GGPD'}
+                    <br />
+                    <strong>Código de Seguridad:</strong> ISO-15489-CORPO-2026
+                  </div>
+                </div>
+
+              </div>
             </div>
           ) : (
             /* FORM EDITOR */
@@ -464,15 +507,15 @@ export const ResponseDraftModal: React.FC<ResponseDraftModalProps> = ({
                     onChange={(e) => {
                       setFirmanteNombre(e.target.value);
                       if (e.target.value.includes('Adrián Correa')) {
-                        setFirmanteCargo('Gerente General de Distribución');
+                        setFirmanteCargo('Gerente de Gestión de Planificación de Distribución');
                       } else {
-                        setFirmanteCargo('Gerente General de Gestión de Planificación');
+                        setFirmanteCargo('Gerente General de Distribución (GGD)');
                       }
                     }}
                     className="w-full px-3 py-2 bg-slate-50 dark:bg-[#041426] border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-semibold text-slate-800 dark:text-slate-200"
                   >
-                    <option value="Ing. Adrián Correa">Ing. Adrián Correa (Gerente General de Distribución)</option>
-                    <option value="Ing. Carlos Reyes">Ing. Carlos Reyes (Gerente General de Planificación)</option>
+                    <option value="Ing. Adrián Correa">Ing. Adrián Correa (Gerente de Gestión de Planificación de Distribución)</option>
+                    <option value="Ing. Carlos Reyes">Ing. Carlos Reyes (Gerente General de Distribución - GGD)</option>
                   </select>
                 </div>
 
@@ -499,6 +542,41 @@ export const ResponseDraftModal: React.FC<ResponseDraftModalProps> = ({
                     className="w-full px-3 py-2 bg-slate-50 dark:bg-[#041426] border border-slate-300 dark:border-slate-700 rounded-lg text-xs text-slate-800 dark:text-slate-200"
                   />
                 </div>
+              </div>
+
+              {/* Toggle Sello QR O&M */}
+              <div className="flex items-center justify-between p-3.5 bg-purple-50/70 dark:bg-purple-950/30 rounded-xl border border-purple-200 dark:border-purple-800/60">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${incluirQR ? 'bg-purple-600 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}>
+                    <QrCode className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                      <span>Sello de Validación Criptográfica QR (Norma ISO 15489 / SEN 2026)</span>
+                      <span className="text-[9px] bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300 px-1.5 py-0.5 rounded font-mono font-bold">
+                        En Evaluación O&M
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                      {incluirQR 
+                        ? '🟢 Formato Moderno Activado: Se estampará el código QR y Hash SHA-256 en el pie del oficio para verificación en línea.'
+                        : '⚪ Formato Clásico O&M: Emisión tradicional limpia sin código QR (predeterminado).'}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIncluirQR(!incluirQR)}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                    incluirQR ? 'bg-purple-600' : 'bg-slate-300 dark:bg-slate-700'
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                      incluirQR ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
               </div>
             </div>
           )}

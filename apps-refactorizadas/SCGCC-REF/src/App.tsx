@@ -11,46 +11,63 @@ import { DocumentDetailModal } from './components/DocumentDetailModal';
 import { ResponseDraftModal } from './components/ResponseDraftModal';
 import { ExecutiveBriefing360Modal } from './components/ExecutiveBriefing360Modal';
 import { CorporateTemplatesView } from './components/CorporateTemplatesModal';
+import { InteractiveGuideView } from './components/InteractiveGuideView';
 import { AdminQAModal } from './components/AdminQAModal';
-import { INITIAL_CORRESPONDENCIAS } from './data/initialCorrespondencias';
-import { fetchLiveCorrespondencias } from './services/insforgeService';
+import { 
+  fetchLiveCorrespondencias, 
+  saveCorrespondenciaToDatabase, 
+  updateCorrespondenciaInDatabase, 
+  saveOficioToDatabase 
+} from './services/insforgeService';
 import { CorrespondenciaRecord, EstadoTramite, OficioRespuesta, EstadoFirma } from './types';
 
 export const App: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState<ActiveTabType>('dashboard');
 
-  // Correspondencias State with localStorage persistence and live DB sync
-  const [records, setRecords] = useState<CorrespondenciaRecord[]>(() => {
-    const saved = localStorage.getItem('scgcc_records_v2');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        return parsed.length > 0 ? parsed : INITIAL_CORRESPONDENCIAS;
-      } catch {
-        return INITIAL_CORRESPONDENCIAS;
-      }
-    }
-    return INITIAL_CORRESPONDENCIAS;
-  });
+  // Correspondencias State: arranca VACÍO (sin data mock). La fuente de verdad es InsForge,
+  // que se consulta en vivo al montar y se sincroniza por polling.
+  const [records, setRecords] = useState<CorrespondenciaRecord[]>([]);
 
-  // Background Live DB Hydration
+  // Background Live DB Hydration & Real-time Auto-Sync Polling
   useEffect(() => {
+    let isMounted = true;
+
     const syncFromDatabase = async () => {
       try {
         const result = await fetchLiveCorrespondencias();
-        if (result.success && result.data && result.data.length > 0) {
+        if (result.success && result.data && isMounted) {
+          // InsForge es la única fuente de verdad: se reemplaza el estado completo,
+          // incluido el caso vacío (sin registros -> la app muestra estado vacío).
           setRecords(result.data);
         }
       } catch (err) {
-        console.warn('Live InsForge BaaS sync failed, retaining local store:', err);
+        console.warn('Live InsForge BaaS sync failed:', err);
       }
     };
+
+    // Sincronización inmediata al montar
     syncFromDatabase();
+
+    // Polling en tiempo real cada 4 segundos (Multi-Usuario)
+    const interval = setInterval(syncFromDatabase, 4000);
+
+    // Sincronizar inmediatamente al enfocar la pestaña
+    const handleFocus = () => syncFromDatabase();
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleFocus);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleFocus);
+    };
   }, []);
 
+  // localStorage queda SOLO como caché opcional de lectura; no es fuente de verdad.
   useEffect(() => {
-    localStorage.setItem('scgcc_records_v2', JSON.stringify(records));
+    localStorage.setItem('scgcc_records_v3', JSON.stringify(records));
   }, [records]);
 
   // Modals state
@@ -71,12 +88,20 @@ export const App: React.FC = () => {
     r => r.oficioRespuestaDetalle?.estadoFirma === 'PENDIENTE_FIRMA'
   ).length;
 
-  const handleRadicar = (newRecord: CorrespondenciaRecord) => {
+  const handleRadicar = async (newRecord: CorrespondenciaRecord) => {
+    // 1. Actualización optimista local en pantalla
     setRecords(prev => [newRecord, ...prev]);
     setActiveTab('registro');
+
+    // 2. Persistencia inmediata en la nube (InsForge PostgreSQL)
+    try {
+      await saveCorrespondenciaToDatabase(newRecord);
+    } catch (err) {
+      console.error('Error persistiendo correspondencia en InsForge:', err);
+    }
   };
 
-  const handleStatusChange = (recordId: string, newStatus: EstadoTramite) => {
+  const handleStatusChange = async (recordId: string, newStatus: EstadoTramite) => {
     setRecords(prev => prev.map(r => {
       if (r.id === recordId) {
         return { ...r, estadoTramite: newStatus, updatedAt: new Date().toISOString() };
@@ -86,9 +111,15 @@ export const App: React.FC = () => {
     if (selectedRecord && selectedRecord.id === recordId) {
       setSelectedRecord(prev => prev ? { ...prev, estadoTramite: newStatus } : null);
     }
+
+    try {
+      await updateCorrespondenciaInDatabase(recordId, { estadoTramite: newStatus });
+    } catch (err) {
+      console.error('Error actualizando estado en InsForge:', err);
+    }
   };
 
-  const handleDeriveTask = (
+  const handleDeriveTask = async (
     correspondenciaId: string, 
     taskTitle: string, 
     assignee: string, 
@@ -109,9 +140,21 @@ export const App: React.FC = () => {
       }
       return r;
     }));
+
+    try {
+      await updateCorrespondenciaInDatabase(correspondenciaId, {
+        estadoTramite: 'ASIGNADO_CON_TAREA',
+        tareaScmtpId: generatedTaskId,
+        tareaScmtpTitulo: taskTitle,
+        responsableAsignado: assignee,
+        fechaLimiteRespuesta: deadline
+      });
+    } catch (err) {
+      console.error('Error guardando derivación SCMTP en InsForge:', err);
+    }
   };
 
-  const handleSaveDraft = (correspondenciaId: string, oficio: OficioRespuesta) => {
+  const handleSaveDraft = async (correspondenciaId: string, oficio: OficioRespuesta) => {
     const newDocState: EstadoTramite = 
       oficio.estadoFirma === 'PENDIENTE_FIRMA' 
         ? 'PENDIENTE_FIRMA' 
@@ -132,9 +175,19 @@ export const App: React.FC = () => {
       }
       return r;
     }));
+
+    try {
+      await saveOficioToDatabase(oficio);
+      await updateCorrespondenciaInDatabase(correspondenciaId, { estadoTramite: newDocState });
+    } catch (err) {
+      console.error('Error guardando oficio en InsForge:', err);
+    }
   };
 
-  const handleUpdateOficioState = (correspondenciaId: string, newOficioState: EstadoFirma, additionalData?: any) => {
+  const handleUpdateOficioState = async (correspondenciaId: string, newOficioState: EstadoFirma, additionalData?: any) => {
+    let targetOficio: OficioRespuesta | null = null;
+    let newDocState: EstadoTramite = 'EN_REVISION';
+
     setRecords(prev => prev.map(r => {
       if (r.id === correspondenciaId && r.oficioRespuestaDetalle) {
         const updatedOficio: OficioRespuesta = {
@@ -142,8 +195,9 @@ export const App: React.FC = () => {
           estadoFirma: newOficioState,
           ...additionalData
         };
+        targetOficio = updatedOficio;
 
-        const newDocState: EstadoTramite = 
+        newDocState = 
           newOficioState === 'DESPACHADO_CON_ACUSE' 
             ? 'RESPONDIDO' 
             : newOficioState === 'FIRMADO_FISICO' 
@@ -159,6 +213,15 @@ export const App: React.FC = () => {
       }
       return r;
     }));
+
+    if (targetOficio) {
+      try {
+        await saveOficioToDatabase(targetOficio);
+        await updateCorrespondenciaInDatabase(correspondenciaId, { estadoTramite: newDocState });
+      } catch (err) {
+        console.error('Error actualizando estado de oficio en InsForge:', err);
+      }
+    }
   };
 
   const handleOpenBriefing = (record: CorrespondenciaRecord) => {
@@ -170,17 +233,12 @@ export const App: React.FC = () => {
     setRecords(liveData);
   };
 
-  const handleResetToCanonical = () => {
-    setRecords(INITIAL_CORRESPONDENCIAS);
-    localStorage.setItem('scgcc_records_v2', JSON.stringify(INITIAL_CORRESPONDENCIAS));
-  };
-
   if (!isAuthenticated) {
     return <LoginForm />;
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-[#041426] text-slate-900 dark:text-slate-100 transition-colors duration-200 flex flex-col justify-between">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-slate-100 dark:bg-[#041426] text-slate-900 dark:text-slate-100 transition-colors duration-200 flex flex-col justify-between">
       <div>
         {/* Navbar */}
         <Navbar
@@ -254,6 +312,13 @@ export const App: React.FC = () => {
           {activeTab === 'plantillas' && (
             <CorporateTemplatesView />
           )}
+
+          {activeTab === 'guia' && (
+            <InteractiveGuideView 
+              onNavigateToRadicacion={() => setIsRadicacionOpen(true)}
+              onNavigateToTab={(tab) => setActiveTab(tab)}
+            />
+          )}
         </main>
       </div>
 
@@ -262,7 +327,7 @@ export const App: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 space-y-3">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
             <span className="font-bold text-slate-800 dark:text-slate-200">
-              CORPOELEC • Gerencia General de Planificación de Distribución (GGPD)
+              CORPOELEC • Gerencia de Gestión de Planificación de Distribución (GGPD)
             </span>
             <span className="text-purple-600 dark:text-purple-400 font-black">
               SCGCC V1.0 • GESTIÓN DE CORRESPONDENCIA CORPORATIVA & DESPACHO
@@ -338,7 +403,6 @@ export const App: React.FC = () => {
         onClose={() => setIsQAModalOpen(false)}
         recordsCount={records.length}
         onSyncWithDB={handleSyncWithDB}
-        onResetToCanonical={handleResetToCanonical}
       />
     </div>
   );

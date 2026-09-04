@@ -34,3 +34,10 @@ apps/sctis-v-2.0-distribucion/interrupciones/uploads/
 .roo
 .trae
 .windsurf
+
+# Credenciales y configuración sensible (nunca versionar)
+ggpd_bci/config/
+ggpd_bci/config/*.env
+ggpd_bci/config/connection.json
+opencode.json
+.mcp.json

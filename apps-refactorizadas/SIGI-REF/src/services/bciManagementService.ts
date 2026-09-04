@@ -1,7 +1,11 @@
 /**
  * ⚡ CORPOELEC - GGPD | BCI MANAGEMENT SERVICE
- * Servicio para gestión de tokens, auditoría y telemetría de la Base de Conocimiento Inteligente.
- * BaaS: jd3uejbz.ap-southeast.database.insforge.app
+ * Servicio para gestión de tokens, auditoría y telemetría de la Base de Conocimiento Inteligente (BCI).
+ * La BCI vive en una instancia InsForge SEPARADA de SIGI-REF.
+ * BaaS (BCI): jd3uejbz.ap-southeast.insforge.app
+ *
+ * Fuente de datos REAL: todos los métodos son asíncronos y consultan la instancia InsForge de la BCI.
+ * Ya NO se usa localStorage ni catálogos mock de negocio (INITIAL_TOKENS / INITIAL_AUDIT).
  */
 
 export interface BciTokenRecord {
@@ -46,149 +50,82 @@ export interface BciStats {
   appsL4Totales: number;
 }
 
-const BCI_STORAGE_KEY_TOKENS = 'corpoelec_bci_tokens_registry_v1';
-const BCI_STORAGE_KEY_AUDIT = 'corpoelec_bci_audit_registry_v1';
+const BCI_URL = import.meta.env.VITE_BCI_URL || 'https://jd3uejbz.ap-southeast.insforge.app';
+const BCI_API_KEY = import.meta.env.VITE_BCI_API_KEY || '';
 
-// Catálogo Canónico Inicial Sincronizado con InsForge
-const INITIAL_TOKENS: BciTokenRecord[] = [
-  {
-    id: '09313cd3-150a-42b4-8c58-8e5798087d48',
-    token_prefix: 'bci_live_5c3b23',
-    usuario_id: 'yvan.cipiran',
-    nombre_desarrollador: 'Ing. Yván Cipirán',
-    correo_institucional: 'y.cipiran@corpoelec.gob.ve',
-    gerencia_division: 'Planificación de Distribución (GGPD)',
-    nivel_acceso: 'NIVEL_3_RESERVADO_DIRECTIVA',
-    cuota_diaria_consultas: 1000,
-    consultas_hoy: 3,
-    fecha_emision: '2026-08-26T13:48:33Z',
-    fecha_expiracion: '2026-11-24T13:48:33Z',
-    estado: 'ACTIVO',
-    ultimo_acceso: '2026-08-26T13:51:18Z',
-    emitido_por: 'admin.ggpd'
-  },
-  {
-    id: '2061984a-61fd-46e4-b18d-2c7a04271f8a',
-    token_prefix: 'bci_live_07da86',
-    usuario_id: 'josue.pacheco',
-    nombre_desarrollador: 'T.S.U. Josué Pacheco',
-    correo_institucional: 'j.pacheco@corpoelec.gob.ve',
-    gerencia_division: 'Planificación de Distribución (GGPD)',
-    nivel_acceso: 'NIVEL_3_RESERVADO_DIRECTIVA',
-    cuota_diaria_consultas: 1000,
-    consultas_hoy: 0,
-    fecha_emision: '2026-08-26T13:48:36Z',
-    fecha_expiracion: '2026-11-24T13:48:36Z',
-    estado: 'ACTIVO',
-    ultimo_acceso: undefined,
-    emitido_por: 'admin.ggpd'
-  }
-];
+const HEADERS = {
+  apikey: BCI_API_KEY,
+  Authorization: `Bearer ${BCI_API_KEY}`,
+  'Content-Type': 'application/json'
+};
 
-const INITIAL_AUDIT: BciAuditRecord[] = [
-  {
-    id: 'aud-001',
-    usuario_id: 'yvan.cipiran',
-    nombre_desarrollador: 'Ing. Yván Cipirán',
-    nivel_acceso: 'NIVEL_3_RESERVADO_DIRECTIVA',
-    tipo_consulta: 'FACT_LOOKUP',
-    termino_busqueda: 'fact_ports',
-    chunks_retornados: 1,
-    latencia_ms: 28,
-    client_agent: 'Python-SDK / Antigravity IDE',
-    created_at: '2026-08-26T13:51:18Z'
-  },
-  {
-    id: 'aud-002',
-    usuario_id: 'yvan.cipiran',
-    nombre_desarrollador: 'Ing. Yván Cipirán',
-    nivel_acceso: 'NIVEL_3_RESERVADO_DIRECTIVA',
-    tipo_consulta: 'RAG_SEARCH',
-    termino_busqueda: 'Metas 2026 TTI FMI',
-    chunks_retornados: 2,
-    latencia_ms: 35,
-    client_agent: 'Python-SDK / Antigravity IDE',
-    created_at: '2026-08-26T13:51:14Z'
-  },
-  {
-    id: 'aud-003',
-    usuario_id: 'yvan.cipiran',
-    nombre_desarrollador: 'Ing. Yván Cipirán',
-    nivel_acceso: 'NIVEL_3_RESERVADO_DIRECTIVA',
-    tipo_consulta: 'CLI_LOGIN',
-    termino_busqueda: 'Verificación inicial SDK',
-    chunks_retornados: 0,
-    latencia_ms: 18,
-    client_agent: 'BCI-SDK / CLI',
-    created_at: '2026-08-26T13:51:09Z'
+async function fetchJson<T>(url: string, options: RequestInit = {}): Promise<T> {
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      ...HEADERS,
+      ...(options.headers || {})
+    }
+  });
+
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`BCI API error (${res.status}): ${body || res.statusText}`);
   }
-];
+
+  return (await res.json()) as T;
+}
+
+/** Normaliza la respuesta de InsForge (que puede venir como {data: []} o como array plano) a un array. */
+function toArray<T>(payload: any): T[] {
+  if (Array.isArray(payload)) return payload as T[];
+  if (payload && Array.isArray(payload.data)) return payload.data as T[];
+  if (payload && Array.isArray(payload.records)) return payload.records as T[];
+  return [];
+}
 
 class BciManagementService {
-  private getStoredTokens(): BciTokenRecord[] {
-    try {
-      const data = localStorage.getItem(BCI_STORAGE_KEY_TOKENS);
-      return data ? JSON.parse(data) : INITIAL_TOKENS;
-    } catch {
-      return INITIAL_TOKENS;
-    }
+  public async getTokens(): Promise<BciTokenRecord[]> {
+    const payload = await fetchJson<any>(
+      `${BCI_URL}/api/database/records/v_knowledge_tokens_activos?limit=500`
+    );
+    return toArray<BciTokenRecord>(payload);
   }
 
-  private setStoredTokens(tokens: BciTokenRecord[]): void {
-    try {
-      localStorage.setItem(BCI_STORAGE_KEY_TOKENS, JSON.stringify(tokens));
-    } catch (e) {
-      console.warn('Error saving BCI tokens:', e);
-    }
+  public async getAuditLogs(): Promise<BciAuditRecord[]> {
+    const payload = await fetchJson<any>(
+      `${BCI_URL}/api/database/rpc/fn_listar_auditoria_bci`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ p_limit: 100 })
+      }
+    );
+    return toArray<BciAuditRecord>(payload);
   }
 
-  private getStoredAudit(): BciAuditRecord[] {
-    try {
-      const data = localStorage.getItem(BCI_STORAGE_KEY_AUDIT);
-      return data ? JSON.parse(data) : INITIAL_AUDIT;
-    } catch {
-      return INITIAL_AUDIT;
-    }
-  }
+  public async getStats(): Promise<BciStats> {
+    const [tokens, audit] = await Promise.all([this.getTokens(), this.getAuditLogs()]);
 
-  private setStoredAudit(audit: BciAuditRecord[]): void {
-    try {
-      localStorage.setItem(BCI_STORAGE_KEY_AUDIT, JSON.stringify(audit));
-    } catch (e) {
-      console.warn('Error saving BCI audit:', e);
-    }
-  }
-
-  public getTokens(): BciTokenRecord[] {
-    return this.getStoredTokens();
-  }
-
-  public getAuditLogs(): BciAuditRecord[] {
-    return this.getStoredAudit();
-  }
-
-  public getStats(): BciStats {
-    const tokens = this.getStoredTokens();
-    const audit = this.getStoredAudit();
     const activeTokens = tokens.filter(t => t.estado === 'ACTIVO');
-    const totalConsultas = tokens.reduce((acc, t) => acc + t.consultas_hoy, 0);
-    const avgLatency = audit.length > 0
-      ? Math.round(audit.reduce((acc, a) => acc + a.latencia_ms, 0) / audit.length)
-      : 32;
+    const consultasHoy = tokens.reduce((acc, t) => acc + (Number(t.consultas_hoy) || 0), 0);
+    const latenciaPromedioMs = audit.length > 0
+      ? Math.round(audit.reduce((acc, a) => acc + (Number(a.latencia_ms) || 0), 0) / audit.length)
+      : 0;
 
     return {
       totalTokens: tokens.length,
       tokensActivos: activeTokens.length,
-      consultasHoy: totalConsultas,
-      chunksTotales: 519,
-      latenciaPromedioMs: avgLatency,
-      hechosL1Totales: 14,
-      decisionesL2Totales: 6,
-      appsL4Totales: 14
+      consultasHoy,
+      // Sin endpoint para contar chunks / capas de conocimiento: no se inventan números.
+      chunksTotales: 0,
+      latenciaPromedioMs,
+      hechosL1Totales: 0,
+      decisionesL2Totales: 0,
+      appsL4Totales: 0
     };
   }
 
-  public generateToken(params: {
+  public async generateToken(params: {
     usuario_id: string;
     nombre_desarrollador: string;
     correo_institucional: string;
@@ -197,59 +134,70 @@ class BciManagementService {
     dias_vigencia: number;
     cuota_diaria: number;
     emitido_por: string;
-  }): { record: BciTokenRecord; tokenPlain: string } {
-    // Generar entropía criptográfica pseudo-random en navegador
-    const randomHex = Array.from(crypto.getRandomValues(new Uint8Array(24)))
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
-    
-    const tokenPlain = `bci_live_${randomHex}`;
-    const tokenPrefix = tokenPlain.substring(0, 15);
-    
-    const expDate = new Date();
-    expDate.setDate(expDate.getDate() + params.dias_vigencia);
+  }): Promise<{ record: BciTokenRecord; tokenPlain: string }> {
+    const payload = await fetchJson<any>(
+      `${BCI_URL}/api/database/rpc/fn_emitir_token_bci`,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          p_usuario_id: params.usuario_id,
+          p_nombre_desarrollador: params.nombre_desarrollador,
+          p_correo_institucional: params.correo_institucional,
+          p_gerencia_division: params.gerencia_division,
+          p_nivel_acceso: params.nivel_acceso,
+          p_cuota_diaria: params.cuota_diaria,
+          p_dias_vigencia: params.dias_vigencia,
+          p_emitido_por: params.emitido_por
+        })
+      }
+    );
 
-    const newRecord: BciTokenRecord = {
-      id: crypto.randomUUID(),
-      token_prefix: tokenPrefix,
+    const tokenPlain = payload.token_plain || '';
+    const record: BciTokenRecord = {
+      id: payload.token_id || '',
+      token_prefix: payload.token_prefix || (tokenPlain ? tokenPlain.substring(0, 15) : ''),
       usuario_id: params.usuario_id,
       nombre_desarrollador: params.nombre_desarrollador,
       correo_institucional: params.correo_institucional,
-      gerencia_division: params.gerencia_division || 'Planificación de Distribución (GGPD)',
+      gerencia_division: params.gerencia_division,
       nivel_acceso: params.nivel_acceso,
       cuota_diaria_consultas: params.cuota_diaria,
       consultas_hoy: 0,
       fecha_emision: new Date().toISOString(),
-      fecha_expiracion: expDate.toISOString(),
+      fecha_expiracion: payload.fecha_expiracion || '',
       estado: 'ACTIVO',
       emitido_por: params.emitido_por
     };
 
-    const tokens = [newRecord, ...this.getStoredTokens()];
-    this.setStoredTokens(tokens);
-
-    return { record: newRecord, tokenPlain };
+    return { record, tokenPlain };
   }
 
-  public updateTokenState(tokenId: string, nuevoEstado: 'ACTIVO' | 'SUSPENDIDO' | 'REVOCADO', motivo?: string): boolean {
-    const tokens = this.getStoredTokens();
-    const index = tokens.findIndex(t => t.id === tokenId);
-    if (index === -1) return false;
-
-    tokens[index].estado = nuevoEstado;
-    if (motivo) tokens[index].motivo_revocacion = motivo;
-    this.setStoredTokens(tokens);
-    return true;
+  public async updateTokenState(
+    tokenId: string,
+    nuevoEstado: 'ACTIVO' | 'SUSPENDIDO' | 'REVOCADO',
+    motivo?: string
+  ): Promise<void> {
+    await fetchJson<any>(
+      `${BCI_URL}/api/database/rpc/fn_actualizar_estado_token_bci`,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          p_token_id: tokenId,
+          p_nuevo_estado: nuevoEstado,
+          p_motivo: motivo || null
+        })
+      }
+    );
   }
 
-  public logAudit(entry: Omit<BciAuditRecord, 'id' | 'created_at'>): void {
-    const newEntry: BciAuditRecord = {
-      ...entry,
-      id: crypto.randomUUID(),
-      created_at: new Date().toISOString()
-    };
-    const audit = [newEntry, ...this.getStoredAudit()].slice(0, 100);
-    this.setStoredAudit(audit);
+  /**
+   * La auditoría de consultas la registra el backend (fn_validar_token_bci) cuando un usuario
+   * usa el token. No hay endpoint de escritura expuesto desde la consola, por lo que este método
+   * es un no-op seguro que conserva la firma por compatibilidad.
+   */
+  public async logAudit(_entry: Omit<BciAuditRecord, 'id' | 'created_at'>): Promise<void> {
+    // No-op: la auditoría la persiste el backend de la BCI.
+    return Promise.resolve();
   }
 }
 

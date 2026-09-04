@@ -18,34 +18,34 @@ import {
 } from 'lucide-react';
 
 export const LoginForm: React.FC = () => {
-  const { login } = useAuth();
+  const { login, loginError } = useAuth();
+  const [authError, setAuthError] = useState<string | null>(null);
   const { theme, toggleTheme } = useTheme();
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setAuthError(null);
     if (!username.trim()) {
-      setError('Por favor ingrese su usuario corporativo.');
+      setAuthError('Por favor ingrese su usuario corporativo.');
       return;
     }
     if (!password.trim()) {
-      setError('Por favor ingrese su contraseña institucional.');
+      setAuthError('Por favor ingrese su contraseña institucional.');
       return;
     }
 
     setLoading(true);
-    setError(null);
     try {
       const success = await login(username, password);
-      if (!success) {
-        setError('Credenciales inválidas o sin permisos en SCGCC.');
+      if (!success && !loginError) {
+        setAuthError('Credenciales inválidas o sin permisos en SCGCC.');
       }
     } catch {
-      setError('Error al conectar con el servidor de autenticación.');
+      setAuthError('Error al conectar con el servidor de autenticación.');
     } finally {
       setLoading(false);
     }
@@ -159,10 +159,10 @@ export const LoginForm: React.FC = () => {
             </div>
 
             {/* Error Message */}
-            {error && (
+            {(authError || loginError) && (
               <div className="flex items-center gap-2 rounded-xl bg-red-50 dark:bg-red-950/60 p-3 border border-red-200 dark:border-red-500/40 text-xs text-red-700 dark:text-red-300 font-medium animate-fadeIn">
                 <AlertCircle className="h-4 w-4 shrink-0 text-red-600 dark:text-red-400" />
-                <span>{error}</span>
+                <span>{authError || loginError}</span>
               </div>
             )}
 

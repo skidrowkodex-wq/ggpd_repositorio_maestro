@@ -1,12 +1,10 @@
-import React, { useState } from 'react';
-import { 
-  SCTAP_MINUTAS, 
-  SCTAP_COMPROMISOS, 
-  SCTAP_PENDIENTES, 
-  MinutaReunionSCTAP, 
-  TareaCompromisoSCTAP, 
-  PendienteAreaSCTAP 
-} from '../data/minutasData';
+import React, { useState, useEffect } from 'react';
+import {
+  fetchScmtpData,
+  MinutaReunionSCTAP,
+  TareaCompromisoSCTAP,
+  PendienteAreaSCTAP
+} from '../services/scmtpService';
 import { useAuth } from '../context/AuthContext';
 import { 
   FileText, 
@@ -39,19 +37,43 @@ export const MinutarioSection: React.FC = () => {
   const [selectedResponsableFilter, setSelectedResponsableFilter] = useState<string>('ALL');
   const [selectedMinutaModal, setSelectedMinutaModal] = useState<MinutaReunionSCTAP | null>(null);
   const [selectedTareaModal, setSelectedTareaModal] = useState<TareaCompromisoSCTAP | null>(null);
+  const [SCTAP_MINUTAS, setMinutas] = useState<MinutaReunionSCTAP[]>([]);
+  const [SCTAP_COMPROMISOS, setCompromisos] = useState<TareaCompromisoSCTAP[]>([]);
+  const [SCTAP_PENDIENTES, setPendientes] = useState<PendienteAreaSCTAP[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Estadísticas globales de las tareas SCTAP
+  // Carga de datos reales desde InsForge (vistas v_scmtp_*)
+  useEffect(() => {
+    let cancelled = false;
+    setIsLoading(true);
+    fetchScmtpData()
+      .then((data) => {
+        if (cancelled) return;
+        setMinutas(data.minutas);
+        setCompromisos(data.compromisos);
+        setPendientes(data.pendientes);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  // Estadísticas globales de las tareas SCTAP (derivadas de datos reales)
   const totalCompromisos = SCTAP_COMPROMISOS.length;
   const completadosCount = SCTAP_COMPROMISOS.filter(c => c.avancePorcentaje === 100 || c.estado === 'Completado').length;
   const enProcesoCount = SCTAP_COMPROMISOS.filter(c => c.avancePorcentaje > 0 && c.avancePorcentaje < 100).length;
   const pendientesCount = SCTAP_COMPROMISOS.filter(c => c.avancePorcentaje === 0 || c.estado === 'Pendiente').length;
-  const promedioAvance = Math.round(
-    SCTAP_COMPROMISOS.reduce((acc, curr) => acc + curr.avancePorcentaje, 0) / totalCompromisos
-  );
+  const promedioAvance = totalCompromisos === 0
+    ? 0
+    : Math.round(
+        SCTAP_COMPROMISOS.reduce((acc, curr) => acc + curr.avancePorcentaje, 0) / totalCompromisos
+      );
 
   // Lista única de responsables y áreas
   const responsablesList = Array.from(new Set(SCTAP_COMPROMISOS.map(c => c.responsable)));
   const areasList = Array.from(new Set(SCTAP_COMPROMISOS.map(c => c.areaGestion)));
+  const minutaNumerosList = Array.from(new Set(SCTAP_COMPROMISOS.map(c => c.minutaNumero).filter(Boolean))).sort();
 
   // Filtrado de compromisos
   const filteredCompromisos = SCTAP_COMPROMISOS.filter(comp => {
@@ -103,7 +125,7 @@ export const MinutarioSection: React.FC = () => {
             Minutario Técnico & Matriz de Compromisos GGPD
           </h2>
           <p className="text-xs text-cyan-100/90 mt-1 font-medium max-w-2xl leading-relaxed">
-            Consolidado institucional auditable de minutas oficiales (#26-0004 y #26-0002), 26 tareas/compromisos operativos de contingencia y asignación de responsabilidades.
+            Consolidado institucional auditable de minutas oficiales, tareas/compromisos operativos y asignación de responsabilidades (base maestra InsForge).
           </p>
         </div>
 
@@ -122,8 +144,8 @@ export const MinutarioSection: React.FC = () => {
             <span className="text-xs font-bold text-slate-500">Minutas Registradas</span>
             <FileText className="h-4 w-4 text-blue-500" />
           </div>
-          <div className="mt-2 text-2xl font-black text-slate-900 dark:text-white">2 Actas</div>
-          <span className="text-[10px] text-slate-400 font-medium">#26-0004 y #26-0002</span>
+          <div className="mt-2 text-2xl font-black text-slate-900 dark:text-white">{SCTAP_MINUTAS.length} Actas</div>
+          <span className="text-[10px] text-slate-400 font-medium">{minutaNumerosList.length > 0 ? minutaNumerosList.map(n => `#${n}`).join(' y ') : 'Sin minutas registradas'}</span>
         </div>
 
         <div className="rounded-2xl bg-white dark:bg-[#0b172c] p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
@@ -141,7 +163,7 @@ export const MinutarioSection: React.FC = () => {
             <CheckCircle2 className="h-4 w-4 text-emerald-500" />
           </div>
           <div className="mt-2 text-2xl font-black text-emerald-600 dark:text-emerald-400">{completadosCount}</div>
-          <span className="text-[10px] text-emerald-600/80 font-medium">{Math.round((completadosCount / totalCompromisos) * 100)}% de efectividad</span>
+          <span className="text-[10px] text-emerald-600/80 font-medium">{totalCompromisos === 0 ? 0 : Math.round((completadosCount / totalCompromisos) * 100)}% de efectividad</span>
         </div>
 
         <div className="rounded-2xl bg-white dark:bg-[#0b172c] p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
@@ -165,7 +187,7 @@ export const MinutarioSection: React.FC = () => {
           }`}
         >
           <FileText className="h-4 w-4" />
-          <span>Minutas Oficiales (2)</span>
+          <span>Minutas Oficiales ({SCTAP_MINUTAS.length})</span>
         </button>
 
         <button
@@ -226,8 +248,9 @@ export const MinutarioSection: React.FC = () => {
             className="w-full rounded-xl bg-white dark:bg-[#112240] pl-10 pr-4 py-2.5 text-xs text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 focus:outline-none font-bold cursor-pointer shadow-xs"
           >
             <option value="ALL">Todas las Minutas</option>
-            <option value="26-0004">Minuta #26-0004 (17 tareas)</option>
-            <option value="26-0002">Minuta #26-0002 (9 tareas)</option>
+            {minutaNumerosList.map(num => (
+              <option key={num} value={num}>Minuta #{num} ({SCTAP_COMPROMISOS.filter(c => c.minutaNumero === num).length} tareas)</option>
+            ))}
           </select>
         </div>
 
@@ -245,6 +268,21 @@ export const MinutarioSection: React.FC = () => {
           </select>
         </div>
       </div>
+
+      {/* Estado de carga / vacío */}
+      {isLoading && (
+        <div className="rounded-2xl bg-slate-50 dark:bg-[#0b172c] p-6 border border-slate-200 dark:border-slate-800 text-center text-xs font-bold text-slate-500 dark:text-slate-400">
+          Cargando minutario desde InsForge (v_scmtp_minutas · v_scmtp_compromisos_tareas · v_scmtp_pendientes_area)…
+        </div>
+      )}
+      {!isLoading && SCTAP_MINUTAS.length === 0 && SCTAP_COMPROMISOS.length === 0 && (
+        <div className="rounded-2xl bg-amber-50 dark:bg-amber-950/20 p-6 border border-amber-200 dark:border-amber-900/40 text-center">
+          <p className="text-sm font-black text-amber-800 dark:text-amber-300">No hay compromisos en InsForge</p>
+          <p className="text-xs text-amber-700/80 dark:text-amber-400/80 mt-1">
+            Las vistas v_scmtp_* no retornaron registros o no hay conexión con la base maestra.
+          </p>
+        </div>
+      )}
 
       {/* VIEW 1: MINUTAS OFICIALES */}
       {activeTab === 'minutas' && (
@@ -300,15 +338,17 @@ export const MinutarioSection: React.FC = () => {
                   <span>Ver Acta y Asistentes</span>
                 </button>
 
-                <a
-                  href={min.driveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center space-x-2 rounded-xl bg-[#002b49] text-white dark:bg-[#00f2fe] dark:text-[#0a192f] px-4 py-2.5 text-xs font-black shadow-sm hover:opacity-90 transition-opacity"
-                >
-                  <span>Google Drive</span>
-                  <ExternalLink className="h-4 w-4" />
-                </a>
+                {min.driveUrl && (
+                  <a
+                    href={min.driveUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center space-x-2 rounded-xl bg-[#002b49] text-white dark:bg-[#00f2fe] dark:text-[#0a192f] px-4 py-2.5 text-xs font-black shadow-sm hover:opacity-90 transition-opacity"
+                  >
+                    <span>Google Drive</span>
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                )}
               </div>
             </div>
           ))}
@@ -392,7 +432,7 @@ export const MinutarioSection: React.FC = () => {
       {activeTab === 'kanban' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-500 font-bold">26 Tareas distribuidas por estado de avance real</span>
+            <span className="text-xs text-slate-500 font-bold">{totalCompromisos} Tareas distribuidas por estado de avance real</span>
             <span className="text-[10px] font-mono bg-blue-100 text-blue-800 dark:bg-[#00f2fe]/10 dark:text-[#00f2fe] px-2.5 py-0.5 rounded-full font-black">
               LIVE SCTAP DATA
             </span>
@@ -639,15 +679,17 @@ export const MinutarioSection: React.FC = () => {
               <span className="text-[10px] text-slate-500 font-semibold">
                 Registro oficial de la Gerencia de Planificación de Distribución (GGPD)
               </span>
-              <a
-                href={selectedMinutaModal.driveUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-2 rounded-xl bg-[#002b49] text-white dark:bg-[#00f2fe] dark:text-[#0a192f] px-5 py-2.5 text-xs font-black shadow-md hover:opacity-90 transition-all"
-              >
-                <span>Ver Carpeta en Google Drive</span>
-                <ExternalLink className="h-4 w-4" />
-              </a>
+              {selectedMinutaModal.driveUrl && (
+                <a
+                  href={selectedMinutaModal.driveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center space-x-2 rounded-xl bg-[#002b49] text-white dark:bg-[#00f2fe] dark:text-[#0a192f] px-5 py-2.5 text-xs font-black shadow-md hover:opacity-90 transition-all"
+                >
+                  <span>Ver Carpeta en Google Drive</span>
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              )}
             </div>
 
           </div>

@@ -978,7 +978,7 @@ function getSupabaseClient(): any {
   const key = clean(
     process.env.VITE_INSFORGE_API_KEY ||
     process.env.INSFORGE_API_KEY ||
-    '***REMOVED***'
+    ''
   );
 
   if (!url || !key) return null;
@@ -1085,7 +1085,7 @@ app.post('/api/auth/login', async (req: Request, res: Response) => {
     // 0. Intentar autenticación directa contra InsForge IAM
     try {
       const insforgeUrl = process.env.INSFORGE_URL || 'https://wxkeqf37.ap-southeast.insforge.app';
-      const insforgeApiKey = process.env.INSFORGE_API_KEY || '***REMOVED***';
+      const insforgeApiKey = process.env.INSFORGE_API_KEY || '';
       const checkRes = await fetch(`${insforgeUrl}/rest/v1/mae_usuarios_sistema?or=(username.eq.${cleanUser},email.eq.${cleanUser})&limit=1`, {
         headers: {
           'apikey': insforgeApiKey,

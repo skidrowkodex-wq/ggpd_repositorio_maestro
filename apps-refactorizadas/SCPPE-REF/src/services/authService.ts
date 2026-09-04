@@ -111,7 +111,7 @@ export function getInitialUser(): UserProfile | null {
 }
 
 const INSFORGE_URL = import.meta.env.VITE_INSFORGE_URL || 'https://wxkeqf37.ap-southeast.insforge.app';
-const INSFORGE_API_KEY = import.meta.env.VITE_INSFORGE_API_KEY || '***REMOVED***';
+const INSFORGE_API_KEY = import.meta.env.VITE_INSFORGE_API_KEY || '';
 
 export async function loginUser(
   identifierInput: string,

@@ -1,4 +1,4 @@
-import { insforge } from './insforgeClient';
+import { insforge, insforgeUrl, insforgeAnonKey } from './insforgeClient';
 import { InstitutionalUser, UserSystemRole, AppAccessPermissions } from '../types/userManagement';
 import { StateCode } from '../types/sigi';
 
@@ -21,6 +21,7 @@ export interface InsForgeUserRecord {
   permiso_scein: boolean;
   permiso_scppe: boolean;
   permiso_scmtp: boolean;
+  permiso_scgcc: boolean;
   permiso_gdrive: boolean;
   ultimo_acceso?: string | null;
   fecha_creacion?: string;
@@ -46,6 +47,7 @@ function mapInsForgeToInstitutionalUser(record: InsForgeUserRecord): Institution
       tareasMinutas: Boolean(record.permiso_scmtp),
       planificacion: Boolean(record.permiso_scppe),
       scein: Boolean(record.permiso_scein),
+      scgcc: Boolean(record.permiso_scgcc),
       gdriveRepo: Boolean(record.permiso_gdrive),
     },
     lastLogin: record.ultimo_acceso || undefined,
@@ -79,58 +81,103 @@ export async function fetchUsersFromInsForge(): Promise<InstitutionalUser[]> {
 }
 
 /**
- * Autentica un usuario contra InsForge mediante username o correo institucional
+ * Autentica un usuario contra la tabla maestra InsForge mediante la RPC
+ * public.verificar_credencial_sistema (verificación por hash bcrypt + permiso de app).
  */
 export async function authenticateWithInsForge(
   identifier: string,
   rawPassword: string
 ): Promise<{ success: boolean; user?: InstitutionalUser; error?: string }> {
   try {
-    const cleanId = identifier.trim().toLowerCase();
-    
-    // Consulta por username o por email
-    const { data, error } = await insforge.database
-      .from('v_usuarios_sistema')
-      .select('*')
-      .or(`username.eq.${cleanId},email.eq.${cleanId}`)
-      .limit(1);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
 
-    if (error || !data || data.length === 0) {
-      return { success: false, error: 'Usuario o correo institucional no encontrado.' };
+    const res = await fetch(`${insforgeUrl}/api/database/rpc/verificar_credencial_sistema`, {
+      method: 'POST',
+      headers: {
+        'apikey': insforgeAnonKey,
+        'Authorization': `Bearer ${insforgeAnonKey}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        p_identifier: identifier.trim(),
+        p_password: rawPassword,
+        p_app: 'SIGI',
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timer);
+
+    if (!res.ok) {
+      return { success: false, error: `Error HTTP ${res.status} al verificar credenciales.` };
     }
 
-    const record = data[0] as unknown as InsForgeUserRecord;
+    const data = await res.json();
 
-    if (record.status === 'SUSPENDIDO') {
-      return { success: false, error: 'La cuenta se encuentra SUSPENDIDA. Contacte al Administrador GGPD.' };
+    if (!data || data.success !== true || !data.user) {
+      return { success: false, error: data?.error || 'Credenciales inválidas o sin permisos en SIGI.' };
     }
 
-    // Para la verificación de clave contra InsForge (o clave predefinida)
-    const { data: authData } = await insforge.database
-      .from('mae_usuarios_sistema')
-      .select('password_hash')
-      .eq('id', record.id)
-      .single();
-
-    const expectedPass = authData?.password_hash;
-    if (expectedPass && expectedPass !== rawPassword) {
-      return { success: false, error: 'Contraseña incorrecta.' };
-    }
-
-    // Registrar último acceso
-    insforge.database
-      .from('mae_usuarios_sistema')
-      .update({ ultimo_acceso: new Date().toISOString() })
-      .eq('id', record.id)
-      .then(() => {});
-
-    return {
-      success: true,
-      user: mapInsForgeToInstitutionalUser(record),
+    const record: Partial<InsForgeUserRecord> = data.user;
+    const user: InstitutionalUser = {
+      id: record.id || '',
+      username: record.username || '',
+      fullName: record.full_name || '',
+      email: record.email || '',
+      googleEmail: record.google_email || undefined,
+      role: (record.role_code as UserSystemRole) || 'OPERADOR',
+      stateCode: (record.estado_codigo as StateCode) || 'NAC',
+      unit: record.unidad_organizativa || record.cargo || 'CORPOELEC',
+      status: (record.status as InstitutionalUser['status']) || 'ACTIVO',
+      permissions: {
+        sctis: Boolean(record.permiso_sctis),
+        tareasMinutas: Boolean(record.permiso_scmtp),
+        planificacion: Boolean(record.permiso_scppe),
+        scein: Boolean(record.permiso_scein),
+        scgcc: Boolean(record.permiso_scgcc),
+        gdriveRepo: Boolean(record.permiso_gdrive),
+      },
+      lastLogin: record.ultimo_acceso || undefined,
     };
+
+    return { success: true, user };
   } catch (err: any) {
     console.error('❌ Error en authenticateWithInsForge:', err);
     return { success: false, error: err.message || 'Error de comunicación con InsForge.' };
+  }
+}
+
+/**
+ * Hashea una contraseña en el servidor usando la RPC public.hash_contrasena (bcrypt/pgcrypto),
+ * evitando guardar la clave en texto plano en core.mae_usuarios_sistema.
+ */
+async function hashPasswordInServer(password: string): Promise<string | null> {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
+
+    const res = await fetch(`${insforgeUrl}/api/database/rpc/hash_contrasena`, {
+      method: 'POST',
+      headers: {
+        'apikey': insforgeAnonKey,
+        'Authorization': `Bearer ${insforgeAnonKey}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({ p_password: password }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timer);
+
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data?.password_hash || null;
+  } catch (err) {
+    console.error('❌ Error al hashear contraseña con RPC hash_contrasena:', err);
+    return null;
   }
 }
 
@@ -156,12 +203,16 @@ export async function saveUserToInsForge(
       permiso_scein: Boolean(user.permissions?.scein),
       permiso_scppe: Boolean(user.permissions?.planificacion),
       permiso_scmtp: Boolean(user.permissions?.tareasMinutas),
+      permiso_scgcc: Boolean(user.permissions?.scgcc),
       permiso_gdrive: Boolean(user.permissions?.gdriveRepo),
       ultima_actualizacion: new Date().toISOString(),
     };
 
     if (password) {
-      payload.password_hash = password;
+      const hashed = await hashPasswordInServer(password);
+      if (hashed) {
+        payload.password_hash = hashed;
+      }
     }
 
     let error;
@@ -173,7 +224,8 @@ export async function saveUserToInsForge(
       error = res.error;
     } else {
       if (!payload.password_hash) {
-        payload.password_hash = 'Corpoelec2026!.';
+        const defaultHashed = await hashPasswordInServer('Corpoelec2026!.');
+        payload.password_hash = defaultHashed || 'Corpoelec2026!.';
       }
       const res = await insforge.database
         .from('mae_usuarios_sistema')
@@ -227,6 +279,7 @@ export async function updateUserPermissionsInInsForge(
         permiso_scein: Boolean(permissions.scein),
         permiso_scppe: Boolean(permissions.planificacion),
         permiso_scmtp: Boolean(permissions.tareasMinutas),
+        permiso_scgcc: Boolean(permissions.scgcc),
         permiso_gdrive: Boolean(permissions.gdriveRepo),
         ultima_actualizacion: new Date().toISOString(),
       })

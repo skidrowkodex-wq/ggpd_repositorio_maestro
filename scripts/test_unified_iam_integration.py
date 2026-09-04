@@ -10,7 +10,7 @@ import sys
 import time
 
 INSFORGE_URL = "https://wxkeqf37.ap-southeast.insforge.app"
-INSFORGE_API_KEY = "***REMOVED***"
+INSFORGE_API_KEY = ""
 
 HEADERS = {
     "apikey": INSFORGE_API_KEY,

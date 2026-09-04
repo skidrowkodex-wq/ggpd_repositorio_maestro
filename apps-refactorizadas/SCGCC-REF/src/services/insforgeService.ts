@@ -1,13 +1,77 @@
 import { CorrespondenciaRecord, OficioRespuesta, EstadoFirma, PropositoDocumento } from '../types';
 
 export const INSFORGE_URL = (import.meta as any).env?.VITE_INSFORGE_URL || 'https://wxkeqf37.ap-southeast.insforge.app';
-export const INSFORGE_KEY = (import.meta as any).env?.VITE_INSFORGE_API_KEY || '***REMOVED***';
+export const INSFORGE_KEY = (import.meta as any).env?.VITE_INSFORGE_API_KEY || '';
 
-const getHeaders = () => ({
+export interface InsForgeLoginResult {
+  success: boolean;
+  error?: string;
+  user?: {
+    id: string;
+    username: string;
+    full_name: string;
+    email: string;
+    role_code: string;
+    estado_codigo?: string | null;
+    unidad_organizativa?: string | null;
+    cargo?: string | null;
+    status: string;
+    permiso_scgcc: boolean;
+  };
+}
+
+// Autenticación unificada contra la tabla maestra core.mae_usuarios_sistema
+// vía la función RPC public.verificar_credencial_sistema (verificación por hash bcrypt)
+export async function autenticarCredencialesInsForge(
+  identifier: string,
+  password: string,
+  app: string = 'SCGCC'
+): Promise<InsForgeLoginResult> {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
+
+    const res = await fetch(`${INSFORGE_URL}/api/database/rpc/verificar_credencial_sistema`, {
+      method: 'POST',
+      headers: {
+        'apikey': INSFORGE_KEY,
+        'Authorization': `Bearer ${INSFORGE_KEY}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        p_identifier: identifier.trim(),
+        p_password: password,
+        p_app: app,
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timer);
+
+    if (!res.ok) {
+      return { success: false, error: `Error HTTP ${res.status} al verificar credenciales.` };
+    }
+
+    const data = await res.json();
+    if (!data || data.success !== true) {
+      return { success: false, error: data?.error || 'Credenciales inválidas o sin permisos en SCGCC.' };
+    }
+
+    return { success: true, user: data.user };
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Error de red con el servidor de autenticación.' };
+  }
+}
+
+const getHeaders = (isWrite = false) => ({
   'apikey': INSFORGE_KEY,
   'Authorization': `Bearer ${INSFORGE_KEY}`,
   'Content-Type': 'application/json',
   'Accept': 'application/json',
+  'Accept-Profile': 'scgcc',
+  'Content-Profile': 'scgcc',
+  ...(isWrite ? { 'Prefer': 'return=representation' } : {})
 });
 
 // Transforma la fila SQL snake_case a objeto CorrespondenciaRecord
@@ -29,7 +93,7 @@ export function mapRowToCorrespondencia(row: any): CorrespondenciaRecord {
       cuerpoTexto: row.oficio_cuerpo || '',
       conclusionesTecnicas: row.oficio_conclusiones,
       firmanteNombre: row.oficio_firmante || 'Ing. Carlos Reyes',
-      firmanteCargo: row.oficio_firmante_cargo || 'Gerente General de Gestión de Planificación (GGPD)',
+      firmanteCargo: row.oficio_firmante_cargo || 'Gerente General de Distribución (GGD)',
       redactadoPor: row.oficio_redactado_por || 'Ing. Josué Pacheco',
       estadoFirma: (row.oficio_estado_firma as EstadoFirma) || 'PENDIENTE_FIRMA',
       fechaCreacion: row.oficio_fecha_creacion || row.fecha_recepcion,
@@ -85,9 +149,14 @@ export async function fetchLiveCorrespondencias(): Promise<{ success: boolean; d
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 6000);
 
-    const res = await fetch(`${INSFORGE_URL}/api/database/records/v_scgcc_correspondencias_activas?limit=100`, {
+    const res = await fetch(`${INSFORGE_URL}/api/database/records/v_scgcc_correspondencias_activas?limit=150`, {
       method: 'GET',
-      headers: getHeaders(),
+      headers: {
+        'apikey': INSFORGE_KEY,
+        'Authorization': `Bearer ${INSFORGE_KEY}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
       signal: controller.signal
     });
 
@@ -104,5 +173,168 @@ export async function fetchLiveCorrespondencias(): Promise<{ success: boolean; d
   } catch (err: any) {
     const latencyMs = Math.round(performance.now() - startTime);
     return { success: false, error: err.message || 'Error de red con InsForge BaaS', latencyMs };
+  }
+}
+
+// Persistir Nueva Correspondencia en InsForge PostgreSQL
+export async function saveCorrespondenciaToDatabase(record: CorrespondenciaRecord): Promise<{ success: boolean; error?: string }> {
+  try {
+    const payload = [{
+      id: record.id,
+      correlativo: record.correlativo,
+      direccion: record.direccion,
+      proposito: record.proposito || 'EVALUACION_TECNICA',
+      instruido_por: record.instruidoPor || null,
+      tipo_documento: record.tipoDocumento,
+      numero_documento_origen: record.numeroDocumentoOrigen,
+      remitente_institucion: record.remitenteInstitucion,
+      remitente_nombre: record.remitenteNombre || null,
+      remitente_cargo: record.remitenteCargo || null,
+      destinatario_principal: record.destinatarioPrincipal,
+      destinatarios_copia: record.destinatariosCopia || null,
+      asunto: record.asunto,
+      descripcion_sintesis: record.descripcionSintesis || null,
+      nivel_confidencialidad: record.nivelConfidencialidad,
+      prioridad: record.prioridad,
+      fecha_emision_origen: record.fechaEmisionOrigen,
+      fecha_recepcion: record.fechaRecepcion,
+      fecha_limite_respuesta: record.fechaLimiteRespuesta || null,
+      estado_tramite: record.estadoTramite,
+      medio_entrega: record.medioEntrega || null,
+      observaciones: record.observaciones || null,
+      requiere_respuesta: record.requiereRespuesta,
+      oficio_respuesta_ref: record.oficioRespuestaRef || null,
+      tarea_scmtp_id: record.tareaScmtpId || null,
+      tarea_scmtp_titulo: record.tareaScmtpTitulo || null,
+      responsable_asignado: record.responsableAsignado || null,
+      responsable_cargo: record.responsableCargo || null,
+      pdf_drive_url: record.pdfDriveUrl || null,
+      pdf_drive_id: record.pdfDriveId || null,
+      pdf_file_name: record.pdfFileName || null,
+      updated_at: new Date().toISOString()
+    }];
+
+    const res = await fetch(`${INSFORGE_URL}/api/database/records/mae_correspondencias`, {
+      method: 'POST',
+      headers: getHeaders(true),
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok || res.status === 201) {
+      return { success: true };
+    }
+
+    if (res.status === 409) {
+      // Registro ya existente, aplicar PATCH
+      const patchRes = await fetch(`${INSFORGE_URL}/api/database/records/mae_correspondencias?id=eq.${encodeURIComponent(record.id)}`, {
+        method: 'PATCH',
+        headers: getHeaders(true),
+        body: JSON.stringify(payload[0])
+      });
+      return { success: patchRes.ok };
+    }
+
+    return { success: false, error: `HTTP ${res.status}` };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
+
+// Actualizar Estado o Tarea en InsForge PostgreSQL
+export async function updateCorrespondenciaInDatabase(recordId: string, partial: Partial<any>): Promise<{ success: boolean; error?: string }> {
+  try {
+    const dbPayload: any = { updated_at: new Date().toISOString() };
+    if (partial.estadoTramite !== undefined) dbPayload.estado_tramite = partial.estadoTramite;
+    if (partial.tareaScmtpId !== undefined) dbPayload.tarea_scmtp_id = partial.tareaScmtpId;
+    if (partial.tareaScmtpTitulo !== undefined) dbPayload.tarea_scmtp_titulo = partial.tareaScmtpTitulo;
+    if (partial.responsableAsignado !== undefined) dbPayload.responsable_asignado = partial.responsableAsignado;
+    if (partial.responsableCargo !== undefined) dbPayload.responsable_cargo = partial.responsableCargo;
+    if (partial.fechaLimiteRespuesta !== undefined) dbPayload.fecha_limite_respuesta = partial.fechaLimiteRespuesta;
+
+    const res = await fetch(`${INSFORGE_URL}/api/database/records/mae_correspondencias?id=eq.${encodeURIComponent(recordId)}`, {
+      method: 'PATCH',
+      headers: getHeaders(true),
+      body: JSON.stringify(dbPayload)
+    });
+
+    return { success: res.ok };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
+
+// Guardar o Actualizar Oficio de Salida en InsForge PostgreSQL
+export async function saveOficioToDatabase(oficio: OficioRespuesta): Promise<{ success: boolean; error?: string }> {
+  try {
+    const payload = [{
+      id: oficio.id,
+      correspondencia_origen_id: oficio.correspondenciaOrigenId,
+      correlativo_origen: oficio.correlativoOrigen,
+      numero_oficio: oficio.numeroOficio,
+      tipo_documento: oficio.tipoDocumento || 'OFICIO',
+      destinatario_institucion: oficio.destinatarioInstitucion,
+      destinatario_nombre: oficio.destinatarioNombre,
+      destinatario_cargo: oficio.destinatarioCargo,
+      asunto: oficio.asunto,
+      referencia_antecedente: oficio.referenciaAntecedente || null,
+      cuerpo_texto: oficio.cuerpoTexto,
+      conclusiones_tecnicas: oficio.conclusionesTecnicas || null,
+      firmante_nombre: oficio.firmanteNombre,
+      firmante_cargo: oficio.firmanteCargo,
+      redactado_por: oficio.redactadoPor || null,
+      estado_firma: oficio.estadoFirma,
+      fecha_creacion: oficio.fechaCreacion || new Date().toISOString().split('T')[0],
+      fecha_firma: oficio.fechaFirma || null,
+      fecha_despacho: oficio.fechaDespacho || null,
+      nro_guia_acuse: oficio.nroGuiaAcuse || null,
+      receptor_acuse_nombre: oficio.receptorAcuseNombre || null,
+      copias: oficio.copias || null,
+      anexos: oficio.anexos || null,
+      updated_at: new Date().toISOString()
+    }];
+
+    const res = await fetch(`${INSFORGE_URL}/api/database/records/mae_oficios_salida`, {
+      method: 'POST',
+      headers: getHeaders(true),
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok || res.status === 201) return { success: true };
+
+    if (res.status === 409) {
+      const patchRes = await fetch(`${INSFORGE_URL}/api/database/records/mae_oficios_salida?id=eq.${encodeURIComponent(oficio.id)}`, {
+        method: 'PATCH',
+        headers: getHeaders(true),
+        body: JSON.stringify(payload[0])
+      });
+      return { success: patchRes.ok };
+    }
+
+    return { success: false, error: `HTTP ${res.status}` };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
+
+// Eliminar Correspondencia en InsForge PostgreSQL (borrado lógico opcional por RLS)
+export async function deleteCorrespondenciaFromDatabase(recordId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const res = await fetch(`${INSFORGE_URL}/api/database/records/mae_correspondencias?id=eq.${encodeURIComponent(recordId)}`, {
+      method: 'DELETE',
+      headers: {
+        'apikey': INSFORGE_KEY,
+        'Authorization': `Bearer ${INSFORGE_KEY}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Accept-Profile': 'scgcc',
+        'Content-Profile': 'scgcc',
+        'Prefer': 'return=minimal'
+      }
+    });
+
+    if (res.ok || res.status === 204) return { success: true };
+    return { success: false, error: `HTTP ${res.status}: ${res.statusText}` };
+  } catch (err: any) {
+    return { success: false, error: err.message };
   }
 }

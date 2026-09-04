@@ -50,7 +50,7 @@ export const SmartRadicationModal: React.FC<RadicationModalProps> = ({
   const [numeroDocumentoOrigen, setNumeroDocumentoOrigen] = useState('');
   const [remitenteInstitucion, setRemitenteInstitucion] = useState('');
   const [remitenteNombre, setRemitenteNombre] = useState('');
-  const [destinatarioPrincipal, setDestinatarioPrincipal] = useState('Ing. Carlos Reyes (Gerente General Gestión de Planificación)');
+  const [destinatarioPrincipal, setDestinatarioPrincipal] = useState('Ing. Adrián Correa (Gerente de Gestión de Planificación de Distribución)');
   const [asunto, setAsunto] = useState('');
   const [descripcionSintesis, setDescripcionSintesis] = useState('');
   const [nivelConfidencialidad, setNivelConfidencialidad] = useState<NivelConfidencialidad>('ORDINARIO');
@@ -72,7 +72,7 @@ export const SmartRadicationModal: React.FC<RadicationModalProps> = ({
       d.setDate(d.getDate() + 2); // 48h SLA
       setFechaLimiteRespuesta(d.toISOString().split('T')[0]);
       if (!instruidoPor) {
-        setInstruidoPor('Ing. Adrián Correa - Gerente General de Distribución (GGD)');
+        setInstruidoPor('Ing. Adrián Correa - Gerente de Gestión de Planificación de Distribución (GGD)');
       }
     } else if (prop === 'EVALUACION_TECNICA') {
       setPrioridad('ALTA');
@@ -375,7 +375,7 @@ export const SmartRadicationModal: React.FC<RadicationModalProps> = ({
                   required
                   value={instruidoPor}
                   onChange={(e) => setInstruidoPor(e.target.value)}
-                  placeholder="ej: Ing. Adrián Correa - Gerente General de Distribución (GGD)"
+                  placeholder="ej: Ing. Adrián Correa - Gerente de Gestión de Planificación de Distribución (GGD)"
                   className="w-full px-3 py-1.5 bg-white dark:bg-[#072146] border border-amber-300 dark:border-amber-700 rounded-lg text-xs font-semibold text-slate-900 dark:text-white"
                 />
                 <p className="text-[10px] text-amber-700 dark:text-amber-300">

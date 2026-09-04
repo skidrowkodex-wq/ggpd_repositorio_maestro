@@ -5,7 +5,7 @@ Despliega y sincroniza la Base de Conocimiento y Memoria de IA en la base de dat
 dedicada de InsForge: `insforge-base-conocimientos-automatizacion`.
 
 Base de datos:
-postgresql://postgres:***REMOVED***@jd3uejbz.ap-southeast.database.insforge.app:5432/insforge?sslmode=require
+postgresql://postgres:@jd3uejbz.ap-southeast.database.insforge.app:5432/insforge?sslmode=require
 """
 
 import json
@@ -14,7 +14,7 @@ import re
 import psycopg2
 from psycopg2.extras import Json
 
-DB_URI = "postgresql://postgres:***REMOVED***@jd3uejbz.ap-southeast.database.insforge.app:5432/insforge?sslmode=require"
+DB_URI = "postgresql://postgres:@jd3uejbz.ap-southeast.database.insforge.app:5432/insforge?sslmode=require"
 
 SCHEMA_DDL = """
 -- 1. EXTENSIONES REQUERIDAS

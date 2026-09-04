@@ -9,7 +9,7 @@ export function getSupabaseClient(customUrl?: string, customKey?: string, schema
   const metaEnv = (import.meta as any).env || {};
   const clean = (val?: string) => (val || '').trim().replace(/^["']|["']$/g, '');
   const url = clean(customUrl || metaEnv.VITE_INSFORGE_URL || metaEnv.INSFORGE_URL || 'https://wxkeqf37.ap-southeast.insforge.app');
-  const key = clean(customKey || metaEnv.VITE_INSFORGE_API_KEY || metaEnv.INSFORGE_API_KEY || '***REMOVED***');
+  const key = clean(customKey || metaEnv.VITE_INSFORGE_API_KEY || metaEnv.INSFORGE_API_KEY || '');
 
   if (!url || !key) return null;
 
@@ -73,7 +73,7 @@ export function getSupabaseClient(customUrl?: string, customKey?: string, schema
 
 export async function testSupabaseConnection(url?: string, key?: string, schema: string = 'scein') {
   const targetUrl = (url || 'https://wxkeqf37.ap-southeast.insforge.app').replace(/\/+$/, '');
-  const targetKey = key || '***REMOVED***';
+  const targetKey = key || '';
   const startTime = performance.now();
 
   try {

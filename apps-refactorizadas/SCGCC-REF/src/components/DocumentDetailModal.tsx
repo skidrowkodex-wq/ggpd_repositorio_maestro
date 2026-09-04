@@ -11,7 +11,9 @@ import {
   Clock, 
   CheckCircle2,
   Share2,
-  Download
+  Download,
+  Folder,
+  Eye
 } from 'lucide-react';
 
 interface DocumentDetailModalProps {
@@ -170,27 +172,43 @@ export const DocumentDetailModal: React.FC<DocumentDetailModalProps> = ({
 
           {/* Drive PDF Attachment Banner */}
           {record.pdfDriveUrl && (
-            <div className="p-4 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-300 dark:border-purple-800 flex items-center justify-between">
+            <div className="p-4 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-300 dark:border-purple-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <FileText className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                <FileText className="w-5 h-5 text-purple-600 dark:text-purple-400 shrink-0" />
                 <div>
                   <div className="text-xs font-bold text-slate-900 dark:text-white">
                     {record.pdfFileName || 'Expediente Digitalizado en Google Drive'}
                   </div>
                   <div className="text-[11px] text-purple-600 dark:text-purple-400 font-mono">
-                    Data Lake Oficial GGPD
+                    Bóveda SCGCC 2026 • _Gerencia Nacional
                   </div>
                 </div>
               </div>
-              <a
-                href={record.pdfDriveUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-bold shadow-sm"
-              >
-                <span>Abrir en Drive</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
+              <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                {/* 1. Ver PDF directo */}
+                <a
+                  href={record.pdfDriveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-bold shadow-sm transition-colors"
+                  title="Abrir visor directo del documento PDF"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>Ver PDF</span>
+                </a>
+
+                {/* 2. Ir a la carpeta contenedora en Google Drive */}
+                <a
+                  href="https://drive.google.com/drive/folders/1s5sOV__H7WbJRhsNHAqWgR8BIj0XHlI7"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-[#041426] border border-purple-300 dark:border-purple-700 text-purple-800 dark:text-purple-200 hover:bg-purple-100 dark:hover:bg-purple-900/50 rounded-lg text-xs font-bold shadow-sm transition-colors"
+                  title="Abrir carpeta Bóveda SCGCC en Google Drive"
+                >
+                  <Folder className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                  <span>Carpeta Drive</span>
+                </a>
+              </div>
             </div>
           )}
 

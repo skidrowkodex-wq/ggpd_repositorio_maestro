@@ -1,22 +1,5 @@
 import { PartidaAPU } from '../types';
 
-export const METRICAS_GENERALES = {
-  total_proyectos_prtsen: 823,
-  proyectos_clasificados: 269,
-  proyectos_sin_match: 553,
-  total_subestaciones: 765,
-  subestaciones_se_distribucion: 417,
-  subestaciones_ct: 348,
-  total_circuitos: 1781,
-  circuitos_codificados_rds: 1781,
-  cobertura_rds_pct: 100,
-  ejecucion_presupuestaria_poa_pct: 0.0,
-  eficacia_metas_fisicas_pct: 0.0,
-  esquemas_supabase: 8,
-  tablas_activas: 71,
-  politicas_rls: 73,
-};
-
 export const TASA_BCV_OFICIAL = 68.50; // Bs. / USD de referencia oficial
 
 export const TABULADOR_VIATICOS_CORPOELEC_2026 = {

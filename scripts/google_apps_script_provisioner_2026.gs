@@ -4,9 +4,10 @@
  * SCRIPT MAESTRO DE APROVISIONAMIENTO Y GOBIERNO DE DATOS EN GOOGLE DRIVE
  * ==============================================================================
  * Archivo: google_apps_script_provisioner_2026.gs
- * Versión: 3.1.0 (Soporte de Ingesta, Auditoría e Inspección de Correspondencias)
+ * Versión: 3.2.0 (Soporte de Bóveda Canónica SCGCC 2026, Auditoría e Ingesta)
  * Cuenta Oficial: bk.ggpd.corpoelec@gmail.com
- * Carpeta Raíz ID: 1mnnChue2IUqOh5Or99_v2LiJ3TaRJvy7
+ * Carpeta Raíz Data Lake ID: 1mnnChue2IUqOh5Or99_v2LiJ3TaRJvy7
+ * Carpeta Raíz SCGCC 2026 ID: 1s5sOV__H7WbJRhsNHAqWgR8BIj0XHlI7
  * ==============================================================================
  */
 
@@ -48,11 +49,13 @@ const PROCESOS = [
 ];
 
 const ROOT_FOLDER_ID = '1mnnChue2IUqOh5Or99_v2LiJ3TaRJvy7';
+const SCGCC_ROOT_FOLDER_ID = '1s5sOV__H7WbJRhsNHAqWgR8BIj0XHlI7';
 const YEAR = '2026';
 const MONTH = '08_AGOSTO';
 
 // Directorios de Correspondencia GGP Oficiales para Auditoría y SCGCC
 const CORRESPONDENCIA_FOLDERS = [
+  { id: '1s5sOV__H7WbJRhsNHAqWgR8BIj0XHlI7', alias: '00_CORRESPONDENCIA_SCGCC_2026 (Bóveda Central SCGCC)' },
   { id: '1yKwQ8hKGjCPHwukuADkv__Kp3gicJkBj', alias: '_Gerencia Nacional (Registro Principal GGP)' },
   { id: '1rxcoAzXeBRPYOiKLWNmVWvKnPkF46Qfy', alias: 'Gestion de Correspondencia GGP (Correlativos Emitidos)' },
   { id: '1TLY85lMR7R1Yz7TgKaMVc2p42dgSO07D', alias: 'PDF CORRESP TTHH 2026 (Talento Humano -> GGP)' },
@@ -207,6 +210,140 @@ function fastGetOrCreate(parent, name) {
 
 /**
  * ==============================================================================
+ * APROVISIONAMIENTO DE ESTRUCTURA CANÓNICA SCGCC (00_CORRESPONDENCIA_SCGCC_2026)
+ * ==============================================================================
+ */
+function provisionScgccStructure() {
+  Logger.log('🏛️ Aprovisionando Bóveda SCGCC 2026 en Google Drive...');
+  try {
+    const scgccRoot = DriveApp.getFolderById(SCGCC_ROOT_FOLDER_ID);
+    
+    // 01_ENTRADAS_RADICADAS
+    const entradas = fastGetOrCreate(scgccRoot, '01_ENTRADAS_RADICADAS');
+    fastGetOrCreate(entradas, '01_MPPEE_Y_PRESIDENCIA');
+    fastGetOrCreate(entradas, '02_GERENCIA_GRAL_DISTRIBUCION');
+    fastGetOrCreate(entradas, '03_TALENTO_HUMANO_TTHH');
+    fastGetOrCreate(entradas, '04_OTRAS_GERENCIAS_Y_EXTERNOS');
+
+    // 02_SALIDAS_DESPACHADAS
+    const salidas = fastGetOrCreate(scgccRoot, '02_SALIDAS_DESPACHADAS');
+    fastGetOrCreate(salidas, '01_OFICIOS_FIRMADOS_CON_ACUSE');
+    fastGetOrCreate(salidas, '02_MEMORANDUMS_EMITIDOS');
+
+    // 03_PLANTILLAS_FORMATOS_2026
+    fastGetOrCreate(scgccRoot, '03_PLANTILLAS_FORMATOS_2026');
+
+    // 04_RESPALDOS_AUDITORIA_SCGCC
+    fastGetOrCreate(scgccRoot, '04_RESPALDOS_AUDITORIA_SCGCC');
+
+    Logger.log('✅ Bóveda SCGCC 2026 aprovisionada exitosamente.');
+    return {
+      status: 'SUCCESS',
+      folderId: SCGCC_ROOT_FOLDER_ID,
+      folderUrl: scgccRoot.getUrl(),
+      message: 'Estructura canónica SCGCC 2026 creada y validada bajo norma ISO 15489 / ISO 27001.'
+    };
+  } catch (err) {
+    Logger.log('❌ Error aprovisionando SCGCC: ' + err.toString());
+    return {
+      status: 'ERROR',
+      error: err.toString()
+    };
+  }
+}
+
+/**
+ * ==============================================================================
+ * COPIA SEGURA DE ARCHIVOS EXISTENTES A LA BÓVEDA SCGCC (makeCopy - SIN MOVER)
+ * ==============================================================================
+ */
+function copyExistingFilesToScgccCanonicalVault() {
+  Logger.log('🚀 Iniciando COPIA SEGURA de archivos hacia 00_CORRESPONDENCIA_SCGCC_2026...');
+  
+  // 1. Asegurar la estructura
+  provisionScgccStructure();
+  
+  const scgccRoot = DriveApp.getFolderById(SCGCC_ROOT_FOLDER_ID);
+  const entradas = fastGetOrCreate(scgccRoot, '01_ENTRADAS_RADICADAS');
+  const dirPresidencia = fastGetOrCreate(entradas, '01_MPPEE_Y_PRESIDENCIA');
+  const dirGgd = fastGetOrCreate(entradas, '02_GERENCIA_GRAL_DISTRIBUCION');
+  const dirTthh = fastGetOrCreate(entradas, '03_TALENTO_HUMANO_TTHH');
+  const dirExternos = fastGetOrCreate(entradas, '04_OTRAS_GERENCIAS_Y_EXTERNOS');
+  
+  const dirPlantillas = fastGetOrCreate(scgccRoot, '03_PLANTILLAS_FORMATOS_2026');
+  
+  const summary = {
+    tthhCopied: 0,
+    ggdCopied: 0,
+    presidenciaCopied: 0,
+    plantillasCopied: 0,
+    skippedDuplicates: 0,
+    errors: []
+  };
+
+  // 2. Copiar archivos de Talento Humano -> 03_TALENTO_HUMANO_TTHH
+  copyFolderFilesSafely('1TLY85lMR7R1Yz7TgKaMVc2p42dgSO07D', dirTthh, summary, 'tthhCopied');
+
+  // 3. Copiar archivos de Plantillas -> 03_PLANTILLAS_FORMATOS_2026
+  copyFolderFilesSafely('1-e_OVf929QnJkUUcXUFRy_pCujAdF26a', dirPlantillas, summary, 'plantillasCopied');
+
+  // 4. Copiar archivos de GGD clasificando los de Presidencia/Ministro a su carpeta
+  try {
+    const ggdFolder = DriveApp.getFolderById('1LHRo1PlKxPRHYFSOJsdemq8iXO8SNMRf');
+    const files = ggdFolder.getFiles();
+    while (files.hasNext()) {
+      const file = files.next();
+      const name = file.getName().toUpperCase();
+      let targetFolder = dirGgd;
+      let counterKey = 'ggdCopied';
+      
+      if (name.includes('PRES-') || name.includes('MPRES-') || name.includes('MINISTRO') || name.includes('PRESIDENCIA')) {
+        targetFolder = dirPresidencia;
+        counterKey = 'presidenciaCopied';
+      }
+      
+      copySingleFileIfMissing(file, targetFolder, summary, counterKey);
+    }
+  } catch (err) {
+    summary.errors.push('Error en GGD folder: ' + err.toString());
+  }
+
+  Logger.log('🎉 COPIA COMPLETADA: ' + JSON.stringify(summary, null, 2));
+  return {
+    status: 'SUCCESS',
+    summary: summary,
+    message: 'Archivos copiados y organizados exitosamente en 00_CORRESPONDENCIA_SCGCC_2026 sin alterar los originales.'
+  };
+}
+
+function copyFolderFilesSafely(sourceFolderId, targetFolder, summary, counterKey) {
+  try {
+    const sourceFolder = DriveApp.getFolderById(sourceFolderId);
+    const files = sourceFolder.getFiles();
+    while (files.hasNext()) {
+      const file = files.next();
+      copySingleFileIfMissing(file, targetFolder, summary, counterKey);
+    }
+  } catch (err) {
+    summary.errors.push('Error en folder ' + sourceFolderId + ': ' + err.toString());
+  }
+}
+
+function copySingleFileIfMissing(file, targetFolder, summary, counterKey) {
+  const fileName = file.getName();
+  const existing = targetFolder.getFilesByName(fileName);
+  if (existing.hasNext()) {
+    summary.skippedDuplicates++;
+    Logger.log('⏩ Archivo ya existe en destino: ' + fileName);
+    return;
+  }
+  file.makeCopy(fileName, targetFolder);
+  summary[counterKey]++;
+  Logger.log('✅ Copiado a destino: ' + fileName);
+}
+
+/**
+ * ==============================================================================
  * WEBHOOK PARA SIGI & SCGCC (doGet / doPost)
  * ==============================================================================
  */
@@ -232,13 +369,26 @@ function doGet(e) {
     const res = provisionAll25StatesFast();
     return ContentService.createTextOutput(JSON.stringify({ status: 'SUCCESS', result: res })).setMimeType(ContentService.MimeType.JSON);
   }
+
+  if (action === 'PROVISION_SCGCC') {
+    const res = provisionScgccStructure();
+    return ContentService.createTextOutput(JSON.stringify(res)).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (action === 'COPY_FILES_TO_SCGCC') {
+    const res = copyExistingFilesToScgccCanonicalVault();
+    return ContentService.createTextOutput(JSON.stringify(res)).setMimeType(ContentService.MimeType.JSON);
+  }
   
   const status = {
     status: "ONLINE",
+    version: "3.2.0",
     servicio: "CORPOELEC GGPD Google Drive Webhook & SCGCC Data Hub",
     cuenta: "bk.ggpd.corpoelec@gmail.com",
-    carpetaId: ROOT_FOLDER_ID,
-    carpetaUrl: `https://drive.google.com/drive/folders/${ROOT_FOLDER_ID}`,
+    carpetaDataLakeId: ROOT_FOLDER_ID,
+    carpetaDataLakeUrl: `https://drive.google.com/drive/folders/${ROOT_FOLDER_ID}`,
+    carpetaScgccId: SCGCC_ROOT_FOLDER_ID,
+    carpetaScgccUrl: `https://drive.google.com/drive/folders/${SCGCC_ROOT_FOLDER_ID}`,
     fechaServidor: new Date().toISOString()
   };
   return ContentService.createTextOutput(JSON.stringify(status)).setMimeType(ContentService.MimeType.JSON);

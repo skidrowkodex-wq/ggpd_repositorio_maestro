@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 bp = Blueprint('auth', __name__)
 
 INSFORGE_URL = os.environ.get('INSFORGE_URL', 'https://wxkeqf37.ap-southeast.insforge.app')
-INSFORGE_API_KEY = os.environ.get('INSFORGE_API_KEY', '***REMOVED***')
+INSFORGE_API_KEY = os.environ.get('INSFORGE_API_KEY', 'tu_api_key_insforge_aqui')
 
 def query_insforge_user(identifier):
     """Consulta en tiempo real el perfil del usuario en InsForge IAM"""

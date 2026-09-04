@@ -89,3 +89,26 @@ This project supports private-by-default web hosting via [VibeHost](https://vibe
   - Deploy Next.js apps: `vibehost deploy . --app <app-name> --runtime nextjs --json`
   - Link project: `vibehost link --app <app-name>`
 <!-- VIBEHOST:END -->
+
+<!-- INSFORGE:START -->
+## InsForge backend
+
+This project uses [InsForge](https://insforge.dev): an all-in-one, open-source Postgres-based backend (BaaS) that gives this app a database, authentication, file storage, edge functions, realtime, an AI model gateway, and payments through one platform.
+
+- **Project:** **ggpd-data-maestra-0002** (API base `https://wxkeqf37.ap-southeast.insforge.app`)
+- **Skills:** these InsForge skills are installed for supported coding agents. Reach for them before implementing any InsForge feature instead of guessing the API:
+  - `insforge`: app code with the `@insforge/sdk` client (database CRUD, auth, storage, edge functions, realtime, AI, email, and Stripe payments).
+  - `insforge-cli`: backend and infrastructure via the `insforge` CLI (projects, SQL, migrations, RLS policies, storage buckets, functions, secrets, payment setup, schedules, deploys).
+  - `insforge-debug`: diagnosing failures (SDK/HTTP errors, RLS denials, auth and OAuth issues) and running security or performance audits.
+  - `insforge-integrations`: wiring external auth providers (Clerk, Auth0, WorkOS, Better Auth, etc.) for JWT-based RLS, or the OKX x402 payment facilitator.
+  - `find-skills`: discovering additional skills on demand.
+- **Credentials:** app code reads keys from `.env.local`; the CLI reads `.insforge/project.json`. Never hardcode or commit keys.
+- **MCP server:** configured in `opencode.json` (`insforge` mcp, `@insforge/mcp`). Use its `fetch-docs` tool to learn InsForge instructions.
+- **CLI note:** the global `npx @insforge/cli` fails under Node 24 (`Class extends value undefined` in npm). Work around it by prepending Node 20 to the PATH: `PATH="/usr/bin:$PATH" npx -y @insforge/cli ...`.
+
+Key patterns:
+
+- Database inserts take an array: `insert([{ ... }])`.
+- Reference users with `auth.users(id)`; use `auth.uid()` in RLS policies.
+- For storage uploads, persist both the returned `url` and `key`.
+<!-- INSFORGE:END -->

@@ -135,5 +135,6 @@ export interface UserProfile {
   email?: string;
   permisoScgcc: boolean;
   avatar?: string;
+  aliases?: string[];
 }
 

@@ -4,7 +4,6 @@ import {
   ShieldCheck, 
   Database, 
   RefreshCw, 
-  Trash2, 
   CheckCircle2, 
   AlertCircle, 
   Activity, 
@@ -21,15 +20,13 @@ interface AdminQAModalProps {
   onClose: () => void;
   recordsCount: number;
   onSyncWithDB: (records: CorrespondenciaRecord[]) => void;
-  onResetToCanonical: () => void;
 }
 
 export const AdminQAModal: React.FC<AdminQAModalProps> = ({
   isOpen,
   onClose,
   recordsCount,
-  onSyncWithDB,
-  onResetToCanonical
+  onSyncWithDB
 }) => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
@@ -53,14 +50,6 @@ export const AdminQAModal: React.FC<AdminQAModalProps> = ({
     } else {
       setDbStatus('ERROR');
       setSyncMessage(`❌ Error de sincronización: ${result.error}`);
-    }
-  };
-
-  const handleReset = () => {
-    if (window.confirm('¿Confirmar restablecimiento de la base de datos a los 11 registros oficiales canónicos?')) {
-      onResetToCanonical();
-      setSyncMessage('✓ Base de datos restablecida a los 11 registros canónicos oficiales.');
-      setDbStatus('SUCCESS');
     }
   };
 
@@ -157,7 +146,7 @@ export const AdminQAModal: React.FC<AdminQAModalProps> = ({
               Acciones de Control & Pruebas QA
             </h4>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3">
               {/* Sincronizar con BD */}
               <button
                 onClick={handleTestAndSync}
@@ -171,23 +160,7 @@ export const AdminQAModal: React.FC<AdminQAModalProps> = ({
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
-                  Descarga los registros en tiempo real desde la vista `v_scgcc_correspondencias_activas`.
-                </p>
-              </button>
-
-              {/* Resetear Data Canónica */}
-              <button
-                onClick={handleReset}
-                className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/60 border border-amber-200 dark:border-amber-800/80 text-left transition-all"
-              >
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="font-bold text-xs text-amber-900 dark:text-amber-200 flex items-center gap-2">
-                    <Trash2 className="w-4 h-4 text-amber-600" />
-                    Restaurar Data Oficial
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
-                  Limpia modificaciones de prueba y restablece los 11 expedientes canónicos de producción.
+                  Descarga los registros en tiempo real desde la vista `v_scgcc_correspondencias_activas`. La base de datos InsForge es la única fuente de verdad (no existen datos mock).
                 </p>
               </button>
             </div>

@@ -7,7 +7,7 @@
 import { execSync } from 'child_process';
 
 const INSFORGE_URL = 'https://wxkeqf37.ap-southeast.insforge.app';
-const INSFORGE_API_KEY = '***REMOVED***';
+const INSFORGE_API_KEY = '';
 
 function queryDb(sql) {
   try {

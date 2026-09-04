@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { UserProfile } from '../types';
-import { INITIAL_USERS } from '../data/initialCorrespondencias';
+import { autenticarCredencialesInsForge } from '../services/insforgeService';
 
 interface AuthContextType {
   user: UserProfile | null;
@@ -8,58 +8,80 @@ interface AuthContextType {
   login: (username: string, password?: string) => Promise<boolean>;
   logout: () => void;
   availableUsers: UserProfile[];
+  loginError: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<UserProfile | null>(() => {
-    const saved = localStorage.getItem('scgcc_user');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return null;
-      }
-    }
-    return null;
-  });
+const STORAGE_KEY = 'scgcc_user';
 
-  const login = async (username: string, _password?: string): Promise<boolean> => {
-    const clean = username.trim().toLowerCase();
-    const found = INITIAL_USERS.find(
-      u => u.username.toLowerCase() === clean || 
-           u.email.toLowerCase() === clean ||
-           u.id.toLowerCase() === clean
-    );
-    if (found) {
-      setUser(found);
-      localStorage.setItem('scgcc_user', JSON.stringify(found));
-      return true;
+// Mapea la respuesta de la tabla maestra (snake_case / role_code) al UserProfile del dominio
+const mapInsForgeUserToProfile = (u: NonNullable<Awaited<ReturnType<typeof autenticarCredencialesInsForge>>['user']>): UserProfile => {
+  const roleCode = (u.role_code || '').toUpperCase();
+  let rol: UserProfile['rol'] = 'ANALISTA';
+  if (roleCode === 'ADMINISTRADOR') rol = 'ADMINISTRADOR';
+  else if (roleCode === 'GERENCIA') rol = 'GERENTE';
+  else if (roleCode === 'ESPECIALISTA') rol = 'SUPERVISOR';
+  else if (roleCode === 'OPERADOR' || roleCode === 'AUDITOR') rol = 'AUDITOR';
+
+  return {
+    id: u.id,
+    username: u.username,
+    nombre: u.full_name,
+    cargo: u.cargo || 'Funcionario Corporativo',
+    rol,
+    dependencia: u.unidad_organizativa || 'Gerencia General de Gestión de Planificación (GGPD)',
+    email: u.email,
+    permisoScgcc: Boolean(u.permiso_scgcc),
+  };
+};
+
+const loadPersistedUser = (): UserProfile | null => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed: UserProfile = JSON.parse(raw);
+    // Solo acepta sesiones que correspondan a un perfil institucional persistido
+    // (no recupera resultados de autenticación local previa que carecían de id real de InsForge)
+    if (parsed && parsed.id && parsed.username) return parsed;
+    return null;
+  } catch {
+    return null;
+  }
+};
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<UserProfile | null>(loadPersistedUser);
+  const [loginError, setLoginError] = useState<string | null>(null);
+
+  const login = async (username: string, password?: string): Promise<boolean> => {
+    const clean = username.trim();
+    if (!clean || !password) {
+      setLoginError('Por favor ingrese su usuario y contraseña institucional.');
+      return false;
     }
-    // Fallback para usuarios del catálogo institucional
-    const genericUser: UserProfile = {
-      id: `usr-${Date.now()}`,
-      username: clean.includes('@') ? clean.split('@')[0] : clean,
-      nombre: clean.includes('@') ? clean.split('@')[0].replace('.', ' ').toUpperCase() : clean.toUpperCase(),
-      cargo: 'Especialista de Correspondencia',
-      rol: clean.includes('admin') ? 'ADMINISTRADOR' : 'ANALISTA',
-      dependencia: 'Gerencia General de Gestión de Planificación (GGPD)',
-      email: clean.includes('@') ? clean : `${clean}@corpoelec.gob.ve`,
-      permisoScgcc: true
-    };
-    setUser(genericUser);
-    localStorage.setItem('scgcc_user', JSON.stringify(genericUser));
+
+    setLoginError(null);
+    const result = await autenticarCredencialesInsForge(clean, password, 'SCGCC');
+    if (!result.success || !result.user) {
+      setLoginError(result.error || 'Credenciales inválidas o sin permisos en SCGCC.');
+      return false;
+    }
+
+    const profile = mapInsForgeUserToProfile(result.user);
+    setUser(profile);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
     return true;
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('scgcc_user');
+    setLoginError(null);
+    localStorage.removeItem(STORAGE_KEY);
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout, availableUsers: INITIAL_USERS }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout, availableUsers: [], loginError }}>
       {children}
     </AuthContext.Provider>
   );

@@ -995,8 +995,8 @@ export const buildVirtualDataLakeTree = (): DataLakeFolderNode => {
             type: 'folder' as const,
             processCode: pr.code,
             status: 'PROVISIONED' as const,
-            filesCount: Math.floor(Math.random() * 8) + 2,
-            lastUpdated: '14/08/2026'
+            filesCount: 0,
+            lastUpdated: '—'
           }))
         };
       }),

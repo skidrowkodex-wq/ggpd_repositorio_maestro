@@ -1,10 +1,8 @@
-import React, { useState, useMemo } from 'react';
-import { 
-  SCTAP_MINUTAS, 
-  SCTAP_COMPROMISOS, 
-  SCTAP_PENDIENTES, 
-  TareaCompromisoSCTAP 
-} from '../../data/minutasData';
+import React, { useState, useMemo, useEffect } from 'react';
+import {
+  fetchScmtpData,
+  TareaCompromisoSCTAP
+} from '../../services/scmtpService';
 import { 
   FileText, 
   TrendingUp, 
@@ -34,69 +32,94 @@ export const SCMTPDashboard: React.FC = () => {
   const [selectedDiscipline, setSelectedDiscipline] = useState<string>('ALL');
   const [selectedMinuta, setSelectedMinuta] = useState<string>('ALL');
   const [timeframeView, setTimeframeView] = useState<'kgi' | 'wbs' | 'responsables' | 'riesgos'>('kgi');
+  const [compromisos, setCompromisos] = useState<TareaCompromisoSCTAP[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Cálculos de métricas KGI/KPI consolidados
-  const totalTareas = SCTAP_COMPROMISOS.length;
-  const completadas = SCTAP_COMPROMISOS.filter(t => t.avancePorcentaje === 100 || t.estado === 'Completado').length;
-  const enEjecucion = SCTAP_COMPROMISOS.filter(t => t.avancePorcentaje > 0 && t.avancePorcentaje < 100).length;
-  const porIniciar = SCTAP_COMPROMISOS.filter(t => t.avancePorcentaje === 0 || t.estado === 'Pendiente').length;
-  
-  const avanceGlobal = Math.round(
-    SCTAP_COMPROMISOS.reduce((acc, curr) => acc + curr.avancePorcentaje, 0) / totalTareas
-  );
+  // Carga de compromisos reales desde InsForge (v_scmtp_compromisos_tareas)
+  useEffect(() => {
+    let cancelled = false;
+    setIsLoading(true);
+    fetchScmtpData()
+      .then((data) => {
+        if (!cancelled) setCompromisos(data.compromisos);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, []);
 
-  // KGI Estratégicos Institucionales (Objetivos Clave de Resultado)
+  // Cálculos de métricas KGI/KPI consolidados (derivados de datos reales)
+  const totalTareas = compromisos.length;
+  const completadas = compromisos.filter(t => t.avancePorcentaje === 100 || t.estado === 'Completado').length;
+  const enEjecucion = compromisos.filter(t => t.avancePorcentaje > 0 && t.avancePorcentaje < 100).length;
+  const porIniciar = compromisos.filter(t => t.avancePorcentaje === 0 || t.estado === 'Pendiente').length;
+
+  const avanceGlobal = totalTareas === 0
+    ? 0
+    : Math.round(
+        compromisos.reduce((acc, curr) => acc + curr.avancePorcentaje, 0) / totalTareas
+      );
+
+  // Tareas con plazo vencido y aún sin completar (calculado de datos reales)
+  const vencidasSinCompletar = compromisos.filter(t => {
+    if (!t.plazoFechaISO || t.avancePorcentaje === 100) return false;
+    const plazo = new Date(t.plazoFechaISO);
+    return !isNaN(plazo.getTime()) && plazo.getTime() < Date.now();
+  }).length;
+
+  // Indicadores calculados a partir de los compromisos reales de InsForge
   const strategicKGIs = [
     {
-      codigo: 'KGI-GGPD-01',
-      eje: 'Eficacia de Recuperación y Contingencia SEN',
+      codigo: 'KGI-SCMTP-01',
+      eje: 'Compromisos Completados',
       meta: 100,
-      actual: 92.3,
-      unidad: '% Efectividad',
-      estado: 'OPTIMO',
-      descripcion: 'Cumplimiento de directrices de contingencia del evento sísmico y soporte tecnológico a sedes.',
-      norma: 'ISO 22301 / COBIT MEA02',
-      trend: '+14.5%',
+      actual: totalTareas === 0 ? 0 : Math.round((completadas / totalTareas) * 100),
+      unidad: '% Completado',
+      estado: 'CALCULADO',
+      descripcion: 'Porcentaje de compromisos con avance 100% sobre el total registrado en InsForge.',
+      norma: 'InsForge v_scmtp_compromisos_tareas',
+      trend: `${completadas}/${totalTareas} tareas`,
     },
     {
-      codigo: 'KGI-GGPD-02',
-      eje: 'Disciplina de Plazos y Acuerdos de Minutas',
-      meta: 95,
-      actual: 83.5,
+      codigo: 'KGI-SCMTP-02',
+      eje: 'Compromisos en Ejecución Activa',
+      meta: 100,
+      actual: totalTareas === 0 ? 0 : Math.round((enEjecucion / totalTareas) * 100),
+      unidad: '% En Ejecución',
+      estado: 'CALCULADO',
+      descripcion: 'Proporción de compromisos con avance entre 1% y 99% al momento de la consulta.',
+      norma: 'InsForge v_scmtp_compromisos_tareas',
+      trend: `${enEjecucion} tareas`,
+    },
+    {
+      codigo: 'KGI-SCMTP-03',
+      eje: 'Avance Global Ponderado',
+      meta: 100,
+      actual: avanceGlobal,
+      unidad: '% Avance',
+      estado: 'CALCULADO',
+      descripcion: 'Promedio aritmético del avance_porcentaje de todos los compromisos registrados.',
+      norma: 'InsForge v_scmtp_compromisos_tareas',
+      trend: `Σ avance / ${totalTareas}`,
+    },
+    {
+      codigo: 'KGI-SCMTP-04',
+      eje: 'Plazos Vencidos sin Completar',
+      meta: 100,
+      actual: totalTareas === 0 ? 0 : Math.round(((totalTareas - vencidasSinCompletar) / totalTareas) * 100),
       unidad: '% En Plazo',
-      estado: 'EN_META',
-      descripcion: 'Índice de entrega oportuna de tareas asignadas en actas #26-0004 y #26-0002.',
-      norma: 'RUP WBS Milestone Gate',
-      trend: '+8.2%',
-    },
-    {
-      codigo: 'KGI-GGPD-03',
-      eje: 'Calidad e Integridad de Datos Canónicos',
-      meta: 100,
-      actual: 100,
-      unidad: '% Conforme',
-      estado: 'OPTIMO',
-      descripcion: 'Atributos obligatorios, unicidad y reconciliación de subestaciones y circuitos.',
-      norma: 'ISO 8000-110 / ISO 9001',
-      trend: '100% Sin Huérfanos',
-    },
-    {
-      codigo: 'KGI-GGPD-04',
-      eje: 'Madurez Digital & Zero-WhatsApp',
-      meta: 90,
-      actual: 88.0,
-      unidad: '% Migración',
-      estado: 'EN_META',
-      descripcion: 'Transición hacia la plataforma web unificada SIGI y base InsForge eliminando reportes informales.',
-      norma: 'ISO/IEC 27001:2022',
-      trend: '+22.0%',
+      estado: vencidasSinCompletar === 0 ? 'SIN_VENCIDOS' : 'EN_RIESGO',
+      descripcion: 'Compromisos cuya fecha de plazo (plazo_fecha_iso) venció y aún no alcanzan el 100%.',
+      norma: 'InsForge v_scmtp_compromisos_tareas',
+      trend: `${vencidasSinCompletar} vencidas`,
     }
   ];
 
   // Desglose por Disciplinas RUP / Áreas de Gestión (WBS)
   const areasSummary = useMemo(() => {
     const map: Record<string, { total: number; sumAvance: number; completadas: number; altas: number }> = {};
-    SCTAP_COMPROMISOS.forEach(t => {
+    compromisos.forEach(t => {
       const area = t.areaGestion || 'General';
       if (!map[area]) {
         map[area] = { total: 0, sumAvance: 0, completadas: 0, altas: 0 };
@@ -114,12 +137,12 @@ export const SCMTPDashboard: React.FC = () => {
       completadas: data.completadas,
       altas: data.altas
     })).sort((a, b) => b.total - a.total);
-  }, []);
+  }, [compromisos]);
 
   // Desglose por Responsables Clave
   const responsablesSummary = useMemo(() => {
     const map: Record<string, { total: number; sumAvance: number; completadas: number }> = {};
-    SCTAP_COMPROMISOS.forEach(t => {
+    compromisos.forEach(t => {
       const resp = t.responsable.split('/')[0].trim();
       if (!map[resp]) {
         map[resp] = { total: 0, sumAvance: 0, completadas: 0 };
@@ -135,14 +158,20 @@ export const SCMTPDashboard: React.FC = () => {
       promedio: Math.round(data.sumAvance / data.total),
       completadas: data.completadas
     })).sort((a, b) => b.total - a.total);
-  }, []);
+  }, [compromisos]);
 
   // Filtrado de compromisos según selectores
-  const filteredTareas = SCTAP_COMPROMISOS.filter(t => {
+  const filteredTareas = compromisos.filter(t => {
     const matchDiscipline = selectedDiscipline === 'ALL' || t.areaGestion === selectedDiscipline;
     const matchMinuta = selectedMinuta === 'ALL' || t.minutaNumero === selectedMinuta;
     return matchDiscipline && matchMinuta;
   });
+
+  // Números de minuta disponibles derivados de los datos reales
+  const minutaNumeros = Array.from(new Set(compromisos.map(t => t.minutaNumero).filter(Boolean))).sort();
+
+  // Porcentaje seguro contra división por cero
+  const pct = (n: number) => (totalTareas === 0 ? 0 : Math.round((n / totalTareas) * 100));
 
   return (
     <div className="space-y-6">
@@ -225,6 +254,21 @@ export const SCMTPDashboard: React.FC = () => {
         ))}
       </div>
 
+      {/* Estado de carga / vacío */}
+      {isLoading && (
+        <div className="rounded-2xl bg-slate-50 dark:bg-[#0b172c] p-6 border border-slate-200 dark:border-slate-800 text-center text-xs font-bold text-slate-500 dark:text-slate-400">
+          Cargando compromisos desde InsForge (v_scmtp_compromisos_tareas)…
+        </div>
+      )}
+      {!isLoading && totalTareas === 0 && (
+        <div className="rounded-2xl bg-amber-50 dark:bg-amber-950/20 p-6 border border-amber-200 dark:border-amber-900/40 text-center">
+          <p className="text-sm font-black text-amber-800 dark:text-amber-300">No hay compromisos en InsForge</p>
+          <p className="text-xs text-amber-700/80 dark:text-amber-400/80 mt-1">
+            La vista v_scmtp_compromisos_tareas no retornó registros o no hay conexión con la base maestra.
+          </p>
+        </div>
+      )}
+
       {/* Sub-navegación de Vistas Analíticas */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
         <div className="flex items-center gap-2">
@@ -285,9 +329,10 @@ export const SCMTPDashboard: React.FC = () => {
               onChange={(e) => setSelectedMinuta(e.target.value)}
               className="rounded-xl bg-white dark:bg-[#112240] pl-3 pr-8 py-1.5 text-xs text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 font-bold cursor-pointer shadow-xs focus:outline-none"
             >
-              <option value="ALL">Todas las Minutas (26 tareas)</option>
-              <option value="26-0004">Minuta #26-0004</option>
-              <option value="26-0002">Minuta #26-0002</option>
+              <option value="ALL">Todas las Minutas ({totalTareas} tareas)</option>
+              {minutaNumeros.map(num => (
+                <option key={num} value={num}>Minuta #{num}</option>
+              ))}
             </select>
           </div>
         </div>
@@ -312,18 +357,25 @@ export const SCMTPDashboard: React.FC = () => {
                   </p>
                 </div>
                 <span className="text-xs font-mono font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full">
-                  83.5% Ejecutado
+                  {avanceGlobal}% Ejecutado
                 </span>
               </div>
 
               {/* Visualización Visual de la Curva S */}
               <div className="space-y-3 pt-2">
-                {[
-                  { fase: 'Fase I: Inception / Respuesta Inmediata (24/06 - 05/07)', plan: 100, real: 100, status: 'Completado (100%)', tareas: 'Minuta #26-0002 (9/9 tareas)' },
-                  { fase: 'Fase II: Elaboration / Normalización & Estándares (06/07 - 25/07)', plan: 100, real: 100, status: 'Completado (100%)', tareas: 'Censo de 871 SE y 4,207 CT' },
-                  { fase: 'Fase III: Construction / Automatización Nube (26/07 - 15/08)', plan: 90, real: 85, status: 'En Progreso (85%)', tareas: 'Minuta #26-0004 (12/17 tareas)' },
-                  { fase: 'Fase IV: Transition / Despliegue QA y Cierre (16/08 - 30/08)', plan: 80, real: 72, status: 'En Progreso (72%)', tareas: 'Formularios y Cierres Mensuales' },
-                ].map((fase, i) => (
+                {minutaNumeros.map((num) => {
+                  const tareasMinuta = compromisos.filter(t => t.minutaNumero === num);
+                  const totalM = tareasMinuta.length;
+                  const completadasM = tareasMinuta.filter(t => t.avancePorcentaje === 100 || t.estado === 'Completado').length;
+                  const real = totalM === 0 ? 0 : Math.round(tareasMinuta.reduce((a, c) => a + c.avancePorcentaje, 0) / totalM);
+                  return {
+                    fase: `Minuta #${num}`,
+                    plan: 100,
+                    real,
+                    status: real === 100 ? 'Completado (100%)' : `En Progreso (${real}%)`,
+                    tareas: `${completadasM}/${totalM} tareas al 100%`,
+                  };
+                }).map((fase, i) => (
                   <div key={i} className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#112240] border border-slate-200 dark:border-slate-800 space-y-2">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs gap-1">
                       <span className="font-black text-slate-900 dark:text-white">{fase.fase}</span>
@@ -351,7 +403,7 @@ export const SCMTPDashboard: React.FC = () => {
               <div>
                 <h3 className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
                   <PieChart className="h-4 w-4 text-purple-500" />
-                  <span>Estado de los 26 Compromisos</span>
+                  <span>Estado de los {totalTareas} Compromisos</span>
                 </h3>
                 <p className="text-[11px] text-slate-500 mt-0.5">
                   Proporción de tareas según su nivel de avance real en SCMTP.
@@ -361,21 +413,21 @@ export const SCMTPDashboard: React.FC = () => {
                   <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40">
                     <div className="flex justify-between text-xs font-black text-emerald-800 dark:text-emerald-300">
                       <span>Completados (100%)</span>
-                      <span className="font-mono">{completadas} tareas ({Math.round((completadas/totalTareas)*100)}%)</span>
+                      <span className="font-mono">{completadas} tareas ({pct(completadas)}%)</span>
                     </div>
                   </div>
 
                   <div className="p-3 rounded-2xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/40">
                     <div className="flex justify-between text-xs font-black text-blue-800 dark:text-blue-300">
                       <span>En Ejecución Activa (30-99%)</span>
-                      <span className="font-mono">{enEjecucion} tareas ({Math.round((enEjecucion/totalTareas)*100)}%)</span>
+                      <span className="font-mono">{enEjecucion} tareas ({pct(enEjecucion)}%)</span>
                     </div>
                   </div>
 
                   <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40">
                     <div className="flex justify-between text-xs font-black text-amber-800 dark:text-amber-300">
                       <span>Por Iniciar (&lt;30%)</span>
-                      <span className="font-mono">{porIniciar} tareas ({Math.round((porIniciar/totalTareas)*100)}%)</span>
+                      <span className="font-mono">{porIniciar} tareas ({pct(porIniciar)}%)</span>
                     </div>
                   </div>
                 </div>
@@ -430,7 +482,7 @@ export const SCMTPDashboard: React.FC = () => {
       {timeframeView === 'wbs' && (
         <div className="space-y-4">
           <div className="rounded-2xl bg-blue-50 dark:bg-blue-950/20 p-4 border border-blue-200 dark:border-blue-900/40 text-xs text-blue-900 dark:text-blue-300">
-            <strong>Estructura de Desglose de Trabajo (WBS - RUP):</strong> Las 26 tareas se distribuyen en {areasSummary.length} áreas o disciplinas técnicas de la GGPD.
+            <strong>Estructura de Desglose de Trabajo (WBS - RUP):</strong> Las {totalTareas} tareas se distribuyen en {areasSummary.length} áreas o disciplinas técnicas de la GGPD.
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
