@@ -3,18 +3,13 @@
 ---
 
 ## 📌 1. Registro de Última Actualización
-- **Fecha y Hora:** 2026-09-04 (VET / UTC-4) — **Refactorización total de las 6 apps *-REF a InsForge real + PURGADO DE HISTORIAL GIT con git-filter-repo + ROTACIÓN de la API key principal de InsForge**
-- **ÚLTIMA SESIÓN (2026-09-04):** Se ejecutó el endurecimiento de seguridad pendiente:
-  1. **Rotación de la API key principal de InsForge** (`ggpd-data-maestra-0002`): emitida nueva key `ik_b34460...` (ver `.env.local`, `.insforge/project.json` y los 7 `.env` de las apps). La key anterior `ik_7c3cbe2e...` quedó desactivada (HTTP 401).
-  2. **Purga de historial git con git-filter-repo** (remplazo `***REMOVED***` de: `ik_f581...`, `ik_7c3cbe2e...`, `cf0022...` BCI postgres, 2 tokens VibeHost y keys Supabase anon JWT). **Force-push a ambos remotos** — `origin`/`github-personal` (personal) y `github-innovacion` (institucional). Commit raíz purgado: `ea04112`. **Todos los SHAs de historia reescritos.**
-  3. Los 84 commits quedan purgados; verificado 0 secretos reales en el historial (24 archivos solo cambiaron por reemplazo de secretos; 1400 archivos preservados).
-  4. **Reposito local** reseteado a la historia purgada y alineado con ambos remotos en `ea04112`.
-   5. **Recompilación + REDEPLOY a VibeHost con la nueva key** (2026-09-04): las 5 apps frontend (`SIGI`, `SCGCC`, `SCMTP`, `SCPPE`, `SCEIN`) se recompilaron con el `.env` actualizado (nueva key `ik_b34460...` embebida, key vieja 0 restos) y se redeshplearon a VibeHost — todas `HEALTHY`:
-      - `sigi` → dep `p5le3yaks9oashwrjr2s5gd7` ✅ | `scgcc` → dep `j58sgxc977bnokm6rveiuk6w` ✅
-      - `scmtp` → dep `zksx1b8rvugpx7vtoxsrdm13` ✅ | `scppe` → dep `tc634zdufx6my098k068firn` ✅
-      - `scein` → dep `g6dmjaj9ti24r7i5d8d5aaf7` ✅ | `sctis` → dep `q7fwdeoogdbss4tyq99vm41p` ✅ (Flask runtime, solo reinicia con `.env`)
-      - **Verificación en vivo:** 6/6 URLs HTTP 200; bundles servidos contienen `ik_b34460...` con 0 ocurrencias de la key vieja.
-      - **Parche seguridad:** `scripts/deploy_vibehost_app.py` ahora lee `VIBEHOST_TOKEN`/`VIBEHOST_WS_ID` desde variables de entorno (commit `8a2eb27`), sin token hardcodeado.
+- **Fecha y Hora:** 2026-09-04 (VET / UTC-4) — **CIERRE DE SESIÓN 09-04 noche: redeploy de las 6 apps *-REF a VibeHost con la nueva key InsForge + verificación de purga de `API_KEY_OLD`**
+- **ÚLTIMA SESIÓN (2026-09-04 tarde-noche):**
+  1. **Recompiladas las 5 apps frontend** (`SIGI`, `SCGCC`, `SCMTP`, `SCPPE`, `SCEIN`) con el `.env` actualizado (nueva key `ik_b34460...`, key vieja 0 restos) y **redesplegadas a VibeHost** — todas `HEALTHY`, 6/6 URLs HTTP 200, bundles servidos contienen `ik_b34460...` sin restos de la key vieja.
+  2. **Antes se recompiló también la sesión anterior:** rotación de API key principal (nuevo `ik_b34460...`, vieja `ik_7c3cbe2e...` muerta) + purga completa del historial git con `git-filter-repo` (84 commits reescritos, ~1400 archivos preservados, 24 solo cambiaron por reemplazo de secretos → `***REMOVED***`; commit raíz purgado `ea04112`) + force-push a ambos remotos.
+  3. **Verificación purga `API_KEY_OLD`:** NO es posible purgarlas por CLI (`FORBIDDEN`) ni dashboard (solo ver/copiar). `ik_f581...` (`API_KEY_OLD_1788523206583`) **auto-expira 5/9 12:00 UTC**; la otra ya venció. Exposición residual mínima (no referenciada en `.env`/bundle/dist/historial).
+  4. **Commit final:** `c5f8d06` — local `main`, `origin/main` (personal) y `github-innovacion/main` (institucional) alineados. Copia de trabajo limpia.
+- **Detalle del redeploy (09-04):** `sigi` → dep `p5le3yaks9oashwrjr2s5gd7` ✅ | `scgcc` → dep `j58sgxc977bnokm6rveiuk6w` ✅ | `scmtp` → dep `zksx1b8rvugpx7vtoxsrdm13` ✅ | `scppe` → dep `tc634zdufx6my098k068firn` ✅ | `scein` → dep `g6dmjaj9ti24r7i5d8d5aaf7` ✅ (runtime, sin key embebida) | `sctis` → dep `q7fwdeoogdbss4tyq99vm41p` ✅ (Flask runtime, solo reinicia con `.env`). Parche seguridad: `scripts/deploy_vibehost_app.py` lee `VIBEHOST_TOKEN`/`VIBEHOST_WS_ID` desde entorno (commit `8a2eb27`).
 - **Plataforma / Entorno:** Antigravity IDE / CLI `agy` sobre Node 20 / Linux.
 - **Estado General:** 🟢 **Todas las apps *-REF leen y escriben 100% contra InsForge PostgreSQL (proyecto `ggpd-data-maestra-0002`, host `wxkeqf37`), sin data mock operativa.** Se eliminó el mock de minutas/compromisos/pendientes (SCMTP-REF), correspondencias y usuarios (SCGCC-REF), documentos y dashboards (SIGI-REF), y el redirector a backend Flask/SQLite con semillas hardcodeadas (SCTIS-REF). Los KPIs ahora se derivan de datos reales o muestran estado vacío. La BCI quedó conectada a su instancia InsForge separada (`jd3uejbz`, proyecto `ggpd-base-conocimientos-ia`) con funciones RPC seguras de emisión/estado/auditoría de tokens.
 - **Seguridad de credenciales (realizada):**
