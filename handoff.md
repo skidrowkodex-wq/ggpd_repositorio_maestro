@@ -3,7 +3,12 @@
 ---
 
 ## 📌 1. Registro de Última Actualización
-- **Fecha y Hora:** 2026-09-04 (VET / UTC-4) — **Refactorización total de las 6 apps *-REF a InsForge real (eliminación de data mock) + conexión de la BCI + endurecimiento de seguridad de credenciales**
+- **Fecha y Hora:** 2026-09-04 (VET / UTC-4) — **Refactorización total de las 6 apps *-REF a InsForge real + PURGADO DE HISTORIAL GIT con git-filter-repo + ROTACIÓN de la API key principal de InsForge**
+- **ÚLTIMA SESIÓN (2026-09-04):** Se ejecutó el endurecimiento de seguridad pendiente:
+  1. **Rotación de la API key principal de InsForge** (`ggpd-data-maestra-0002`): emitida nueva key `ik_b34460...` (ver `.env.local`, `.insforge/project.json` y los 7 `.env` de las apps). La key anterior `ik_7c3cbe2e...` quedó desactivada (HTTP 401).
+  2. **Purga de historial git con git-filter-repo** (remplazo `***REMOVED***` de: `ik_f581...`, `ik_7c3cbe2e...`, `cf0022...` BCI postgres, 2 tokens VibeHost y keys Supabase anon JWT). **Force-push a ambos remotos** — `origin`/`github-personal` (personal) y `github-innovacion` (institucional). Commit raíz purgado: `ea04112`. **Todos los SHAs de historia reescritos.**
+  3. Los 84 commits quedan purgados; verificado 0 secretos reales en el historial (24 archivos solo cambiaron por reemplazo de secretos; 1400 archivos preservados).
+  4. **Reposito local** reseteado a la historia purgada y alineado con ambos remotos en `ea04112`.
 - **Plataforma / Entorno:** Antigravity IDE / CLI `agy` sobre Node 20 / Linux.
 - **Estado General:** 🟢 **Todas las apps *-REF leen y escriben 100% contra InsForge PostgreSQL (proyecto `ggpd-data-maestra-0002`, host `wxkeqf37`), sin data mock operativa.** Se eliminó el mock de minutas/compromisos/pendientes (SCMTP-REF), correspondencias y usuarios (SCGCC-REF), documentos y dashboards (SIGI-REF), y el redirector a backend Flask/SQLite con semillas hardcodeadas (SCTIS-REF). Los KPIs ahora se derivan de datos reales o muestran estado vacío. La BCI quedó conectada a su instancia InsForge separada (`jd3uejbz`, proyecto `ggpd-base-conocimientos-ia`) con funciones RPC seguras de emisión/estado/auditoría de tokens.
 - **Seguridad de credenciales (realizada):**
@@ -13,7 +18,10 @@
   4. Se limpiaron los remotos git quitando los tokens `ghp_` incrustados en las URLs.
   5. Commit `362e22d` + `cb6e1de` (sin secretos añadidos).
 - **⚠️ PENDIENTE / SIGUIENTE PASO:**
-  1. **PURGA DE HISTORIAL GIT PENDIENTE:** Las keys `ik_f581...` (InsForge principal), `ik_6f21...` (BCI) y `cf0022...` (postgres BCI) estuvieron en commits pasados del historial. El usuario decidió **NO rotar keys ni purgar historial aún**. Antes de compartir/publicar el repo: purgar historial con `git-filter-repo` + fuerza push y **rotar/regenerar las 3 keys** (revocarlas en el dashboard InsForge). Pendiente por decisión explícita del usuario.
+  1. **✅ HECHO (2026-09-04): PURGA DE HISTORIAL GIT + ROTACIÓN API KEY principal.** Historial reescrito con `git-filter-repo` (secretos `***REMOVED***`) y force-push a ambos remotos en `ea04112`. Nueva API key `ik_b34460...` activa en las apps. Quedan **2 acciones manuales en dashboard** (no automatizables por CLI):
+     - **InsForge principal:** purgar/expirar manualmente los secretos reservados `API_KEY_OLD_*` en el dashboard (la key filtrada `ik_f581...` expira sola el 5/9; conviene purgarla ya).
+     - **BCI (instancia `jd3uejbz`):** la password postgres filtrada `cf0022...` (en `ggpd_bci/config/connection.json` e `insforge_bci.env`) debe resetearse en el dashboard de InsForge (el CLI no resetea la password del usuario `postgres`). La API key de la BCI `ik_1fabec59...` **NO** estaba filtrada (segura, sin rotar).
+     - **VibeHost:** rotar el token `vh_pat_4qfh...` (estuvo en historial) y actualizar `.env.local`.
   2. Los datos reales en tablas nuevas (scppe.mae_comprobantes_viatico, scmtp.*, sctis.*, etc.) están mayormente vacíos (0 registros); el ETL de carga de datos reales sigue pendiente.
   3. Continuar con la unificación IAM / despliegue en VibeHost según pasos pendientes de la sesión de IAM (SIGI / SCGCC).
 - **Credenciales de prueba verdes:** `admin.ggpd` / `admin2026!.` y `blanca.gonzalez` / `Gonzalez2026!.`.
