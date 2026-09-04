@@ -3,14 +3,19 @@
 ---
 
 ## 📌 1. Registro de Última Actualización
-- **Fecha y Hora:** 2026-09-02 (VET / UTC-4) — **Conexión completa de SCPPE-REF a InsForge (Viáticos + Comprobantes Fiscales SENIAT) y eliminación de data mock**
+- **Fecha y Hora:** 2026-09-04 (VET / UTC-4) — **Refactorización total de las 6 apps *-REF a InsForge real (eliminación de data mock) + conexión de la BCI + endurecimiento de seguridad de credenciales**
 - **Plataforma / Entorno:** Antigravity IDE / CLI `agy` sobre Node 20 / Linux.
-- **Responsable / Emisores:** Equipo de Automatización e Ingeniería de Productos con IA (GGPD).
-- **Estado General:** 🟢 **Conectado a la base de datos real de InsForge.** Se rediseñó el módulo de Viáticos de SCPPE-REF a la schema real (`scppe.mae_viaticos_control`), se creó la tabla `scppe.mae_comprobantes_viatico` + vista pública `public.v_scppe_comprobantes_viatico`, y se agregaron triggers `INSTEAD OF INSERT/DELETE` a `v_scppe_viaticos_control` para habilitar la escritura vía API REST de InsForge. Se eliminó todo el data mock operativo (`MOCK_PROYECTOS_PRTSEN`, `MOCK_COMPROBANTES_VIATICO`); solo se conservan parámetros de negocio locales (tasa BCV, tabulador, catálogo APU). La app ahora lee y escribe directamente contra InsForge PostgreSQL.
+- **Estado General:** 🟢 **Todas las apps *-REF leen y escriben 100% contra InsForge PostgreSQL (proyecto `ggpd-data-maestra-0002`, host `wxkeqf37`), sin data mock operativa.** Se eliminó el mock de minutas/compromisos/pendientes (SCMTP-REF), correspondencias y usuarios (SCGCC-REF), documentos y dashboards (SIGI-REF), y el redirector a backend Flask/SQLite con semillas hardcodeadas (SCTIS-REF). Los KPIs ahora se derivan de datos reales o muestran estado vacío. La BCI quedó conectada a su instancia InsForge separada (`jd3uejbz`, proyecto `ggpd-base-conocimientos-ia`) con funciones RPC seguras de emisión/estado/auditoría de tokens.
+- **Seguridad de credenciales (realizada):**
+  1. Se reemplazaron las API keys hardcodeadas en código fuente por lectura de variables de entorno (`.env`), sin fallback con secreto.
+  2. Los `.env.example` quedaron con placeholders (`tu_api_key_insforge_aqui`).
+  3. Se dejaron de trackear archivos sensibles: `ggpd_bci/config/*`, `opencode.json` (con `ik_f581...`), y se amplió `.gitignore` (migraciones, database/, metas_drive/, repo_ggc/, corpoelec-bci-developer-kit/).
+  4. Se limpiaron los remotos git quitando los tokens `ghp_` incrustados en las URLs.
+  5. Commit `362e22d` + `cb6e1de` (sin secretos añadidos).
 - **⚠️ PENDIENTE / SIGUIENTE PASO:**
-  1. Los parámetros de negocio locales (tasa BCV `68.50`, tabulador CORPOELEC, catálogo APU) se mantienen como config local documentada; decidir si migrarlos a tablas de BD si se desea cumplir "todo conectado a InsForge" al 100%.
-  2. Continuar con la unificación IAM / despliegue en VibeHost según los pasos pendientes de la sesión de IAM (SIGI / SCGCC).
-  3. Las tablas `scppe.mae_viaticos_control` y `scppe.mae_comprobantes_viatico` están actualmente vacías (0 registros); el ETL de carga de datos reales sigue pendiente.
+  1. **PURGA DE HISTORIAL GIT PENDIENTE:** Las keys `ik_f581...` (InsForge principal), `ik_6f21...` (BCI) y `cf0022...` (postgres BCI) estuvieron en commits pasados del historial. El usuario decidió **NO rotar keys ni purgar historial aún**. Antes de compartir/publicar el repo: purgar historial con `git-filter-repo` + fuerza push y **rotar/regenerar las 3 keys** (revocarlas en el dashboard InsForge). Pendiente por decisión explícita del usuario.
+  2. Los datos reales en tablas nuevas (scppe.mae_comprobantes_viatico, scmtp.*, sctis.*, etc.) están mayormente vacíos (0 registros); el ETL de carga de datos reales sigue pendiente.
+  3. Continuar con la unificación IAM / despliegue en VibeHost según pasos pendientes de la sesión de IAM (SIGI / SCGCC).
 - **Credenciales de prueba verdes:** `admin.ggpd` / `admin2026!.` y `blanca.gonzalez` / `Gonzalez2026!.`.
 
 **⏱️ RESULTADO DE LA SESIÓN ANTERIOR (para continuidad):** El historial completo de entregables SCGCC/SIGI/SCPPE/SCMTP/SCEIN/SCTIS y despliegues previos se mantiene en las secciones siguientes de este archivo.
