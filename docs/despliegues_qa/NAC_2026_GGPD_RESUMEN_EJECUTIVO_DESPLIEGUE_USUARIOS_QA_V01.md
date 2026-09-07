@@ -30,7 +30,7 @@ El presente memorándum detalla los enlaces web de producción, la matriz oficia
 Para garantizar la integridad operativa, la segregación de funciones (*Segregation of Duties - SoD*) y la seguridad de la información, rigen las siguientes directivas obligatorias:
 
 ### ⚡ Regla 1: Acceso Total Automatizado para Administradores y Gerencia vía SSO
-* Los usuarios con rol `ADMINISTRADOR` o `GERENCIA` (`ggpd_admin`, `j_pacheco`, `a_correa`, `c_favio`) poseen acceso irrestricto a todas las herramientas del portal.
+* Los usuarios con rol `ADMINISTRADOR` o `GERENCIA` (`admin.ggpd`, `josue.pacheco`, `adrian.correa`, `catherina.favio`) poseen acceso irrestricto a todas las herramientas del portal.
 * Al hacer clic en *"Ejecutar Aplicación"* desde el lanzador de SIGI, se establece un apretón de manos (**Single Sign-On - SSO**) que los autentica de forma silenciosa en las aplicaciones satélites, eliminando la necesidad de reintroducir contraseñas.
 
 ### 👷 Regla 2: Acceso Condicionado a Aplicaciones para Especialistas y Operadores de Estado
@@ -97,15 +97,15 @@ Para garantizar la integridad operativa, la segregación de funciones (*Segregat
 
 | Usuario (`username`) | Nombre Completo | Correo Institucional | Rol / Perfil | Ámbito | Contraseña Inicial |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `ggpd_admin` | Administrador General GGPD | `admin.ggpd@corpoelec.gob.ve` | `ADMINISTRADOR` | Nacional (`NAC`) | `admin2026!.` / `Lunes35.` |
-| `j_pacheco` | Josue D. Pacheco | `j.pacheco@corpoelec.gob.ve` | `ADMINISTRADOR` | Nacional (`NAC`) | `Pacheco2026!.` |
-| `a_correa` | Adrian Correa | `a.correa@corpoelec.gob.ve` | `GERENCIA` | Nacional (`NAC`) | `Correa2026!.` |
-| `c_favio` | Catherina Favio | `c.favio@corpoelec.gob.ve` | `GERENCIA` | Nacional (`NAC`) | `Favio2026.` |
+| `admin.ggpd` | Administrador General GGPD | `admin.ggpd@corpoelec.gob.ve` | `ADMINISTRADOR` | Nacional (`NAC`) | `admin2026!.` |
+| `josue.pacheco` | Josue D. Pacheco | `j.pacheco@corpoelec.gob.ve` | `ADMINISTRADOR` | Nacional (`NAC`) | `Pacheco2026!.` |
+| `adrian.correa` | Adrian Correa | `a.correa@corpoelec.gob.ve` | `GERENCIA` | Nacional (`NAC`) | `Correa2026!.` |
+| `catherina.favio` | Catherina Favio | `c.favio@corpoelec.gob.ve` | `GERENCIA` | Nacional (`NAC`) | `Favio2026!.` |
 | `w_prato` | Walter Prato | `w_prato@corpoelec.gob.ve` | `ESPECIALISTA` | Miranda (`MIR`) | `Prato2026.` |
 | `j_bencomo` | Jaime Bencomo | `j_bencomo@corpoelec.gob.ve` | `ESPECIALISTA` | Carabobo (`CAR`) | `Bencomo2026.` |
 | `c_reyes` | Carlos Reyes | `c_reyes@corpoelec.gob.ve` | `ESPECIALISTA` | Lara (`LAR`) | `Reyes2026.` |
 | `r_cipiran` | Y. Cipiran | `y.cipiran@corpoelec.gob.ve` | `ESPECIALISTA` | Zulia (`ZUL`) | `Cipiran2026.` |
-| `b_gonzalez` | Blanca González | `b.gonzalez@corpoelec.gob.ve`| `ANALISTA` | Nacional (`NAC`) | `Gonzalez2026.` |
+| `blanca.gonzalez` | Blanca González | `b.gonzalez@corpoelec.gob.ve`| `ANALISTA` | Nacional (`NAC`) | `Gonzalez2026!.` |
 | `a_auditor` | Auditor ISO 8000 / 27001 | `auditoria.iso@corpoelec.gob.ve` | `AUDITOR` | Nacional (`NAC`) | `Auditor2026.` |
 | `analista_gestion` | Lcdo. Juan Pérez | `analista_gestion@corpoelec.gob.ve` | `ANALISTA` | Nacional (`NAC`) | `admin2026!.` |
 
@@ -145,7 +145,7 @@ Para garantizar la integridad operativa, la segregación de funciones (*Segregat
 
 ## 5. HOJA DE RUTA Y RECOMENDACIONES DE QA
 
-1. **Validación de SSO Silencioso:** Probar el inicio de sesión con `ggpd_admin` en SIGI y verificar la apertura inmediata de SCTIS, SCPPE, SCEIN y SCMTP sin solicitud de clave adicional.
+1. **Validación de SSO Silencioso:** Probar el inicio de sesión con `admin.ggpd` en SIGI y verificar la apertura inmediata de SCTIS, SCPPE, SCEIN y SCMTP sin solicitud de clave adicional.
 2. **Prueba de Confinamiento Territorial (State-Lock):** Ingresar con `coord_tachira` y comprobar que la información desplegada en el visor geoespacial y métricas pertenezca a la Coordinación Táchira.
 3. **Prueba de Denegación de Permisos:** Con la cuenta `coord_tachira`, intentar pulsar sobre cualquier aplicación satélite en el lanzador y comprobar que el sistema muestra el modal de acceso restringido y registra el evento de seguridad en la bitácora ISO 27001.
 

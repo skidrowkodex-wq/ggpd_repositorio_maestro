@@ -124,7 +124,7 @@ export const LoginForm: React.FC = () => {
               </label>
               <input
                 type="text"
-                placeholder="ej: carlos.reyes o ggpd_admin"
+                placeholder="ej: carlos.reyes o admin.ggpd"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full rounded-xl bg-slate-50 dark:bg-[#041426] border border-slate-300 dark:border-slate-700 px-3.5 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 font-mono font-medium transition-all"

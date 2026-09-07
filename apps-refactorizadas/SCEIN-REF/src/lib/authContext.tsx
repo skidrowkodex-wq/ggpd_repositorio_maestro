@@ -29,11 +29,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const isSso = params.get('sso') === 'true' || params.get('sso_auth') === 'true';
         const ssoUser = params.get('user') || params.get('sso_user');
         if (isSso) {
-          const clean = (ssoUser || 'ggpd_admin').trim().toLowerCase();
+          const clean = (ssoUser || 'admin.ggpd').trim().toLowerCase();
           const ssoProfile: User = {
             id: 'usr-001',
             username: clean,
-            fullName: clean === 'ggpd_admin' ? 'Administrador General GGPD' : clean,
+            fullName: clean === 'admin.ggpd' ? 'Administrador General GGPD' : clean,
             role: (params.get('role') as UserRole) || 'ADMIN',
             stateCode: params.get('state') || 'NAC',
             isActive: true,

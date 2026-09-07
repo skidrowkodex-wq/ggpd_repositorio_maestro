@@ -124,9 +124,9 @@ function verifyToken(token: string): any | null {
 const INITIAL_USERS = [
   {
     id: 'usr-ggpd-admin',
-    username: 'ggpd_admin',
+    username: 'admin.ggpd',
     email: 'admin.ggpd@corpoelec.gob.ve',
-    password: 'Lunes35.',
+    password: 'admin2026!.',
     full_name: 'Administrador General GGPD',
     role: 'ADMIN_NACIONAL',
     state_code: null,
@@ -347,7 +347,7 @@ let memoryAuditEvents: any[] = [
   {
     id: 1,
     action: 'SYSTEM_STARTUP',
-    user_email: 'ggpd_admin@corpoelec.gob.ve',
+    user_email: 'admin.ggpd@corpoelec.gob.ve',
     ip_address: '10.240.0.1',
     details: 'Inicialización de la plataforma SCEIN CORPOELEC GGPD v1.0.0 y verificación de esquemas PostgreSQL ISO 8000 / ISO 27001.',
     status: 'EXITO',
@@ -356,7 +356,7 @@ let memoryAuditEvents: any[] = [
   {
     id: 2,
     action: 'LOGIN_EXITO',
-    user_email: 'ggpd_admin@corpoelec.gob.ve',
+    user_email: 'admin.ggpd@corpoelec.gob.ve',
     ip_address: '190.202.45.12',
     details: 'Inicio de sesión exitoso. Rol: ADMIN_NACIONAL (Acceso Total de Administración).',
     status: 'EXITO',
@@ -623,7 +623,7 @@ Evaluación automática de fecha y día de la semana al ingresar archivos:
 #### **Procedimiento Paso a Paso de Prueba para el Propietario (PO):**
 1. Acceda a la URL \`/login\`.
 2. Ingrese con las credenciales de prueba:
-   - **Administrador Nacional**: Usuario \`ggpd_admin\` / Clave \`Lunes35.\`
+   - **Administrador Nacional**: Usuario \`admin.ggpd\` / Clave \`admin2026!.\`
    - **Analista Estatal Táchira**: Usuario \`e_tachira\` / Clave \`Tachira2026.\`
    - **Auditor ISO**: Usuario \`a_auditor\` / Clave \`Auditor2026.\`
 3. Verifique que al hacer clic en **"Iniciar Sesión"**, el sistema valide la clave y muestre la pantalla principal con el nombre del usuario y su rol.
@@ -656,7 +656,7 @@ Evaluación automática de fecha y día de la semana al ingresar archivos:
 ### 🔹 MÓDULO 3: Tablero Analítico y Filtros Granulares por Estado (RLS)
 
 #### **Procedimiento Paso a Paso de Prueba para el Propietario (PO):**
-1. Inicie sesión como **Administrador Nacional** (\`ggpd_admin\`).
+1. Inicie sesión como **Administrador Nacional** (\`admin.ggpd\`).
 2. Confirme que las tarjetas de indicadores muestren el total de equipos a nivel nacional, el desglose por estatus (Pendiente, En Ejecución, Resuelto) y el presupuesto consolidado en Euros (\`€\`).
 3. En el selector de estado, elija **TÁCHIRA (TA)**. Verifique que los gráficos y la tabla de equipos se filtren inmediatamente.
 4. En la tabla de equipos, haga clic en el selector de estatus de un equipo y cámbielo a \`EN_EJECUCION\` o \`RESUELTO\`. Confirme que la tarjeta KPI se actualice en tiempo real.

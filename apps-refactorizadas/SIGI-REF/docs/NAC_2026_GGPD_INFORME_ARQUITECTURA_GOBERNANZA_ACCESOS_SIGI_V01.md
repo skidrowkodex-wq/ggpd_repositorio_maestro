@@ -72,7 +72,7 @@ Para garantizar la estabilidad de los procesos sin interferir con los cronograma
 | • Despliegue Indep.| | • Despliegue Independiente     | | • Despliegue Indep.| | • Despliegue Indep.|
 | • Auth Local intact| | • Auth Local intacta           | | • Auth Local intact| | • Auth Local intact|
 | • Credenciales QA: | | • Credenciales QA:             | | • Credenciales QA: | | • Credenciales QA: |
-|   Lunes35., etc.   | |   Usuarios @asignados          | |   Pacheco2026., etc| |   Lunes35., etc.   |
+|   admin2026!., etc.   | |   Usuarios @asignados          | |   Pacheco2026!., etc| |   admin2026!., etc.   |
 +--------------------+ +--------------------------------+ +--------------------+ +--------------------+
 ```
 
@@ -93,10 +93,10 @@ A continuación se detalla la configuración y homologación de perfiles corpora
 
 | Usuario (`username`) | Nombre Completo | Rol SIGI | Clave Institucional SIGI | Clave Apps Satélite (Memo QA) | Cobertura Operativa |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **`ggpd_admin`** | Administrador General GGPD | `ADMINISTRADOR` | `admin2026!.` | `Lunes35.` | Acceso Global a las 5 Aplicaciones |
-| **`a_correa`** | Adrian Correa | `GERENCIA` | `Correa2026!.` | `Correa2026.` | Planificación Estratégica, POA y Minutas |
-| **`j_pacheco`** | Josue Pacheco | `ADMINISTRADOR` | `Pacheco2026!.` | `Pacheco2026.` | Tecnología, Backend y Control Nacional |
-| **`c_favio`** | Catherina Favio | `ADMINISTRADOR` | `Favio2026!.` | `Favio2026.` | Ingesta SCTIS, Minutas y Planificación |
+| **`admin.ggpd`** | Administrador General GGPD | `ADMINISTRADOR` | `admin2026!.` | `admin2026!.` | Acceso Global a las 5 Aplicaciones |
+| **`adrian.correa`** | Adrian Correa | `GERENCIA` | `Correa2026!.` | `Correa2026!.` | Planificación Estratégica, POA y Minutas |
+| **`josue.pacheco`** | Josue Pacheco | `ADMINISTRADOR` | `Pacheco2026!.` | `Pacheco2026!.` | Tecnología, Backend y Control Nacional |
+| **`catherina.favio`** | Catherina Favio | `ADMINISTRADOR` | `Favio2026!.` | `Favio2026!.` | Ingesta SCTIS, Minutas y Planificación |
 
 ### 4.2. Cuentas de Coordinaciones Territoriales (25 Entidades)
 

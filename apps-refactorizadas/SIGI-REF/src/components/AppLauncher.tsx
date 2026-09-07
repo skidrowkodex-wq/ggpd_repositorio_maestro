@@ -46,7 +46,7 @@ export const AppLauncher: React.FC<AppLauncherProps> = ({ setActiveSection }) =>
       if (session.authenticated) {
         urlObj.searchParams.set('sso', 'true');
         urlObj.searchParams.set('sso_auth', 'true');
-        const effectiveUser = session.userCode === 'usr-001' ? 'ggpd_admin' : (matchedUser?.username || session.userCode || 'ggpd_admin');
+        const effectiveUser = session.userCode === 'usr-001' ? 'admin.ggpd' : (matchedUser?.username || session.userCode || 'admin.ggpd');
         urlObj.searchParams.set('user', effectiveUser);
         urlObj.searchParams.set('role', session.role);
         urlObj.searchParams.set('state', session.stateCode);
@@ -54,7 +54,7 @@ export const AppLauncher: React.FC<AppLauncherProps> = ({ setActiveSection }) =>
       return urlObj.toString();
     } catch {
       const sep = app.url.includes('?') ? '&' : '?';
-      return `${app.url}${sep}sso=true&sso_auth=true&user=${encodeURIComponent(session.userCode || 'ggpd_admin')}&role=${encodeURIComponent(session.role)}&state=${encodeURIComponent(session.stateCode)}`;
+      return `${app.url}${sep}sso=true&sso_auth=true&user=${encodeURIComponent(session.userCode || 'admin.ggpd')}&role=${encodeURIComponent(session.role)}&state=${encodeURIComponent(session.stateCode)}`;
     }
   };
 

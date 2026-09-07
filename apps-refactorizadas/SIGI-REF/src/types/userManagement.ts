@@ -14,6 +14,7 @@ export interface AppAccessPermissions {
 export interface InstitutionalUser {
   id: string;
   username: string;
+  cedula?: string;           // Cédula de identidad (ancla canónica ISO 8000-110, desambiguación de homónimos)
   fullName: string;
   email: string;             // Correo Corporativo CORPOELEC (@corpoelec.gob.ve)
   googleEmail?: string;       // Cuenta Google / Repositorio Nube (@gmail.com o vinculada)

@@ -14,8 +14,8 @@ export const USUARIOS_PREDEFINIDOS: (UserProfile & { password: string })[] = [
   },
   {
     id: 'usr-001',
-    username: 'ggpd_admin',
-    email: 'ggpd_admin@corpoelec.gob.ve',
+    username: 'admin.ggpd',
+    email: 'admin.ggpd@corpoelec.gob.ve',
     password: 'admin2026!.',
     nombre: 'Administrador GGPD',
     rol: 'ADMINISTRADOR',
@@ -83,7 +83,7 @@ export function getInitialUser(): UserProfile | null {
       const isSso = params.get('sso') === 'true' || params.get('sso_auth') === 'true';
       const ssoUser = params.get('user') || params.get('sso_user');
       if (isSso) {
-        const cleanUser = (ssoUser || 'ggpd_admin').trim().toLowerCase();
+        const cleanUser = (ssoUser || 'admin.ggpd').trim().toLowerCase();
         const found = USUARIOS_PREDEFINIDOS.find(
           u => u.username.toLowerCase() === cleanUser || u.email.toLowerCase() === cleanUser
         ) || USUARIOS_PREDEFINIDOS.find(u => u.rol === 'ADMINISTRADOR') || USUARIOS_PREDEFINIDOS[0];

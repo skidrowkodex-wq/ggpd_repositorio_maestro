@@ -7,7 +7,8 @@ import {
   fetchUsersFromInsForge, 
   saveUserToInsForge, 
   toggleUserStatusInInsForge, 
-  updateUserPermissionsInInsForge 
+  updateUserPermissionsInInsForge,
+  sugerirUsernameUnico 
 } from '../services/userService';
 import { 
   validatePasswordStrength, 
@@ -197,6 +198,7 @@ export const UserManagementModule: React.FC = () => {
   // Form State for new/edited user
   const [formUser, setFormUser] = useState<Partial<InstitutionalUser>>({
     username: '',
+    cedula: '',
     fullName: '',
     email: '',
     googleEmail: '',
@@ -215,6 +217,41 @@ export const UserManagementModule: React.FC = () => {
   });
 
   const passwordVal = validatePasswordStrength(formUser.initialPassword || '');
+  const [usernameHint, setUsernameHint] = useState<string>('');
+
+  // Extrae nombre / apellidos desde el Nombre Completo (ignora títulos: Ing., Lic., etc.)
+  const parseNameParts = (fullName: string) => {
+    const cleaned = fullName
+      .replace(/\b(ing\.|t\.?s\.?u\.?|lcdo\.?|lic\.?|lcda\.?|licda\.?|dra\.?|dr\.?|prof\.?|arq\.?|abog\.?)\s*/gi, '')
+      .trim();
+    const parts = cleaned.split(/\s+/).filter(Boolean);
+    return { nombre: parts[0] || '', apellido1: parts[1] || '', apellido2: parts[2] || '' };
+  };
+
+  // Genera/desambigua el username vía RPC InsForge: base -> base2 -> base3; si la
+  // cédula ya existe, reutiliza su username (ISO 8000-110 / unicidad de identidad).
+  const handleSuggestUsername = async () => {
+    if (!formUser.fullName?.trim()) {
+      alert('Ingrese el Nombre Completo primero para generar el usuario.');
+      return;
+    }
+    const parts = parseNameParts(formUser.fullName);
+    if (!parts.nombre || !parts.apellido1) {
+      alert('El Nombre Completo debe incluir al menos un nombre y un apellido.');
+      return;
+    }
+    const res = await sugerirUsernameUnico(parts.nombre, parts.apellido1, parts.apellido2, formUser.cedula);
+    if (res.success && res.suggested) {
+      setFormUser(prev => ({ ...prev, username: res.suggested! }));
+      setUsernameHint(
+        res.homonym
+          ? `⚠️ Homónimo detectado: se asignó "${res.suggested}" para no duplicar "${res.base}".`
+          : `✓ Usuario único disponible: ${res.suggested}`
+      );
+    } else {
+      setUsernameHint(`No se pudo generar el usuario: ${res.error || 'error desconocido'}`);
+    }
+  };
 
   const filteredUsers = usersList.filter(u => {
     const matchesSearch = u.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -448,6 +485,11 @@ export const UserManagementModule: React.FC = () => {
       return;
     }
 
+    if (!editingUser && !(formUser.cedula || '').trim()) {
+      alert('Por favor ingrese la Cédula de Identidad (V-) del nuevo usuario (ancla canónica ISO 8000-110).');
+      return;
+    }
+
     if (!editingUser && !passwordVal.isValid) {
       alert(`Contraseña no cumple con los requisitos OWASP:\n- ${passwordVal.errors.join('\n- ')}`);
       return;
@@ -477,6 +519,7 @@ export const UserManagementModule: React.FC = () => {
       const newUser: InstitutionalUser = {
         id: `usr-${Date.now()}`,
         username: sanitizedUsername,
+        cedula: formUser.cedula,
         fullName: sanitizedFullName,
         email: sanitizedEmail,
         googleEmail: sanitizedGoogleEmail,
@@ -573,6 +616,7 @@ export const UserManagementModule: React.FC = () => {
             onClick={() => {
               setFormUser({
                 username: '',
+                cedula: '',
                 fullName: '',
                 email: '',
                 role: 'ANALISTA',
@@ -1531,9 +1575,35 @@ export const UserManagementModule: React.FC = () => {
                   type="text"
                   value={formUser.username || ''}
                   onChange={e => setFormUser({...formUser, username: e.target.value})}
-                  placeholder="Ej. c_reyes"
+                  placeholder="Ej. adrian.correa"
                   className="w-full rounded-xl bg-slate-50 dark:bg-[#112240] p-2.5 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 font-mono font-bold"
                 />
+                <button
+                  type="button"
+                  onClick={handleSuggestUsername}
+                  className="mt-1.5 w-full inline-flex items-center justify-center gap-1 rounded-lg bg-[#002b49] dark:bg-[#0e7490] text-white text-[11px] font-bold px-2 py-1.5 hover:opacity-90"
+                >
+                  <Sparkles className="h-3.5 w-3.5" /> Generar Username Único
+                </button>
+                {usernameHint && (
+                  <p className="text-[10px] text-cyan-600 dark:text-cyan-300 font-semibold mt-1">{usernameHint}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="font-extrabold text-slate-700 dark:text-slate-300 block mb-1">
+                  Cédula de Identidad (V-) *
+                </label>
+                <input
+                  type="text"
+                  value={formUser.cedula || ''}
+                  onChange={e => setFormUser({...formUser, cedula: e.target.value})}
+                  placeholder="V-12345678"
+                  className="w-full rounded-xl bg-slate-50 dark:bg-[#112240] p-2.5 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 font-mono font-bold"
+                />
+                <span className="text-[10px] text-slate-500 mt-0.5 block">
+                  Identidad canónica única (ISO 8000-110). Distingue homónimos y previene duplicados.
+                </span>
               </div>
 
               <div>

@@ -57,8 +57,8 @@ Este informe da respuesta a los requerimientos institucionales de cara al inicio
 
 | Usuario (`username`) | Nombre Completo | Rol Asignado | Contraseña Inicial | Ámbito / Perfil Funcional |
 | :--- | :--- | :--- | :--- | :--- |
-| `c_favio` | Catherina Favio | `admin` | `Favio2026.` | Administrador General del Sistema |
-| `ggpd_admin` | Administrador GGPD | `admin` | `Lunes35.` | Admin Gerencia General de Protección y Distribución |
+| `catherina.favio` | Catherina Favio | `admin` | `Favio2026!.` | Administrador General del Sistema |
+| `admin.ggpd` | Administrador GGPD | `admin` | `admin2026!.` | Admin Gerencia General de Protección y Distribución |
 | `fullstack001` | Full Stack Operator | `admin` | `Lunes35.` | Operador Técnico y Soporte de Infraestructura |
 | `admin` | Administrador Sistema | `admin` | `password` | Cuenta Administrador por defecto |
 
@@ -90,7 +90,7 @@ Este informe da respuesta a los requerimientos institucionales de cara al inicio
 | :--- | :--- | :--- | :--- |
 | `@w_prato` | Walter Prato | `analista` / Analista Senior | División de Planificación |
 | `@c_fabio` / `@k_fabio` | Caterina Fabio (Fabio K.) | `analista` / Analista de Sistemas | División de Planificación |
-| `@b_gonzalez` | Blanca González | `analista` / Asistente Gerencia General | Gerencia Gestión de Planificación |
+| `@blanca.gonzalez` | Blanca González | `analista` / Asistente Gerencia General | Gerencia Gestión de Planificación |
 | `@m_brito` | Michael Brito | `analista` / Control y Seguimiento | Grupo de Seguimiento y Control |
 | `@a_garcia` | Arturo García | `analista` / Operaciones y Rescate SEN | Grupo de Seguimiento y Control |
 | `@e_castro` | Esteban Castro | `analista` / Estadísticas y Cobertura | Grupo de Seguimiento y Control |
@@ -126,12 +126,12 @@ Este informe da respuesta a los requerimientos institucionales de cara al inicio
 
 | Usuario (`username`) | Correo Institucional | Contraseña | Nombre Completo | Rol Asignado | Cargo / Unidad |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `j_pacheco` | `j_pacheco@corpoelec.gob.ve` | `Pacheco2026.` | Josue D. Pacheco | `ADMINISTRADOR` | Administrador Sistema / GGPD |
-| `ggpd_admin` | `ggpd_admin@corpoelec.gob.ve` | `Lunes35.` | Administrador GGPD | `ADMINISTRADOR` | Administrador General GGPD |
+| `josue.pacheco` | `j.pacheco@corpoelec.gob.ve` | `Pacheco2026!.` | Josue D. Pacheco | `ADMINISTRADOR` | Administrador Sistema / GGPD |
+| `admin.ggpd` | `admin.ggpd@corpoelec.gob.ve` | `admin2026!.` | Administrador GGPD | `ADMINISTRADOR` | Administrador General GGPD |
 | `w_prato` | `w_prato@corpoelec.gob.ve` | `Prato2026.` | Walter Prato | `ESPECIALISTA` | Especialista Planificación / GGPD |
 | `j_bencomo` | `j_bencomo@corpoelec.gob.ve` | `Bencomo2026.` | Jaime Bencomo | `ESPECIALISTA` | Especialista Proyectos PRTSEN |
 | `c_reyes` | `c_reyes@corpoelec.gob.ve` | `Reyes2026.` | Carlos Reyes | `ESPECIALISTA` | Especialista Evaluación POA & RDS-PS |
-| `a_correa` | `a_correa@corpoelec.gob.ve` | `Correa2026.` | Adrian Correa | `ESPECIALISTA` | Especialista Control Operativo |
+| `adrian.correa` | `a.correa@corpoelec.gob.ve` | `Correa2026!.` | Adrian Correa | `ESPECIALISTA` | Especialista Control Operativo |
 | `analista_gestion` | `analista_gestion@corpoelec.gob.ve` | `Lunes35.` | Lcdo. Juan Pérez | `ANALISTA` | Analista Control Territorial |
 
 #### B. Integración de Inteligencia Artificial y Controles Financieros
@@ -159,9 +159,9 @@ Este informe da respuesta a los requerimientos institucionales de cara al inicio
 
 | Nombre Completo | Usuario (`username`) | Correo Electrónico | Perfil / Rol | Ámbito / Estado | Contraseña Inicial |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| Administrador General GGPD | `ggpd_admin` | `admin.ggpd@corpoelec.gob.ve` | `ADMIN_NACIONAL` | Nacional (Global) | `Lunes35.` |
+| Administrador General GGPD | `admin.ggpd` | `admin.ggpd@corpoelec.gob.ve` | `ADMIN_NACIONAL` | Nacional (Global) | `Lunes35.` |
 | Ing. J. Jiménez | `j_jimenez` | `j.jimenez@corpoelec.gob.ve` | `ADMIN_NACIONAL` | Nacional (Global) | `Jimenez2026.` |
-| Ing. J. Pacheco | `j_pacheco` | `j.pacheco@corpoelec.gob.ve` | `Pacheco2026.` | `ADMIN_NACIONAL` | Nacional (Global) | `Pacheco2026.` |
+| Ing. J. Pacheco | `josue.pacheco` | `j.pacheco@corpoelec.gob.ve` | `Pacheco2026!.` | `ADMIN_NACIONAL` | Nacional (Global) | `Pacheco2026!.` |
 | Ing. Y. Cipiran | `y_cipiran` | `y.cipiran@corpoelec.gob.ve` | `ADMIN_NACIONAL` | Nacional (Global) | `Cipiran2026.` |
 | Analista Estatal Táchira | `e_tachira` | `analista.tachira@corpoelec.gob.ve` | `ANALISTA_ESTATAL` | Táchira (TA) | `Tachira2026.` |
 | Auditor ISO 8000 / 27001 | `a_auditor` | `auditoria.iso@corpoelec.gob.ve` | `AUDITOR` | Solo Lectura | `Auditor2026.` |

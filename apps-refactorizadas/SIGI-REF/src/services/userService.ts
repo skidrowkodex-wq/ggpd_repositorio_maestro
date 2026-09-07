@@ -5,6 +5,7 @@ import { StateCode } from '../types/sigi';
 export interface InsForgeUserRecord {
   id: string;
   username: string;
+  cedula?: string | null;
   full_name: string;
   email: string;
   google_email?: string | null;
@@ -35,6 +36,7 @@ function mapInsForgeToInstitutionalUser(record: InsForgeUserRecord): Institution
   return {
     id: record.id,
     username: record.username,
+    cedula: record.cedula || undefined,
     fullName: record.full_name,
     email: record.email,
     googleEmail: record.google_email || undefined,
@@ -124,6 +126,7 @@ export async function authenticateWithInsForge(
     const user: InstitutionalUser = {
       id: record.id || '',
       username: record.username || '',
+      cedula: record.cedula || undefined,
       fullName: record.full_name || '',
       email: record.email || '',
       googleEmail: record.google_email || undefined,
@@ -191,6 +194,7 @@ export async function saveUserToInsForge(
   try {
     const payload: any = {
       username: user.username?.trim().toLowerCase(),
+      cedula: normalizeCedula(user.cedula) || null,
       full_name: user.fullName?.trim(),
       email: user.email?.trim().toLowerCase(),
       google_email: user.googleEmail?.trim().toLowerCase() || null,
@@ -288,5 +292,65 @@ export async function updateUserPermissionsInInsForge(
     return !error;
   } catch {
     return false;
+  }
+}
+
+/**
+ * Normaliza una cédula venezolana a su forma canónica (ISO 8000-110):
+ * mayúsculas y sin espacios. Ej: "v-12.345.678" / "V 12345678" -> "V-12345678".
+ */
+export function normalizeCedula(cedula?: string): string {
+  if (!cedula) return '';
+  return cedula.trim().replace(/\s+/g, '').toUpperCase();
+}
+
+/**
+ * Sugiere un username único y desambiguado llamando a la RPC InsForge
+ * public.sugerir_username_unico (regla: base -> base2 -> base3; si la cédula
+ * ya existe, reutiliza su username). Se auto-completa el campo username al
+ * registrar o editar un usuario en SIGI.
+ */
+export async function sugerirUsernameUnico(
+  nombre: string,
+  apellido1: string,
+  apellido2?: string,
+  cedula?: string
+): Promise<{ success: boolean; suggested?: string; base?: string; homonym?: boolean; error?: string }> {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
+
+    const res = await fetch(`${insforgeUrl}/api/database/rpc/sugerir_username_unico`, {
+      method: 'POST',
+      headers: {
+        'apikey': insforgeAnonKey,
+        'Authorization': `Bearer ${insforgeAnonKey}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        p_nombre: nombre,
+        p_apellido1: apellido1,
+        p_apellido2: apellido2 || null,
+        p_cedula: cedula ? normalizeCedula(cedula) : null,
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timer);
+
+    if (!res.ok) {
+      return { success: false, error: `Error HTTP ${res.status} al generar el username.` };
+    }
+
+    const data = await res.json();
+    if (!data || data.success !== true) {
+      return { success: false, error: data?.error || data?.message || 'No se pudo generar el username.' };
+    }
+
+    return { success: true, suggested: data.suggested, base: data.base, homonym: data.homonym };
+  } catch (err: any) {
+    console.error('❌ Error en sugerirUsernameUnico:', err);
+    return { success: false, error: err.message || 'Error de comunicación con InsForge.' };
   }
 }

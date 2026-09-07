@@ -72,7 +72,7 @@ export default function App() {
       const isSso = params.get('sso') === 'true' || params.get('sso_auth') === 'true';
       const ssoUser = params.get('user') || params.get('sso_user');
       if (isSso) {
-        const clean = (ssoUser || 'ggpd_admin').trim().toLowerCase();
+        const clean = (ssoUser || 'admin.ggpd').trim().toLowerCase();
         const found = USER_PROFILES.find(u => u.username.toLowerCase() === clean) || USER_PROFILES[0];
         localStorage.setItem('ggpd_current_profile_v1', JSON.stringify(found));
         localStorage.setItem('ggpd_auth_v1', 'true');

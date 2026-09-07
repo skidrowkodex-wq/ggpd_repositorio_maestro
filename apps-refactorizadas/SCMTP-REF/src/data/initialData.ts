@@ -5,8 +5,8 @@ export const USER_PROFILES: UserProfile[] = [
   {
     id: 'usr-ggpd-admin',
     name: 'Administrador Principal',
-    username: 'ggpd_admin',
-    password: '#$Lunes35.**#$',
+    username: 'admin.ggpd',
+    password: 'admin2026!.',
     role: 'admin',
     cargo: 'Administrador Principal de la GGPD',
     unidadOrganizativa: 'Gerencia General de Planificación de Distribución',

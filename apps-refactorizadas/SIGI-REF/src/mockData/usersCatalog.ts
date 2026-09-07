@@ -3,7 +3,7 @@ import { InstitutionalUser } from '../types/userManagement';
 export const INITIAL_INSTITUTIONAL_USERS: InstitutionalUser[] = [
   {
     id: 'usr-001',
-    username: 'ggpd_admin',
+    username: 'admin.ggpd',
     fullName: 'Administrador General GGPD',
     email: 'admin.ggpd@corpoelec.gob.ve',
     googleEmail: 'bk.ggpd.corpoelec@gmail.com',

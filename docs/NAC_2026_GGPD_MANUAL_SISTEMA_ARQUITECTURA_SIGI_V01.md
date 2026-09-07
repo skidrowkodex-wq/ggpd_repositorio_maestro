@@ -61,7 +61,7 @@ La interfaz del SIGI implementa el estándar visual institucional de alta ingeni
 El SIGI implementa un modelo de **Control de Acceso Basado en Roles (RBAC)** y **Single Sign-On (SSO)** conforme a **ISO/IEC 27001:2022** e **ISACA COBIT 2019**:
 
 ### Regla 1: Acceso Total Automatizado para Administradores y Gerencia
-* Usuarios con rol `ADMINISTRADOR` o `GERENCIA` (ej. `ggpd_admin`, `j_pacheco`, `a_correa`, `c_favio`) poseen acceso irrestricto y sin fricción a todas las aplicaciones maestras, consolas de webhook y repositorios.
+* Usuarios con rol `ADMINISTRADOR` o `GERENCIA` (ej. `admin.ggpd`, `josue.pacheco`, `adrian.correa`, `catherina.favio`) poseen acceso irrestricto y sin fricción a todas las aplicaciones maestras, consolas de webhook y repositorios.
 * Al hacer clic en *"Ejecutar Aplicación"*, el sistema genera un enlace SSO transparente (`?sso=true&user=...&role=...&state=...`) que los autentica en las aplicaciones satélites sin solicitar contraseñas adicionales.
 
 ### Regla 2: Acceso Condicionado a Aplicaciones para Especialistas y Operadores de Estado
@@ -110,8 +110,8 @@ const getAppLaunchUrl = (app: AppItem) => {
       urlObj.searchParams.set('sso', 'true');
       urlObj.searchParams.set('sso_auth', 'true');
       const effectiveUser = session.userCode === 'usr-001' 
-        ? 'ggpd_admin' 
-        : (matchedUser?.username || session.userCode || 'ggpd_admin');
+        ? 'admin.ggpd' 
+        : (matchedUser?.username || session.userCode || 'admin.ggpd');
       urlObj.searchParams.set('user', effectiveUser);
       urlObj.searchParams.set('role', session.role);
       urlObj.searchParams.set('state', session.stateCode);
@@ -119,7 +119,7 @@ const getAppLaunchUrl = (app: AppItem) => {
     return urlObj.toString();
   } catch {
     const sep = app.url.includes('?') ? '&' : '?';
-    return `${app.url}${sep}sso=true&sso_auth=true&user=${encodeURIComponent(session.userCode || 'ggpd_admin')}&role=${encodeURIComponent(session.role)}&state=${encodeURIComponent(session.stateCode)}`;
+    return `${app.url}${sep}sso=true&sso_auth=true&user=${encodeURIComponent(session.userCode || 'admin.ggpd')}&role=${encodeURIComponent(session.role)}&state=${encodeURIComponent(session.stateCode)}`;
   }
 };
 ```

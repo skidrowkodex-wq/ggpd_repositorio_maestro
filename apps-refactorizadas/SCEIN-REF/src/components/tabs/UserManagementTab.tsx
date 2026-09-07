@@ -205,7 +205,7 @@ export const UserManagementTab: React.FC = () => {
                         <Edit className="w-3.5 h-3.5" />
                       </button>
 
-                      {u.username !== 'ggpd_admin' && (
+                      {u.username !== 'admin.ggpd' && (
                         <button
                           onClick={() => handleDeleteUser(u.id, u.username)}
                           className="p-1.5 rounded bg-rose-50 dark:bg-slate-800 hover:bg-rose-100 dark:hover:bg-rose-950 text-rose-700 dark:text-rose-400 transition"

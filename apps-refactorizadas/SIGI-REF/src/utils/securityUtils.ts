@@ -88,7 +88,7 @@ const INITIAL_AUDIT_LOGS: SecurityAuditEvent[] = [
     id: 'aud-001',
     eventType: 'GDRIVE_PERMISSION_GRANTED',
     userId: 'usr-001',
-    username: 'ggpd_admin',
+    username: 'admin.ggpd',
     fullName: 'Administrador General GGPD',
     targetApp: 'Repositorio Google Drive Corporativo',
     details: 'Permiso de acceso al Repositorio Nube otorgado a w_prato (División de Planificación).',
