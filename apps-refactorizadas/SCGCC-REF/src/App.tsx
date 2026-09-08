@@ -17,7 +17,8 @@ import {
   fetchLiveCorrespondencias, 
   saveCorrespondenciaToDatabase, 
   updateCorrespondenciaInDatabase, 
-  saveOficioToDatabase 
+  saveOficioToDatabase,
+  checkDuplicateCorrespondencia
 } from './services/insforgeService';
 import { CorrespondenciaRecord, EstadoTramite, OficioRespuesta, EstadoFirma } from './types';
 
@@ -89,6 +90,13 @@ export const App: React.FC = () => {
   ).length;
 
   const handleRadicar = async (newRecord: CorrespondenciaRecord) => {
+    // 0. Validación anti-duplicados (ISO 8000-110)
+    const dup = await checkDuplicateCorrespondencia(newRecord.numeroDocumentoOrigen);
+    if (dup.exists) {
+      alert(`Este documento ya fue radicado como ${dup.existingCorrelativo}.\nNo se permite duplicar referencias.`);
+      return;
+    }
+
     // 1. Actualización optimista local en pantalla
     setRecords(prev => [newRecord, ...prev]);
     setActiveTab('registro');

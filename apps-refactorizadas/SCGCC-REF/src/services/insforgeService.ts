@@ -176,6 +176,25 @@ export async function fetchLiveCorrespondencias(): Promise<{ success: boolean; d
   }
 }
 
+// Verificar duplicado por número de documento origen (ISO 8000-110)
+export async function checkDuplicateCorrespondencia(numeroDocumentoOrigen: string): Promise<{ exists: boolean; existingId?: string; existingCorrelativo?: string }> {
+  try {
+    const res = await fetch(
+      `${INSFORGE_URL}/api/database/records/mae_correspondencias?numero_documento_origen=eq.${encodeURIComponent(numeroDocumentoOrigen)}&select=id,correlativo`,
+      { method: 'GET', headers: getHeaders(false) }
+    );
+    if (res.ok) {
+      const rows = await res.json();
+      if (rows && rows.length > 0) {
+        return { exists: true, existingId: rows[0].id, existingCorrelativo: rows[0].correlativo };
+      }
+    }
+    return { exists: false };
+  } catch {
+    return { exists: false };
+  }
+}
+
 // Persistir Nueva Correspondencia en InsForge PostgreSQL
 export async function saveCorrespondenciaToDatabase(record: CorrespondenciaRecord): Promise<{ success: boolean; error?: string }> {
   try {
