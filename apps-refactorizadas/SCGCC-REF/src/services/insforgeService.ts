@@ -362,7 +362,7 @@ export async function deleteCorrespondenciaFromDatabase(recordId: string): Promi
 // SUBIDA DE ARCHIVOS A GOOGLE DRIVE VIA GOOGLE APPS SCRIPT (Web App)
 // ============================================================================
 
-const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx-placeholder/exec';
+const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby-SJ8QfO079PWKHpTJZqhAvfuptXBkiY3CGRvaXuyvZj6uZH2c9We9ntQVgb-1492Q/exec';
 
 export interface DriveUploadResult {
   success: boolean;
