@@ -395,5 +395,127 @@ function doGet(e) {
 }
 
 function doPost(e) {
-  return doGet(e);
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const action = data.action || 'UPLOAD_FILE';
+
+    if (action === 'UPLOAD_FILE') {
+      return uploadFileToDrive(data);
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'ERROR',
+      message: 'Acción no reconocida: ' + action
+    })).setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'ERROR',
+      message: err.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+/**
+ * ==============================================================================
+ * SUBIDA DE ARCHIVOS A GOOGLE DRIVE CON CLASIFICACIÓN AUTOMÁTICA
+ * ==============================================================================
+ * Recibe: { action, fileName, fileBase64, mimeType, correlativo, tipoDocumento,
+ *           remitenteInstitucion, remitenteNombre, direccion, fechaRecepcion }
+ * Retorna: { status, fileID, viewURL, folderName }
+ */
+function uploadFileToDrive(data) {
+  const {
+    fileName,
+    fileBase64,
+    mimeType,
+    correlativo,
+    tipoDocumento,
+    remitenteInstitucion,
+    remitenteNombre,
+    direccion,
+    fechaRecepcion
+  } = data;
+
+  if (!fileName || !fileBase64) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'ERROR',
+      message: 'Faltan campos obligatorios: fileName, fileBase64'
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // Decodificar Base64 a Blob
+  const decoded = Utilities.base64Decode(fileBase64);
+  const blob = Utilities.newBlob(decoded, mimeType || 'application/pdf', fileName);
+
+  // Asegurar estructura de carpetas SCGCC
+  provisionScgccStructure();
+
+  const scgccRoot = DriveApp.getFolderById(SCGCC_ROOT_FOLDER_ID);
+  const entradas = fastGetOrCreate(scgccRoot, '01_ENTRADAS_RADICADAS');
+  const salidas = fastGetOrCreate(scgccRoot, '02_SALIDAS_DESPACHADAS');
+
+  // Clasificar carpeta destino según tipo y remitente
+  let targetFolder;
+  let folderName;
+
+  if (direccion === 'SALIDA') {
+    // Documentos emitidos por GGPD
+    if (tipoDocumento === 'OFICIO') {
+      targetFolder = fastGetOrCreate(salidas, '01_OFICIOS_FIRMADOS_CON_ACUSE');
+      folderName = '01_OFICIOS_FIRMADOS_CON_ACUSE';
+    } else {
+      targetFolder = fastGetOrCreate(salidas, '02_MEMORANDUMS_EMITIDOS');
+      folderName = '02_MEMORANDUMS_EMITIDOS';
+    }
+  } else {
+    // Documentos recibidos (ENTRADA o INTERNA)
+    const instUpper = (remitenteInstitucion || '').toUpperCase();
+    const nombreUpper = (remitenteNombre || '').toUpperCase();
+
+    if (instUpper.includes('PRESIDENC') || instUpper.includes('MINISTRO') ||
+        instUpper.includes('MPRES-') || instUpper.includes('PRES-') ||
+        nombreUpper.includes('MINISTRO')) {
+      targetFolder = fastGetOrCreate(entradas, '01_MPPEE_Y_PRESIDENCIA');
+      folderName = '01_MPPEE_Y_PRESIDENCIA';
+    } else if (instUpper.includes('DISTRIBUCION') || instUpper.includes('GGD') ||
+               instUpper.includes('GERENCIA GENERAL DE DISTRIB')) {
+      targetFolder = fastGetOrCreate(entradas, '02_GERENCIA_GRAL_DISTRIBUCION');
+      folderName = '02_GERENCIA_GRAL_DISTRIBUCION';
+    } else if (instUpper.includes('TALENTO HUMANO') || instUpper.includes('TTHH') ||
+               instUpper.includes('CGGTH')) {
+      targetFolder = fastGetOrCreate(entradas, '03_TALENTO_HUMANO_TTHH');
+      folderName = '03_TALENTO_HUMANO_TTHH';
+    } else {
+      targetFolder = fastGetOrCreate(entradas, '04_OTRAS_GERENCIAS_Y_EXTERNOS');
+      folderName = '04_OTRAS_GERENCIAS_Y_EXTERNOS';
+    }
+  }
+
+  // Nombre final del archivo: correlativo + nombre original
+  const finalName = correlativo
+    ? `${correlativo} - ${fileName}`
+    : fileName;
+
+  // Subir archivo a Drive
+  const file = targetFolder.createFile(blob);
+  file.setName(finalName);
+
+  // Metadatos opcionales
+  if (fechaRecepcion) {
+    file.setDescription(`Radicado: ${correlativo} | Recibido: ${fechaRecepcion} | Remitente: ${remitenteNombre || 'N/A'}`);
+  }
+
+  const fileID = file.getId();
+  const viewURL = `https://drive.google.com/file/d/${fileID}/view`;
+
+  Logger.log('✅ Archivo subido a Drive: ' + finalName + ' -> ' + folderName);
+
+  return ContentService.createTextOutput(JSON.stringify({
+    status: 'SUCCESS',
+    fileID: fileID,
+    viewURL: viewURL,
+    folderName: folderName,
+    fileName: finalName
+  })).setMimeType(ContentService.MimeType.JSON);
 }

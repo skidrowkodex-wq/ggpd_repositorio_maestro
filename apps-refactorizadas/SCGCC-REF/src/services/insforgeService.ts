@@ -357,3 +357,86 @@ export async function deleteCorrespondenciaFromDatabase(recordId: string): Promi
     return { success: false, error: err.message };
   }
 }
+
+// ============================================================================
+// SUBIDA DE ARCHIVOS A GOOGLE DRIVE VIA GOOGLE APPS SCRIPT (Web App)
+// ============================================================================
+
+const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx-placeholder/exec';
+
+export interface DriveUploadResult {
+  success: boolean;
+  fileID?: string;
+  viewURL?: string;
+  folderName?: string;
+  error?: string;
+}
+
+export async function uploadFileToDrive(
+  file: File,
+  metadata: {
+    correlativo: string;
+    tipoDocumento: string;
+    remitenteInstitucion: string;
+    remitenteNombre: string;
+    direccion: string;
+    fechaRecepcion: string;
+  }
+): Promise<DriveUploadResult> {
+  try {
+    // Leer archivo como Base64
+    const base64 = await fileToBase64(file);
+
+    const payload = {
+      action: 'UPLOAD_FILE',
+      fileName: file.name,
+      fileBase64: base64,
+      mimeType: file.type || 'application/pdf',
+      correlativo: metadata.correlativo,
+      tipoDocumento: metadata.tipoDocumento,
+      remitenteInstitucion: metadata.remitenteInstitucion,
+      remitenteNombre: metadata.remitenteNombre,
+      direccion: metadata.direccion,
+      fechaRecepcion: metadata.fechaRecepcion
+    };
+
+    const res = await fetch(GAS_WEB_APP_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      return { success: false, error: `HTTP ${res.status}: ${res.statusText}` };
+    }
+
+    const result = await res.json();
+
+    if (result.status === 'SUCCESS') {
+      return {
+        success: true,
+        fileID: result.fileID,
+        viewURL: result.viewURL,
+        folderName: result.folderName
+      };
+    }
+
+    return { success: false, error: result.message || 'Error desconocido del GAS' };
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Error de red al subir a Drive' };
+  }
+}
+
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      // Remover prefijo data:...;base64,
+      const base64 = result.split(',')[1];
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}

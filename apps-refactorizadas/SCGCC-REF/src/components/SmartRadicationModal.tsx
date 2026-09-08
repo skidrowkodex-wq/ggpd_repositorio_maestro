@@ -7,6 +7,7 @@ import {
   Prioridad,
   PropositoDocumento 
 } from '../types';
+import { uploadFileToDrive } from '../services/insforgeService';
 import { 
   X, 
   UploadCloud, 
@@ -22,7 +23,8 @@ import {
   Zap,
   Search,
   FileCheck,
-  BellRing
+  BellRing,
+  Loader2
 } from 'lucide-react';
 
 interface RadicationModalProps {
@@ -41,6 +43,7 @@ export const SmartRadicationModal: React.FC<RadicationModalProps> = ({
   const [fileSelected, setFileSelected] = useState<File | null>(null);
   const [analyzingWithAI, setAnalyzingWithAI] = useState<boolean>(false);
   const [aiExtracted, setAiExtracted] = useState<boolean>(false);
+  const [uploadingToDrive, setUploadingToDrive] = useState<boolean>(false);
 
   // Form Fields
   const [direccion, setDireccion] = useState<DireccionTipo>('ENTRADA');
@@ -140,8 +143,33 @@ export const SmartRadicationModal: React.FC<RadicationModalProps> = ({
     }, 800);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setUploadingToDrive(true);
+
+    let pdfDriveUrl = 'https://drive.google.com/drive/folders/1yKwQ8hKGjCPHwukuADkv__Kp3gicJkBj';
+    let pdfDriveId: string | undefined;
+
+    // Subir archivo a Google Drive si hay archivo seleccionado
+    if (fileSelected) {
+      try {
+        const driveResult = await uploadFileToDrive(fileSelected, {
+          correlativo: nextCorrelativo,
+          tipoDocumento,
+          remitenteInstitucion,
+          remitenteNombre,
+          direccion,
+          fechaRecepcion
+        });
+
+        if (driveResult.success && driveResult.viewURL) {
+          pdfDriveUrl = driveResult.viewURL;
+          pdfDriveId = driveResult.fileID;
+        }
+      } catch (err) {
+        console.error('Error subiendo a Google Drive:', err);
+      }
+    }
 
     const newRecord: CorrespondenciaRecord = {
       id: `corresp-${Date.now()}`,
@@ -165,11 +193,13 @@ export const SmartRadicationModal: React.FC<RadicationModalProps> = ({
       medioEntrega,
       requiereRespuesta,
       pdfFileName: fileSelected ? fileSelected.name : undefined,
-      pdfDriveUrl: 'https://drive.google.com/drive/folders/1yKwQ8hKGjCPHwukuADkv__Kp3gicJkBj',
+      pdfDriveUrl,
+      pdfDriveId,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
 
+    setUploadingToDrive(false);
     onRadicar(newRecord);
     onClose();
   };
@@ -561,16 +591,27 @@ export const SmartRadicationModal: React.FC<RadicationModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+                disabled={uploadingToDrive}
+                className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors disabled:opacity-50"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-purple-600/20 transition-all flex items-center gap-2"
+                disabled={uploadingToDrive}
+                className="px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-purple-600/20 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Sparkles className="w-4 h-4" />
-                <span>Radicar Oficialmente</span>
+                {uploadingToDrive ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Subiendo a Drive...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" />
+                    <span>Radicar Oficialmente</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
