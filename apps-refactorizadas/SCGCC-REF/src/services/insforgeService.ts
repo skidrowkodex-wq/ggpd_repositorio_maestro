@@ -196,7 +196,7 @@ export async function checkDuplicateCorrespondencia(numeroDocumentoOrigen: strin
 }
 
 // Persistir Nueva Correspondencia en InsForge PostgreSQL
-export async function saveCorrespondenciaToDatabase(record: CorrespondenciaRecord): Promise<{ success: boolean; error?: string }> {
+export async function saveCorrespondenciaToDatabase(record: CorrespondenciaRecord): Promise<{ success: boolean; error?: string; conflict?: boolean }> {
   try {
     const payload = [{
       id: record.id,
@@ -244,16 +244,26 @@ export async function saveCorrespondenciaToDatabase(record: CorrespondenciaRecor
     }
 
     if (res.status === 409) {
-      // Registro ya existente, aplicar PATCH
+      // Conflicto de UNIQUE (p. ej. correlativo duplicado). Si el conflicto es por
+      // el id del registro (re-guardado idempotente), el PATCH lo resuelve; si el
+      // PATCH no afecta ninguna fila, el conflicto es de correlativo y el llamador
+      // debe reintentar con el siguiente correlativo disponible.
       const patchRes = await fetch(`${INSFORGE_URL}/api/database/records/mae_correspondencias?id=eq.${encodeURIComponent(record.id)}`, {
         method: 'PATCH',
         headers: getHeaders(true),
         body: JSON.stringify(payload[0])
       });
-      return { success: patchRes.ok };
+      if (patchRes.ok) {
+        const patched = await patchRes.json().catch(() => []);
+        if (Array.isArray(patched) && patched.length > 0) {
+          return { success: true };
+        }
+      }
+      return { success: false, conflict: true, error: 'Conflicto de correlativo único (HTTP 409 no resuelto)' };
     }
 
-    return { success: false, error: `HTTP ${res.status}` };
+    const errBody = await res.text().catch(() => '');
+    return { success: false, error: `HTTP ${res.status}: ${errBody.slice(0, 200)}` };
   } catch (err: any) {
     return { success: false, error: err.message };
   }
@@ -362,7 +372,7 @@ export async function deleteCorrespondenciaFromDatabase(recordId: string): Promi
 // SUBIDA DE ARCHIVOS A GOOGLE DRIVE VIA GOOGLE APPS SCRIPT (Web App)
 // ============================================================================
 
-const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby-SJ8QfO079PWKHpTJZqhAvfuptXBkiY3CGRvaXuyvZj6uZH2c9We9ntQVgb-1492Q/exec';
+const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyzIB8dLPwnObVD86Yhun4-NQJF-JcMLhjFG9VLeP0lz4VJ4m9bR5S2Z1aAHSE7lciF/exec';
 
 export interface DriveUploadResult {
   success: boolean;
@@ -370,6 +380,31 @@ export interface DriveUploadResult {
   viewURL?: string;
   folderName?: string;
   error?: string;
+}
+
+// Busca un archivo ya subido en la bóveda SCGCC por su nombre final.
+// Requiere GAS >= v3.3.0 (acción FIND_FILE). En GAS antiguo devuelve supported=false.
+async function findFileInScgccVault(finalName: string): Promise<{ supported: boolean; found: boolean; fileID?: string; viewURL?: string; folderName?: string }> {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 12000);
+    const res = await fetch(`${GAS_WEB_APP_URL}?action=FIND_FILE&fileName=${encodeURIComponent(finalName)}`, {
+      redirect: 'follow',
+      signal: controller.signal
+    });
+    clearTimeout(timer);
+    const j = await res.json();
+    if (j.status === 'FOUND') {
+      return { supported: true, found: true, fileID: j.fileID, viewURL: j.viewURL, folderName: j.folderName };
+    }
+    if (j.status === 'NOT_FOUND') {
+      return { supported: true, found: false };
+    }
+    // GAS v3.2.0 o anterior: no soporta FIND_FILE (responde STATUS ONLINE)
+    return { supported: false, found: false };
+  } catch {
+    return { supported: false, found: false };
+  }
 }
 
 export async function uploadFileToDrive(
@@ -383,6 +418,9 @@ export async function uploadFileToDrive(
     fechaRecepcion: string;
   }
 ): Promise<DriveUploadResult> {
+  // Nombre final idéntico al que aplica el GAS en Drive (para verificación FIND_FILE)
+  const finalName = metadata.correlativo ? `${metadata.correlativo} - ${file.name}` : file.name;
+
   try {
     // Leer archivo como Base64
     const base64 = await fileToBase64(file);
@@ -400,28 +438,75 @@ export async function uploadFileToDrive(
       fechaRecepcion: metadata.fechaRecepcion
     };
 
-    const res = await fetch(GAS_WEB_APP_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(payload)
-    });
+    // Máximo 2 intentos de POST. El GAS v3.3.0 es idempotente por nombre final,
+    // por lo que un reintento nunca genera duplicados en la bóveda.
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      let result: any = null;
+      try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 30000);
 
-    if (!res.ok) {
-      return { success: false, error: `HTTP ${res.status}: ${res.statusText}` };
+        const res = await fetch(GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload),
+          redirect: 'follow',
+          signal: controller.signal
+        });
+
+        clearTimeout(timer);
+
+        if (!res.ok) {
+          if (attempt === 2) return { success: false, error: `HTTP ${res.status}: ${res.statusText}` };
+          continue;
+        }
+
+        result = await res.json();
+      } catch (networkErr: any) {
+        // Fallo de red/timeout: verificar si el archivo igualmente quedó subido
+        const check = await findFileInScgccVault(finalName);
+        if (check.supported && check.found) {
+          return { success: true, fileID: check.fileID, viewURL: check.viewURL, folderName: check.folderName };
+        }
+        if (attempt === 2 || !check.supported) {
+          return { success: false, error: networkErr?.message || 'Error de red al subir a Drive' };
+        }
+        continue; // GAS idempotente disponible y archivo NO encontrado: reintento seguro
+      }
+
+      if (result.status === 'SUCCESS') {
+        return {
+          success: true,
+          fileID: result.fileID,
+          viewURL: result.viewURL,
+          folderName: result.folderName
+        };
+      }
+
+      // Cadena de redirección degradada de Google (echo 302 → /exec): el cliente
+      // recibió la respuesta STATUS del doGet en lugar del resultado del doPost.
+      // El doPost pudo haberse ejecutado: verificar ANTES de reintentar.
+      if (result.status === 'ONLINE') {
+        const check = await findFileInScgccVault(finalName);
+        if (check.supported && check.found) {
+          return { success: true, fileID: check.fileID, viewURL: check.viewURL, folderName: check.folderName };
+        }
+        if (check.supported && !check.found) {
+          continue; // Confirmado que NO subió (GAS idempotente): reintento seguro
+        }
+        // GAS antiguo sin FIND_FILE: no se puede confirmar ni reintentar sin
+        // riesgo de duplicado. Se reporta con honestidad operativa.
+        return {
+          success: false,
+          error: 'UPLOAD_NO_CONFIRMADO: Google degradó la respuesta y el webhook actual no permite verificar la subida. El archivo pudo haber llegado a Drive; verifique la carpeta de la bóveda.'
+        };
+      }
+
+      // Error funcional reportado por el GAS (no reintentar)
+      return { success: false, error: result.message || 'Error desconocido del GAS' };
     }
 
-    const result = await res.json();
-
-    if (result.status === 'SUCCESS') {
-      return {
-        success: true,
-        fileID: result.fileID,
-        viewURL: result.viewURL,
-        folderName: result.folderName
-      };
-    }
-
-    return { success: false, error: result.message || 'Error desconocido del GAS' };
+    return { success: false, error: 'No se pudo confirmar la subida a Drive tras 2 intentos' };
   } catch (err: any) {
     return { success: false, error: err.message || 'Error de red al subir a Drive' };
   }

@@ -149,6 +149,7 @@ export const SmartRadicationModal: React.FC<RadicationModalProps> = ({
 
     let pdfDriveUrl = 'https://drive.google.com/drive/folders/1yKwQ8hKGjCPHwukuADkv__Kp3gicJkBj';
     let pdfDriveId: string | undefined;
+    let driveWarning = '';
 
     // Subir archivo a Google Drive si hay archivo seleccionado
     if (fileSelected) {
@@ -165,9 +166,12 @@ export const SmartRadicationModal: React.FC<RadicationModalProps> = ({
         if (driveResult.success && driveResult.viewURL) {
           pdfDriveUrl = driveResult.viewURL;
           pdfDriveId = driveResult.fileID;
+        } else {
+          driveWarning = driveResult.error || 'Error desconocido al subir a Drive';
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error subiendo a Google Drive:', err);
+        driveWarning = err?.message || 'Error de red al subir a Drive';
       }
     }
 
@@ -202,6 +206,12 @@ export const SmartRadicationModal: React.FC<RadicationModalProps> = ({
     setUploadingToDrive(false);
     onRadicar(newRecord);
     onClose();
+
+    // Transparencia operativa: si la copia a Drive no pudo confirmarse, se
+    // notifica al operador (el registro ya quedó radicado en la base de datos).
+    if (driveWarning) {
+      alert(`⚠️ Radicación registrada, pero la copia del PDF a Google Drive no pudo confirmarse.\n\nDetalle: ${driveWarning}\n\nEl documento quedó vinculado a la carpeta general de la bóveda. Verifique en Drive y, si el archivo no está, adjúntelo manualmente a la carpeta correspondiente.`);
+    }
   };
 
   return (

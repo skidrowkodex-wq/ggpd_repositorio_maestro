@@ -80,8 +80,13 @@ export const App: React.FC = () => {
   const [briefingRecord, setBriefingRecord] = useState<CorrespondenciaRecord | null>(null);
   const [isBriefingModalOpen, setIsBriefingModalOpen] = useState(false);
 
-  // Compute Next Correlativo
-  const nextCorrelativoNumber = records.length + 1;
+  // Compute Next Correlativo: se deriva del MÁXIMO correlativo existente (no del
+  // conteo de filas). El conteo genera colisiones UNIQUE (HTTP 409) cuando hay
+  // huecos en la secuencia (p. ej. registros eliminados como el RAD-0019).
+  const nextCorrelativoNumber = records.reduce((max, r) => {
+    const m = /RAD-GGPD-\d{4}-(\d+)/.exec(r.correlativo || '');
+    return m ? Math.max(max, parseInt(m[1], 10)) : max;
+  }, 0) + 1;
   const nextCorrelativo = `RAD-GGPD-2026-${String(nextCorrelativoNumber).padStart(4, '0')}`;
 
   // Compute Pending Signatures Count for badge
@@ -97,16 +102,45 @@ export const App: React.FC = () => {
       return;
     }
 
-    // 1. Actualización optimista local en pantalla
-    setRecords(prev => [newRecord, ...prev]);
-    setActiveTab('registro');
+    // 1. Persistencia en la nube PRIMERO (InsForge PostgreSQL), con reintento
+    //    automático de correlativo ante conflicto UNIQUE (HTTP 409).
+    let recordToSave = newRecord;
+    let saved = false;
+    let lastError = '';
 
-    // 2. Persistencia inmediata en la nube (InsForge PostgreSQL)
-    try {
-      await saveCorrespondenciaToDatabase(newRecord);
-    } catch (err) {
-      console.error('Error persistiendo correspondencia en InsForge:', err);
+    for (let attempt = 0; attempt < 3 && !saved; attempt++) {
+      try {
+        const res = await saveCorrespondenciaToDatabase(recordToSave);
+        if (res.success) {
+          saved = true;
+        } else if (res.conflict) {
+          // Correlativo ocupado por otra radicación: saltar al siguiente disponible
+          const m = /RAD-GGPD-(\d{4})-(\d+)/.exec(recordToSave.correlativo);
+          if (m) {
+            const next = String(parseInt(m[2], 10) + 1).padStart(4, '0');
+            recordToSave = { ...recordToSave, correlativo: `RAD-GGPD-${m[1]}-${next}` };
+          } else {
+            lastError = res.error || 'Conflicto de unicidad';
+            break;
+          }
+        } else {
+          lastError = res.error || 'Error desconocido';
+          break;
+        }
+      } catch (err: any) {
+        lastError = err?.message || 'Error de red';
+        break;
+      }
     }
+
+    if (!saved) {
+      alert(`⚠️ No se pudo grabar la radicación en la base de datos InsForge.\n\nDetalle técnico: ${lastError}\n\nEl documento NO quedó registrado. Verifique su conexión e intente nuevamente.`);
+      return;
+    }
+
+    // 2. Actualización local en pantalla solo tras persistencia confirmada
+    setRecords(prev => [recordToSave, ...prev]);
+    setActiveTab('registro');
   };
 
   const handleStatusChange = async (recordId: string, newStatus: EstadoTramite) => {

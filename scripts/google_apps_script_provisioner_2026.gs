@@ -379,10 +379,48 @@ function doGet(e) {
     const res = copyExistingFilesToScgccCanonicalVault();
     return ContentService.createTextOutput(JSON.stringify(res)).setMimeType(ContentService.MimeType.JSON);
   }
-  
+
+  // v3.3.0 — Verificación de existencia de archivo por nombre final dentro de la
+  // bóveda SCGCC. Permite al frontend confirmar una subida cuya respuesta se
+  // perdió por la doble redirección intermitente de Google (echo 302 -> /exec).
+  if (action === 'FIND_FILE') {
+    const fName = e.parameter.fileName;
+    if (!fName) {
+      return ContentService.createTextOutput(JSON.stringify({ status: 'ERROR', message: 'Falta parámetro fileName' })).setMimeType(ContentService.MimeType.JSON);
+    }
+    try {
+      const it = DriveApp.getFilesByName(fName);
+      while (it.hasNext()) {
+        const f = it.next();
+        // Verificar que el archivo esté dentro de la bóveda SCGCC
+        const parents = f.getParents();
+        let inVault = false;
+        let parentName = '';
+        while (parents.hasNext()) {
+          const p = parents.next();
+          parentName = p.getName();
+          if (isInsideScgccVault(p)) { inVault = true; break; }
+        }
+        if (inVault) {
+          const fid = f.getId();
+          return ContentService.createTextOutput(JSON.stringify({
+            status: 'FOUND',
+            fileID: fid,
+            viewURL: `https://drive.google.com/file/d/${fid}/view`,
+            folderName: parentName,
+            fileName: f.getName()
+          })).setMimeType(ContentService.MimeType.JSON);
+        }
+      }
+      return ContentService.createTextOutput(JSON.stringify({ status: 'NOT_FOUND', fileName: fName })).setMimeType(ContentService.MimeType.JSON);
+    } catch (errFind) {
+      return ContentService.createTextOutput(JSON.stringify({ status: 'ERROR', message: errFind.toString() })).setMimeType(ContentService.MimeType.JSON);
+    }
+  }
+
   const status = {
     status: "ONLINE",
-    version: "3.2.0",
+    version: "3.3.0",
     servicio: "CORPOELEC GGPD Google Drive Webhook & SCGCC Data Hub",
     cuenta: "bk.ggpd.corpoelec@gmail.com",
     carpetaDataLakeId: ROOT_FOLDER_ID,
@@ -417,12 +455,28 @@ function doPost(e) {
 }
 
 /**
+ * v3.3.0 — Verifica si una carpeta pertenece al árbol de la bóveda SCGCC
+ * (hasta 4 niveles de ascenso, suficiente para la estructura provisionada).
+ */
+function isInsideScgccVault(folder) {
+  let current = folder;
+  for (let i = 0; i < 4 && current; i++) {
+    if (current.getId() === SCGCC_ROOT_FOLDER_ID) return true;
+    const parents = current.getParents();
+    current = parents.hasNext() ? parents.next() : null;
+  }
+  return false;
+}
+
+/**
  * ==============================================================================
  * SUBIDA DE ARCHIVOS A GOOGLE DRIVE CON CLASIFICACIÓN AUTOMÁTICA
  * ==============================================================================
  * Recibe: { action, fileName, fileBase64, mimeType, correlativo, tipoDocumento,
  *           remitenteInstitucion, remitenteNombre, direccion, fechaRecepcion }
  * Retorna: { status, fileID, viewURL, folderName }
+ * v3.3.0: IDEMPOTENTE — si ya existe un archivo con el nombre final en la
+ * carpeta destino, retorna el existente en lugar de crear un duplicado.
  */
 function uploadFileToDrive(data) {
   const {
@@ -496,6 +550,24 @@ function uploadFileToDrive(data) {
   const finalName = correlativo
     ? `${correlativo} - ${fileName}`
     : fileName;
+
+  // v3.3.0 — Idempotencia: si el archivo ya existe en la carpeta destino
+  // (p. ej. reintento del frontend tras perder la respuesta por la doble
+  // redirección de Google), retornar el existente SIN crear duplicado.
+  const existing = targetFolder.getFilesByName(finalName);
+  if (existing.hasNext()) {
+    const f = existing.next();
+    const fid = f.getId();
+    Logger.log('♻️ Archivo ya existía (idempotente): ' + finalName + ' -> ' + folderName);
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'SUCCESS',
+      fileID: fid,
+      viewURL: `https://drive.google.com/file/d/${fid}/view`,
+      folderName: folderName,
+      fileName: finalName,
+      note: 'IDEMPOTENT_RETURN'
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
 
   // Subir archivo a Drive
   const file = targetFolder.createFile(blob);
