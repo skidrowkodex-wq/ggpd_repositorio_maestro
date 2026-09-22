@@ -764,6 +764,84 @@ def descargas_auditoria():
     return jsonify(rows or [])
 
 
+# ─── REPORTES NDI (MOTOR INSFORGE → VISTAS KPI → XLSX) ──────────────────────
+
+@bp.route('/admin/reportes-ndi')
+@login_required
+@role_required('admin')
+def reportes_ndi_page():
+    return render_template('admin/reportes_ndi.html')
+
+
+@bp.route('/api/admin/ndi/resumen')
+@login_required
+@role_required('admin')
+def reportes_ndi_resumen():
+    try:
+        from app.insforge_reports import resumen_ndi
+        return jsonify(resumen_ndi())
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+@bp.route('/api/admin/ndi/reporte', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')
+def reportes_ndi_descargar():
+    from app.insforge_reports import build_consolidado, build_detalle, CORTE_DEFAULT
+
+    filtros = request.get_json() if request.method == 'POST' else request.args
+    tipo = (filtros.get('tipo') or 'consolidado').lower()
+    corte = filtros.get('corte') or CORTE_DEFAULT
+    anio = filtros.get('anio') or None
+    mes = filtros.get('mes') or None
+    estado = (filtros.get('estado') or None)
+    if estado and (str(estado).upper() == 'TODOS' or not str(estado).strip()):
+        estado = None
+
+    user_id = session.get('user_id') or session.get('user', {}).get('user_id')
+    username = session.get('user', {}).get('username') or session.get('username') or 'admin'
+
+    try:
+        if tipo == 'detalle':
+            if not anio and not mes and not estado:
+                return jsonify({
+                    'error': 'El Detalle PLANTILLA exige filtro: anio y/o mes y/o estado. '
+                             'Use el CLI exportar_reportes_insforge.py --max-filas para el export completo.'
+                }), 400
+            buf, filename, n = build_detalle(corte, anio=anio, mes=mes, estado=estado)
+        else:
+            buf, filename, n = *build_consolidado(corte), None
+    except SystemExit:
+        return jsonify({'error': 'Falló la consulta al motor InsForge (ver logs).'}), 502
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+    try:
+        query("""
+            INSERT INTO "sctis.audit_descarga_datos"
+                (user_id, username, formato, filtros_json, total_registros, ip_address, user_agent)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (
+            user_id, username, f'NDI-{tipo.upper()}',
+            json.dumps({'corte': corte, 'anio': anio, 'mes': mes, 'estado': estado}, ensure_ascii=False),
+            n or 0, request.remote_addr or '127.0.0.1', request.headers.get('User-Agent', '')
+        ), fetch=False)
+    except Exception as e:
+        print("Error logging NDI download audit:", e)
+
+    return send_file(
+        buf,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        as_attachment=True,
+        download_name=filename
+    )
+
+
 # ─── MÓDULO DE MONITOREO DE OPORTUNIDAD Y CONTROL DE CARGAS (ING. FAVIO) ───
 
 @bp.route('/admin/monitoreo-cargas')
