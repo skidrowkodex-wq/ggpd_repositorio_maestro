@@ -19,6 +19,16 @@ docs/010 REGISTROS 2026/
 apps/sctis-v-2.0-distribucion/carga_qa/
 apps/sctis-v-2.0-distribucion/interrupciones/uploads/
 
+# Paquetes de entrega y consolidados de datos (grandes; van por Drive/ZIP, no en git)
+ENTREGA_GGPD_*/
+ENTREGA_GGPD_*.zip
+E_BD_INFORGE_GGPD/
+materiales_sept_2026/
+apps-refactorizadas/SCTIS-REF/docs/consolidados_tiras_2026/
+
+# Documentacion clasificada / confidencial (fuera de control de versiones por ISO 27001)
+clasificados/
+
 
 # InsForge & AI agent skills
 .insforge
