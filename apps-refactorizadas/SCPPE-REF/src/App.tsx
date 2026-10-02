@@ -32,8 +32,10 @@ export default function App() {
   }, [darkMode]);
 
   const handleLogout = () => {
-    logoutUser();
+    // Estado primero: garantiza que el LoginForm se muestre de inmediato
+    // aunque logoutUser() falle en la limpieza (nunca debe lanzar).
     setCurrentUser(null);
+    logoutUser();
   };
 
   const handleLoginSuccess = (user: UserProfile) => {

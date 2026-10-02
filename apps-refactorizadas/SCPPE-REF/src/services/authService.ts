@@ -199,8 +199,41 @@ export async function loginUser(
 }
 
 export function logoutUser(): void {
-  localStorage.removeItem(SESSION_STORAGE_KEY);
-  if (isSupabaseConfigured && supabase) {
-    supabase.auth.signOut().catch(() => {});
+  try {
+    localStorage.removeItem(SESSION_STORAGE_KEY);
+  } catch (e) {
+    console.warn('SCPPE: no se pudo limpiar la sesión local', e);
+  }
+
+  // Limpiar los parámetros SSO de la URL (sso/sso_auth/user/role/state) para
+  // que un reload o remontaje NO vuelva a sembrar la sesión del Lanzador SIGI
+  // (bug: tras Salir, se reabría la sesión de administrador por defecto).
+  if (typeof window !== 'undefined' && window.history?.replaceState) {
+    try {
+      const url = new URL(window.location.href);
+      let changed = false;
+      for (const p of ['sso', 'sso_auth', 'user', 'sso_user', 'role', 'state']) {
+        if (url.searchParams.has(p)) {
+          url.searchParams.delete(p);
+          changed = true;
+        }
+      }
+      if (changed) {
+        window.history.replaceState({}, document.title, url.toString());
+      }
+    } catch (e) {
+      console.warn('SCPPE: no se pudieron limpiar los parámetros SSO de la URL', e);
+    }
+  }
+
+  try {
+    // El cliente SCPPE es InsforgeDbClient (sin `auth`); signOut solo se
+    // ejecuta si realmente existe, y NUNCA debe lanzar en el logout.
+    const sb: any = isSupabaseConfigured ? supabase : null;
+    if (sb && typeof sb.auth?.signOut === 'function') {
+      sb.auth.signOut().catch(() => {});
+    }
+  } catch (e) {
+    console.warn('SCPPE: signOut no disponible, se ignora', e);
   }
 }
