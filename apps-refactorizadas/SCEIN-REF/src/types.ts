@@ -40,7 +40,24 @@ export interface EquipmentRecord {
   total_budget_eur: number;
   progress_pct: number;
   execution_notes?: string;
+  estado_ingesta?: IngestStatus;
+  issues_iso?: IssuesIsoPayload;
   created_at?: string;
+}
+
+export type IngestStatus = 'VALID' | 'PENDIENTE_ISO';
+export type PresupuestoEstado = 'ESTIMADO' | 'INCOMPLETO' | 'SIN_MATERIALES';
+
+export interface PresupuestoMeta {
+  estado: PresupuestoEstado;
+  n_materiales: number;
+  pxq_total: number;
+  moneda: 'EUR';
+}
+
+export interface IssuesIsoPayload {
+  iso: ISO8000QualityIssue[];
+  presupuesto: PresupuestoMeta;
 }
 
 export interface MaterialLine {

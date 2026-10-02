@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { EquipmentRecord } from '../../types';
 import { getStateName } from '../../constants/states';
 import { 
@@ -34,26 +34,40 @@ interface DashboardTabProps {
 }
 
 export const DashboardTab: React.FC<DashboardTabProps> = ({ records, loading }) => {
+  const [includePendientes, setIncludePendientes] = useState(false);
+  const [budgetSource, setBudgetSource] = useState<'PLA' | 'ALL'>('PLA');
+
+  // Scope: excludes PENDIENTE_ISO unless toggle enabled
+  const scope = includePendientes
+    ? records
+    : records.filter(r => r.estado_ingesta !== 'PENDIENTE_ISO');
+
+  // Budget scope: default PLA only (avoids LEV/PLA double count with same P x Q)
+  const budgetScope = budgetSource === 'ALL'
+    ? scope
+    : scope.filter(r => r.record_id?.startsWith('REC-PLA-'));
+
   // Calculated KPIs
-  const totalCount = records.length;
-  
-  const totalBudget = records.reduce((acc, curr) => acc + (Number(curr.total_budget_eur) || 0), 0);
-  
-  const resueltos = records.filter(r => r.status === 'RESUELTO').length;
-  const enEjecucion = records.filter(r => r.status === 'EN EJECUCIÓN').length;
-  const pendientes = records.filter(r => r.status === 'PENDIENTE').length;
+  const totalCount = scope.length;
+  const pendingCount = records.filter(r => r.estado_ingesta === 'PENDIENTE_ISO').length;
+
+  const totalBudget = budgetScope.reduce((acc, curr) => acc + (Number(curr.total_budget_eur) || 0), 0);
+
+  const resueltos = scope.filter(r => r.status === 'RESUELTO').length;
+  const enEjecucion = scope.filter(r => r.status === 'EN EJECUCIÓN').length;
+  const pendientes = scope.filter(r => r.status === 'PENDIENTE').length;
 
   const resueltosPct = totalCount > 0 ? Math.round((resueltos / totalCount) * 100) : 0;
   const enEjecucionPct = totalCount > 0 ? Math.round((enEjecucion / totalCount) * 100) : 0;
   const pendientesPct = totalCount > 0 ? Math.round((pendientes / totalCount) * 100) : 0;
 
-  const altaPriority = records.filter(r => r.priority === 'ALTA').length;
-  const mediaPriority = records.filter(r => r.priority === 'MEDIA').length;
-  const bajaPriority = records.filter(r => r.priority === 'BAJA').length;
+  const altaPriority = scope.filter(r => r.priority === 'ALTA').length;
+  const mediaPriority = scope.filter(r => r.priority === 'MEDIA').length;
+  const bajaPriority = scope.filter(r => r.priority === 'BAJA').length;
 
   // Chart Data 1: Records per State
   const stateCountMap: { [code: string]: number } = {};
-  records.forEach(r => {
+  scope.forEach(r => {
     const code = r.state_code || 'S/E';
     stateCountMap[code] = (stateCountMap[code] || 0) + 1;
   });
@@ -66,14 +80,14 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({ records, loading }) 
 
   // Chart Data 2: Status Donut Chart
   const statusPieData = [
-    { name: 'RESUELTO', value: resueltos, color: '#10b981' }, // Emerald
-    { name: 'EN EJECUCIÓN', value: enEjecucion, color: '#0284c7' }, // Sky
-    { name: 'PENDIENTE', value: pendientes, color: '#f59e0b' } // Amber
+    { name: 'RESUELTO', value: resueltos, color: '#10b981' },
+    { name: 'EN EJECUCIÓN', value: enEjecucion, color: '#0284c7' },
+    { name: 'PENDIENTE', value: pendientes, color: '#f59e0b' }
   ].filter(d => d.value > 0);
 
   // Chart Data 3: Budget by Voltage Level
   const voltageBudgetMap: { [kv: string]: number } = {};
-  records.forEach(r => {
+  budgetScope.forEach(r => {
     const kvLabel = `${r.voltage_in_kv} kV`;
     voltageBudgetMap[kvLabel] = (voltageBudgetMap[kvLabel] || 0) + (Number(r.total_budget_eur) || 0);
   });
@@ -106,9 +120,47 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({ records, loading }) 
           </p>
         </div>
 
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-mono text-sky-800 dark:text-cyan-300 shadow-sm">
-          <Zap className="w-4 h-4 text-amber-500 dark:text-amber-400" />
-          <span>Equipos Registrados: <strong>{totalCount}</strong></span>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-mono text-sky-800 dark:text-cyan-300 shadow-sm">
+            <Zap className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+            <span>Equipos Registrados: <strong>{totalCount}</strong>{pendingCount > 0 && (
+              <span className="text-rose-600 dark:text-rose-400"> (+{pendingCount} pendientes ISO)</span>
+            )}</span>
+          </div>
+
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs shadow-sm">
+            <span className="text-slate-500 dark:text-slate-400">Presupuesto:</span>
+            <button
+              onClick={() => setBudgetSource('PLA')}
+              className={`px-2 py-0.5 rounded-lg font-bold transition ${budgetSource === 'PLA' ? 'bg-sky-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}
+              title="Suma presupuesto solo de equipos PLA (evita doble conteo con LEV, mismo P x Q)"
+            >
+              PLA
+            </button>
+            <button
+              onClick={() => setBudgetSource('ALL')}
+              className={`px-2 py-0.5 rounded-lg font-bold transition ${budgetSource === 'ALL' ? 'bg-sky-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}
+            >
+              LEV+PLA
+            </button>
+          </div>
+
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs shadow-sm">
+            <span className="text-slate-500 dark:text-slate-400">Ingesta:</span>
+            <button
+              onClick={() => setIncludePendientes(false)}
+              className={`px-2 py-0.5 rounded-lg font-bold transition ${!includePendientes ? 'bg-emerald-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}
+              title="Solo registros VALID (ISO 8000 sin pendientes)"
+            >
+              SOLO VALID
+            </button>
+            <button
+              onClick={() => setIncludePendientes(true)}
+              className={`px-2 py-0.5 rounded-lg font-bold transition ${includePendientes ? 'bg-emerald-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}
+            >
+              + PENDIENTES
+            </button>
+          </div>
         </div>
       </div>
 
@@ -142,7 +194,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({ records, loading }) 
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
             <TrendingUp className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-            <span>Inversión en Mantenimiento y Sustitución</span>
+            <span>Σ P x Q {budgetSource === 'PLA' ? '(solo PLA)' : '(LEV + PLA)'} · Inversión en Mantenimiento y Sustitución</span>
           </p>
         </div>
 

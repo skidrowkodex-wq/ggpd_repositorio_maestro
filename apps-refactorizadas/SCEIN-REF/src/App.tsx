@@ -10,6 +10,7 @@ import { RemediationTab } from './components/tabs/RemediationTab';
 import { AuditTab } from './components/tabs/AuditTab';
 import { UserManagementTab } from './components/tabs/UserManagementTab';
 import { EquipmentRecord } from './types';
+import { getSupabaseClient } from './lib/supabase';
 import { RefreshCw, Zap } from 'lucide-react';
 
 function MainApp() {
@@ -29,13 +30,22 @@ function MainApp() {
   const fetchEquipmentRecords = async () => {
     setDataLoading(true);
     try {
-      const res = await fetch('/api/equipment');
-      const data = await res.json();
-      if (data.success && Array.isArray(data.data)) {
-        setRecords(data.data);
+      const db = getSupabaseClient();
+      if (!db) {
+        console.warn('SCEIN: cliente InsForge no configurado');
+        setRecords([]);
+        return;
+      }
+      const { data, error } = await db.from('equipment_records').select();
+      if (error) {
+        console.error('Error cargando equipos:', error?.message || error);
+        setRecords([]);
+      } else {
+        setRecords(Array.isArray(data) ? data : []);
       }
     } catch (err) {
       console.error('Error cargando equipos:', err);
+      setRecords([]);
     } finally {
       setDataLoading(false);
     }

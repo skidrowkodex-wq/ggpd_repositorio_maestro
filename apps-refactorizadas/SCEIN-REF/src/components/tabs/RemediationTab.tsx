@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { EquipmentRecord } from '../../types';
+import { getSupabaseClient } from '../../lib/supabase';
 import { 
   Wrench, 
   Sparkles, 
@@ -31,17 +32,53 @@ export const RemediationTab: React.FC<RemediationTabProps> = ({ records, onRemed
     setResultMsg('');
 
     try {
-      const res = await fetch('/api/equipment/remediate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      const data = await res.json();
+      const db = getSupabaseClient();
+      if (!db) {
+        alert('Error ejecutando remediación: No hay conexión configurada con InsForge.');
+        return;
+      }
 
-      if (data.success) {
-        setResultMsg(`¡Remediación exitosa! Se normalizaron ${data.fixed_count} registros bajo las reglas ISO 8000-61/110.`);
+      let fixedCount = 0;
+      let pendingCount = 0;
+      const normalized = records.map(eq => {
+        let changed = false;
+        let wasPending = eq.estado_ingesta === 'PENDIENTE_ISO';
+
+        let nom = eq.equipment_nomenclator || '';
+        if (nom !== nom.toUpperCase().trim().replace(/\s+/g, ' ')) {
+          nom = nom.toUpperCase().trim().replace(/\s+/g, ' ');
+          changed = true;
+        }
+
+        let sub = eq.substation_name || '';
+        if (sub !== sub.trim().replace(/\s+/g, ' ')) {
+          sub = sub.trim().replace(/\s+/g, ' ');
+          changed = true;
+        }
+
+        const kv = Number(eq.voltage_in_kv) || 0;
+
+        if (changed) fixedCount++;
+        if (wasPending) pendingCount++;
+
+        return {
+          ...eq,
+          equipment_nomenclator: nom,
+          substation_name: sub,
+          voltage_in_kv: kv,
+          estado_ingesta: 'VALID'
+        };
+      });
+
+      const { error } = await db.from('equipment_records').upsertByExisting(normalized);
+
+      if (!error) {
+        setResultMsg(
+          `¡Remediación exitosa! Se normalizaron ${fixedCount} registros bajo las reglas ISO 8000-61/110 y se cerraron ${pendingCount} pendientes de ISO 8000 (ahora VALID).`
+        );
         onRemediationDone();
       } else {
-        alert('Error ejecutando remediación: ' + data.error);
+        alert('Error ejecutando remediación: ' + (error?.message || 'Error desconocido'));
       }
     } catch (err: any) {
       alert('Error de conexión al ejecutar remediación.');

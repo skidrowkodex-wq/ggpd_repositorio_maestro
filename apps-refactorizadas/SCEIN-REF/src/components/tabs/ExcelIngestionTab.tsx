@@ -8,12 +8,13 @@ import {
   IngestWindowStatus 
 } from '../../types';
 import { useAuth } from '../../lib/authContext';
-import { 
-  parseExcelWorkbook, 
-  generateSampleExcel, 
+import {
+  parseExcelWorkbook,
+  generateSampleExcel,
   getSubmissionWindowStatus,
-  ParseResult 
+  ParseResult
 } from '../../lib/excel-parser';
+import { getSupabaseClient } from '../../lib/supabase';
 import { 
   FileSpreadsheet, 
   Upload, 
@@ -101,26 +102,30 @@ export const ExcelIngestionTab: React.FC<ExcelIngestionTabProps> = ({ onIngestSu
     setSaveSuccessMsg('');
 
     try {
-      const res = await fetch('/api/equipment/bulk', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          records: parsedResult.equipmentRecords,
-          docType: parsedResult.docType,
-          windowStatus: windowInfo.status,
-          delayReason: reasonText
-        })
-      });
-      const data = await res.json();
+      const db = getSupabaseClient();
+      if (!db) {
+        alert('Error en la ingesta: No hay conexión configurada con InsForge.');
+        return;
+      }
 
-      if (data.success) {
+      let validRecords = parsedResult.equipmentRecords;
+      if (user?.role === 'ANALISTA_ESTATAL' && user.state_code) {
+        validRecords = validRecords.filter(r => r.state_code === user.state_code);
+      }
+
+      const { data, error } = await db.from('equipment_records').insert(validRecords);
+      const importedCount = Array.isArray(validRecords) ? validRecords.length : 0;
+
+      if (!error) {
+        const validCount = validRecords.filter(r => r.estado_ingesta !== 'PENDIENTE_ISO').length;
+        const pendingCount = importedCount - validCount;
         setSaveSuccessMsg(
-          `¡Ingesta masiva de Plantilla ${parsedResult.docType === 'LEV' ? 'LEV_EI_SE (Levantamiento)' : 'PLA_EI_SE (Plan de Acción)'} exitosa! Se guardaron ${data.imported_count} registros en Supabase Cloud (esquema scei).`
+          `¡Ingesta masiva de Plantilla ${parsedResult.docType === 'LEV' ? 'LEV_EI_SE (Levantamiento)' : 'PLA_EI_SE (Plan de Acción)'} exitosa! Se guardaron ${importedCount} registros en InsForge PostgreSQL (esquema scein): ${validCount} VÁLIDOS y ${pendingCount} PENDIENTES DE ISO 8000.`
         );
         setShowExtemporaneousModal(false);
         onIngestSuccess();
       } else {
-        alert('Error en la ingesta: ' + data.error);
+        alert('Error en la ingesta: ' + (error?.message || 'Error desconocido')) ;
       }
     } catch (err: any) {
       alert('Error de conexión al guardar los datos: ' + err.message);

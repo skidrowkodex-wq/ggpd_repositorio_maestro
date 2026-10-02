@@ -3,6 +3,7 @@ import * as XLSX from 'xlsx';
 import { EquipmentRecord, EquipmentStatus, EquipmentPriority } from '../../types';
 import { VENEZUELAN_STATES, getStateName, VOLTAGE_LEVELS_KV } from '../../constants/states';
 import { useAuth } from '../../lib/authContext';
+import { getSupabaseClient } from '../../lib/supabase';
 import { 
   ListFilter, 
   Search, 
@@ -37,6 +38,8 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({ records, loading, on
   const [selectedStatus, setSelectedStatus] = useState<string>('');
   const [selectedPriority, setSelectedPriority] = useState<string>('');
   const [selectedVoltage, setSelectedVoltage] = useState<string>('');
+  const [selectedIngesta, setSelectedIngesta] = useState<string>('');
+  const [selectedPresupuesto, setSelectedPresupuesto] = useState<string>('');
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -71,9 +74,18 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({ records, loading, on
       // Voltage Filter
       if (selectedVoltage && r.voltage_in_kv !== Number(selectedVoltage)) return false;
 
+      // Ingesta Status Filter
+      if (selectedIngesta && (r.estado_ingesta || 'VALID') !== selectedIngesta) return false;
+
+      // Presupuesto Status Filter
+      if (selectedPresupuesto) {
+        const p = r.issues_iso?.presupuesto?.estado || 'SIN_MATERIALES';
+        if (p !== selectedPresupuesto) return false;
+      }
+
       return true;
     });
-  }, [records, searchTerm, selectedState, selectedStatus, selectedPriority, selectedVoltage]);
+  }, [records, searchTerm, selectedState, selectedStatus, selectedPriority, selectedVoltage, selectedIngesta, selectedPresupuesto]);
 
   // Paginated records
   const totalPages = Math.ceil(filteredRecords.length / itemsPerPage) || 1;
@@ -89,18 +101,18 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({ records, loading, on
     setIsSaving(true);
 
     try {
-      const res = await fetch(`/api/equipment/${editingRecord.record_id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingRecord)
-      });
-      const data = await res.json();
+      const db = getSupabaseClient();
+      if (!db) {
+        alert('Error al guardar: No hay conexión configurada con InsForge.');
+        return;
+      }
+      const { error } = await db.from('equipment_records').update('record_id', editingRecord.record_id, editingRecord);
 
-      if (data.success) {
+      if (!error) {
         setEditingRecord(null);
         onRefreshNeeded();
       } else {
-        alert('Error al guardar: ' + (data.error || 'Error desconocido'));
+        alert('Error al guardar: ' + (error?.message || 'Error desconocido'));
       }
     } catch (err: any) {
       alert('Error de conexión al actualizar el registro.');
@@ -212,7 +224,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({ records, loading, on
 
       {/* Filter Controls Bar */}
       <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm dark:shadow-xl space-y-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3">
           {/* Global Search */}
           <div className="lg:col-span-2 relative">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
@@ -267,10 +279,37 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({ records, loading, on
               <option value="BAJA">BAJA</option>
             </select>
           </div>
+
+          {/* Ingesta Filter */}
+          <div>
+            <select
+              value={selectedIngesta}
+              onChange={(e) => { setSelectedIngesta(e.target.value); setCurrentPage(1); }}
+              className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:border-sky-500"
+            >
+              <option value="">Ingesta: Todos</option>
+              <option value="VALID">VALID</option>
+              <option value="PENDIENTE_ISO">PENDIENTE ISO 8000</option>
+            </select>
+          </div>
+
+          {/* Presupuesto Status Filter */}
+          <div>
+            <select
+              value={selectedPresupuesto}
+              onChange={(e) => { setSelectedPresupuesto(e.target.value); setCurrentPage(1); }}
+              className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:border-sky-500"
+            >
+              <option value="">Presupuesto: Todos</option>
+              <option value="ESTIMADO">ESTIMADO</option>
+              <option value="INCOMPLETO">INCOMPLETO</option>
+              <option value="SIN_MATERIALES">SIN MATERIALES</option>
+            </select>
+          </div>
         </div>
 
         {/* Clear Filters Indicator */}
-        {(searchTerm || selectedState || selectedStatus || selectedPriority || selectedVoltage) && (
+        {(searchTerm || selectedState || selectedStatus || selectedPriority || selectedVoltage || selectedIngesta || selectedPresupuesto) && (
           <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 pt-1">
             <span>Mostrando {filteredRecords.length} de {records.length} registros filtrados</span>
             <button
@@ -280,6 +319,8 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({ records, loading, on
                 setSelectedStatus('');
                 setSelectedPriority('');
                 setSelectedVoltage('');
+                setSelectedIngesta('');
+                setSelectedPresupuesto('');
                 setCurrentPage(1);
               }}
               className="text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-1 font-semibold"
@@ -351,6 +392,9 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({ records, loading, on
                       {/* Estatus */}
                       <td className="p-3.5">
                         {getStatusBadge(r.status)}
+                        {r.estado_ingesta === 'PENDIENTE_ISO' && (
+                          <span className="mt-1 block text-rose-700 dark:text-rose-400 font-bold text-[10px] bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900/60 px-1.5 py-0.5 rounded w-fit">PENDIENTE ISO 8000</span>
+                        )}
                       </td>
 
                       {/* Prioridad */}
@@ -374,6 +418,15 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({ records, loading, on
                       {/* Presupuesto EUR */}
                       <td className="p-3.5 font-mono text-emerald-400 font-semibold">
                         € {(Number(r.total_budget_eur) || 0).toLocaleString('es-ES', { minimumFractionDigits: 2 })}
+                        <span className={`block w-fit mt-1 text-[10px] px-1.5 py-0.5 rounded font-bold ${
+                          r.issues_iso?.presupuesto?.estado === 'ESTIMADO'
+                            ? 'text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-900/60'
+                            : r.issues_iso?.presupuesto?.estado === 'INCOMPLETO'
+                            ? 'text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-900/60'
+                            : 'text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800'
+                        }`}>
+                          {r.issues_iso?.presupuesto?.estado || 'SIN_MATERIALES'}{r.issues_iso?.presupuesto ? ` · ${r.issues_iso.presupuesto.n_materiales} mat.` : ''}
+                        </span>
                       </td>
 
                       {/* Acción Editar */}

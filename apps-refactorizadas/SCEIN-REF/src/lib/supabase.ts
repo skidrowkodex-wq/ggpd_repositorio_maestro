@@ -3,7 +3,16 @@
  * CORPOELEC - GERENCIA GENERAL DE PLANIFICACIÓN DE DISTRIBUCIÓN (GGPD)
  * CLIENTE MAESTRO DE DATOS - INSFORGE POSTGRESQL (SCEIN V3.0)
  * ==============================================================================
+ * Cliente InsForge client-side (hosting estático, sin backend Express).
+ * Las tablas del esquema `scein` se resuelven vía `?schema=scein`.
  */
+
+const TABLES: Record<string, string> = {
+  equipment_records: 'equipment_records',
+  audit_logs: 'mae_auditorias',
+  institutional_documents: 'mae_documentos_institucionales',
+  technical_documents: 'mae_documentos_institucionales',
+};
 
 export function getSupabaseClient(customUrl?: string, customKey?: string, schema: string = 'scein'): any {
   const metaEnv = (import.meta as any).env || {};
@@ -13,59 +22,147 @@ export function getSupabaseClient(customUrl?: string, customKey?: string, schema
 
   if (!url || !key) return null;
 
+  const getHeaders = () => ({
+    'apikey': key,
+    'Authorization': `Bearer ${key}`,
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  });
+
+  const resolveTable = (tableName: string) => TABLES[tableName] || tableName;
+
+  const parseJson = async (res: Response) => {
+    const txt = await res.text();
+    try {
+      return JSON.parse(txt);
+    } catch {
+      return { raw: txt };
+    }
+  };
+
   return {
     from: (tableName: string) => {
-      const getHeaders = () => ({
-        'apikey': key,
-        'Authorization': `Bearer ${key}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      });
-
-      const resolveEndpoint = () => {
-        if (tableName === 'equipment_records') return 'v_scein_equipos_indisponibles';
-        if (tableName === 'institutional_documents' || tableName === 'technical_documents') return 'institutional_documents';
-        if (tableName === 'audit_logs') return 'audit_logs';
-        return tableName;
-      };
-
-      const resolveWriteEndpoint = () => {
-        if (tableName === 'equipment_records') return 'mae_equipos_indisponibles';
-        if (tableName === 'institutional_documents' || tableName === 'technical_documents') return 'mae_documentos_institucionales';
-        if (tableName === 'audit_logs') return 'mae_auditorias';
-        return tableName;
-      };
+      const table = resolveTable(tableName);
+      const base = `${url.replace(/\/+$/, '')}/api/database/records/${table}`;
 
       return {
-        select: async (cols: string = '*') => {
+        select: async () => {
           try {
-            const res = await fetch(`${url.replace(/\/+$/, '')}/api/database/records/${resolveEndpoint()}?limit=500`, {
+            const res = await fetch(`${base}?schema=${schema}&limit=100000&order=created_at.desc.nullslast`, {
               method: 'GET',
               headers: getHeaders(),
             });
-            if (!res.ok) return { data: null, error: { message: `HTTP ${res.status}` } };
-            const data = await res.json();
-            return { data: Array.isArray(data) ? data : [], error: null };
+            const data = await parseJson(res);
+            return res.ok
+              ? { data: Array.isArray(data) ? data : [], error: null }
+              : { data: [], error: { message: `HTTP ${res.status} ${JSON.stringify(data)}` } };
           } catch (err: any) {
-            return { data: null, error: err };
+            return { data: [], error: err };
+          }
+        },
+        get: async (filter: Record<string, any>) => {
+          try {
+            const qs = Object.entries(filter)
+              .map(([k, v]) => `${k}=eq.${encodeURIComponent(String(v))}`)
+              .join('&');
+            const res = await fetch(`${base}?schema=${schema}&${qs}&limit=100000`, {
+              method: 'GET',
+              headers: getHeaders(),
+            });
+            const data = await parseJson(res);
+            return res.ok
+              ? { data: Array.isArray(data) ? data : [], error: null }
+              : { data: [], error: { message: `HTTP ${res.status}` } };
+          } catch (err: any) {
+            return { data: [], error: err };
           }
         },
         insert: async (records: any | any[]) => {
           try {
-            const res = await fetch(`${url.replace(/\/+$/, '')}/api/database/records/${resolveWriteEndpoint()}`, {
+            const arr = Array.isArray(records) ? records : [records];
+            let payload = arr;
+            if (arr.length > 1) {
+              const keys = new Set<string>();
+              arr.forEach(r => Object.keys(r).forEach(k => keys.add(k)));
+              payload = arr.map(r => {
+                const o: any = {};
+                keys.forEach(k => { o[k] = r[k] === undefined ? null : r[k]; });
+                return o;
+              });
+            }
+            const res = await fetch(`${base}?schema=${schema}`, {
               method: 'POST',
               headers: getHeaders(),
-              body: JSON.stringify(Array.isArray(records) ? records : [records]),
+              body: JSON.stringify(payload),
             });
-            const data = await res.json();
-            return { data, error: res.ok ? null : { message: 'Insert error' } };
+            const data = await parseJson(res);
+            return res.ok
+              ? { data, error: null }
+              : { data: null, error: { message: `HTTP ${res.status} ${JSON.stringify(data)}` } };
           } catch (err: any) {
             return { data: null, error: err };
           }
         },
-        upsert: async (records: any | any[]) => {
-          return this?.insert ? this.insert(records) : { data: records, error: null };
-        }
+        update: async (pk: string, idValue: string, changes: any) => {
+          try {
+            const res = await fetch(`${base}?schema=${schema}&${pk}=eq.${encodeURIComponent(idValue)}`, {
+              method: 'PATCH',
+              headers: getHeaders(),
+              body: JSON.stringify(changes || {}),
+            });
+            const data = await parseJson(res);
+            return res.ok
+              ? { data, error: null }
+              : { data: null, error: { message: `HTTP ${res.status} ${JSON.stringify(data)}` } };
+          } catch (err: any) {
+            return { data: null, error: err };
+          }
+        },
+        remove: async (pk: string, idValue: string) => {
+          try {
+            const res = await fetch(`${base}?schema=${schema}&${pk}=eq.${encodeURIComponent(idValue)}`, {
+              method: 'DELETE',
+              headers: getHeaders(),
+            });
+            return res.ok
+              ? { data: null, error: null }
+              : { data: null, error: { message: `HTTP ${res.status}` } };
+          } catch (err: any) {
+            return { data: null, error: err };
+          }
+        },
+        upsertByExisting: async (records: any[]) => {
+          if (!Array.isArray(records) || records.length === 0) return { count: 0, error: null as any };
+          try {
+            const existing = await fetch(`${base}?schema=${schema}&select=record_id&limit=100000`, {
+              method: 'GET',
+              headers: getHeaders(),
+            });
+            const existingRows: any = existing.ok ? await existing.json() : [];
+            const existingIds = new Set(Array.isArray(existingRows) ? existingRows.map((r: any) => r.record_id) : []);
+            let count = 0;
+            for (const rec of records) {
+              if (rec.record_id && existingIds.has(rec.record_id)) {
+                const up = await fetch(`${base}?schema=${schema}&record_id=eq.${encodeURIComponent(rec.record_id)}`, {
+                  method: 'PATCH',
+                  headers: getHeaders(),
+                  body: JSON.stringify(rec),
+                });
+                if (up.ok) count++;
+              } else {
+                const ins = await fetch(`${base}?schema=${schema}`, {
+                  method: 'POST',
+                  headers: getHeaders(),
+                  body: JSON.stringify([rec]),
+                });
+                if (ins.ok) count++;
+              }
+            }
+            return { count, error: null };
+          } catch (err: any) {
+            return { count: 0, error: err };
+          }
+        },
       };
     }
   };
@@ -77,7 +174,7 @@ export async function testSupabaseConnection(url?: string, key?: string, schema:
   const startTime = performance.now();
 
   try {
-    const res = await fetch(`${targetUrl}/api/database/records/v_scein_equipos_indisponibles?limit=1`, {
+    const res = await fetch(`${targetUrl}/api/database/records/equipment_records?schema=${schema}&limit=1`, {
       method: 'GET',
       headers: {
         'apikey': targetKey,
@@ -91,7 +188,7 @@ export async function testSupabaseConnection(url?: string, key?: string, schema:
       const data = await res.json();
       return {
         success: true,
-        message: `¡Conexión exitosa a InsForge PostgreSQL (Esquema "scein")!`,
+        message: `¡Conexión exitosa a InsForge PostgreSQL (Esquema "${schema}")!`,
         latencyMs,
         data,
       };
