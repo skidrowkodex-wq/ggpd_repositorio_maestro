@@ -147,6 +147,39 @@ def md_to_docx(md_path, docx_path, doc_path=None):
                 doc.add_paragraph() # Spacing after table
             continue
 
+        # Images: ![alt](url)
+        img_match = re.match(r'!\[(.*?)\]\((.*?)\)', stripped)
+        if img_match:
+            caption = img_match.group(1).strip()
+            raw_url = img_match.group(2).strip()
+            # Clean file:/// URL
+            clean_path = raw_url.replace('file:///', '').replace('file://', '')
+            # If not absolute, resolve relative to md_path directory
+            if not os.path.isabs(clean_path):
+                clean_path = os.path.join(os.path.dirname(os.path.abspath(md_path)), clean_path)
+            clean_path = os.path.normpath(clean_path)
+            
+            if os.path.exists(clean_path):
+                p_img = doc.add_paragraph()
+                p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                p_img.paragraph_format.space_before = Pt(8)
+                p_img.paragraph_format.space_after = Pt(2)
+                run_img = p_img.add_run()
+                run_img.add_picture(clean_path, width=Inches(6.2))
+                
+                if caption:
+                    p_cap = doc.add_paragraph()
+                    p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                    p_cap.paragraph_format.space_before = Pt(2)
+                    p_cap.paragraph_format.space_after = Pt(8)
+                    run_cap = p_cap.add_run(f"Figura: {caption}")
+                    run_cap.font.name = 'Calibri'
+                    run_cap.font.size = Pt(9)
+                    run_cap.font.italic = True
+                    run_cap.font.color.rgb = RGBColor(0x64, 0x74, 0x8B)
+            i += 1
+            continue
+
         # Headings
         if stripped.startswith('# '):
             p = doc.add_paragraph()
@@ -240,13 +273,22 @@ def md_to_docx(md_path, docx_path, doc_path=None):
         print(f"Saved: {doc_path}")
 
 if __name__ == '__main__':
-    base_dir = "/home/skidrowkodex/Documentos/Repositorio_Maestro/docs"
+    import sys
+    if len(sys.argv) > 1:
+        md_file = sys.argv[1]
+        docx_file = sys.argv[2] if len(sys.argv) > 2 else md_file.replace('.md', '.docx')
+        doc_file = sys.argv[3] if len(sys.argv) > 3 else md_file.replace('.md', '.doc')
+        md_to_docx(md_file, docx_file, doc_file)
+        sys.exit(0)
+
+    base_dir = os.path.dirname(os.path.abspath(__file__))
     files = [
         "NAC_2026_GGPD_AUDITORIA_ESTATUS_CUATRO_APLICACIONES_V01",
         "NAC_2026_GGPD_AUDITORIA_TECNICA_GOBERNANZA_BD_V01",
         "NAC_2026_GGPD_AUDITORIA_FUNCIONAL_GOBIERNO_DATOS_V01",
         "NAC_2026_GGPD_AUDITORIA_TECNICA_CONFORMIDAD_ISO_COBIT_V01",
         "NAC_2026_GGPD_AUDITORIA_FUNCIONAL_MATRIZ_GOBERNANZA_V01",
+        "NAC_2026_GGPD_INS_OPERATIVO_SIGAD_V01",
     ]
     qa_files = [
         "NAC_2026_GGPD_INVENTARIO_ARQUITECTURA_RUTAS_DESPLIEGUE_V01",

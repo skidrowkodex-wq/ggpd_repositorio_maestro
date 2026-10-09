@@ -20,7 +20,8 @@ El repositorio integra las cinco aplicaciones estratégicas del SEN más la Cons
 4. **SCTIS v2.0 (Tiras de Interrupción de Distribución):** `apps/sctis-v-2.0-distribucion` / `apps-refactorizadas/SCTIS-REF` (Puerto `3002`)
 5. **SIGI (Consola Central de Gestión y Planificación):** `apps/corpoelec-sigi-gestion-planificacion-distribucion` / `apps-refactorizadas/SIGI-REF` (Puerto `3001`)
 6. **SCGCC V1.0 (Gestión de Correspondencia Corporativa):** `apps-refactorizadas/SCGCC-REF` (Puerto `3006`)
-7. **Portal Maestro Unificado:** `index.html` / `src/` (Puerto `5000` o `npm run dev`)
+7. **SIGAD v1.0 (Sistema Integrado de Gestión de Activos de Distribución):** `apps-refactorizadas/SIGAD-REF` (Puerto `3007`)
+8. **Portal Maestro Unificado:** `index.html` / `src/` (Puerto `5000` o `npm run dev`)
 
 ---
 

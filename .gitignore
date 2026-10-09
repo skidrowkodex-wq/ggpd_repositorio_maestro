@@ -29,6 +29,15 @@ apps-refactorizadas/SCTIS-REF/docs/consolidados_tiras_2026/
 # Documentacion clasificada / confidencial (fuera de control de versiones por ISO 27001)
 clasificados/
 
+# Entregables de reunion gerencial (binarios .xls/.xlsx + guia .md, se circun por Drive)
+# ~900 KB de artefactos de presentacion, no codigo fuente.
+# Para regenerarlos: data_reunion/README.md (seccion "Como regenerar y verificar").
+data_reunion/
+data_reunion.rar
+*.rar
+scratch/
+scratch*
+
 
 # InsForge & AI agent skills
 .insforge
