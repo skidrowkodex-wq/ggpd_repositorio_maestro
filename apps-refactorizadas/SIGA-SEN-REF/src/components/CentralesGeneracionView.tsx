@@ -92,7 +92,7 @@ export const CentralesGeneracionView: React.FC = () => {
             </button>
           </div>
 
-          <div className="relative min-w-[280px]">
+          <div className="relative w-full sm:w-auto sm:min-w-[280px]">
             <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
             <input
               type="text"
@@ -136,7 +136,7 @@ export const CentralesGeneracionView: React.FC = () => {
                 </div>
 
                 {/* Potencia Total y Patios */}
-                <div className="mt-4 grid grid-cols-2 gap-2 bg-slate-50/80 dark:bg-slate-950/60 p-3 rounded-xl border border-slate-200/90 dark:border-slate-800/80 shadow-xs">
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50/80 dark:bg-slate-950/60 p-3 rounded-xl border border-slate-200/90 dark:border-slate-800/80 shadow-xs">
                   <div>
                     <span className="text-[10px] text-slate-500 dark:text-slate-400 block font-semibold">Capacidad Instalada</span>
                     <span className="text-lg font-black text-amber-600 dark:text-amber-400 font-mono">

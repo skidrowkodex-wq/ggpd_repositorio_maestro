@@ -44,6 +44,11 @@ export const AtlasUnifilarCndView: React.FC = () => {
 
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Soporte táctil (tablet/teléfono): punteros activos y estado de pinch-zoom.
+  // Los Pointer Events unifican ratón, lápiz y dedo con un solo conjunto de manejadores.
+  const pointersRef = useRef<Map<number, { x: number; y: number }>>(new Map());
+  const pinchRef = useRef<{ d: number; vb: { x: number; y: number; w: number; h: number } } | null>(null);
+
   const subestaciones = sigaSenService.getSubestaciones();
   const lineas = sigaSenService.getLineas(filtroKv !== 'TODOS' ? parseFloat(filtroKv) : undefined);
   const niveles = sigaSenService.getNivelesTension();
@@ -57,6 +62,21 @@ export const AtlasUnifilarCndView: React.FC = () => {
   useEffect(() => {
     return () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    };
+  }, []);
+
+  // Liberar el arrastre/pinch aunque el puntero se suelte fuera del lienzo.
+  useEffect(() => {
+    const liberarPuntero = (e: PointerEvent) => {
+      pointersRef.current.delete(e.pointerId);
+      if (pointersRef.current.size < 2) pinchRef.current = null;
+      if (pointersRef.current.size === 0) setIsDragging(false);
+    };
+    window.addEventListener('pointerup', liberarPuntero);
+    window.addEventListener('pointercancel', liberarPuntero);
+    return () => {
+      window.removeEventListener('pointerup', liberarPuntero);
+      window.removeEventListener('pointercancel', liberarPuntero);
     };
   }, []);
 
@@ -205,15 +225,55 @@ export const AtlasUnifilarCndView: React.FC = () => {
     animarViewBox({ x: 0, y: 0, w: SVG_TOTAL_W, h: SVG_TOTAL_H }, 600);
   };
 
-  // Arrastre fluido (Pan)
-  const handleMouseDown = (e: React.MouseEvent) => {
+  // Arrastre fluido (Pan) con Pointer Events (ratón / lápiz / dedo) + Pinch-Zoom táctil
+  const handlePointerDown = (e: React.PointerEvent) => {
     if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-    setIsDragging(true);
-    setDragStart({ x: e.clientX, y: e.clientY });
+    pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (pointersRef.current.size === 1) {
+      setIsDragging(true);
+      setDragStart({ x: e.clientX, y: e.clientY });
+      pinchRef.current = null;
+    } else if (pointersRef.current.size === 2) {
+      // Dos dedos: iniciar pinch-zoom tomando la distancia y el viewBox actuales
+      setIsDragging(false);
+      const pts = Array.from(pointersRef.current.values());
+      pinchRef.current = {
+        d: Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y),
+        vb: { ...viewBoxRef.current },
+      };
+    }
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !containerRef.current) return;
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!pointersRef.current.has(e.pointerId) || !containerRef.current) return;
+    pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    // Pinch-Zoom de dos dedos
+    if (pointersRef.current.size >= 2 && pinchRef.current) {
+      const pts = Array.from(pointersRef.current.values());
+      const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      if (dist > 0 && pinchRef.current.d > 0) {
+        const start = pinchRef.current.vb;
+        const factor = pinchRef.current.d / dist;
+        const newW = Math.max(220, Math.min(SVG_TOTAL_W, start.w * factor));
+        const newH = Math.max(130, Math.min(SVG_TOTAL_H, start.h * factor));
+        const cx = start.x + start.w / 2;
+        const cy = start.y + start.h / 2;
+        const nuevoVb = {
+          x: Math.max(0, Math.min(SVG_TOTAL_W - newW, cx - newW / 2)),
+          y: Math.max(0, Math.min(SVG_TOTAL_H - newH, cy - newH / 2)),
+          w: newW,
+          h: newH,
+        };
+        setViewBox(nuevoVb);
+        viewBoxRef.current = nuevoVb;
+      }
+      return;
+    }
+
+    // Pan de un solo puntero
+    if (!isDragging) return;
     const rect = containerRef.current.getBoundingClientRect();
     const scaleX = viewBox.w / rect.width;
     const scaleY = viewBox.h / rect.height;
@@ -287,7 +347,7 @@ export const AtlasUnifilarCndView: React.FC = () => {
             )}
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Lienzo topológico de 2m × 1.1m ({nodosVisibles.length} Nodos · {lineas.length} Tramos). Haga clic en cualquier elemento para zoom automático en alta definición con tipografía adaptativa.
+            Lienzo topológico de 2m × 1.1m ({nodosVisibles.length} Nodos · {lineas.length} Tramos). Arrastre para desplazar y use la rueda (o dos dedos en tablet) para el zoom. Toque cualquier elemento para el zoom automático en alta definición con tipografía adaptativa.
           </p>
         </div>
 
@@ -443,16 +503,15 @@ export const AtlasUnifilarCndView: React.FC = () => {
       {/* Visor SVG NATIVO CON VIEWBOX DINÁMICO Y ANIMADO */}
       <div
         ref={containerRef}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerLeave={handleMouseUp}
         onWheel={handleWheel}
-        className={`w-full h-[720px] ${
+        className={`w-full h-[420px] sm:h-[560px] lg:h-[720px] ${
           temaFondo === 'claro'
             ? 'bg-[#ffffff] border-slate-300 shadow-2xl'
             : 'bg-[#050811] border-slate-800 shadow-xl'
-        } rounded-2xl border overflow-hidden relative select-none ${
+        } rounded-2xl border overflow-hidden relative select-none touch-pan-zoom ${
           isDragging ? 'cursor-grabbing' : 'cursor-grab'
         }`}
       >
@@ -777,7 +836,7 @@ export const AtlasUnifilarCndView: React.FC = () => {
 
         {/* Panel Modal Flotante de Detalle del Elemento Enfocado */}
         {elementoActivo && (
-          <div className="absolute bottom-5 right-5 w-96 bg-slate-900/95 border border-amber-500/70 rounded-2xl p-5 shadow-2xl backdrop-blur-2xl z-50">
+          <div className="absolute inset-x-3 bottom-3 sm:inset-x-auto sm:right-5 sm:bottom-5 sm:w-96 max-h-[85%] overflow-y-auto thin-scroll bg-slate-900/95 border border-amber-500/70 rounded-2xl p-4 sm:p-5 shadow-2xl backdrop-blur-2xl z-50">
             <div className="flex items-start justify-between">
               <div>
                 <span className="text-[10px] font-mono font-bold text-amber-400 block uppercase tracking-wider flex items-center gap-1.5">
@@ -836,7 +895,7 @@ export const AtlasUnifilarCndView: React.FC = () => {
 
             {/* Botones de Control de Zoom Dinámico */}
             <div className="mt-4 pt-3 border-t border-slate-800 space-y-2">
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <button
                   onClick={() => enfocarElemento(elementoActivo, 320, 190, 400)}
                   className="py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-amber-500/20 transition-all"

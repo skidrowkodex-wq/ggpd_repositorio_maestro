@@ -68,6 +68,10 @@ export const UnifilarActivoSenView: React.FC<Props> = ({ initialCodigo }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
+  // Soporte táctil (tablet/teléfono): punteros activos y estado de pinch-zoom.
+  const pointersRef = useRef<Map<number, { x: number; y: number }>>(new Map());
+  const pinchRef = useRef<{ d: number; vb: { x: number; y: number; w: number; h: number } } | null>(null);
+
   // Inspección de Elemento
   const [elementoEnfocado, setElementoEnfocado] = useState<ElementoActivo | null>(null);
   const [estadosPersonalizados, setEstadosPersonalizados] = useState<Record<string, 'EN_SERVICIO' | 'INDISPONIBLE' | 'EN_OBSERVACION'>>({});
@@ -79,6 +83,21 @@ export const UnifilarActivoSenView: React.FC<Props> = ({ initialCodigo }) => {
   useEffect(() => {
     return () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    };
+  }, []);
+
+  // Liberar el arrastre/pinch aunque el puntero se suelte fuera del lienzo.
+  useEffect(() => {
+    const liberarPuntero = (e: PointerEvent) => {
+      pointersRef.current.delete(e.pointerId);
+      if (pointersRef.current.size < 2) pinchRef.current = null;
+      if (pointersRef.current.size === 0) setIsDragging(false);
+    };
+    window.addEventListener('pointerup', liberarPuntero);
+    window.addEventListener('pointercancel', liberarPuntero);
+    return () => {
+      window.removeEventListener('pointerup', liberarPuntero);
+      window.removeEventListener('pointercancel', liberarPuntero);
     };
   }, []);
 
@@ -195,15 +214,54 @@ export const UnifilarActivoSenView: React.FC<Props> = ({ initialCodigo }) => {
     animarViewBox({ x: 0, y: 0, w: CANVAS_W, h: CANVAS_H }, 500);
   };
 
-  // Arrastre fluido (Pan)
-  const handleMouseDown = (e: React.MouseEvent) => {
+  // Arrastre fluido (Pan) con Pointer Events (ratón / lápiz / dedo) + Pinch-Zoom táctil
+  const handlePointerDown = (e: React.PointerEvent) => {
     if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-    setIsDragging(true);
-    setDragStart({ x: e.clientX, y: e.clientY });
+    pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (pointersRef.current.size === 1) {
+      setIsDragging(true);
+      setDragStart({ x: e.clientX, y: e.clientY });
+      pinchRef.current = null;
+    } else if (pointersRef.current.size === 2) {
+      setIsDragging(false);
+      const pts = Array.from(pointersRef.current.values());
+      pinchRef.current = {
+        d: Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y),
+        vb: { ...viewBoxRef.current },
+      };
+    }
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !containerRef.current) return;
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!pointersRef.current.has(e.pointerId) || !containerRef.current) return;
+    pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    // Pinch-Zoom de dos dedos
+    if (pointersRef.current.size >= 2 && pinchRef.current) {
+      const pts = Array.from(pointersRef.current.values());
+      const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      if (dist > 0 && pinchRef.current.d > 0) {
+        const start = pinchRef.current.vb;
+        const factor = pinchRef.current.d / dist;
+        const newW = Math.max(200, Math.min(CANVAS_W, start.w * factor));
+        const newH = Math.max(125, Math.min(CANVAS_H, start.h * factor));
+        const cx = start.x + start.w / 2;
+        const cy = start.y + start.h / 2;
+        const nuevoVb = {
+          x: Math.max(0, Math.min(CANVAS_W - newW, cx - newW / 2)),
+          y: Math.max(0, Math.min(CANVAS_H - newH, cy - newH / 2)),
+          w: newW,
+          h: newH,
+        };
+        setViewBox(nuevoVb);
+        viewBoxRef.current = nuevoVb;
+      }
+      return;
+    }
+
+    // Pan de un solo puntero
+    if (!isDragging) return;
     const rect = containerRef.current.getBoundingClientRect();
     const scaleX = viewBox.w / rect.width;
     const scaleY = viewBox.h / rect.height;
@@ -475,7 +533,7 @@ export const UnifilarActivoSenView: React.FC<Props> = ({ initialCodigo }) => {
               ZOOM {factorZoom}×
             </span>
             <span className="text-xs text-slate-500 dark:text-slate-400">
-              Arrastre para Pan · Rueda del ratón para Zoom · Clic en equipo para Ficha Técnica e inspección HUD
+              Arrastre para Pan · Rueda del ratón o pinza de dos dedos para Zoom · Toque un equipo para su Ficha Técnica e inspección HUD
             </span>
           </div>
 
@@ -523,12 +581,11 @@ export const UnifilarActivoSenView: React.FC<Props> = ({ initialCodigo }) => {
         {/* Lienzo SVG */}
         <div
           ref={containerRef}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerLeave={handleMouseUp}
           onWheel={handleWheel}
-          className={`relative rounded-xl border p-4 overflow-hidden min-h-[580px] flex items-center justify-center select-none transition-colors ${
+          className={`relative rounded-xl border p-2 sm:p-4 overflow-hidden flex items-center justify-center select-none transition-colors touch-pan-zoom ${
             modoLienzo === 'blanco'
               ? 'bg-white border-slate-300 shadow-inner'
               : 'bg-slate-950 border-sky-950'
@@ -536,7 +593,7 @@ export const UnifilarActivoSenView: React.FC<Props> = ({ initialCodigo }) => {
         >
           <svg
             viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}`}
-            className="w-full h-full max-w-[1200px] h-[640px]"
+            className="w-full max-w-[1200px] h-[360px] sm:h-[500px] lg:h-[640px]"
             preserveAspectRatio="xMidYMid meet"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -1042,7 +1099,7 @@ export const UnifilarActivoSenView: React.FC<Props> = ({ initialCodigo }) => {
       {/* 4. Panel Modal / HUD de Inspección del Elemento Seleccionado */}
       {elementoEnfocado && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-slate-900 border border-sky-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative space-y-5">
+          <div className="bg-slate-900 border border-sky-800 rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto thin-scroll p-4 sm:p-6 shadow-2xl relative space-y-5">
             <button
               onClick={() => setElementoEnfocado(null)}
               className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
@@ -1074,7 +1131,7 @@ export const UnifilarActivoSenView: React.FC<Props> = ({ initialCodigo }) => {
               <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">
                 Estado Operativo en Tiempo Real (Simulador SCADA):
               </span>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <button
                   onClick={() => handleToggleEstado(elementoEnfocado.id, 'EN_SERVICIO')}
                   className={`py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all border ${

@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './lib/authContext';
 import { ThemeProvider } from './lib/themeContext';
 import { LoginForm } from './components/LoginForm';
-import { Navbar, SigaSenTab } from './components/Navbar';
-import { Footer } from './components/Footer';
+import { AppShell, SigaSenTab } from './components/Navbar';
 import { NodosPatiosSenView } from './components/NodosPatiosSenView';
 import { CentralesGeneracionView } from './components/CentralesGeneracionView';
 import { BalanceSenView } from './components/BalanceSenView';
@@ -44,20 +43,17 @@ function SigaSenDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100/70 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors">
-      {/* Toast Notification */}
+    <>
+      {/* Notificación flotante (Toast) */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-emerald-500 text-slate-950 px-4 py-3 rounded-xl font-bold shadow-2xl flex items-center gap-2 text-xs animate-bounce">
-          <CheckCircle2 className="w-4 h-4 text-slate-950" />
-          <span>{toastMessage}</span>
+        <div className="fixed bottom-6 right-6 z-[70] max-w-[calc(100vw-2rem)] bg-emerald-500 text-slate-950 px-4 py-3 rounded-xl font-bold shadow-2xl flex items-center gap-2 text-xs animate-bounce">
+          <CheckCircle2 className="w-4 h-4 text-slate-950 shrink-0" />
+          <span className="truncate">{toastMessage}</span>
         </div>
       )}
 
-      {/* Navbar Superior con pestañas y conmutador de tema */}
-      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
-
-      {/* Contenido Principal */}
-      <main className="flex-1 app-container py-6">
+      {/* Estructura con rail lateral (≥1024px) / drawer off-canvas (<1024px) */}
+      <AppShell activeTab={activeTab} setActiveTab={setActiveTab}>
         {activeTab === 'activos' && (
           <NodosPatiosSenView onVerUnifilar={handleVerUnifilar} />
         )}
@@ -67,11 +63,8 @@ function SigaSenDashboard() {
         {activeTab === 'unifilar_activo' && (
           <UnifilarActivoSenView initialCodigo={selectedCodigoSubestacion} />
         )}
-      </main>
-
-      {/* Pie de Página Institucional */}
-      <Footer />
-    </div>
+      </AppShell>
+    </>
   );
 }
 

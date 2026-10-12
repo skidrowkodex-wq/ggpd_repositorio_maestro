@@ -110,12 +110,12 @@ export const NodosPatiosSenView: React.FC<{ onVerUnifilar?: (codigo: string) => 
             </span>
           </div>
 
-          <div className="space-y-2 overflow-y-auto pr-1 flex-1 max-h-[640px]">
-            {nodos.map((s) => {
+          <div className="space-y-2 overflow-y-auto thin-scroll pr-1 flex-1 max-h-[420px] lg:max-h-[640px]">
+            {nodos.map((s, idx) => {
               const isSelected = actualSe?.codigo === s.codigo;
               return (
                 <div
-                  key={s.codigo}
+                  key={`${s.codigo}-${idx}`}
                   onClick={() => setSeSeleccionada(s)}
                   className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
                     isSelected
@@ -193,7 +193,7 @@ export const NodosPatiosSenView: React.FC<{ onVerUnifilar?: (codigo: string) => 
               </div>
 
               {/* Métricas de Potencia */}
-              <div className="grid grid-cols-3 gap-3 bg-slate-50/90 dark:bg-slate-950 p-4 rounded-xl border border-slate-200/90 dark:border-slate-800 text-center shadow-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50/90 dark:bg-slate-950 p-4 rounded-xl border border-slate-200/90 dark:border-slate-800 text-center shadow-xs">
                 <div>
                   <span className="text-[10px] text-slate-500 dark:text-slate-400 block font-semibold">Capacidad Generación</span>
                   <span className="text-base font-black text-amber-600 dark:text-amber-400 font-mono">
