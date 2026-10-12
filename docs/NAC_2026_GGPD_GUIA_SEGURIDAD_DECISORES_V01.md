@@ -149,6 +149,7 @@ Existe un **modo de contingencia local**: si la conexión a la nube se cae (apag
 ## 📌 8. REFERENCIAS Y ACCESO
 
 * **Reporte técnico detallado (para ATIT/auditoría):** `docs/NAC_2026_GGPD_REPORTE_SEGURIDAD_SIGAD_SIGASEN_V01.md`.
+* **Prueba de penetración ejecutada (12-10-2026):** `docs/NAC_2026_GGPD_PENTEST_SIGAD_SIGASEN_V01.md` — para decisores: «se ejecutó el **primer ciclo de pentest autorizado, no destructivo**, con plan de retest; sin hallazgos críticos».
 * **Postura consolidada de las 8 apps:** `docs/NAC_2026_GGPD_REPORTE_SEGURIDAD_8_APLICACIONES_V01.md`.
 * **Instructivos operativos:** `NAC_2026_GGPD_INS_OPERATIVO_SIGAD_V01.md` y `NAC_2026_GGPD_INS_OPERATIVO_SIGA_SEN_V01.md` (incluyen rutas de acceso a la nube).
 * **Acceso real de la plataforma (producción):**

@@ -127,6 +127,7 @@ Este documento reemplaza y actualiza la **Versión V01** (10 de Agosto de 2026):
 | Documento | Propósito |
 | :--- | :--- |
 | `NAC_2026_GGPD_REPORTE_SEGURIDAD_SIGAD_SIGASEN_V01.md` | Reporte técnico de blindaje (ATIT) — prioridad nacional |
+| `NAC_2026_GGPD_PENTEST_SIGAD_SIGASEN_V01.md` | Prueba de penetración ejecutada (12-10-2026) — hallazgos H-PT-01…05, retest 2026-12 |
 | `NAC_2026_GGPD_REPORTE_SEGURIDAD_8_APLICACIONES_V01.md` | Postura de seguridad consolidada de las 8 apps |
 | `NAC_2026_GGPD_GUIA_SEGURIDAD_DECISORES_V01.md` | Guía pedagógica para decisores (no técnicos) |
 | `NAC_2026_GGPD_INS_OPERATIVO_SIGAD_V01.md` · `..._SIGA_SEN_V01.md` | Instructivos operativos con rutas de acceso |

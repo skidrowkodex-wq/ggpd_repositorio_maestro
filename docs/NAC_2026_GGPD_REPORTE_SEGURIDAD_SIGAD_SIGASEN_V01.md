@@ -54,7 +54,7 @@ El propósito es entregar a **ATIT Corporativo** y a la **Auditoría Interna** u
 3. Declare con **honestidad los riesgos residuales** y la **hoja de ruta** de aseguramiento continuo.
 4. Proponga un **protocolo de prueba de penetración (pentest) independiente** como siguiente fase formal, ante cualquier requerimiento institucional de evidencia ofensiva.
 
-> ⚠️ **Declaración de integridad:** en esta fase **no se han ejecutado pruebas ofensivas** (inyección, fuzzing, bypass, fuerza bruta) por regla corporativa de **cero pruebas ofensivas** sobre sistemas desplegados. Toda la evidencia contenida proviene de **auditoría estática, verificación de configuración, pruebas funcionales de autenticación y comprobaciones de permisos read-only**. Si ATIT requiere un pentest completo, se ejecutará bajo el **protocolo formal propuesto** en la Sección 9, con alcance, reglas de enfrentamiento y autorización previa.
+> ⚠️ **Declaración de integridad:** la matriz P1–P11 de este reporte documenta el **endurecimiento defensivo** (auditoría estática, configuración, pruebas funcionales de autenticación y comprobaciones read-only). Las **pruebas ofensivas** fueron solicitadas y autorizadas por la GGPD e **ejecutadas el 12-10-2026** bajo reglas de enfrentamiento no destructivas; sus hallazgos y veredictos se documentan por separado en **`NAC_2026_GGPD_PENTEST_SIGAD_SIGASEN_V01.md`** (código `GGPD-SGM-PENT-001`). Este reporte **no fabrica** evidencia: toda la contenida es real y reproducible.
 
 ---
 
@@ -117,7 +117,7 @@ El propósito es entregar a **ATIT Corporativo** y a la **Auditoría Interna** u
   * `default-src 'self'` · `script-src 'self'` · `object-src 'none'` · `frame-src 'none'` (bloquea iframes/scripts externos maliciosos).
   * `connect-src` limitado al origen InsForge + puente local.
   * `style-src` con Google Fonts; `referrer-policy` reforzada.
-  * **Nota de honestidad:** `frame-ancestors` / `X-Frame-Options` requieren **cabecera HTTP** a nivel de hosting (no válidos en `<meta>`); su habilitación queda registrada en la hoja de ruta.
+  * **Nota de honestidad (actualizada 12-10-2026):** `frame-ancestors` / `X-Frame-Options` requieren **cabecera HTTP** (no válidos en `<meta>`) — **verificadas presentes a nivel hosting** (Cloudflare) en el pentest: `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`, HSTS (1 año) y CSP header. El `frame-ancestors` del header admite `dock.gntc.com` (consola VibeHost) — pendiente validar necesidad.
 * **Endurecimiento del puente local de contingencia** (`scripts/local_pg_bridge.py`): CORS restringido a `localhost|127.0.0.1|::1`, validación obligatoria de `apikey`/`Authorization: Bearer`, `rawsql` deshabilitado por defecto (y de solo lectura si se habilita), whitelist de RPC (`verificar_credencial_sistema`).
 * **Higiene de código:** sin `eval`, sin `innerHTML`, sin `dangerouslySetInnerHTML`, sin concatenación SQL en cliente; `npm audit` = **0 vulnerabilidades** en el momento de la verificación.
 
@@ -145,7 +145,7 @@ El propósito es entregar a **ATIT Corporativo** y a la **Auditoría Interna** u
 | P10 | Auditoría de dependencias | Estática | `npm audit` | **PASA** — 0 vulnerabilidades | Reporte npm |
 | P11 | Higiene de código (XSS por DOM) | Estática | Escaneo de patrones | **PASA** — sin `eval`/`innerHTML`/`dangerouslySetInnerHTML` | Revisión de código |
 
-> **Interpretación honesta:** P1–P11 demuestran endurecimiento defensivo y funcionamiento correcto de los controles. **No constituyen un pentest** (no hay inyección, fuzzing ni bypass ejecutado). Para evidencia ofensiva formal, véase el protocolo en la Sección 9.
+> **Interpretación honesta:** P1–P11 demuestran endurecimiento defensivo y funcionamiento correcto de los controles. **El ciclo ofensivo (pentest) fue ejecutado el 12-10-2026** bajo autorización y RoE no destructivas: véase **`NAC_2026_GGPD_PENTEST_SIGAD_SIGASEN_V01.md`**. La Sección 9 conserva el protocolo estándar para **extender** el pentest (otras apps, cuentas desechables, retest).
 
 ---
 
@@ -169,7 +169,7 @@ El propósito es entregar a **ATIT Corporativo** y a la **Auditoría Interna** u
 1. **Autenticación de sesión aún de cliente (R1, MEDIO):** la autorización entre app-desplegada y backend usa la clave pública compartida; no se emite aún un **JWT de plataforma (InsForge Auth) por sesión** con políticas RLS por *claim* de usuario. Remediable con `auth.users` + emisión de token por sesión (trabajo futuro — ver Sección 9).
 2. **Pentest independiente no ejecutado (R2, MEDIO-PLANIFICADO):** pendiente de autorización y protocolo formal (Sección 9). No hay evidencia ofensiva fabricada.
 3. **Tokens PAT de GitHub expuestos en registros (R3, ALTO):** durante inspección de `.env.local`, una máscara falló y los PAT quedaron visibles en un registro de sesión. **Acción recomendada:** revocar y regenerar con scope `repo`, actualizar `.env.local`.
-4. **Cabeceras HTTP anti-embebido (R4, BAJO):** `frame-ancestors`/`X-Frame-Options` requieren configuración a nivel VibeHost (no cubiertas por CSP `<meta>`).
+4. **Cabeceras HTTP anti-embebido (R4, RESUELTO 12-10-2026):** verificadas presentes a nivel hosting (Cloudflare) durante el pentest: `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`, HSTS y CSP header. Pendiente menor: validar si `frame-ancestors` debe conservar los orígenes `dock.gntc.com` de la consola VibeHost.
 5. **Dependencia del proveedor cloud (R5, EXTERNO):** disponibilidad y cifrado dependen de la infraestructura contratada (VibeHost) y de InsForge (back-end serverless). Gestión de incidentes según contrato.
 6. **SCTIS backend Python (R6, EXTERNO):** si el backend Python de SCTIS corre fuera de VibeHost, debe apuntar a la clave nueva **antes del 2026-10-15T22:01Z** (ver reporte de las 8 apps).
 
@@ -183,9 +183,9 @@ El propósito es entregar a **ATIT Corporativo** y a la **Auditoría Interna** u
 3. **Rotación de PAT GitHub (R3):** revocar y regenerar; limpiar `opencode.json`.
 4. **Monitoreo continuo:** revisión de logs de acceso en InsForge y alertas de eventos (COBIT MEA02) mediante triggers.
 
-### 9.2. Protocolo propuesto de Pentest Independiente (entregable ante ATIT)
+### 9.2. Protocolo de Pentest Independiente (estado: PRIMER CICLO EJECUTADO — 12-10-2026)
 
-> Conforme a la postura institucional de **cero pruebas ofensivas** sobre sistemas desplegados sin autorización, se propone este protocolo formal. **Ningún hallazgo de pruebas ofensivas figura en este reporte.**
+> El **primer ciclo de pentest fue ejecutado y autorizado por la GGPD** el 12-10-2026 (no destructivo, vector externo). Hallazgos y veredictos en **`NAC_2026_GGPD_PENTEST_SIGAD_SIGASEN_V01.md`** (H-PT-01…H-PT-05, CVSS v3.1, plan de retest). El protocolo estándar siguiente rige para **extender** el alcance (otras 6 apps, cuentas desechables para bloqueo, retests):
 
 | Parámetro | Propuesta |
 | :--- | :--- |
