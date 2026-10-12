@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './lib/authContext';
 import { ThemeProvider } from './lib/themeContext';
 import { LoginForm } from './components/LoginForm';
@@ -9,6 +9,7 @@ import { CentralesGeneracionView } from './components/CentralesGeneracionView';
 import { BalanceSenView } from './components/BalanceSenView';
 import { AtlasUnifilarCndView } from './components/AtlasUnifilarCndView';
 import { UnifilarActivoSenView } from './components/UnifilarActivoSenView';
+import { sigaSenService } from './services/sigaSenService';
 import { CheckCircle2 } from 'lucide-react';
 
 function SigaSenDashboard() {
@@ -16,6 +17,15 @@ function SigaSenDashboard() {
   const [activeTab, setActiveTab] = useState<SigaSenTab>('activos');
   const [selectedCodigoSubestacion, setSelectedCodigoSubestacion] = useState<string>('CND-EL-CONVENTO');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [, setDbVersion] = useState<number>(0);
+
+  useEffect(() => {
+    const unsub = sigaSenService.subscribe(() => {
+      setDbVersion((v) => v + 1);
+    });
+    sigaSenService.syncFromInsforge();
+    return () => unsub();
+  }, []);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);

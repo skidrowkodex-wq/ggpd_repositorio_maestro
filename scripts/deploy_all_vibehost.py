@@ -2,16 +2,22 @@
 """
 ⚡ Deploy All Refactored Apps to VibeHost
 """
-import subprocess
-from deploy_vibehost_app import deploy_app
+from deploy_vibehost_app import deploy_app, APPS_MAP, _resolve_dist
 
+# (nombre, app_id, ruta absoluta del dist, mensaje)
+# Fuente única de verdad: reutiliza el registro de deploy_vibehost_app.APPS_MAP
 APPS = [
-    ("corpoelec-scppe", "c947eg8pgpux8vffy0bjt7ms", "/home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCPPE-REF/dist", "Actualización SCPPE con Árbol Organizacional e InsForge"),
-    ("corpoelec-scgcc", "hrxha775a7btx7k1r3t3p2g2", "/home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCGCC-REF/dist", "Actualización SCGCC V1.0 InsForge Grado Industrial"),
-    ("corpoelec-scmtp", "xon0wv9a3s45vomgd22w8kp3", "/home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCMTP-REF/dist", "Actualización SCMTP V2.0 InsForge Grado Industrial"),
-    ("corpoelec-sigi", "a53r8tvlvt9ihw09maca8a2g", "/home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SIGI-REF/dist", "Actualización SIGI InsForge Grado Industrial"),
-    ("corpoelec-scein", "pqb1ryl1s59ner372rbmf559", "/home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCEIN-REF/dist", "Actualización SCEIN V3.0 InsForge Grado Industrial"),
-    ("corpoelec-sctis", "yq94rtmw5enw9bual08l0p3u", "/home/skidrowkodex/Documentos/Repositorio_Maestro/apps-refactorizadas/SCTIS-REF/dist", "Actualización SCTIS V2.0 InsForge Grado Industrial"),
+    (name, app_id, _resolve_dist(rel_path), msg)
+    for name, app_id, rel_path, msg in (
+        APPS_MAP["scppe"],
+        APPS_MAP["scgcc"],
+        APPS_MAP["scmtp"],
+        APPS_MAP["sigi"],
+        APPS_MAP["scein"],
+        APPS_MAP["sctis"],
+        APPS_MAP["sigad"],
+        APPS_MAP["siga-sen"],
+    )
 ]
 
 def main():

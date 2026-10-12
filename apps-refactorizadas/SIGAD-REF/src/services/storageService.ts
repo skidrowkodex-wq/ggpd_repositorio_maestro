@@ -245,18 +245,120 @@ export const storageService = {
         codigo_norma: comp.codigo_norma,
       });
       localStorage.setItem(EVENTS_STORAGE_KEY, JSON.stringify(logs.slice(0, 100)));
+
+      // Persistencia en esquema sigad.eventos_historial de InsForge
+      if (insforgeClient.apiKey) {
+        insforgeClient.insert('eventos_historial', [{
+          id: evt.id,
+          se_codigo: seCode,
+          componente_id: comp.id,
+          componente_nombre: comp.nombre_equipo,
+          codigo_norma: comp.codigo_norma,
+          tipo_evento: evt.tipo_evento,
+          causa: evt.causa,
+          descripcion: evt.descripcion,
+          registrado_por: evt.registrado_por,
+          es_reemplazo_nuevo: evt.es_reemplazo_nuevo || false,
+          serial_anterior: evt.serial_anterior || null,
+          serial_nuevo: evt.serial_nuevo || null,
+          capacidad_nueva_mva: evt.capacidad_nueva_mva || null,
+          sincronizado_scein: true,
+          fecha_evento: evt.fecha_evento || new Date().toISOString(),
+        }], 'sigad').catch(e => console.warn('SIGAD: Error registrando evento en InsForge:', e));
+      }
     } catch (e) {
       console.warn('Error guardando log global:', e);
     }
   },
 
+  async loadFromInsforge(seCode: string): Promise<SubestacionEstructura | null> {
+    if (!insforgeClient.apiKey) return null;
+    try {
+      const res = await insforgeClient.select<any>('estructuras_subestaciones', {
+        schema: 'sigad',
+        filter: { se_codigo: seCode },
+        limit: 1,
+      });
+      if (res.data && res.data.length > 0 && res.data[0].datos_estructura) {
+        const est = res.data[0].datos_estructura as SubestacionEstructura;
+        localStorage.setItem(`${STORAGE_PREFIX}${seCode}`, JSON.stringify(est));
+        return est;
+      }
+    } catch (e) {
+      console.warn('Error cargando estructura desde InsForge:', e);
+    }
+    return null;
+  },
+
   async syncInsforgeAsync(estructura: SubestacionEstructura) {
-    // Si la tabla sigad.estructuras_subestaciones existiese, guarda un snapshot JSONB
     if (!insforgeClient.apiKey) return;
-    await insforgeClient.insert('estructuras_subestaciones', [{
-      se_codigo: estructura.se_codigo,
-      datos_estructura: estructura,
-      actualizado_en: estructura.ultima_actualizacion
-    }], 'sigad');
+    try {
+      const totalBahias = estructura.bahias.length;
+      const totalComponentes = estructura.bahias.reduce((acc, b) => acc + b.componentes.length, 0);
+      const totalIndisponibles = estructura.bahias.reduce(
+        (acc, b) => acc + b.componentes.filter((c) => c.estado_operativo !== 'EN_SERVICIO').length,
+        0
+      );
+
+      const payload = {
+        se_codigo: estructura.se_codigo,
+        datos_estructura: estructura,
+        total_bahias: totalBahias,
+        total_componentes: totalComponentes,
+        total_indisponibles: totalIndisponibles,
+        actualizado_en: estructura.ultima_actualizacion || new Date().toISOString(),
+      };
+
+      // Verificar si ya existe en sigad.estructuras_subestaciones
+      const existing = await insforgeClient.select('estructuras_subestaciones', {
+        schema: 'sigad',
+        filter: { se_codigo: estructura.se_codigo },
+        limit: 1,
+      });
+
+      if (existing.data && existing.data.length > 0) {
+        await insforgeClient.patch('estructuras_subestaciones', 'se_codigo', estructura.se_codigo, payload, 'sigad');
+      } else {
+        await insforgeClient.insert('estructuras_subestaciones', [payload], 'sigad');
+      }
+
+      // Sincronizar componentes de patio individuales en sigad.componentes_patio
+      const compsParaInsertar: any[] = [];
+      estructura.bahias.forEach((b) => {
+        b.componentes.forEach((c) => {
+          compsParaInsertar.push({
+            id: c.id,
+            se_codigo: estructura.se_codigo,
+            bahia_id: b.id,
+            circuito_codigo: c.circuito_codigo || null,
+            codigo_norma: c.codigo_norma,
+            nombre_equipo: c.nombre_equipo,
+            tipo_elemento: c.tipo_elemento,
+            estado_operativo: c.estado_operativo,
+            tension_kv: c.tension_kv || null,
+            capacidad_mva: c.capacidad_mva || null,
+            fabricante: c.fabricante || null,
+            modelo: c.modelo || null,
+            serial: c.serial || null,
+            anio_instalacion: c.anio_instalacion || null,
+            nivel_aceite: c.nivel_aceite || 'N/A',
+            tecnologia_corte: c.tecnologia_corte || 'N/A',
+            presion_sf6_bar: c.presion_sf6_bar || null,
+            alarma_activa: c.alarma_activa || false,
+            observaciones: c.observaciones || null,
+            actualizado_en: new Date().toISOString(),
+          });
+        });
+      });
+
+      if (compsParaInsertar.length > 0) {
+        for (let i = 0; i < compsParaInsertar.length; i += 50) {
+          const chunk = compsParaInsertar.slice(i, i + 50);
+          await insforgeClient.insert('componentes_patio', chunk, 'sigad');
+        }
+      }
+    } catch (err: any) {
+      console.warn('SIGAD: Persistencia remota en InsForge:', err?.message);
+    }
   }
 };

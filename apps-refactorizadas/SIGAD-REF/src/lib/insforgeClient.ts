@@ -1,14 +1,66 @@
 // ==============================================================================
-// ⚡ CORPOELEC - SIGAD: Cliente InsForge PostgreSQL / REST API & Fallback Local
+// ⚡ CORPOELEC - SIGAD: Cliente de datos con BACKEND DUAL (InsForge ⇄ LocalPG)
+// ------------------------------------------------------------------------------
+// · Ejecutado en localhost        -> Puente REST local (PostgreSQL 18, offline)
+// · Desplegado en VibeHost/nube   -> InsForge Cloud (ggpd-data-maestra-0002)
+//
+// La selección se hace en TIEMPO DE EJECUCIÓN según el hostname, por lo que el
+// mismo build sirve para ambos entornos sin recompilar. Se puede forzar con la
+// variable VITE_DATA_BACKEND=local|insforge.
 // ==============================================================================
 
-const INSFORGE_URL = (import.meta as any).env?.VITE_INSFORGE_URL 
-  || (import.meta as any).env?.INSFORGE_URL 
-  || 'https://wxkeqf37.ap-southeast.insforge.app';
+const ENV = (import.meta as any).env || {};
 
-const INSFORGE_API_KEY = (import.meta as any).env?.VITE_INSFORGE_API_KEY 
-  || (import.meta as any).env?.INSFORGE_API_KEY 
-  || '';
+const CLOUD_URL = String(
+  ENV.VITE_INSFORGE_URL || ENV.INSFORGE_URL || 'https://wxkeqf37.ap-southeast.insforge.app'
+).replace(/\/+$/, '');
+
+const CLOUD_KEY = String(ENV.VITE_INSFORGE_API_KEY || ENV.INSFORGE_API_KEY || '');
+
+const LOCAL_URL = String(
+  ENV.VITE_LOCAL_API_URL || ENV.LOCAL_API_URL || 'http://127.0.0.1:5431'
+).replace(/\/+$/, '');
+
+const LOCAL_KEY = String(ENV.VITE_LOCAL_API_KEY || 'local-bridge');
+
+const FORCED_BACKEND = String(ENV.VITE_DATA_BACKEND || '').trim().toLowerCase();
+
+export type DataBackendMode = 'insforge' | 'local';
+
+function isLocalHost(hostname: string): boolean {
+  const h = (hostname || '').toLowerCase();
+  return (
+    h === 'localhost' ||
+    h === '127.0.0.1' ||
+    h === '::1' ||
+    h === '0.0.0.0' ||
+    h.endsWith('.localhost') ||
+    h.endsWith('.local')
+  );
+}
+
+function resolveBackend(): { mode: DataBackendMode; url: string; apiKey: string } {
+  if (FORCED_BACKEND === 'local') {
+    return { mode: 'local', url: LOCAL_URL, apiKey: LOCAL_KEY };
+  }
+  if (FORCED_BACKEND === 'insforge' || FORCED_BACKEND === 'cloud') {
+    return { mode: 'insforge', url: CLOUD_URL, apiKey: CLOUD_KEY };
+  }
+
+  const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+  return isLocalHost(hostname)
+    ? { mode: 'local', url: LOCAL_URL, apiKey: LOCAL_KEY }
+    : { mode: 'insforge', url: CLOUD_URL, apiKey: CLOUD_KEY };
+}
+
+const backend = resolveBackend();
+
+/** Información del backend activo (para badges/estado en la UI). */
+export const dataBackend = {
+  mode: backend.mode,
+  label: backend.mode === 'local' ? 'PostgreSQL Local · Offline' : 'InsForge Cloud · SEN 2026',
+  url: backend.url,
+} as const;
 
 export interface QueryOptions {
   schema?: string;
@@ -19,20 +71,25 @@ export interface QueryOptions {
 }
 
 export const insforgeClient = {
-  url: INSFORGE_URL,
-  apiKey: INSFORGE_API_KEY,
+  url: backend.url,
+  apiKey: backend.apiKey,
+  mode: backend.mode,
 
   getHeaders: () => ({
-    'apikey': INSFORGE_API_KEY,
-    'Authorization': `Bearer ${INSFORGE_API_KEY}`,
+    apikey: backend.apiKey,
+    Authorization: `Bearer ${backend.apiKey}`,
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
+    Accept: 'application/json',
   }),
 
   async select<T = any>(table: string, options: QueryOptions = {}): Promise<{ data: T[]; error: any | null }> {
     const schema = options.schema || 'core';
     const limit = options.limit || 5000;
-    let url = `${INSFORGE_URL.replace(/\/+$/, '')}/api/database/records/${table}?schema=${schema}&limit=${limit}`;
+    let url = `${backend.url}/api/database/records/${table}?schema=${schema}&limit=${limit}`;
+
+    if (options.offset) {
+      url += `&offset=${options.offset}`;
+    }
 
     if (options.order) {
       url += `&order=${encodeURIComponent(options.order)}`;
@@ -61,7 +118,7 @@ export const insforgeClient = {
 
   async insert<T = any>(table: string, records: any | any[], schema: string = 'sigad'): Promise<{ data: T | null; error: any | null }> {
     const arr = Array.isArray(records) ? records : [records];
-    const url = `${INSFORGE_URL.replace(/\/+$/, '')}/api/database/records/${table}?schema=${schema}`;
+    const url = `${backend.url}/api/database/records/${table}?schema=${schema}`;
 
     try {
       const res = await fetch(url, {
@@ -81,7 +138,7 @@ export const insforgeClient = {
   },
 
   async patch<T = any>(table: string, filterKey: string, filterVal: string, payload: any, schema: string = 'sigad'): Promise<{ data: T | null; error: any | null }> {
-    const url = `${INSFORGE_URL.replace(/\/+$/, '')}/api/database/records/${table}?schema=${schema}&${filterKey}=eq.${encodeURIComponent(filterVal)}`;
+    const url = `${backend.url}/api/database/records/${table}?schema=${schema}&${filterKey}=eq.${encodeURIComponent(filterVal)}`;
 
     try {
       const res = await fetch(url, {
@@ -97,5 +154,5 @@ export const insforgeClient = {
     } catch (err) {
       return { data: null, error: err };
     }
-  }
+  },
 };

@@ -3,6 +3,42 @@
 ---
 
 ## 📌 1. Registro de Última Actualización
+- **Fecha y Hora:** 2026-10-12 (VET / UTC-4) — **🔀 ARQUITECTURA DE BACKEND DUAL (InsForge Cloud ⇄ PostgreSQL 18 LOCAL OFFLINE) PARA SIGAD Y SIGA-SEN + REDESPLIEGUE EN VIBEHOST.**
+  - **Requerimiento Atendido y Resuelto:** A solicitud del usuario (*"las apps que subamos a VibeHost se conectarán a la BD InsForge; las apps que se encuentran corriendo localmente quedarán conectadas a localhost PostgreSQL… si no tengo internet corran en la BD PostgreSQL local, y si las ejecuto desde VibeHost pues se conecten a InsForge"*), se implementó **conmutación automática de backend por hostname** en ambas aplicaciones. El **mismo build** sirve para los dos entornos y la BD se elige en **tiempo de ejecución**, sin recompilar.
+  - **Hallazgo Arquitectónico Clave:** un SPA en el navegador **no puede abrir una conexión TCP directa a PostgreSQL**; requiere un puente HTTP. Se aprobó la opción **"Puente REST local compatible con InsForge"** (stdlib de Python + `psql`, cero dependencias, 100% offline).
+  - **Perímetro Aprobado:** solo SIGAD + SIGA-SEN; aprovisionar `sigad_sen` local con paridad 1:1 respecto a InsForge.
+  - **Componentes Nuevos:**
+    1. `scripts/local_pg_common.py` — utilidades comunes: carga de `.env`/`.env.local`, autodetección de `psql.exe`, ejecución SQL **por stdin** (evita el límite de línea de comandos de Windows en payloads grandes), validación de identificadores, `sql_literal` y `dollar_tag` seguro-inyección, y reconfiguración UTF-8 de stdout/stderr (consola cp1252).
+    2. `scripts/local_pg_bridge.py` — **puente REST local** (`127.0.0.1:5431`, solo loopback) que emula el protocolo de InsForge sobre PostgreSQL local: `GET/POST/PATCH/DELETE /api/database/records/{tabla}?schema=…`, `POST /api/database/advance/rawsql`, `GET /health`; CORS habilitado, validación de columnas contra `information_schema`, bloqueo de PATCH/DELETE masivo sin filtro (`allow_all`), 404 en objeto inexistente, tolerancia a BOM.
+    3. `scripts/setup_local_postgres.py` — **aprovisionador con paridad 1:1** de la BD local `cnd_sen_unifilar_2025`: `core` (desde `sql_insforge_01_core_schema.sql` + `sql_insforge_02_canonical_assets.sql`), `sigad` (estructuras CADAFE/componentes/eventos), `sigad_sen` (10 tablas CND desde `database/cnd_sen_unifilar_2025_pg.sql` cargadas con `CREATE SCHEMA sigad_sen` + `search_path` **aislado** para NO tocar las tablas homónimas de `public`) + columna `codigo` (slug `CND-*`) + índice + las 4 vistas + `sigad.v_componentes_indisponibles` + `core.v_activos_sen_integrados`. Idempotente (`--only core|sigad|sigad_sen|views`, `--verify`).
+    4. `src/lib/insforgeClient.ts` (SIGAD y SIGA-SEN) — resolución de backend por hostname: `localhost/127.0.0.1/::1/0.0.0.0/*.local` → **puente local**; cualquier otro host → **InsForge Cloud**. Override con `VITE_DATA_BACKEND=local|insforge`. Exporta `dataBackend` (modo + etiqueta + url) para badges de UI.
+    5. `.env.example` versionado en ambas apps + variables `VITE_LOCAL_API_URL`, `VITE_LOCAL_API_KEY`, `VITE_DATA_BACKEND` añadidas a los `.env` (que están en `.gitignore`, nunca se commitean claves).
+  - **Resolución de Defectos de Datos Canónicos:** `sql_insforge_02_canonical_assets.sql` (7 MB) contenía **186 filas** con valores de tensión corruptos (p. ej. `'TRES PICOS 115/13,8 KV'`, `'12,47 y 8,3'`, `'30/4,8'`) que impedían insertar 13 S/E y 167 circuitos. El aprovisionador hace una **1ª pasada tolerante** (detecta los literales numéricos inválidos), los **neutraliza a `NULL`** (tensión desconocida; NO se pierde la entidad) y ejecuta una **2ª pasada definitiva**, alcanzando paridad exacta.
+  - **Base de Datos Local Aprovisionada (certificado por `setup_local_postgres.py --verify`):**
+    - `core.mae_subestaciones` = **871** · `core.mae_circuitos` = **4207** · `core.v_activos_sen_integrados` = **871**.
+    - `sigad_sen.cnd_subestaciones` = **532** (= InsForge) · `v_subestaciones_detalle` = 532 · `v_lineas_transmision` = 2506 · `v_estadisticas_nacionales` = 1.
+    - Prueba del slug canónico: `codigo = CND-EL-CONVENTO` resuelve.
+    - DSN local: `fullstack001@127.0.0.1:5432/cnd_sen_unifilar_2025` (credenciales leídas de `.env`/`.env.local`, **nunca hardcodeadas**).
+  - **Verificación Funcional Completa del Puente:** `GET` (vistas/tablas/filtros `eq.`), `OPTIONS` CORS (204), `POST` (respeta defaults UUID/`DEFAULT`, devuelve filas insertadas), `PATCH` (con `UPDATE … FROM`; se corrigió el error de **columna ambigua `se_codigo`** calificando el `WHERE` con el alias `t.`), `DELETE`, `rawsql`, round-trip UTF-8 con acentos (`S/E PRUEBA ÑANDÚ`, `BRIDGE_TEST_ÁÉÍ`), bloqueo de PATCH masivo (400) y 404 en tabla inexistente.
+  - **Verificación de Backend Dual en Navegador (mismo código, distinto host → distinta BD):**
+    - `localhost:3008` (SIGA-SEN) y `localhost:3007` (SIGAD): **100% de llamadas a `http://127.0.0.1:5431`** (cero a InsForge). Datos reales desde PostgreSQL local (p. ej. `SE-ZUL-0778 · 19 DE ABRIL · ZUL · CABIMAS`).
+    - `https://corpoelec-siga-sen-…vibehost.space` y `https://corpoelec-sigad-…vibehost.space`: **100% de llamadas a `https://wxkeqf37.ap-southeast.insforge.app`** (cero al puente local).
+  - **Redespliegue en VibeHost (mismo build dual):**
+    - `corpoelec-sigad` (id `cs8p93iobf180xhva11c50bv`) → https://corpoelec-sigad-corpoelec-ggpd-hosting-apps.vibehost.space — **HEALTHY** (deployment `zx8q5wa7bims5eoif0lv2hrn`).
+    - `corpoelec-siga-sen` (id `llq2cjhgi5a5kibi91nbjsm2`) → https://corpoelec-siga-sen-corpoelec-ggpd-hosting-apps.vibehost.space — **HEALTHY** (deployment `qojz8ycxkliuxjm0nztv562j`).
+  - **Corrección del Deployer:** `scripts/deploy_vibehost_app.py` ahora acepta HTTP **201** del `deploy-manifest` (VibeHost responde `201 Created` y con estado `healthy`), antes lo trataba como error.
+  - **Certificación de Compilación:** `SIGA-SEN-REF` (1601 módulos) y `SIGAD-REF` (1609 módulos) con `tsc && vite build` exitoso.
+  - **Operación en Local (sin internet):** 1) `python scripts/setup_local_postgres.py` (una sola vez); 2) `python scripts/local_pg_bridge.py` (puente en `:5431`); 3) `npm.cmd run dev` en cada app → se conectan solas al puente local.
+  - **Nota de migración previa incluida en este cambio:** el esquema `sigad_sen` fue creado/poblado en InsForge con la columna canónica `codigo` (slug `CND-*`, índice **no único** por los 2 duplicados preexistentes `CND-PPC` y `CND-COLOMBIA`), y `scripts/deploy_insforge_activos_federados.py` quedó idempotente (backfill + 4 vistas + vistas federadas + GRANTs).
+  - **Siguiente paso sugerido:** Extender el mismo patrón de backend dual a las 6 apps restantes (SIGI, SCTIS, SCMTP, SCPPE, SCEIN, SCGCC) cuando se requiera operación offline.
+
+- **Fecha y Hora:** 2026-10-09 (VET / UTC-4) — **🚀 INICIO OPERATIVO DE SERVIDORES DE DESARROLLO SIGAD (Puerto 3007) Y SIGA-SEN (Puerto 3008).**
+  - **Requerimiento Atendido y Resuelto:** A solicitud del usuario (*"Levanata siga-sen y sigad por favpr"*), se iniciaron ambos servidores en segundo plano utilizando `npm.cmd run dev` para sortear la directiva de PowerShell en Windows.
+  - **Estado de los Servicios:**
+    - **SIGAD-REF:** En línea en `http://localhost:3007/` (HTTP 200). Tarea en segundo plano `task-21`.
+    - **SIGA-SEN-REF:** En línea en `http://localhost:3008/` (HTTP 200). Tarea en segundo plano `task-23`.
+  - **Siguiente paso sugerido:** Continuar con la interacción y pruebas operativas en los navegadores locales o tareas pendientes de los módulos.
+
 - **Fecha y Hora:** 2026-10-09 (VET / UTC-4) — **🎨 RESTITUCIÓN INTEGRAL DE FORMATO, BORDES, MÁRGENES Y CONTENEDORES DE GRADO INDUSTRIAL EN SIGA-SEN (Puerto 3008) Y SIGAD (Puerto 3007).**
   - **Requerimiento Atendido y Resuelto:** A solicitud del usuario (*"Perfecto, pero se perdio los espacios y formato, esta todo como muy en bruto, sin bordes, puedes revisar eso, los contenedores, algo se desajusto, los margenes"*), se diagnosticó y resolvió de raíz la pérdida de bordes, márgenes colapsados y elementos desajustados.
   - **Causa Raíz Diagnosticada (Hallazgo Crítico de Especificación CSS @layer):**

@@ -49,8 +49,17 @@ function SigadDashboard() {
   const [compToInspect, setCompToInspect] = useState<ComponentePatio | null>(null);
   const [isRegenerateModalOpen, setIsRegenerateModalOpen] = useState<boolean>(false);
 
-  // Toast / Mensajes de Éxito
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [, setCatalogVersion] = useState<number>(0);
+
+  // Suscribirse a sincronización de catálogos desde InsForge core
+  useEffect(() => {
+    const unsub = catalogService.subscribe(() => {
+      setCatalogVersion((v) => v + 1);
+    });
+    catalogService.syncFromInsforge();
+    return () => unsub();
+  }, []);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -69,11 +78,18 @@ function SigadDashboard() {
     }
   }, [selectedSe]);
 
-  // Cargar estructura cuando cambia la S/E
+  // Cargar estructura cuando cambia la S/E (local + InsForge)
   useEffect(() => {
     if (selectedSe) {
       const data = storageService.getEstructura(selectedSe.codigo);
-      setEstructura(data);
+      if (data) {
+        setEstructura(data);
+      } else {
+        storageService.loadFromInsforge(selectedSe.codigo).then((dbData) => {
+          if (dbData) setEstructura(dbData);
+          else setEstructura(null);
+        });
+      }
     } else {
       setEstructura(null);
     }
