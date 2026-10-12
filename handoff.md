@@ -3,6 +3,16 @@
 ---
 
 ## 📌 1. Registro de Última Actualización
+- **Fecha y Hora:** 2026-10-12 (VET / UTC-4, sesión posterior) — **👥 ALTA DE DOS INGENIEROS GERENTES DE GESTIÓN DE PLANIFICACIÓN DE DISTRIBUCIÓN CON PERFIL ADMINISTRATIVO EN EL IAM CENTRAL (InsForge `ggpd-data-maestra-0002`).**
+  - **Usuarios creados/actualizados en la nube** (`core.mae_usuarios_sistema`), ambos **ADMINISTRADOR · ACTIVO · acceso a las 8 apps (permisos todos TRUE)**:
+    1. **Carlos Reyes** → `carlos.reyes` (**creado nuevo**): `Ing. Carlos Reyes` · `c.reyes@corpoelec.gob.ve` · `carlos.reyes.ggpd@gmail.com` · cargo "Gerente de Gestión de Planificación de Distribución".
+    2. **Adrián Correa** → `adrian.correa` (**existía con rol `GERENCIA`; **actualizado a `ADMINISTRADOR`**): `Ing. Adrián Correa` · `a.correa@corpoelec.gob.ve` · cargo actualizado.
+  - **Contraseñas iniciales (convención GGPD, estilo `Cipiran2026!.`):** `Reyes2026!.` y `Correa2026!.` — **hashes bcrypt generados en el servidor** con pgcrypto (`crypt(..., gen_salt('bf',10))`), nunca en texto plano en archivos versionables.
+  - **Migración aplicada a la nube:** `migrations/20261012224159_iam-gerentes-distribucion-reyes-correa.sql` (vía `db migrations up --to ...`; el `db query` rechaza escrituras por seguridad — solo SELECT). Nota: el runner de migraciones **no permite `BEGIN/COMMIT`** (se eliminó del archivo).
+  - **Verificación funcional (login real por RPC `verificar_credencial_sistema`):** **4/4 success=true** — `carlos.reyes` y `adrian.correa` en **SIGI** y **SIGAD** (rol `ADMINISTRADOR` en ambas). Consulta de datos confirmada sin exponer hashes.
+  - **Seed local regenerado** (modo offline): `python scripts/sync_iam_seed.py --out database/local_iam_seed.sql` → **38 usuarios** (antes 37), ambos con `ADMINISTRADOR` y 9 permisos TRUE. Archivo **NO versionado** (gitignored); aplicar con `setup_local_postgres.py --only iam`.
+  - **Siguiente paso sugerido:** comunicar a los dos Gerentes sus credenciales iniciales y solicitar el cambio de contraseña en el primer acceso; opcionalmente aplicar `setup_local_postgres.py --only iam` para el modo offline.
+
 - **Fecha y Hora:** 2026-10-12 (VET / UTC-4, cierre de sesión) — **🔄 ROTACIÓN DE LA API KEY DE INSFORGE (CIERRE DEL RIESGO RESIDUAL COMPARTIDO) + RECOMPILACIÓN/REDESPLIEGUE DE LAS 5 APPS FRONTEND.**
   - **Decisión del usuario:** *"Rotar y actualizar las 8 apps"*. Se ejecutó **`npx @insforge/cli secrets rotate api-key --grace-hours 72`** → **clave nueva activa** (`ik_985…`, 67 caracteres); la **vieja** (`ik_b34460…`) sigue válida hasta **2026-10-15T22:01:33Z** y luego queda muerta (periodo de gracia = cero caídas).
   - **Actualizados con la clave nueva (`.env`/infra, ignorados por git):** `.insforge/project.json` (campo `api_key`, verificado con `db query` OK), `.env.local` de la raíz (`INSFORGE_API_KEY`, `VITE_INSFORGE_API_KEY`), y los `.env` de **SCEIN, SCGCC, SCMTP, SCPPE, SIGI** (ambas variables) y **`SCTIS-REF/interrupciones/.env`** (backend Python, server-side). **NO** se tocó `VITE_BCI_API_KEY` (SIGI → proyecto `jd3uejbz`, aparte).
