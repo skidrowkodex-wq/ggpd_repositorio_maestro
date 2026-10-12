@@ -1239,6 +1239,7 @@ Todos los microservicios y el portal central se encuentran **activos y respondie
 - [ ] **Diseño del Tablero KGI/KPI para SCPPE V3.0 (Planificación, Viáticos y Proyectos Especiales):** Extender la arquitectura de métricas RUP/WBS al módulo presupuestario y físico.
 - [ ] **Diseño del Tablero KGI/KPI para SCTIS V2.0 (Tiras de Interrupción) y SCEIN V3.0 (Equipos Indisponibles):** Conectar indicadores ENS (MWh) y criticidad de transformadores ISO 55000.
 - [ ] **Jornada de Pruebas de Calidad (QA) con Usuarios Estadales:** Validar en vivo el flujo de login con las 25 cuentas territoriales en las 6 aplicaciones.
+- [ ] **[SUGERIDO — NO ORDENADO] Extender el patrón de BACKEND DUAL (InsForge Cloud ⇄ PostgreSQL local offline) a las 6 aplicaciones restantes:** Replicar en SIGI, SCTIS, SCMTP, SCPPE, SCEIN y SCGCC lo ya implementado y certificado en SIGAD y SIGA-SEN (resolución de backend por hostname en `insforgeClient.ts`, variables `VITE_LOCAL_*`/`VITE_DATA_BACKEND`, y aprovisionamiento local de sus esquemas en el puente `scripts/local_pg_bridge.py`). **Instrucción expresa del usuario (2026-10-12): las 6 apps se dejan COMO ESTÁN; esta extensión queda registrada como tarea para sesiones posteriores, no ejecutada.**
 
 ---
 
