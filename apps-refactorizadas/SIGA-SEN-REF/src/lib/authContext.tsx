@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import { User, UserRole } from '../types/auth';
+import { insforgeClient } from './insforgeClient';
 
 interface AuthContextType {
   user: User | null;
@@ -14,111 +15,55 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const SESSION_STORAGE_KEY = 'siga_sen_session_user';
 
-export const SIGAD_USUARIOS_PREDEFINIDOS: (User & { password: string })[] = [
-  {
-    id: 'usr-siga-000',
-    username: 'fullstack001',
-    email: 'fullstack001@corpoelec.gob.ve',
-    password: 'Lunes35.',
-    full_name: 'Ingeniero Especialista Fullstack (CND/GGPD)',
-    role: 'ADMIN_NACIONAL',
-    state_code: null,
-    is_active: true,
-  },
-  {
-    id: 'usr-sigad-001',
-    username: 'admin.ggpd',
-    email: 'admin.ggpd@corpoelec.gob.ve',
-    password: 'admin2026!.',
-    full_name: 'Administrador General GGPD',
-    role: 'ADMIN_NACIONAL',
-    state_code: null,
-    is_active: true,
-  },
-  {
-    id: 'usr-sigad-002',
-    username: 'y_cipiran',
-    email: 'y_cipiran@corpoelec.gob.ve',
-    password: 'Cipiran2026.',
-    full_name: 'Ing. Y. Cipiran',
-    role: 'ADMIN_NACIONAL',
-    state_code: null,
-    is_active: true,
-  },
-  {
-    id: 'usr-sigad-003',
-    username: 'j_jimenez',
-    email: 'j_jimenez@corpoelec.gob.ve',
-    password: 'Jimenez2026.',
-    full_name: 'Ing. J. Jiménez',
-    role: 'ADMIN_NACIONAL',
-    state_code: null,
-    is_active: true,
-  },
-  {
-    id: 'usr-sigad-004',
-    username: 'j_pacheco',
-    email: 'j_pacheco@corpoelec.gob.ve',
-    password: 'Pacheco2026.',
-    full_name: 'Ing. J. Pacheco',
-    role: 'ADMIN_NACIONAL',
-    state_code: null,
-    is_active: true,
-  },
-  {
-    id: 'usr-sigad-005',
-    username: 'e_tachira',
-    email: 'e_tachira@corpoelec.gob.ve',
-    password: 'Tachira2026.',
-    full_name: 'Analista Estatal Táchira',
-    role: 'ANALISTA_ESTATAL',
-    state_code: 'TA',
-    is_active: true,
-  },
-  {
-    id: 'usr-sigad-006',
-    username: 'a_auditor',
-    email: 'a_auditor@corpoelec.gob.ve',
-    password: 'Auditor2026.',
-    full_name: 'Auditor ISO 55000 / 27001',
-    role: 'AUDITOR',
-    state_code: null,
-    is_active: true,
-  },
-];
+// ---- IAM central ---------------------------------------------------------------
+// La autenticación se delega POR COMPLETO al servidor (RPC bcrypt). En el cliente
+// NO se almacena ninguna credencial ni se acepta identidad por URL. La sesión vive
+// en sessionStorage (se destruye al cerrar la pestaña) y se valida su forma al
+// rehidratar (ISO/IEC 27001 A.8.5 / OWASP ASVS V3).
+const APP_CODE = 'SIGA-SEN';
 
+/** Traduce el role_code del IAM central al rol de dominio de SIGA-SEN. */
+function mapRoleCodeToRole(roleCode: string | null | undefined): UserRole {
+  const rc = String(roleCode || '').toUpperCase();
+  if (rc === 'ADMINISTRADOR' || rc === 'GERENCIA') return 'ADMIN_NACIONAL';
+  if (rc === 'AUDITOR') return 'AUDITOR';
+  return 'ANALISTA_ESTATAL';
+}
+
+/** Normaliza estado_codigo (p. ej. 'TAC') a state_code; nacional si es vacío. */
+function mapStateCode(estadoCodigo: string | null | undefined): string | null {
+  const s = String(estadoCodigo || '').trim().toUpperCase();
+  return s && s !== 'NACIONAL' && s !== 'NAC' ? s : null;
+}
+
+/** Mapea la respuesta segura de la RPC al modelo de dominio de SIGA-SEN. */
+function mapIamUserToSigaSenUser(u: any): User {
+  const role = mapRoleCodeToRole(u?.role_code);
+  return {
+    id: String(u?.id ?? ''),
+    username: String(u?.username ?? ''),
+    email: String(u?.email ?? ''),
+    full_name: String(u?.full_name ?? u?.username ?? ''),
+    role,
+    state_code: role === 'ADMIN_NACIONAL' ? null : mapStateCode(u?.estado_codigo),
+    is_active: String(u?.status ?? '').toUpperCase() === 'ACTIVO',
+    last_login_at: u?.ultimo_acceso ?? new Date().toISOString(),
+  };
+}
+
+/** Rehidrata la sesión SOLO desde sessionStorage y solo si su forma es válida. */
 function getInitialUser(): User | null {
-  if (typeof window !== 'undefined') {
-    // 1. Detección SSO desde el Lanzador del Portal Maestro SIGI
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const isSso = params.get('sso') === 'true' || params.get('sso_auth') === 'true';
-      const ssoUser = params.get('user') || params.get('sso_user');
-      if (isSso && ssoUser) {
-        const found = SIGAD_USUARIOS_PREDEFINIDOS.find(
-          u => u.username.toLowerCase() === ssoUser.toLowerCase()
-        );
-        if (found) {
-          const { password: _, ...safeUser } = found;
-          localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(safeUser));
-          return safeUser;
-        }
-      }
-    } catch (e) {
-      console.warn('SIGAD: Error parseando params SSO:', e);
-    }
-
-    // 2. Sesión guardada en localStorage
-    try {
-      const saved = localStorage.getItem(SESSION_STORAGE_KEY);
-      if (saved) {
-        return JSON.parse(saved);
-      }
-    } catch (e) {
-      console.warn('SIGAD: Error recuperando sesión:', e);
-    }
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as User;
+    if (parsed && parsed.id && parsed.username && parsed.role) return parsed;
+    sessionStorage.removeItem(SESSION_STORAGE_KEY);
+    return null;
+  } catch {
+    return null;
   }
-  return null;
 }
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -126,24 +71,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState<boolean>(false);
 
   const login = async (username: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    const identifier = (username || '').trim();
+    const secret = password || '';
+    if (!identifier || !secret) {
+      return { success: false, error: 'Ingrese usuario/correo institucional y contraseña.' };
+    }
+
     setLoading(true);
     try {
-      const cleanU = (username || '').trim().toLowerCase();
-      const cleanP = (password || '').trim();
-
-      const matched = SIGAD_USUARIOS_PREDEFINIDOS.find(
-        u => (u.username.toLowerCase() === cleanU || u.email.toLowerCase() === cleanU) && u.password === cleanP
-      );
-
-      if (matched) {
-        const { password: _, ...safeUser } = matched;
-        safeUser.last_login_at = new Date().toISOString();
-        setUser(safeUser);
-        localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(safeUser));
-        return { success: true };
+      const result = await insforgeClient.autenticar(identifier, secret, APP_CODE);
+      if (!result.success || !result.user) {
+        return { success: false, error: result.error || 'Credenciales inválidas o sin permiso para SIGA-SEN.' };
       }
-
-      return { success: false, error: 'Credenciales inválidas. Verifique usuario institucional y contraseña.' };
+      const mapped = mapIamUserToSigaSenUser(result.user);
+      if (!mapped.is_active) {
+        return { success: false, error: 'La cuenta no está ACTIVA. Contacte al Administrador GGPD.' };
+      }
+      setUser(mapped);
+      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(mapped));
+      return { success: true };
     } finally {
       setLoading(false);
     }
@@ -151,10 +97,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     setUser(null);
-    localStorage.removeItem(SESSION_STORAGE_KEY);
+    try {
+      sessionStorage.removeItem(SESSION_STORAGE_KEY);
+    } catch {
+      /* ignore */
+    }
     if (typeof window !== 'undefined') {
       const url = new URL(window.location.href);
-      ['sso', 'sso_auth', 'user', 'sso_user', 'role', 'state'].forEach(p => url.searchParams.delete(p));
+      ['sso', 'sso_auth', 'user', 'sso_user', 'role', 'state'].forEach((p) => url.searchParams.delete(p));
       window.history.replaceState({}, '', url.pathname);
     }
   };

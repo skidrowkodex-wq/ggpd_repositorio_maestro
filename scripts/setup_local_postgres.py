@@ -49,6 +49,8 @@ from local_pg_common import (
 CND_DUMP = REPO_ROOT / "database" / "cnd_sen_unifilar_2025_pg.sql"
 CORE_SCHEMA_SQL = REPO_ROOT / "sql_insforge_01_core_schema.sql"
 CORE_ASSETS_SQL = REPO_ROOT / "sql_insforge_02_canonical_assets.sql"
+IAM_DDL = REPO_ROOT / "sql_insforge_03_iam_core.sql"
+IAM_SEED = REPO_ROOT / "database" / "local_iam_seed.sql"
 
 # ---------------------------------------------------------------------------------------
 # DDL: esquema sigad (idéntico a scripts/deploy_insforge_activos_federados.py -> deploy_sigad)
@@ -339,6 +341,20 @@ def provision_views() -> None:
     print("   ✅ Vistas federadas listas.")
 
 
+def provision_iam() -> None:
+    banner("IAM CENTRAL LOCAL (autenticación offline)")
+    print(f"   · {IAM_DDL.name} (pgcrypto + core.mae_usuarios_sistema + RPC) ...")
+    run_sql_file(IAM_DDL)
+    if IAM_SEED.exists():
+        print(f"   · {IAM_SEED.name} (semilla de usuarios, NO versionada) ...")
+        run_sql_file(IAM_SEED)
+        print("   ✅ Usuarios del IAM cargados.")
+    else:
+        print("   ⚠️  Sin semilla de usuarios locales. Genérela (con internet) con:")
+        print("        python scripts/sync_iam_seed.py")
+    print("   ✅ IAM local listo.")
+
+
 def verify() -> int:
     banner("5. AUDITORÍA DE LA BASE LOCAL")
     ok = True
@@ -352,6 +368,8 @@ def verify() -> int:
         "sigad_sen.v_estadisticas_nacionales": "SELECT count(*) FROM sigad_sen.v_estadisticas_nacionales",
         "sigad_sen.v_lineas_transmision": "SELECT count(*) FROM sigad_sen.v_lineas_transmision",
         "core.v_activos_sen_integrados": "SELECT count(*) FROM core.v_activos_sen_integrados",
+        "core.mae_usuarios_sistema (IAM)": "SELECT count(*) FROM core.mae_usuarios_sistema",
+        "RPC verificar_credencial_sistema": "SELECT count(*) FROM pg_proc WHERE proname='verificar_credencial_sistema'",
     }
     for label, query in checks.items():
         try:
@@ -393,6 +411,7 @@ def main(argv: list[str]) -> int:
         "sigad": provision_sigad,
         "sigad_sen": provision_sigad_sen,
         "views": provision_views,
+        "iam": provision_iam,
     }
     if only:
         if only not in steps:
@@ -404,6 +423,7 @@ def main(argv: list[str]) -> int:
         provision_sigad()
         provision_sigad_sen()
         provision_views()
+        provision_iam()
     return verify()
 
 

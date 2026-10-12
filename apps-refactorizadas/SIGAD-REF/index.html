@@ -4,6 +4,16 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300b4d8'><path d='M13 2L3 14h9l-1 8 10-12h-9l1-8z'/></svg>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <!--
+      Política de Seguridad de Contenido (OWASP ASVS v4.0 · ISO/IEC 27001 A.8.28).
+      · script-src 'self'  : bloquea scripts inline/terceros (mitiga XSS).
+      · style-src          : permite Tailwind (propio), estilos inline (React/VibeHost) y Google Fonts.
+      · connect-src        : solo el backend InsForge y el puente local (offline).
+      Nota: frame-ancestors NO es válido en <meta>; configurar X-Frame-Options/CSP
+      por cabecera HTTP en el hosting para el blindaje anti-clickjacking.
+    -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'; img-src 'self' data: blob:; font-src 'self' data: https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self'; connect-src 'self' https://wxkeqf37.ap-southeast.insforge.app https://*.insforge.app http://127.0.0.1:5431 http://localhost:5431; form-action 'self'" />
     <title>CORPOELEC — SIGAD | Gestión de Activos de Distribución</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

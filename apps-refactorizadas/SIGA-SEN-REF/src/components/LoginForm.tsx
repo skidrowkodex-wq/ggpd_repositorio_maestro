@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAuth, SIGAD_USUARIOS_PREDEFINIDOS } from '../lib/authContext';
+import { useAuth } from '../lib/authContext';
 import { useTheme } from '../lib/themeContext';
 import { ShieldCheck, Lock, Eye, EyeOff, Zap, AlertCircle, CheckCircle2, Sun, Moon } from 'lucide-react';
 
@@ -7,8 +7,8 @@ export const LoginForm: React.FC<{ onLoginSuccess?: () => void }> = ({ onLoginSu
   const { login } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
-  const [username, setUsername] = useState<string>('fullstack001');
-  const [password, setPassword] = useState<string>('Lunes35.');
+  const [username, setUsername] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -29,12 +29,6 @@ export const LoginForm: React.FC<{ onLoginSuccess?: () => void }> = ({ onLoginSu
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleQuickSelect = (u: typeof SIGAD_USUARIOS_PREDEFINIDOS[0]) => {
-    setUsername(u.username);
-    setPassword(u.password);
-    setError(null);
   };
 
   return (
@@ -143,26 +137,15 @@ export const LoginForm: React.FC<{ onLoginSuccess?: () => void }> = ({ onLoginSu
             </button>
           </form>
 
-          {/* Perfiles de Acceso Rápido */}
+          {/* Aviso de sesión auditada (ISO/IEC 27001 A.8.15 / A.8.16) */}
           <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
-            <span className="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block text-center mb-2">
-              Perfiles IAM Disponibles para el Piloto:
-            </span>
-            <div className="grid grid-cols-2 gap-2 text-[11px] font-mono">
-              {SIGAD_USUARIOS_PREDEFINIDOS.slice(0, 4).map((u) => (
-                <button
-                  key={u.id}
-                  onClick={() => handleQuickSelect(u)}
-                  className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer ${
-                    username === u.username
-                      ? 'bg-amber-500/15 border-amber-500 text-amber-900 dark:text-amber-300 font-bold shadow-xs ring-1 ring-amber-500/30'
-                      : 'bg-slate-50 dark:bg-slate-950/60 border-slate-300 dark:border-slate-800/80 text-slate-700 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-600 hover:bg-slate-100'
-                  }`}
-                >
-                  <div className="truncate font-semibold">{u.full_name.split('(')[0]}</div>
-                  <div className="text-[10px] text-sky-600 dark:text-sky-400 font-bold">{u.username}</div>
-                </button>
-              ))}
+            <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/60">
+              <ShieldCheck className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+              <p className="text-[10px] leading-relaxed text-amber-900 dark:text-amber-300 font-medium">
+                Sesión auditada bajo norma <span className="font-bold">ISO/IEC 27001</span>. La autenticación se valida
+                contra el IAM corporativo central y el acceso queda registrado. El uso indebido se sanciona conforme a la
+                normativa interna de CORPOELEC.
+              </p>
             </div>
           </div>
         </div>

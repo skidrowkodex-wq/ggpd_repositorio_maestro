@@ -13,13 +13,21 @@ exactamente el mismo protocolo REST que usa InsForge en la nube:
     POST   /api/database/records/{tabla}?schema={esquema}          (INSERT, body: objeto o array)
     PATCH  /api/database/records/{tabla}?schema={esquema}&col=eq.valor   (UPDATE)
     DELETE /api/database/records/{tabla}?schema={esquema}&col=eq.valor   (DELETE)
-    POST   /api/database/advance/rawsql                            (SQL crudo de solo lectura)
-    GET    /health                                                 (diagnóstico)
+    POST   /api/database/rpc/{funcion}                             (RPC con argumentos nombrados)
+    POST   /api/database/advance/rawsql                            (SQL crudo; deshabilitado por defecto)
+    GET    /health                                                 (diagnóstico, sin clave)
 
 Así el frontend no cambia su código de consultas: solo cambia la URL base según el
 hostname (localhost -> este puente; *.vibehost.space -> InsForge).
 
-Cero dependencias externas (stdlib + psql). Escucha SOLO en loopback.
+Seguridad (ISO/IEC 27001 A.8.20 · OWASP ASVS v4 V13/V14):
+  · Escucha SOLO en loopback.
+  · Exige la cabecera `apikey` (o `Authorization: Bearer`) == BRIDGE_API_KEY.
+  · CORS restringido a orígenes locales (localhost/127.0.0.1/::1).
+  · rawsql deshabilitado por defecto y, si se habilita, solo lectura (SELECT/WITH).
+  · RPC por whitelist explícita.
+
+Cero dependencias externas (stdlib + psql).
 
 Uso:
     python scripts/local_pg_bridge.py                 # 127.0.0.1:5431
@@ -29,7 +37,9 @@ Uso:
 
 from __future__ import annotations
 
+import hmac
 import json
+import re
 import sys
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -56,6 +66,17 @@ MAX_LIMIT = int(env("BRIDGE_MAX_LIMIT", "100000"))
 DEFAULT_LIMIT = int(env("BRIDGE_DEFAULT_LIMIT", "1000"))
 
 RESERVED_PARAMS = {"schema", "limit", "offset", "order", "select", "columns", "allow_all"}
+
+# --- Endurecimiento del puente (ISO/IEC 27001 A.8.20/A.8.22 · OWASP ASVS v4 V13/V14) ---
+# Clave compartida exigida en toda operación de datos (la envía el frontend local).
+BRIDGE_API_KEY = env("BRIDGE_API_KEY", "local-bridge")
+# rawsql deshabilitado por defecto; si se habilita (BRIDGE_ALLOW_RAWSQL=true) se
+# restringe a consultas de solo lectura (SELECT/WITH).
+ALLOW_RAWSQL = env("BRIDGE_ALLOW_RAWSQL", "false").strip().lower() in ("1", "true", "yes", "on")
+# Whitelist explícita de RPC invocables (mínimo privilegio).
+ALLOWED_RPC = {"verificar_credencial_sistema"}
+# CORS: solo se refleja el Origin si es una app local (localhost/127.0.0.1/::1).
+ALLOWED_ORIGIN_RE = re.compile(r"^https?://(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$")
 
 
 class BadRequest(Exception):
@@ -276,12 +297,40 @@ def op_rawsql(body: bytes) -> str:
     if not query.strip():
         raise BadRequest("Falta 'query' en el cuerpo.")
     stripped = query.strip().rstrip(";")
+    # Blindaje: solo se permiten consultas de lectura (nunca DDL/DML por esta vía).
+    head = re.sub(r"^[\(\s]+", "", stripped).split(None, 1)[0].upper() if stripped else ""
+    if head not in ("SELECT", "WITH"):
+        raise BadRequest("rawsql restringido a consultas de solo lectura (SELECT/WITH).")
     try:
         return run_psql(agg_sql(f"({stripped}) t"))
-    except SqlError:
-        # Sentencia no-SELECT (DDL/DML): ejecutar tal cual.
-        run_psql(stripped)
-        return "[]"
+    except SqlError as exc:
+        raise BadRequest(f"Consulta no válida o no permitida: {exc}")
+
+
+def op_rpc(fn: str, body: bytes) -> str:
+    """Invoca una RPC permitida (whitelist) con argumentos nombrados.
+
+    Los argumentos se pasan como literales SQL seguros (nunca interpolación directa)
+    y solo se autorizan funciones explícitamente listadas en ALLOWED_RPC.
+    """
+    if fn not in ALLOWED_RPC:
+        raise BadRequest(f"RPC no permitida: {fn!r}.")
+    data = json.loads(body.decode("utf-8") or "{}")
+    if not isinstance(data, dict) or not data:
+        raise BadRequest("El cuerpo RPC debe ser un objeto JSON con argumentos nombrados.")
+    args: list[str] = []
+    for key, value in data.items():
+        name = check_ident(key)
+        if value is None:
+            args.append(f"{name} => NULL")
+        elif isinstance(value, bool):
+            args.append(f"{name} => {str(value).upper()}")
+        elif isinstance(value, (int, float)):
+            args.append(f"{name} => {value}")
+        else:
+            args.append(f"{name} => {sql_literal(str(value))}")
+    sql = f"SELECT COALESCE(public.{check_ident(fn)}({', '.join(args)})::text, 'null');"
+    return run_psql(sql)
 
 
 # ---------------------------------------------------------------------------------------
@@ -293,13 +342,26 @@ class BridgeHandler(BaseHTTPRequestHandler):
 
     # --- utilidades de respuesta ---
     def _cors(self) -> None:
-        self.send_header("Access-Control-Allow-Origin", "*")
+        # CORS restringido: se refleja el Origin SOLO si pertenece a una app local.
+        origin = self.headers.get("Origin", "")
+        if origin and ALLOWED_ORIGIN_RE.match(origin):
+            self.send_header("Access-Control-Allow-Origin", origin)
+            self.send_header("Vary", "Origin")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS")
         self.send_header(
             "Access-Control-Allow-Headers",
             "Content-Type, Accept, apikey, Authorization, Prefer, Range, X-Client-Info",
         )
         self.send_header("Access-Control-Max-Age", "86400")
+
+    def _authorized(self) -> bool:
+        """Valida la clave del puente (cabecera apikey o Authorization: Bearer)."""
+        provided = self.headers.get("apikey") or ""
+        if not provided:
+            auth = self.headers.get("Authorization") or ""
+            if auth.lower().startswith("bearer "):
+                provided = auth[7:].strip()
+        return bool(provided) and hmac.compare_digest(provided, BRIDGE_API_KEY)
 
     def _send(self, status: int, payload, content_type: str = "application/json") -> None:
         if not isinstance(payload, (bytes, bytearray)):
@@ -360,8 +422,26 @@ class BridgeHandler(BaseHTTPRequestHandler):
                 self._logo(method, path, 200)
                 return
 
+            # Defensa en profundidad: toda operación de datos exige la clave del puente.
+            if not self._authorized():
+                self._error(401, "No autorizado: falta o es inválida la cabecera 'apikey'.")
+                self._logo(method, path, 401)
+                return
+
             if path == "/api/database/advance/rawsql" and method == "POST":
+                if not ALLOW_RAWSQL:
+                    self._error(403, "rawsql deshabilitado (BRIDGE_ALLOW_RAWSQL=true para habilitar).")
+                    self._logo(method, path, 403)
+                    return
                 payload = op_rawsql(body)
+                self._send(200, payload)
+                self._logo(method, path, 200)
+                return
+
+            rpc_prefix = "/api/database/rpc/"
+            if path.startswith(rpc_prefix) and method == "POST":
+                fn = unquote(path[len(rpc_prefix):]).strip("/")
+                payload = op_rpc(fn, body)
                 self._send(200, payload)
                 self._logo(method, path, 200)
                 return
