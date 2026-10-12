@@ -13,6 +13,8 @@ CÓDIGO INSTITUCIONAL : GGPD-SGM-INS-008 (v1.0 ISO)
 NOMENCLATURA ARCHIVO : NAC_2026_GGPD_INS_OPERATIVO_SIGA_SEN_V01.md
 CÓDIGO DOCUMENTAL    : DOC-GGPD-2026-INS-SIGA-SEN-001
 APLICACIÓN ASOCIADA  : SIGA-SEN v1.0 (Sistema Integrado de Gestión de Activos del SEN - Puerto 3008)
+RUTA DESPLEGADA NUBE : https://corpoelec-siga-sen-corpoelec-ggpd-hosting-apps.vibehost.space (VibeHost · Cloud Segura)
+RUTA DE ACCESO LOCAL : http://localhost:3008 (modo offline vía puente 127.0.0.1:5431)
 FUENTE DE DATOS CANÓN: Centro Nacional de Despacho (CND - Despacho Nacional, Mayo 2025)
 BASE DE DATOS NATIVA : PostgreSQL 18 Local (cnd_sen_unifilar_2025)
 AUTOR / ELABORACIÓN  : Equipo de Automatización, Analítica de Datos e Inteligencia Artificial (GGPD)
@@ -58,7 +60,9 @@ El propósito central es dotar a CORPOELEC y al Centro Nacional de Despacho (CND
   2. Especialistas de Operaciones y Mantenimiento de Transmisión y Generación (Hidroeléctrica, Térmica y Distribuida).
   3. Coordinadores y Planificadores de la Gerencia General de Planificación de Distribución (GGPD).
   4. Analistas de Salas Situacionales Estadales y Técnicos de Planificación de Redes de Potencia.
-* **Dónde aplica:** En todas las sesiones y consultas realizadas sobre el sistema **SIGA-SEN v1.0** (puerto corporativo `3008`, accesible de modo local o a través de la infraestructura cloud autorizada), así como en los procesos de sincronización con la base de datos PostgreSQL local (`cnd_sen_unifilar_2025`).
+* **Dónde aplica:** En todas las sesiones y consultas realizadas sobre el sistema **SIGA-SEN v1.0**, accesible por **dos vías seguras**:
+  1. **Nube institucional (producción):** `https://corpoelec-siga-sen-corpoelec-ggpd-hosting-apps.vibehost.space` — despliegue oficial en VibeHost (HTTP 200 · Zona Segura Cifrada de Grado Industrial), conectado al almacén maestro InsForge (`ggpd-data-maestra-0002`).
+  2. **Local (contingencia offline):** `http://localhost:3008` — modo sin internet vía puente `127.0.0.1:5431` con la base PostgreSQL local (`cnd_sen_unifilar_2025`).
 * **Qué procesos abarca:**
   - Exploración, filtrado y diagnóstico de las 562 subestaciones del SEN según cuadrantes murales y niveles de tensión (765 kV a 69 kV).
   - Auditoría del inventario de unidades turbomotoras en las 31 principales centrales hidroeléctricas y complejos termoeléctricos del país.

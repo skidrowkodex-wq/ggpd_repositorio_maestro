@@ -13,6 +13,8 @@ CÓDIGO INSTITUCIONAL : GGPD-SGM-INS-007 (v1.0 ISO)
 NOMENCLATURA ARCHIVO : NAC_2026_GGPD_INS_OPERATIVO_SIGAD_V01.md
 CÓDIGO DOCUMENTAL    : DOC-GGPD-2026-INS-SIGAD-001
 APLICACIÓN ASOCIADA  : SIGAD v1.0 (Sistema Integrado de Gestión de Activos de Distribución - Puerto 3007)
+RUTA DESPLEGADA NUBE : https://corpoelec-sigad-corpoelec-ggpd-hosting-apps.vibehost.space (VibeHost · Cloud Segura)
+RUTA DE ACCESO LOCAL : http://localhost:3007 (modo offline vía puente 127.0.0.1:5431)
 AUTOR / ELABORACIÓN  : Equipo de Automatización, Analítica de Datos e Inteligencia Artificial (GGPD)
 EN COLABORACIÓN CON  : Especialistas de Operaciones y Mantenimiento de Subestaciones y Líneas SEN
 DIRIGIDO A           : Ingenieros de Subestaciones, Planificadores Estadales y Personal Técnico de Distribución
@@ -55,7 +57,10 @@ El propósito central es dotar a CORPOELEC de una **fuente única de verdad (Sin
   1. Ingenieros Especialistas en Mantenimiento y Operaciones de Subestaciones de Distribución y Transmisión.
   2. Coordinadores y Analistas Estadales de Planificación de Distribución.
   3. Personal técnico de operaciones, analistas de salas técnicas estadales y personal operativo del área de Distribución.
-* **Dónde aplica:** En todas las operaciones realizadas dentro del portal **SIGAD v1.0** (puerto corporativo `3007`, accesible de modo local o a través de la infraestructura cloud autorizada), así como en los procesos de ingesta y sincronización con el almacén de datos maestro PostgreSQL (`ggpd-data-maestra-0002`).
+* **Dónde aplica:** En todas las operaciones realizadas dentro del portal **SIGAD v1.0**, accesible por **dos vías seguras**:
+  1. **Nube institucional (producción):** `https://corpoelec-sigad-corpoelec-ggpd-hosting-apps.vibehost.space` — despliegue oficial en VibeHost (HTTP 200 · Zona Segura Cifrada de Grado Industrial).
+  2. **Local (contingencia offline):** `http://localhost:3007` — modo sin internet vía puente `127.0.0.1:5431` (PostgreSQL local).
+  Así como en los procesos de ingesta y sincronización con el almacén de datos maestro PostgreSQL (`ggpd-data-maestra-0002`).
 * **Qué procesos abarca:** 
   - Levantamiento y confirmación del árbol topológico por bahías (Bahías AT, Barras MT, Circuitos Alimentadores, Servicios Auxiliares SSAA, Malla de Puesta a Tierra e Infraestructura).
   - Auto-Generación del esqueleto modular bajo norma CADAFE NS-P-105.
