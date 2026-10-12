@@ -17,19 +17,19 @@ const SESSION_STORAGE_KEY = 'scein_session_user';
 const INSFORGE_URL = (import.meta as any).env?.VITE_INSFORGE_URL
   || (import.meta as any).env?.INSFORGE_URL
   || 'https://wxkeqf37.ap-southeast.insforge.app';
-const INSFORGE_API_KEY = (import.meta as any).env?.VITE_INSFORGE_API_KEY
-  || (import.meta as any).env?.INSFORGE_API_KEY
+const INSFORGE_API_KEY = (import.meta as any).env?.VITE_INSFORGE_ANON_KEY
+  || (import.meta as any).env?.VITE_INSFORGE_API_KEY
   || '';
 
-// Semilla canónica SCEIN (espejo de INITIAL_USERS en server.ts) para validar
-// credenciales cuando el backend Express no está disponible (hosting estático)
-// o la cuenta aún no existe en el IAM centralizado de InsForge.
-const SCEIN_USUARIOS_PREDEFINIDOS: (User & { password: string })[] = [
+// Catálogo de perfiles canónicos SCEIN para Single Sign-On y metadatos de rol.
+// SEGURIDAD (ISO/IEC 27001 · OWASP ASVS V4): NO contiene contraseñas. La
+// validación de credenciales es exclusivamente server-side vía el RPC
+// public.verificar_credencial_sistema (hash bcrypt).
+const SCEIN_USUARIOS_PREDEFINIDOS: User[] = [
   {
     id: 'usr-scein-001',
     username: 'admin.ggpd',
     email: 'admin.ggpd@corpoelec.gob.ve',
-    password: 'admin2026!.',
     full_name: 'Administrador General GGPD',
     role: 'ADMIN_NACIONAL',
     state_code: null,
@@ -39,7 +39,6 @@ const SCEIN_USUARIOS_PREDEFINIDOS: (User & { password: string })[] = [
     id: 'usr-scein-002',
     username: 'j_jimenez',
     email: 'j_jimenez@corpoelec.gob.ve',
-    password: 'Jimenez2026.',
     full_name: 'Ing. J. Jiménez',
     role: 'ADMIN_NACIONAL',
     state_code: null,
@@ -49,7 +48,6 @@ const SCEIN_USUARIOS_PREDEFINIDOS: (User & { password: string })[] = [
     id: 'usr-scein-003',
     username: 'j_pacheco',
     email: 'j_pacheco@corpoelec.gob.ve',
-    password: 'Pacheco2026.',
     full_name: 'Ing. J. Pacheco',
     role: 'ADMIN_NACIONAL',
     state_code: null,
@@ -59,7 +57,6 @@ const SCEIN_USUARIOS_PREDEFINIDOS: (User & { password: string })[] = [
     id: 'usr-scein-004',
     username: 'y_cipiran',
     email: 'y_cipiran@corpoelec.gob.ve',
-    password: 'Cipiran2026.',
     full_name: 'Ing. Y. Cipiran',
     role: 'ADMIN_NACIONAL',
     state_code: null,
@@ -69,7 +66,6 @@ const SCEIN_USUARIOS_PREDEFINIDOS: (User & { password: string })[] = [
     id: 'usr-scein-005',
     username: 'e_tachira',
     email: 'e_tachira@corpoelec.gob.ve',
-    password: 'Tachira2026.',
     full_name: 'Analista Estatal Táchira',
     role: 'ANALISTA_ESTATAL',
     state_code: 'TA',
@@ -79,7 +75,6 @@ const SCEIN_USUARIOS_PREDEFINIDOS: (User & { password: string })[] = [
     id: 'usr-scein-006',
     username: 'a_auditor',
     email: 'a_auditor@corpoelec.gob.ve',
-    password: 'Auditor2026.',
     full_name: 'Auditor ISO 8000 / 27001',
     role: 'AUDITOR',
     state_code: null,
@@ -107,9 +102,8 @@ function getInitialUser(): User | null {
           u => u.username.toLowerCase() === clean || (u.email || '').toLowerCase() === clean
         ) || SCEIN_USUARIOS_PREDEFINIDOS[0];
         if (found) {
-          const { password, ...userProfile } = found;
-          localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(userProfile));
-          return userProfile;
+          localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(found));
+          return found;
         }
       }
     } catch (e) {
@@ -142,71 +136,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (username: string, password: string) => {
-    const cleanInput = username.trim().toLowerCase();
-
-    // 1. Validar primero con el IAM centralizado de InsForge
+    // Autenticación centralizada (RPC public.verificar_credencial_sistema):
+    // verificación de contraseña por hash bcrypt en el servidor, matriz de
+    // permisos fail-closed y auditoría de acceso. El cliente NUNCA compara
+    // contraseñas ni las almacena (ISO/IEC 27001 · OWASP ASVS V4).
     try {
-      const url = `${INSFORGE_URL.replace(/\/+$/, '')}/rest/v1/mae_usuarios_sistema?or=(username.eq.${encodeURIComponent(cleanInput)},email.eq.${encodeURIComponent(cleanInput)})&limit=1`;
-      const res = await fetch(url, {
+      const res = await fetch(`${INSFORGE_URL.replace(/\/+$/, '')}/api/database/rpc/verificar_credencial_sistema`, {
+        method: 'POST',
         headers: {
           'apikey': INSFORGE_API_KEY,
-          'Authorization': `Bearer ${INSFORGE_API_KEY}`
-        }
+          'Authorization': `Bearer ${INSFORGE_API_KEY}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ p_identifier: username.trim(), p_password: password, p_app: 'SCEIN' }),
       });
-      if (res.ok) {
-        const records: any = await res.json();
-        if (Array.isArray(records) && records.length > 0) {
-          const insUser = records[0];
-          if (insUser.status === 'SUSPENDIDO') {
-            return { success: false, error: 'Cuenta SUSPENDIDA en InsForge por directiva de seguridad.' };
-          }
-          if (!insUser.permiso_scein && (insUser.role_code || '') !== 'ADMINISTRADOR' && (insUser.role_code || '') !== 'GERENCIA') {
-            return { success: false, error: 'No posee autorización de acceso para SCEIN V3.0.' };
-          }
-          if (insUser.password_hash === password) {
-            const role = mapInsforgeRole(insUser.role_code);
-            const profile: User = {
-              id: insUser.id,
-              username: insUser.username,
-              email: insUser.email,
-              full_name: insUser.full_name || insUser.username,
-              role,
-              state_code: role === 'ANALISTA_ESTATAL' ? (insUser.estado_codigo || null) : null,
-              is_active: true,
-              last_login_at: new Date().toISOString(),
-            };
-            localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(profile));
-            setUser(profile);
-            return { success: true };
-          }
-          // Si el hash del IAM no coincide, NO bloquear: caer a la semilla
-          // canónica (el password institucional puede seguir siendo válido).
-        }
+      if (!res.ok) {
+        return { success: false, error: `Error HTTP ${res.status} al validar credenciales.` };
       }
-    } catch (insErr) {
-      console.warn('⚠️ Fallback local en SCEIN auth:', insErr);
-    }
-
-    // 2. Fallback semilla canónica (backend Express no disponible / IAM sin la cuenta)
-    const normalized = cleanInput.replace('_', '.');
-    const matchedUser = SCEIN_USUARIOS_PREDEFINIDOS.find(
-      (u) =>
-        u.username.toLowerCase() === cleanInput ||
-        (u.email || '').toLowerCase() === cleanInput ||
-        u.username.toLowerCase() === normalized
-    );
-
-    if (matchedUser) {
-      if (matchedUser.password !== password) {
-        return { success: false, error: 'Contraseña incorrecta.' };
+      const data = await res.json();
+      if (!data || data.success !== true) {
+        return { success: false, error: data?.error || 'Credenciales inválidas o sin permisos en SCEIN.' };
       }
-      const { password: _pw, ...profile } = matchedUser;
+      const u = data.user || {};
+      const role = mapInsforgeRole(u.role_code);
+      const profile: User = {
+        id: u.id,
+        username: u.username,
+        email: u.email,
+        full_name: u.full_name || u.username,
+        role,
+        state_code: role === 'ANALISTA_ESTATAL' ? (u.estado_codigo || null) : null,
+        is_active: true,
+        last_login_at: new Date().toISOString(),
+      };
       localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(profile));
-      setUser(profile as User);
+      setUser(profile);
       return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err?.message || 'Error de red con el servidor de autenticación.' };
     }
-
-    return { success: false, error: 'Credenciales inválidas o sin permisos en SCEIN.' };
   };
 
   const logout = async () => {

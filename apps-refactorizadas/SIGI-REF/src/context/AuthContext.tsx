@@ -147,47 +147,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: true };
     }
 
-    // Fallback con catálogo local si no hay conexión a InsForge
-    const allUsers = getCatalogUsers();
-    const matchedUser = allUsers.find(
-      (u) => 
-        (u.username.toLowerCase() === trimmed.toLowerCase() || 
-         u.email.toLowerCase() === trimmed.toLowerCase() || 
-         (u.googleEmail && u.googleEmail.toLowerCase() === trimmed.toLowerCase())) &&
-        (u.initialPassword === trimmedPass || u.initialPassword?.toLowerCase() === trimmedPass.toLowerCase())
-    );
-
-    if (!matchedUser) {
-      return { 
-        success: false, 
-        message: insforgeAuth.error || 'Usuario o contraseña institucional incorrectos. Verifique sus credenciales corporativas.' 
-      };
-    }
-
-    if (matchedUser.status === 'SUSPENDIDO') {
-      return { success: false, message: 'Usuario temporalmente suspendido por directiva de seguridad.' };
-    }
-
-    const targetState = matchedUser.stateCode && matchedUser.stateCode !== 'NAC' 
-      ? matchedUser.stateCode 
-      : (fallbackStateCode || ('01' as StateCode));
-    
-    const stateObj = VENEZUELAN_STATES.find((s) => s.code === matchedUser.stateCode) || 
-                     VENEZUELAN_STATES.find((s) => s.code === targetState) || 
-                     VENEZUELAN_STATES[0];
-
-    const newSession: AuthSession = {
-      authenticated: true,
-      userCode: matchedUser.id,
-      name: matchedUser.fullName,
-      role: matchedUser.role,
-      stateCode: targetState as StateCode,
-      stateName: matchedUser.stateCode === 'NAC' ? 'Nivel Central / Nacional' : (stateObj ? stateObj.name : 'Coordinación Estadal'),
-      accessTime: new Date().toLocaleTimeString(),
+    // Sin fallback local: la validación de credenciales es EXCLUSIVAMENTE
+    // server-side (RPC con hash bcrypt). Se elimina el catálogo con contraseñas
+    // en texto plano del navegador (ISO/IEC 27001 · OWASP ASVS V4).
+    return {
+      success: false,
+      message: insforgeAuth.error || 'Usuario o contraseña institucional incorrectos. Verifique sus credenciales corporativas.',
     };
-
-    setSession(newSession);
-    return { success: true };
   };
 
   const logout = () => {

@@ -1,12 +1,13 @@
 import { UserProfile, RolUsuario } from '../types';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
-export const USUARIOS_PREDEFINIDOS: (UserProfile & { password: string })[] = [
+// Catálogo de perfiles institucionales (SOLO metadatos de rol/cargo).
+// SEGURIDAD (ISO/IEC 27001 · OWASP ASVS V4): NO contiene contraseñas.
+export const USUARIOS_PREDEFINIDOS: UserProfile[] = [
   {
     id: 'usr-000',
     username: 'j_pacheco',
     email: 'j_pacheco@corpoelec.gob.ve',
-    password: 'Pacheco2026!.',
     nombre: 'Josue D. Pacheco',
     rol: 'ADMINISTRADOR',
     cargo: 'Administrador del Sistema / Planificación Eléctrica',
@@ -16,7 +17,6 @@ export const USUARIOS_PREDEFINIDOS: (UserProfile & { password: string })[] = [
     id: 'usr-001',
     username: 'admin.ggpd',
     email: 'admin.ggpd@corpoelec.gob.ve',
-    password: 'admin2026!.',
     nombre: 'Administrador GGPD',
     rol: 'ADMINISTRADOR',
     cargo: 'Administrador General GGPD',
@@ -26,7 +26,6 @@ export const USUARIOS_PREDEFINIDOS: (UserProfile & { password: string })[] = [
     id: 'usr-002',
     username: 'w_prato',
     email: 'w_prato@corpoelec.gob.ve',
-    password: 'Prato2026.',
     nombre: 'Walter Prato',
     rol: 'ESPECIALISTA',
     cargo: 'Especialista en Planificación de Distribución',
@@ -36,7 +35,6 @@ export const USUARIOS_PREDEFINIDOS: (UserProfile & { password: string })[] = [
     id: 'usr-003',
     username: 'j_bencomo',
     email: 'j_bencomo@corpoelec.gob.ve',
-    password: 'Bencomo2026.',
     nombre: 'Jaime Bencomo',
     rol: 'ESPECIALISTA',
     cargo: 'Especialista en Proyectos PRTSEN',
@@ -46,7 +44,6 @@ export const USUARIOS_PREDEFINIDOS: (UserProfile & { password: string })[] = [
     id: 'usr-004',
     username: 'c_reyes',
     email: 'c_reyes@corpoelec.gob.ve',
-    password: 'Corpoelec2026!.',
     nombre: 'Carlos Reyes',
     rol: 'ESPECIALISTA',
     cargo: 'Especialista en Evaluación POA & RDS-PS',
@@ -56,7 +53,6 @@ export const USUARIOS_PREDEFINIDOS: (UserProfile & { password: string })[] = [
     id: 'usr-005',
     username: 'a_correa',
     email: 'a_correa@corpoelec.gob.ve',
-    password: 'Correa2026!.',
     nombre: 'Adrian Correa',
     rol: 'GERENCIA' as RolUsuario,
     cargo: 'Gerente General de Planificación de Distribución (GGPD)',
@@ -66,7 +62,6 @@ export const USUARIOS_PREDEFINIDOS: (UserProfile & { password: string })[] = [
     id: 'usr-006',
     username: 'analista_gestion',
     email: 'analista_gestion@corpoelec.gob.ve',
-    password: 'admin2026!.',
     nombre: 'Lcdo. Juan Pérez',
     rol: 'ANALISTA',
     cargo: 'Analista de Control y Seguimiento Territorial',
@@ -111,91 +106,49 @@ export function getInitialUser(): UserProfile | null {
 }
 
 const INSFORGE_URL = import.meta.env.VITE_INSFORGE_URL || 'https://wxkeqf37.ap-southeast.insforge.app';
-const INSFORGE_API_KEY = import.meta.env.VITE_INSFORGE_API_KEY || '';
+const INSFORGE_API_KEY = import.meta.env.VITE_INSFORGE_ANON_KEY || import.meta.env.VITE_INSFORGE_API_KEY || '';
 
 export async function loginUser(
   identifierInput: string,
   passwordInput: string
 ): Promise<{ success: boolean; user?: UserProfile; error?: string }> {
-  const cleanInput = identifierInput.trim().toLowerCase();
-
-  // 1. Intentar validar primero con InsForge IAM centralizado
+  // Autenticación centralizada (RPC public.verificar_credencial_sistema):
+  // verificación de contraseña por hash bcrypt en el servidor y matriz de
+  // permisos fail-closed. Se eliminan el backdoor maestro, la comparación en
+  // texto plano y el acceso genérico sin credenciales (ISO 27001 · OWASP ASVS V4).
   try {
-    const url = `${INSFORGE_URL}/rest/v1/mae_usuarios_sistema?or=(username.eq.${cleanInput},email.eq.${cleanInput})&limit=1`;
-    const res = await fetch(url, {
+    const res = await fetch(`${INSFORGE_URL}/api/database/rpc/verificar_credencial_sistema`, {
+      method: 'POST',
       headers: {
         'apikey': INSFORGE_API_KEY,
-        'Authorization': `Bearer ${INSFORGE_API_KEY}`
-      }
+        'Authorization': `Bearer ${INSFORGE_API_KEY}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({ p_identifier: identifierInput.trim(), p_password: passwordInput, p_app: 'SCPPE' }),
     });
-    if (res.ok) {
-      const records: any = await res.json();
-      if (Array.isArray(records) && records.length > 0) {
-        const u = records[0];
-        if (u.status === 'SUSPENDIDO') {
-          return { success: false, error: 'Cuenta SUSPENDIDA en InsForge por directiva de seguridad.' };
-        }
-        if (!u.permiso_scppe && u.role_code !== 'ADMINISTRADOR' && u.role_code !== 'GERENCIA') {
-          return { success: false, error: 'No posee autorización de acceso para SCPPE V3.0 (Planificación SEN).' };
-        }
-        if (u.password_hash === passwordInput || passwordInput === 'Corpoelec2026!.' || passwordInput === 'admin2026!.') {
-          const userProfile: UserProfile = {
-            id: u.id,
-            username: u.username,
-            email: u.email,
-            nombre: u.full_name,
-            rol: u.role_code as RolUsuario,
-            cargo: u.cargo || 'Especialista de Planificación',
-            gerencia: u.unidad_organizativa || 'Gerencia General de Planificación de Distribución (GGPD)',
-          };
-
-          localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(userProfile));
-          return { success: true, user: userProfile };
-        }
-        return { success: false, error: 'Contraseña incorrecta.' };
-      }
+    if (!res.ok) {
+      return { success: false, error: `Error HTTP ${res.status} al validar credenciales.` };
     }
-  } catch (insErr) {
-    console.warn('⚠️ Fallback local en SCPPE auth:', insErr);
-  }
-
-  // 2. Normalizar variantes con punto/guión bajo
-  const matchedUser = USUARIOS_PREDEFINIDOS.find(
-    (u) =>
-      (u.username.toLowerCase() === cleanInput || 
-       u.email.toLowerCase() === cleanInput ||
-       u.username.toLowerCase() === cleanInput.replace('.', '_') ||
-       u.username.toLowerCase() === cleanInput.replace('_', '.'))
-  );
-
-  if (matchedUser) {
-    const { password, ...userProfile } = matchedUser;
+    const data = await res.json();
+    if (!data || data.success !== true) {
+      return { success: false, error: data?.error || 'Credenciales inválidas o sin autorización para SCPPE V3.0 (Planificación SEN).' };
+    }
+    const u = data.user || {};
+    const userProfile: UserProfile = {
+      id: u.id,
+      username: u.username,
+      email: u.email,
+      nombre: u.full_name || u.username,
+      rol: (u.role_code || 'ESPECIALISTA') as RolUsuario,
+      cargo: u.cargo || 'Especialista de Planificación',
+      gerencia: u.unidad_organizativa || 'Gerencia General de Planificación de Distribución (GGPD)',
+    };
     localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(userProfile));
-
-    if (isSupabaseConfigured && supabase) {
-      try {
-        await supabase.auth.signInWithPassword({
-          email: matchedUser.email,
-          password: passwordInput,
-        });
-      } catch {}
-    }
-
     return { success: true, user: userProfile };
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Error de red con el servidor de autenticación.' };
   }
-
-  // 3. Fallback genérico institucional
-  const genericUser: UserProfile = {
-    id: `usr-${Date.now()}`,
-    username: cleanInput.includes('@') ? cleanInput.split('@')[0] : cleanInput,
-    nombre: cleanInput.includes('@') ? cleanInput.split('@')[0].replace('.', ' ').toUpperCase() : cleanInput.toUpperCase(),
-    email: cleanInput.includes('@') ? cleanInput : `${cleanInput}@corpoelec.gob.ve`,
-    rol: cleanInput.includes('admin') ? 'ADMINISTRADOR' : cleanInput.includes('correa') ? 'GERENCIA' : 'ESPECIALISTA',
-    cargo: 'Especialista de Planificación Eléctrica',
-    gerencia: 'Gerencia General de Planificación de Distribución (GGPD)',
-  };
-  localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(genericUser));
-  return { success: true, user: genericUser };
 }
 
 export function logoutUser(): void {

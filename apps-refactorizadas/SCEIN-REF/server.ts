@@ -126,7 +126,6 @@ const INITIAL_USERS = [
     id: 'usr-ggpd-admin',
     username: 'admin.ggpd',
     email: 'admin.ggpd@corpoelec.gob.ve',
-    password: 'admin2026!.',
     full_name: 'Administrador General GGPD',
     role: 'ADMIN_NACIONAL',
     state_code: null,
@@ -136,7 +135,6 @@ const INITIAL_USERS = [
     id: 'usr-j-jimenez',
     username: 'j_jimenez',
     email: 'j.jimenez@corpoelec.gob.ve',
-    password: 'Jimenez2026.',
     full_name: 'Ing. J. Jiménez',
     role: 'ADMIN_NACIONAL',
     state_code: null,
@@ -146,7 +144,6 @@ const INITIAL_USERS = [
     id: 'usr-j-pacheco',
     username: 'j_pacheco',
     email: 'j.pacheco@corpoelec.gob.ve',
-    password: 'Pacheco2026.',
     full_name: 'Ing. J. Pacheco',
     role: 'ADMIN_NACIONAL',
     state_code: null,
@@ -156,7 +153,6 @@ const INITIAL_USERS = [
     id: 'usr-y-cipiran',
     username: 'y_cipiran',
     email: 'y.cipiran@corpoelec.gob.ve',
-    password: 'Cipiran2026.',
     full_name: 'Ing. Y. Cipiran',
     role: 'ADMIN_NACIONAL',
     state_code: null,
@@ -166,7 +162,6 @@ const INITIAL_USERS = [
     id: 'usr-e-tachira',
     username: 'e_tachira',
     email: 'analista.tachira@corpoelec.gob.ve',
-    password: 'Tachira2026.',
     full_name: 'Analista Estatal Táchira',
     role: 'ANALISTA_ESTATAL',
     state_code: 'TA',
@@ -176,7 +171,6 @@ const INITIAL_USERS = [
     id: 'usr-a-auditor',
     username: 'a_auditor',
     email: 'auditoria.iso@corpoelec.gob.ve',
-    password: 'Auditor2026.',
     full_name: 'Auditor ISO 8000 / 27001',
     role: 'AUDITOR',
     state_code: null,
@@ -622,10 +616,9 @@ Evaluación automática de fecha y día de la semana al ingresar archivos:
 
 #### **Procedimiento Paso a Paso de Prueba para el Propietario (PO):**
 1. Acceda a la URL \`/login\`.
-2. Ingrese con las credenciales de prueba:
-   - **Administrador Nacional**: Usuario \`admin.ggpd\` / Clave \`admin2026!.\`
-   - **Analista Estatal Táchira**: Usuario \`e_tachira\` / Clave \`Tachira2026.\`
-   - **Auditor ISO**: Usuario \`a_auditor\` / Clave \`Auditor2026.\`
+2. Ingrese con las credenciales corporativas asignadas por el Administrador GGPD:
+   - Las contraseñas se validan server-side vía el RPC public.verificar_credencial_sistema (hash bcrypt).
+   - No existen credenciales de prueba ni contraseñas por defecto en el código.
 3. Verifique que al hacer clic en **"Iniciar Sesión"**, el sistema valide la clave y muestre la pantalla principal con el nombre del usuario y su rol.
 4. Haga clic en **"Cerrar Sesión"** y confirme que la sesión se destruye y regresa a \`/login\`.
 
@@ -1574,7 +1567,7 @@ app.post('/api/users', (req: Request, res: Response) => {
     username: cleanUsername,
     email: email || `${cleanUsername}@corpoelec.gob.ve`,
     password_salt: salt,
-    password_hash: hashPassword(password || 'Corpoelec2026.', salt),
+    password_hash: hashPassword(password || crypto.randomBytes(24).toString('hex'), salt),
     full_name: full_name || cleanUsername,
     role: role,
     state_code: state_code || null,

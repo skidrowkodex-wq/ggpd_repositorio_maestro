@@ -227,9 +227,11 @@ export async function saveUserToInsForge(
         .eq('id', user.id);
       error = res.error;
     } else {
+      // SEGURIDAD: no se admiten contraseñas por defecto ni conocidas. Si el
+      // administrador no define una contraseña inicial, el alta se rechaza
+      // (ISO/IEC 27001 A.9.4 · OWASP ASVS V2).
       if (!payload.password_hash) {
-        const defaultHashed = await hashPasswordInServer('Corpoelec2026!.');
-        payload.password_hash = defaultHashed || 'Corpoelec2026!.';
+        return { success: false, error: 'Debe definir una contraseña inicial para el nuevo usuario.' };
       }
       const res = await insforge.database
         .from('mae_usuarios_sistema')

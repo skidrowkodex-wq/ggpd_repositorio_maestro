@@ -1,7 +1,13 @@
 import { CorrespondenciaRecord, OficioRespuesta, EstadoFirma, PropositoDocumento } from '../types';
 
 export const INSFORGE_URL = (import.meta as any).env?.VITE_INSFORGE_URL || 'https://wxkeqf37.ap-southeast.insforge.app';
-export const INSFORGE_KEY = (import.meta as any).env?.VITE_INSFORGE_API_KEY || '';
+// Clave PÚBLICA (rol `anon`) para el navegador. La clave de servicio (BYPASSRLS)
+// NUNCA debe empaquetarse en el frontend (ISO/IEC 27001 A.5.15 · OWASP ASVS V4).
+const _env = (import.meta as any).env || {};
+export const INSFORGE_KEY = _env.VITE_INSFORGE_ANON_KEY || _env.VITE_INSFORGE_API_KEY || '';
+if (!_env.VITE_INSFORGE_ANON_KEY && (_env.VITE_INSFORGE_API_KEY || _env.INSFORGE_API_KEY)) {
+  console.warn('[SEGURIDAD SCGCC] Se está usando una clave no pública en el navegador. Configure VITE_INSFORGE_ANON_KEY.');
+}
 
 export interface InsForgeLoginResult {
   success: boolean;

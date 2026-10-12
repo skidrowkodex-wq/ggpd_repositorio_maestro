@@ -18,7 +18,7 @@ export function getSupabaseClient(customUrl?: string, customKey?: string, schema
   const metaEnv = (import.meta as any).env || {};
   const clean = (val?: string) => (val || '').trim().replace(/^["']|["']$/g, '');
   const url = clean(customUrl || metaEnv.VITE_INSFORGE_URL || metaEnv.INSFORGE_URL || 'https://wxkeqf37.ap-southeast.insforge.app');
-  const key = clean(customKey || metaEnv.VITE_INSFORGE_API_KEY || metaEnv.INSFORGE_API_KEY || '');
+  const key = clean(customKey || metaEnv.VITE_INSFORGE_ANON_KEY || metaEnv.VITE_INSFORGE_API_KEY || metaEnv.INSFORGE_API_KEY || '');
 
   if (!url || !key) return null;
 

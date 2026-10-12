@@ -12,8 +12,8 @@ export function getStoredSupabaseConfig(): SupabaseConfig {
     DEFAULT_URL
   ).trim();
   const envAnonKey = (
+    metaEnv.VITE_INSFORGE_ANON_KEY ||
     metaEnv.VITE_INSFORGE_API_KEY ||
-    metaEnv.INSFORGE_API_KEY ||
     DEFAULT_KEY
   ).trim();
 

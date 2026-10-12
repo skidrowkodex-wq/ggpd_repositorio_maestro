@@ -24,7 +24,7 @@ interface LoginModalProps {
 
 export function LoginModal({ isOpen, onClose, onLoginSuccess, darkMode = false }: LoginModalProps) {
   const [identifier, setIdentifier] = useState('carlos.reyes');
-  const [password, setPassword] = useState('Corpoelec2026!.');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');

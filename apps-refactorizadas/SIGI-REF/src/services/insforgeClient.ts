@@ -1,7 +1,7 @@
 import { createClient } from '@insforge/sdk';
 
 export const insforgeUrl = (import.meta as any).env?.VITE_INSFORGE_URL || 'https://wxkeqf37.ap-southeast.insforge.app';
-export const insforgeAnonKey = (import.meta as any).env?.VITE_INSFORGE_API_KEY || '';
+export const insforgeAnonKey = (import.meta as any).env?.VITE_INSFORGE_ANON_KEY || (import.meta as any).env?.VITE_INSFORGE_API_KEY || '';
 export const insforgeProjectId = 'ggpd-data-maestra-0002';
 
 export const insforge = createClient({

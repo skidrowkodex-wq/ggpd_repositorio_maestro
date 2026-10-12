@@ -48,7 +48,7 @@ export const Login: React.FC<LoginProps> = ({ usersList, onLoginSuccess }) => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const INSFORGE_URL = import.meta.env.VITE_INSFORGE_URL || 'https://wxkeqf37.ap-southeast.insforge.app';
-  const INSFORGE_API_KEY = import.meta.env.VITE_INSFORGE_API_KEY || '';
+  const INSFORGE_API_KEY = import.meta.env.VITE_INSFORGE_ANON_KEY || import.meta.env.VITE_INSFORGE_API_KEY || '';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,72 +66,54 @@ export const Login: React.FC<LoginProps> = ({ usersList, onLoginSuccess }) => {
 
     setLoading(true);
 
-    // 1. Validar contra InsForge IAM
+    // Autenticación contra el IAM central (RPC). Verificación de contraseña por
+    // hash bcrypt en el servidor y matriz de permisos fail-closed. El cliente
+    // NUNCA compara contraseñas ni guarda credenciales (ISO 27001 / OWASP ASVS V4).
     try {
-      const url = `${INSFORGE_URL}/rest/v1/mae_usuarios_sistema?or=(username.eq.${cleanUser},email.eq.${cleanUser})&limit=1`;
-      const res = await fetch(url, {
+      const res = await fetch(`${INSFORGE_URL}/api/database/rpc/verificar_credencial_sistema`, {
+        method: 'POST',
         headers: {
           'apikey': INSFORGE_API_KEY,
-          'Authorization': `Bearer ${INSFORGE_API_KEY}`
-        }
+          'Authorization': `Bearer ${INSFORGE_API_KEY}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          p_identifier: usernameInput.trim(),
+          p_password: passwordInput,
+          p_app: 'SCMTP',
+        }),
       });
-      if (res.ok) {
-        const records: any = await res.json();
-        if (Array.isArray(records) && records.length > 0) {
-          const u = records[0];
-          if (u.status === 'SUSPENDIDO') {
-            setErrorMsg('Cuenta SUSPENDIDA en InsForge por directiva de seguridad.');
-            setLoading(false);
-            return;
-          }
-          const insProfile: UserProfile = {
-            id: u.id,
-            username: u.username,
-            nombre: u.full_name,
-            cargo: u.cargo || 'Especialista Institucional',
-            rol: u.role_code === 'ADMINISTRADOR' ? 'DIRECTOR' : u.role_code === 'GERENCIA' ? 'GERENTE' : 'ANALISTA',
-            dependencia: u.unidad_organizativa || 'Gerencia General de Planificación de Distribución (GGPD)',
-            activo: true,
-            password: passwordInput,
-            lastLogin: new Date().toISOString(),
-          };
-          onLoginSuccess(insProfile);
-          setLoading(false);
-          return;
-        }
+      if (!res.ok) {
+        setErrorMsg(`Error HTTP ${res.status} al validar credenciales.`);
+        setLoading(false);
+        return;
       }
-    } catch {
-      // Continuar con fallback local
-    }
-
-    // 2. Validar contra catálogo local (normalizando puntos y guiones)
-    const found = usersList.find(u => 
-      u.username.toLowerCase() === cleanUser || 
-      (u.id && u.id.toLowerCase() === cleanUser) ||
-      u.username.toLowerCase() === cleanUser.replace('.', '_') ||
-      u.username.toLowerCase() === cleanUser.replace('_', '.')
-    );
-
-    if (found) {
-      onLoginSuccess(found);
+      const data = await res.json();
+      if (!data || data.success !== true) {
+        setErrorMsg(data?.error || 'Credenciales inválidas o sin permiso para SCMTP.');
+        setLoading(false);
+        return;
+      }
+      const u = data.user || {};
+      const insProfile: UserProfile = {
+        id: u.id,
+        username: u.username,
+        nombre: u.full_name || u.username,
+        cargo: u.cargo || 'Especialista Institucional',
+        rol: u.role_code === 'ADMINISTRADOR' ? 'DIRECTOR' : u.role_code === 'GERENCIA' ? 'GERENTE' : 'ANALISTA',
+        dependencia: u.unidad_organizativa || 'Gerencia General de Planificación de Distribución (GGPD)',
+        activo: true,
+        lastLogin: new Date().toISOString(),
+      };
+      onLoginSuccess(insProfile);
+      setLoading(false);
+      return;
+    } catch (err: any) {
+      setErrorMsg(err?.message || 'Error de red con el servidor de autenticación.');
       setLoading(false);
       return;
     }
-
-    // 3. Fallback genérico corporativo
-    const genericUser: UserProfile = {
-      id: `usr-${Date.now()}`,
-      username: cleanUser.includes('@') ? cleanUser.split('@')[0] : cleanUser,
-      nombre: cleanUser.includes('@') ? cleanUser.split('@')[0].replace('.', ' ').toUpperCase() : cleanUser.toUpperCase(),
-      cargo: 'Especialista de Planificación',
-      rol: 'ANALISTA',
-      dependencia: 'Gerencia General de Gestión de Planificación (GGPD)',
-      activo: true,
-      password: passwordInput,
-      lastLogin: new Date().toISOString(),
-    };
-    onLoginSuccess(genericUser);
-    setLoading(false);
   };
 
   return (

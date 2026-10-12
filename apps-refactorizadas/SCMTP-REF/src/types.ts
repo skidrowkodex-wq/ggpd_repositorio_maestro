@@ -99,7 +99,7 @@ export interface UserProfile {
   id: string;
   name: string;
   username: string; // formato w_prato
-  password?: string; // e.g. Prato2026.
+  password?: string; // Credencial inicial (solo en memoria; NUNCA se persiste en el navegador).
   role: UserRole;
   cargo: string;
   unidadOrganizativa?: string;

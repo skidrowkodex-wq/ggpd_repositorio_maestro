@@ -5,7 +5,7 @@ const STORAGE_KEY = 'corpoelec_insforge_config';
 export function getStoredSupabaseConfig(): SupabaseConfig {
   const metaEnv = (import.meta as any).env || {};
   const envUrl = (metaEnv.VITE_INSFORGE_URL || metaEnv.INSFORGE_URL || 'https://wxkeqf37.ap-southeast.insforge.app').trim();
-  const envAnonKey = (metaEnv.VITE_INSFORGE_API_KEY || metaEnv.INSFORGE_API_KEY || '').trim();
+  const envAnonKey = (metaEnv.VITE_INSFORGE_ANON_KEY || metaEnv.VITE_INSFORGE_API_KEY || metaEnv.INSFORGE_API_KEY || '').trim();
 
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved) {

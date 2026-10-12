@@ -527,7 +527,7 @@ export const UserManagementModule: React.FC = () => {
         stateCode: (formUser.stateCode || 'NAC') as any,
         unit: formUser.unit || 'División de Planificación',
         status: formUser.status || 'ACTIVO',
-        initialPassword: formUser.initialPassword || 'Corpoelec2026.',
+        initialPassword: formUser.initialPassword,
         permissions: formUser.permissions || { sctis: true, tareasMinutas: true, planificacion: true, scein: false, gdriveRepo: false },
         lastLogin: 'Nunca',
       };
@@ -623,7 +623,7 @@ export const UserManagementModule: React.FC = () => {
                 stateCode: 'NAC',
                 unit: 'División de Planificación',
                 status: 'ACTIVO',
-                initialPassword: 'Corpoelec2026#',
+                initialPassword: '',
                 permissions: { sctis: true, tareasMinutas: true, planificacion: true, scein: false, gdriveRepo: false },
               });
               setEditingUser(null);
@@ -1641,7 +1641,7 @@ export const UserManagementModule: React.FC = () => {
                   type="text"
                   value={formUser.initialPassword || ''}
                   onChange={e => setFormUser({...formUser, initialPassword: e.target.value})}
-                  placeholder="Reyes2026#"
+                  placeholder="Contraseña institucional robusta"
                   className="w-full rounded-xl bg-slate-50 dark:bg-[#112240] p-2.5 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 font-mono font-bold"
                 />
                 
