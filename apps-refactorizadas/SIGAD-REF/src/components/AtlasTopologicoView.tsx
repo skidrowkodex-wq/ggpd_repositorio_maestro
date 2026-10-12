@@ -33,10 +33,17 @@ export const AtlasTopologicoView: React.FC<Props> = ({
   const animFrameRef = useRef<number | null>(null);
 
   const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [compEnfocado, setCompEnfocado] = useState<{ comp: ComponentePatio; cx: number; cy: number } | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Seguimiento de punteros: pan con 1 dedo y pinch-zoom con 2 dedos (tablet/móvil).
+  const pointersRef = useRef<Map<number, { x: number; y: number }>>(new Map());
+  const pinchRef = useRef<{ dist: number } | null>(null);
+  const dragRef = useRef<{ x: number; y: number } | null>(null);
+  // La captura de puntero se activa de forma perezosa, solo tras un movimiento
+  // real de arrastre, para no redirigir el evento `click` de selección de equipos.
+  const capturedRef = useRef(false);
 
   useEffect(() => {
     viewBoxRef.current = viewBox;
@@ -159,33 +166,96 @@ export const AtlasTopologicoView: React.FC<Props> = ({
     animarViewBox({ x: 0, y: 0, w: CANVAS_W, h: CANVAS_H }, 500);
   };
 
-  // Arrastre fluido (Pan)
-  const handleMouseDown = (e: React.MouseEvent) => {
+  // ---------------------------------------------------------------------------
+  // PAN / ZOOM táctil y de ratón mediante Pointer Events.
+  //  · 1 puntero  -> pan (arrastre libre)
+  //  · 2 punteros -> pinch-zoom centrado en el punto medio de los dedos
+  // Soporta ratón, lápiz y pantalla táctil de forma unificada.
+  // ---------------------------------------------------------------------------
+  const getPointers = () => Array.from(pointersRef.current.values());
+
+  const handlePointerDown = (e: React.PointerEvent) => {
     if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-    setIsDragging(true);
-    setDragStart({ x: e.clientX, y: e.clientY });
+    pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (pointersRef.current.size === 1) {
+      dragRef.current = { x: e.clientX, y: e.clientY };
+      setIsDragging(true);
+    } else if (pointersRef.current.size === 2) {
+      const [a, b] = getPointers();
+      pinchRef.current = { dist: Math.hypot(a.x - b.x, a.y - b.y) };
+      dragRef.current = null;
+    }
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !containerRef.current) return;
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!pointersRef.current.has(e.pointerId)) return;
+    pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (!containerRef.current) return;
+    // Captura perezosa: en cuanto hay movimiento real, capturamos el puntero en el
+    // contenedor para seguir recibiendo move/up aunque salga de él. Al no capturar en
+    // `pointerdown`, un clic limpio conserva su destino original (selección de equipos).
+    if (!capturedRef.current) {
+      containerRef.current.setPointerCapture?.(e.pointerId);
+      capturedRef.current = true;
+    }
     const rect = containerRef.current.getBoundingClientRect();
-    const scaleX = viewBox.w / rect.width;
-    const scaleY = viewBox.h / rect.height;
-    const dx = (e.clientX - dragStart.x) * scaleX;
-    const dy = (e.clientY - dragStart.y) * scaleY;
+
+    // --- Pinch-zoom (2 dedos) ---
+    if (pointersRef.current.size >= 2 && pinchRef.current) {
+      const [a, b] = getPointers();
+      const dist = Math.hypot(a.x - b.x, a.y - b.y);
+      const cx = (a.x + b.x) / 2;
+      const cy = (a.y + b.y) / 2;
+      const prevDist = pinchRef.current.dist;
+      if (prevDist > 0 && dist > 0) {
+        const zoomFactor = prevDist / dist; // <1 acerca, >1 aleja
+        const currentVb = viewBoxRef.current;
+        const newW = Math.max(160, Math.min(CANVAS_W, currentVb.w * zoomFactor));
+        const newH = Math.max(90, Math.min(CANVAS_H, currentVb.h * zoomFactor));
+        const localX = cx - rect.left;
+        const localY = cy - rect.top;
+        const svgX = currentVb.x + (localX / rect.width) * currentVb.w;
+        const svgY = currentVb.y + (localY / rect.height) * currentVb.h;
+        const newX = Math.max(0, Math.min(CANVAS_W - newW, svgX - (localX / rect.width) * newW));
+        const newY = Math.max(0, Math.min(CANVAS_H - newH, svgY - (localY / rect.height) * newH));
+        const nuevoVb = { x: newX, y: newY, w: newW, h: newH };
+        setViewBox(nuevoVb);
+        viewBoxRef.current = nuevoVb;
+      }
+      pinchRef.current = { dist };
+      return;
+    }
+
+    // --- Pan (1 puntero) ---
+    if (!dragRef.current) return;
+    const currentVb = viewBoxRef.current;
+    const scaleX = currentVb.w / rect.width;
+    const scaleY = currentVb.h / rect.height;
+    const dx = (e.clientX - dragRef.current.x) * scaleX;
+    const dy = (e.clientY - dragRef.current.y) * scaleY;
 
     const nuevoVb = {
-      ...viewBox,
-      x: Math.max(0, Math.min(CANVAS_W - viewBox.w, viewBox.x - dx)),
-      y: Math.max(0, Math.min(CANVAS_H - viewBox.h, viewBox.y - dy)),
+      ...currentVb,
+      x: Math.max(0, Math.min(CANVAS_W - currentVb.w, currentVb.x - dx)),
+      y: Math.max(0, Math.min(CANVAS_H - currentVb.h, currentVb.y - dy)),
     };
     setViewBox(nuevoVb);
     viewBoxRef.current = nuevoVb;
-    setDragStart({ x: e.clientX, y: e.clientY });
+    dragRef.current = { x: e.clientX, y: e.clientY };
   };
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
+  const handlePointerUp = (e: React.PointerEvent) => {
+    pointersRef.current.delete(e.pointerId);
+    if (pointersRef.current.size < 2) pinchRef.current = null;
+    if (pointersRef.current.size === 0) {
+      dragRef.current = null;
+      capturedRef.current = false;
+      setIsDragging(false);
+    } else if (pointersRef.current.size === 1) {
+      const [a] = getPointers();
+      dragRef.current = { x: a.x, y: a.y };
+    }
   };
 
   // Zoom interactivo con rueda del ratón
@@ -284,18 +354,18 @@ export const AtlasTopologicoView: React.FC<Props> = ({
       {/* Lienzo del Diagrama Unifilar Interactivo (SVG) con ViewBox Dinámico */}
       <div
         ref={containerRef}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
         onWheel={handleWheel}
-        className={`relative bg-slate-950/90 rounded-2xl border border-sky-950 p-6 overflow-hidden min-h-[500px] flex items-center justify-center select-none ${
+        className={`touch-pan-zoom relative bg-slate-950/90 rounded-2xl border border-sky-950 p-3 sm:p-6 overflow-hidden min-h-[420px] sm:min-h-[560px] lg:min-h-[720px] flex items-center justify-center ${
           isDragging ? 'cursor-grabbing' : 'cursor-grab'
         }`}
       >
         <svg
           viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}`}
-          className="w-full h-full max-w-[960px] h-[480px]"
+          className="w-full h-full max-w-[960px]"
           preserveAspectRatio="xMidYMid meet"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -550,7 +620,7 @@ export const AtlasTopologicoView: React.FC<Props> = ({
 
         {/* Card Modal Flotante de Elemento Seleccionado con Zoom y Ficha */}
         {compEnfocado && (
-          <div className="absolute bottom-4 right-4 w-80 bg-white/95 dark:bg-slate-900/95 border border-sky-400 dark:border-cyan-500/60 rounded-2xl p-4 shadow-2xl backdrop-blur-2xl z-40 animate-in fade-in slide-in-from-bottom-2">
+          <div className="absolute left-3 right-3 bottom-3 sm:left-auto sm:right-4 sm:bottom-4 sm:w-80 max-h-[75%] overflow-y-auto thin-scroll bg-white/95 dark:bg-slate-900/95 border border-sky-400 dark:border-cyan-500/60 rounded-2xl p-4 shadow-2xl backdrop-blur-2xl z-40 animate-in fade-in slide-in-from-bottom-2">
             <div className="flex items-start justify-between">
               <div>
                 <span className="text-[10px] font-mono font-bold text-sky-700 dark:text-cyan-400 block uppercase tracking-wider">
@@ -620,8 +690,8 @@ export const AtlasTopologicoView: React.FC<Props> = ({
         )}
       </div>
 
-      <div className="flex items-center justify-between text-xs text-slate-400 font-mono pt-2">
-        <span>💡 Haga clic en cualquier equipo del diagrama para enfocarlo automáticamente con zoom o arrastre para desplazarse libremente.</span>
+      <div className="flex flex-wrap items-center justify-between gap-1 text-xs text-slate-400 font-mono pt-2">
+        <span>💡 <span className="hidden sm:inline">Haga clic en cualquier equipo del diagrama para enfocarlo automáticamente con zoom o arrastre para desplazarse libremente.</span><span className="sm:hidden">Toque un equipo para enfocarlo · arrastre para mover · pellizque con 2 dedos para zoom.</span></span>
         <span>Atlas CADAFE v2.0 · Proyección Automatizada</span>
       </div>
     </div>

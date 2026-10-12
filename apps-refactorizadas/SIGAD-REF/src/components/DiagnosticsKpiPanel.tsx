@@ -107,9 +107,9 @@ export const DiagnosticsKpiPanel: React.FC<Props> = ({ subestacion, estructura }
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Transformadores de Potencia */}
         <div className="glass-panel p-5 space-y-4 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-sky-950 shadow-sm">
-          <div className="flex items-center justify-between border-b border-slate-200 dark:border-sky-950 pb-3">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <Zap className="w-4 h-4 text-sky-600 dark:text-cyan-400" />
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 dark:border-sky-950 pb-3">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 min-w-0">
+              <Zap className="w-4 h-4 text-sky-600 dark:text-cyan-400 shrink-0" />
               Estado de Transformadores de Potencia ({trafos.length})
             </h3>
             <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
@@ -149,9 +149,9 @@ export const DiagnosticsKpiPanel: React.FC<Props> = ({ subestacion, estructura }
 
         {/* Servicios Auxiliares Vitales (SSAA) */}
         <div className="glass-panel p-5 space-y-4 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-sky-950 shadow-sm">
-          <div className="flex items-center justify-between border-b border-slate-200 dark:border-sky-950 pb-3">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <BatteryCharging className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 dark:border-sky-950 pb-3">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 min-w-0">
+              <BatteryCharging className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
               Servicios Auxiliares (Sistemas Vitales DC)
             </h3>
             <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">

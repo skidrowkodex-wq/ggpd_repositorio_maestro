@@ -452,3 +452,69 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
 }
 
+/* ==============================================================================
+   RESPONSIVE / MÓVIL — Nivel 0+1 (rail lateral colapsable + drawer off-canvas)
+   CORPOELEC · SIGAD · Grado Industrial SEN
+   ============================================================================== */
+
+/* Blindaje anti-rotura: evita el scroll horizontal accidental de la página.
+   Se usa `clip` (y no `hidden`) para NO crear un contenedor de scroll que
+   rompería los elementos `position: sticky` (header normativo / rail lateral). */
+html,
+body {
+  overflow-x: clip;
+}
+
+/* Áreas seguras (notch / barra gestual) en teléfonos y tablets */
+.safe-x {
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
+
+/* Lienzos de diagrama: capturar gestos táctiles para pan/zoom (1 dedo) y pinch */
+.touch-pan-zoom {
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Animación de entrada del drawer off-canvas (móvil/tablet) */
+@keyframes drawerSlideIn {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+.animate-drawer-in {
+  animation: drawerSlideIn 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes backdropIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.animate-backdrop-in {
+  animation: backdropIn 0.2s ease forwards;
+}
+
+/* Objetivo táctil mínimo recomendado (44px) para uso en tablet/móvil */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Permite a las tablas/selectores densos conservar su legibilidad y desplazarse
+   en pantallas pequeñas sin romper el layout. */
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Scrollbars finas para paneles con overflow */
+.thin-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.45);
+  border-radius: 9999px;
+}
+.thin-scroll::-webkit-scrollbar-track { background: transparent; }
+

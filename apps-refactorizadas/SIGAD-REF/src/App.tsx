@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './lib/authContext';
 import { ThemeProvider } from './lib/themeContext';
 import { LoginForm } from './components/LoginForm';
-import { Navbar } from './components/Navbar';
-import { Footer } from './components/Footer';
+import { AppShell, SigadTab } from './components/Navbar';
 import { SubstationSelector } from './components/SubstationSelector';
 import { SubstationHeaderCard } from './components/SubstationHeaderCard';
 import { BaysTreeView } from './components/BaysTreeView';
@@ -28,7 +27,7 @@ import { Sparkles, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 function SigadDashboard() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'bahias' | 'diagnostico' | 'atlas'>('bahias');
+  const [activeTab, setActiveTab] = useState<SigadTab>('bahias');
   
   // Subestación seleccionada
   const [selectedSe, setSelectedSe] = useState<SubestacionMaster | null>(() => {
@@ -207,18 +206,16 @@ function SigadDashboard() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-100 dark:bg-[#050b17] text-slate-900 dark:text-slate-100 transition-colors">
-      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
-
+    <>
       {/* Toast Notificación Flotante */}
       {toastMessage && (
-        <div className="fixed top-20 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl bg-slate-900/95 border border-cyan-500/50 text-cyan-200 text-xs font-semibold shadow-2xl shadow-cyan-950/80 backdrop-blur-md animate-bounce">
+        <div className="fixed top-20 left-4 right-4 sm:left-auto sm:right-6 z-50 max-w-[calc(100vw-2rem)] sm:max-w-sm flex items-center gap-2.5 px-4 py-3 rounded-xl bg-slate-900/95 border border-cyan-500/50 text-cyan-200 text-xs font-semibold shadow-2xl shadow-cyan-950/80 backdrop-blur-md animate-bounce">
           <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span>{toastMessage}</span>
+          <span className="min-w-0">{toastMessage}</span>
         </div>
       )}
 
-      <main className="app-container flex-1 py-6">
+      <AppShell activeTab={activeTab} setActiveTab={setActiveTab}>
         {/* Selector de Subestación */}
         <SubstationSelector
           selectedSe={selectedSe}
@@ -299,7 +296,7 @@ function SigadDashboard() {
             <p className="text-xs">Elija una subestación del catálogo superior para comenzar la gestión de activos.</p>
           </div>
         )}
-      </main>
+      </AppShell>
 
       {/* Modal de Configuración y Regeneración CADAFE */}
       {selectedSe && (
@@ -331,9 +328,7 @@ function SigadDashboard() {
         onClose={() => setCompToInspect(null)}
         onSave={handleSaveComponent}
       />
-
-      <Footer />
-    </div>
+    </>
   );
 }
 

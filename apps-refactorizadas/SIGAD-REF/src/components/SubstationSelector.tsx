@@ -31,13 +31,13 @@ export const SubstationSelector: React.FC<Props> = ({ selectedSe, onSelectSe }) 
     <div className="glass-panel p-4 mb-6">
       <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 justify-between">
         {/* Selector de Estado */}
-        <div className="flex items-center gap-2 min-w-[240px]">
+        <div className="flex items-center gap-2 w-full md:w-auto md:min-w-[240px]">
           <Filter className="w-4 h-4 text-sky-600 dark:text-cyan-400 shrink-0" />
-          <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Estado:</span>
+          <span className="text-xs font-bold text-slate-700 dark:text-slate-300 shrink-0">Estado:</span>
           <select
             value={estadoFiltro}
             onChange={(e) => setEstadoFiltro(e.target.value)}
-            className="form-select text-xs py-2 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-sky-950 font-medium text-slate-800 dark:text-slate-100 rounded-lg"
+            className="form-select text-xs py-2 px-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-sky-950 font-medium text-slate-800 dark:text-slate-100 rounded-lg w-full md:w-auto"
           >
             <option value="TODOS">TODOS LOS ESTADOS (24 + ESEQUIBA)</option>
             {estados.map(est => (
@@ -73,7 +73,7 @@ export const SubstationSelector: React.FC<Props> = ({ selectedSe, onSelectSe }) 
       </div>
 
       {/* Selector directo / Select rápido si hay muchas */}
-      <div className="mt-3 pt-3 border-t border-slate-200 dark:border-sky-950/60 flex items-center gap-3">
+      <div className="mt-3 pt-3 border-t border-slate-200 dark:border-sky-950/60 flex flex-wrap items-center gap-x-3 gap-y-2">
         <MapPin className="w-4 h-4 text-sky-600 dark:text-cyan-400 shrink-0" />
         <span className="text-xs font-bold text-slate-800 dark:text-slate-200 shrink-0">Subestación Activa:</span>
         <select
@@ -82,7 +82,7 @@ export const SubstationSelector: React.FC<Props> = ({ selectedSe, onSelectSe }) 
             const found = subestacionesFiltradas.find(s => s.codigo === e.target.value);
             if (found) onSelectSe(found);
           }}
-          className="form-select text-xs py-2 px-3 bg-white dark:bg-slate-900 font-mono text-sky-800 dark:text-cyan-300 font-bold border border-slate-300 dark:border-sky-950 rounded-lg flex-1"
+          className="form-select text-xs py-2 px-3 bg-white dark:bg-slate-900 font-mono text-sky-800 dark:text-cyan-300 font-bold border border-slate-300 dark:border-sky-950 rounded-lg flex-1 min-w-0"
         >
           {subestacionesFiltradas.length === 0 ? (
             <option value="">No hay subestaciones para este filtro</option>

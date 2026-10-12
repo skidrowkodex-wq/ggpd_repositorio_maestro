@@ -114,21 +114,21 @@ export const BaysTreeView: React.FC<Props> = ({
             {/* Cabecera de la Bahía (Acordeón) */}
             <div
               onClick={() => toggleBay(bahia.id)}
-              className="p-3.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/80 dark:hover:bg-slate-800/60 flex items-center justify-between cursor-pointer transition-colors border-b border-slate-200 dark:border-sky-950/50"
+              className="p-3.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/80 dark:hover:bg-slate-800/60 flex flex-wrap items-center justify-between gap-3 cursor-pointer transition-colors border-b border-slate-200 dark:border-sky-950/50"
             >
-              <div className="flex items-center gap-3">
-                <button className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white" type="button">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                <button className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white shrink-0" type="button">
                   {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                 </button>
-                <div className="flex items-center gap-2">
-                  {getBayIcon(bahia.tipo_bahia)}
-                  <span className="text-sm font-bold text-slate-900 dark:text-white tracking-tight">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="shrink-0">{getBayIcon(bahia.tipo_bahia)}</span>
+                  <span className="text-sm font-bold text-slate-900 dark:text-white tracking-tight truncate">
                     {bahia.nombre_bahia}
                   </span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2.5">
+              <div className="flex flex-wrap items-center justify-end gap-2.5 gap-y-1.5 ml-auto">
                 {fallados > 0 && (
                   <span className="badge badge-fallado text-[10px] py-0.5 px-2">
                     {fallados} FALLA
@@ -193,11 +193,11 @@ export const BaysTreeView: React.FC<Props> = ({
                         }`}
                       >
                         {/* Código de Norma y Nombre */}
-                        <div className="flex items-center gap-3 min-w-[260px]">
+                        <div className="flex items-center gap-3 w-full min-w-0 md:w-auto md:min-w-[260px]">
                           <span className="font-mono text-xs px-2.5 py-1 rounded-lg bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-cyan-400 border border-sky-300 dark:border-sky-800/60 font-bold shrink-0">
                             {comp.codigo_norma}
                           </span>
-                          <div>
+                          <div className="min-w-0">
                             <div className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                               {comp.nombre_equipo}
                               {comp.alarma_activa && (
@@ -213,7 +213,7 @@ export const BaysTreeView: React.FC<Props> = ({
                         </div>
 
                         {/* Estado y Observaciones */}
-                        <div className="flex items-center gap-3">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                           {isFallado ? (
                             <span className="badge badge-fallado text-[10px]">
                               <AlertTriangle className="w-3 h-3" />
@@ -243,7 +243,7 @@ export const BaysTreeView: React.FC<Props> = ({
                         </div>
 
                         {/* Botones de Maniobra y Cambio de Estado */}
-                        <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
+                        <div className="flex flex-wrap items-center justify-end gap-2 shrink-0 self-end md:self-center">
                           {isFallado ? (
                             <button
                               onClick={() => onOpenRestoreModal(comp)}

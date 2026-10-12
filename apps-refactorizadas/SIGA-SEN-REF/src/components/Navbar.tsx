@@ -246,7 +246,7 @@ export const AppShell: React.FC<AppShellProps> = ({ activeTab, setActiveTab, chi
       <aside
         aria-label="Navegación principal"
         className={`hidden lg:flex lg:flex-col lg:shrink-0 lg:sticky lg:top-0 lg:h-screen lg:self-start bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-r border-slate-300 dark:border-sky-950/60 transition-[width] duration-300 ${
-          collapsed ? 'lg:w-20' : 'lg:w-72'
+          collapsed ? 'lg:w-20 lg:basis-20 lg:min-w-0' : 'lg:w-72 lg:basis-72 lg:min-w-0'
         }`}
       >
         {brandBlock(collapsed)}
