@@ -52,9 +52,9 @@ El propósito es entregar a **ATIT Corporativo** y a la **Auditoría Interna** u
 1. Demuestre la **arquitectura de seguridad actual** (identidad, autorización por fila, cifrado, sesión, endurecimiento de red y gestión de claves).
 2. Registre las **pruebas de verificación realmente ejecutadas** (nada fabricado) y sus resultados.
 3. Declare con **honestidad los riesgos residuales** y la **hoja de ruta** de aseguramiento continuo.
-4. Proponga un **protocolo de prueba de penetración (pentest) independiente** como siguiente fase formal, ante cualquier requerimiento institucional de evidencia ofensiva.
+4. Registre que la **prueba de penetración (pentest)** fue **ejecutada y cerrada** (PENT-001/002) y conserve el **protocolo formal** para extender el alcance y ejecutar retests.
 
-> ⚠️ **Declaración de integridad:** la matriz P1–P11 de este reporte documenta el **endurecimiento defensivo** (auditoría estática, configuración, pruebas funcionales de autenticación y comprobaciones read-only). Las **pruebas ofensivas** fueron solicitadas y autorizadas por la GGPD e **ejecutadas el 12-10-2026** bajo reglas de enfrentamiento no destructivas; sus hallazgos y veredictos se documentan por separado en **`NAC_2026_GGPD_PENTEST_SIGAD_SIGASEN_V01.md`** (código `GGPD-SGM-PENT-001`). Este reporte **no fabrica** evidencia: toda la contenida es real y reproducible.
+> ⚠️ **Declaración de integridad:** la matriz P1–P11 de este reporte documenta el **endurecimiento defensivo** (auditoría estática, configuración, pruebas funcionales de autenticación y comprobaciones read-only). Las **pruebas ofensivas** fueron solicitadas y autorizadas por la GGPD e **ejecutadas el 12-10-2026** bajo reglas de enfrentamiento no destructivas, en **dos ciclos**: **`NAC_2026_GGPD_PENTEST_SIGAD_SIGASEN_V01.md`** (`GGPD-SGM-PENT-001`) y **`NAC_2026_GGPD_PENTEST_SEIS_APPS_V01.md`** (`GGPD-SGM-PENT-002`), ambos **cerrados con remediación ejecutada**. Este reporte **no fabrica** evidencia: toda la contenida es real y reproducible.
 
 ---
 
@@ -65,7 +65,7 @@ El propósito es entregar a **ATIT Corporativo** y a la **Auditoría Interna** u
   2. **SIGA-SEN v1.0** — Rutas: nube `https://corpoelec-siga-sen-corpoelec-ggpd-hosting-apps.vibehost.space` · local `http://localhost:3008`.
 * **Infraestructura de datos:** almacén maestro InsForge PostgreSQL (`ggpd-data-maestra-0002`, base `https://wxkeqf37.ap-southeast.insforge.app`) y puente local de contingencia (`127.0.0.1:5431`).
 * **Perímetro cubierto por el blindaje (KPI):** autenticación (login), autorización por fila (RLS), transporte seguro (HTTPS), políticas de contenido (CSP), gestión de sesión y gestión de claves/secrets.
-* **Fuera del alcance de este reporte:** las 6 aplicaciones restantes del Repositorio Maestro (postura documentada por separado en `NAC_2026_GGPD_REPORTE_SEGURIDAD_8_APLICACIONES_V01.md`).
+* **Aplicaciones complementarias:** las 6 aplicaciones restantes (SIGI, SCTIS, SCMTP, SCPPE, SCEIN, SCGCC) recibieron el **mismo blindaje el 12-10-2026** (RLS — Migración 10, autenticación por RPC central, purga de secretos) y fueron **verificadas con el pentest PENT-002**; postura consolidada en `NAC_2026_GGPD_REPORTE_SEGURIDAD_8_APLICACIONES_V01.md`.
 
 ---
 
@@ -103,7 +103,7 @@ El propósito es entregar a **ATIT Corporativo** y a la **Auditoría Interna** u
 
 * **HTTPS obligatorio** en las 8 URLs desplegadas (VibeHost, verificado HTTP 200).
 * **Claves API:** el bundle del navegador solo contiene la **clave pública `ANON_KEY`** (rol `anon`, sin privilegios administrativos). La **clave de servicio** (rol `project_admin` con `rolbypassrls = true`) fue **eliminada de los bundles** — verificación en `dist/assets/*.js`: clave de servicio **ausente**, clave anónima **presente**.
-* **Rotación de la API key principal** ejecutada con periodo de gracia de 72 horas (`secrets rotate api-key --grace-hours 72`): clave nueva activa; clave anterior expira el **2026-10-15T22:01:33Z** (cero caídas por superposición).
+* **Rotación de la API key principal (2 ciclos, 12-10-2026):** (1.º) tras el pentest de SIGAD/SIGA-SEN, clave anterior con gracia hasta el 2026-10-15T22:01Z; (2.º) tras el pentest de las 6 apps restantes (`secrets rotate api-key --grace-hours 72`), al detectarse la clave `ik_985b…` embebida en bundles — clave nueva activa; la anterior expira el **2026-10-15T23:45:36Z** (cero caídas por superposición). Los bundles de las 8 apps quedaron reconstruidos con la `ANON_KEY` pública.
 
 ### 5.4. Gestión de Sesión (Capa S4)
 
@@ -145,7 +145,7 @@ El propósito es entregar a **ATIT Corporativo** y a la **Auditoría Interna** u
 | P10 | Auditoría de dependencias | Estática | `npm audit` | **PASA** — 0 vulnerabilidades | Reporte npm |
 | P11 | Higiene de código (XSS por DOM) | Estática | Escaneo de patrones | **PASA** — sin `eval`/`innerHTML`/`dangerouslySetInnerHTML` | Revisión de código |
 
-> **Interpretación honesta:** P1–P11 demuestran endurecimiento defensivo y funcionamiento correcto de los controles. **El ciclo ofensivo (pentest) fue ejecutado el 12-10-2026** bajo autorización y RoE no destructivas: véase **`NAC_2026_GGPD_PENTEST_SIGAD_SIGASEN_V01.md`**. La Sección 9 conserva el protocolo estándar para **extender** el pentest (otras apps, cuentas desechables, retest).
+> **Interpretación honesta:** P1–P11 demuestran endurecimiento defensivo y funcionamiento correcto de los controles. **Ambos ciclos ofensivos (PENT-001 y PENT-002) fueron ejecutados el 12-10-2026** bajo autorización y RoE no destructivas: véanse `NAC_2026_GGPD_PENTEST_SIGAD_SIGASEN_V01.md` y `NAC_2026_GGPD_PENTEST_SEIS_APPS_V01.md`. La Sección 9 conserva el protocolo estándar para **extender** el pentest (backend SCTIS, cuentas desechables para bloqueo, retest).
 
 ---
 
@@ -156,22 +156,22 @@ El propósito es entregar a **ATIT Corporativo** y a la **Auditoría Interna** u
 | A.5.15 · Control de accesos | ✅ Implementado | IAM central + RPC fail-closed + roles por app |
 | A.5.18 · Seguridad de datos | ✅ Implementado | RLS 13/13 tablas + `anon` acotado a `sigad`/`sigad_sen` + 2 catálogos |
 | A.8.24 · Uso de criptografía | ✅ Implementado | HTTPS + rotación de claves (gracia 72 h) |
-| A.8.25-28 · Desarrollo seguro | ✅ Parcial | CSP, sin XSS por DOM, 0 vulns npm; pendiente pentest (Secc. 9) |
+| A.8.25-28 · Desarrollo seguro | ✅ Implementado | CSP, sin XSS por DOM, 0 vulns npm; pentest ejecutado (PENT-001/002) y cerrado (Secc. 9) |
 | A.8.12/13 · Gestión de claves | ✅ Implementado | Claves solo en `.env` gitignored; bundle con `ANON_KEY` |
 | A.5.31 · Seguridad física de sitios | ⚠️ Externo | Depende de VibeHost / datacenter contratado (fuera de alcance GGPD) |
 
-**Madurez declarada:** **Nivel 2 — Controlado** (OWASP ASVS v4.0 Level 2 alcanzado en autenticación, sesión, control de acceso, validación y configuración), con dos controles pendientes de entornos externos (cabeceras HTTP a nivel hosting y pentest independiente).
+**Madurez declarada:** **Nivel 2 — Controlado** (OWASP ASVS v4.0 Level 2 alcanzado en autenticación, sesión, control de acceso, validación y configuración) en las **8 aplicaciones** del Repositorio. Controles pendientes de entornos externos: cabeceras CORS a nivel InsForge (H-PT-01) y rotación de la clave del proyecto BCI (H-PT-07).
 
 ---
 
 ## ⚠️ 8. RIESGOS RESIDUALES Y LIMITACIONES
 
 1. **Autenticación de sesión aún de cliente (R1, MEDIO):** la autorización entre app-desplegada y backend usa la clave pública compartida; no se emite aún un **JWT de plataforma (InsForge Auth) por sesión** con políticas RLS por *claim* de usuario. Remediable con `auth.users` + emisión de token por sesión (trabajo futuro — ver Sección 9).
-2. **Pentest independiente no ejecutado (R2, MEDIO-PLANIFICADO):** pendiente de autorización y protocolo formal (Sección 9). No hay evidencia ofensiva fabricada.
+2. **Pentest ejecutado (R2, RESUELTO 12-10-2026):** dos ciclos autorizados y no destructivos (PENT-001 SIGAD/SIGA-SEN y PENT-002 seis apps restantes), ambos **cerrados con remediación**. Residuales: CORS reflectante (H-PT-01, requiere configuración en InsForge) y clave del proyecto BCI (H-PT-07, tercero).
 3. **Tokens PAT de GitHub expuestos en registros (R3, ALTO):** durante inspección de `.env.local`, una máscara falló y los PAT quedaron visibles en un registro de sesión. **Acción recomendada:** revocar y regenerar con scope `repo`, actualizar `.env.local`.
 4. **Cabeceras HTTP anti-embebido (R4, RESUELTO 12-10-2026):** verificadas presentes a nivel hosting (Cloudflare) durante el pentest: `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`, HSTS y CSP header. Pendiente menor: validar si `frame-ancestors` debe conservar los orígenes `dock.gntc.com` de la consola VibeHost.
 5. **Dependencia del proveedor cloud (R5, EXTERNO):** disponibilidad y cifrado dependen de la infraestructura contratada (VibeHost) y de InsForge (back-end serverless). Gestión de incidentes según contrato.
-6. **SCTIS backend Python (R6, EXTERNO):** si el backend Python de SCTIS corre fuera de VibeHost, debe apuntar a la clave nueva **antes del 2026-10-15T22:01Z** (ver reporte de las 8 apps).
+6. **SCTIS backend Python (R6, EXTERNO):** si el backend Python de SCTIS corre fuera de VibeHost, debe apuntar a la clave nueva **antes del 2026-10-15T23:45:36Z** (fin de la gracia de la 2.ª rotación). Conserva endurecimiento pendiente (`config.py`, `auth.py`, `db.py`) documentado en el PENT-002.
 
 ---
 
@@ -182,10 +182,11 @@ El propósito es entregar a **ATIT Corporativo** y a la **Auditoría Interna** u
 2. **Cabeceras HTTP a nivel hosting (R4):** solicitar/setear `X-Frame-Options`, `X-Content-Type-Options`, `Strict-Transport-Security` en VibeHost.
 3. **Rotación de PAT GitHub (R3):** revocar y regenerar; limpiar `opencode.json`.
 4. **Monitoreo continuo:** revisión de logs de acceso en InsForge y alertas de eventos (COBIT MEA02) mediante triggers.
+5. **Rotación de la clave del proyecto BCI (R7, tercero):** la instancia de la Base de Conocimiento Inteligente (`jd3uejbz`) tuvo una clave embebida en SIGI (H-PT-07); coordinar su rotación con el propietario del proyecto.
 
 ### 9.2. Protocolo de Pentest Independiente (estado: PRIMER CICLO EJECUTADO — 12-10-2026)
 
-> El **primer ciclo de pentest fue ejecutado y autorizado por la GGPD** el 12-10-2026 (no destructivo, vector externo). Hallazgos y veredictos en **`NAC_2026_GGPD_PENTEST_SIGAD_SIGASEN_V01.md`** (H-PT-01…H-PT-05, CVSS v3.1, plan de retest). El protocolo estándar siguiente rige para **extender** el alcance (otras 6 apps, cuentas desechables para bloqueo, retests):
+> **Dos ciclos de pentest fueron ejecutados y autorizados por la GGPD** el 12-10-2026 (no destructivos, vector externo): **PENT-001** (SIGAD/SIGA-SEN, H-PT-01…H-PT-05) y **PENT-002** (las 6 apps restantes, H-PT-06…H-PT-12). Ambos **cerrados con remediación ejecutada** (RLS, autenticación RPC central, purga de secretos y rotación de la clave de servicio). El protocolo estándar siguiente rige para **extender** el alcance (backend SCTIS, cuentas desechables para bloqueo, retests):
 
 | Parámetro | Propuesta |
 | :--- | :--- |

@@ -18,6 +18,7 @@ CLASIFICACIÓN        : USO INSTITUCIONAL AMPLIO · Contenido pedagógico (sin s
 AUTOR / ELABORACIÓN  : Equipo de Automatización, Analítica de Datos e Inteligencia Artificial (GGPD)
 MARCO NORMATIVO      : ISO/IEC 27001:2022 · ISO 55000/55001 · ISO 8000-110 · ISO 9001:2015
 FECHA DE EMISIÓN     : 12 de Octubre de 2026
+ÚLTIMA ACTUALIZACIÓN : 12 de Octubre de 2026 — 2.º ciclo de seguridad completado (8 apps blindadas y verificadas)
 ESTADO DE APLICACIÓN : Vigente · Material de preparación para reuniones de alto nivel
 ====================================================================================================
 ```
@@ -46,7 +47,7 @@ ESTADO DE APLICACIÓN : Vigente · Material de preparación para reuniones de al
 > **¿La plataforma del SEN está segura? → Sí, y esto es lo esencial para responderlo con propiedad.**
 
 **Qué tenemos:**
-* Dos aplicaciones estratégicas — **SIGAD** (activos de distribución) y **SIGA-SEN** (activos del SEN) — que ya concentran la información real de la red eléctrica nacional y están desplegadas en la nube de forma oficial.
+* **Ocho (8) aplicaciones estratégicas del SEN** — SIGAD, SIGA-SEN, SIGI, SCTIS, SCMTP, SCPPE, SCEIN y SCGCC — que concentran la información real de la red eléctrica nacional (activos, tiras de interrupción, planificación, tareas/minutas y correspondencia corporativa) y están desplegadas en la nube de forma oficial.
 
 **Qué se hizo para protegerlas (en una frase):** la aplicación pasó de tener *"la puerta abierta con la llave a la vista"* a tener *"una puerta blindada, con llave personal para cada funcionario y un vigilante que registra cada entrada y cada movimiento"*.
 
@@ -56,9 +57,9 @@ ESTADO DE APLICACIÓN : Vigente · Material de preparación para reuniones de al
 3. **Cifrado y llaves bien guardadas:** todo viaja cifrado (HTTPS); la llave "maestra" de la base de datos ya **no viaja dentro de la aplicación** visible al público; fue **rotada** (renovada) con fecha de expiración controlada.
 4. **Registro y trazabilidad:** cada acción queda asociada al funcionario; así se puede auditar qué se hizo, cuándo y por quién.
 
-**Estado de las demás aplicaciones:** las otras 6 aplicaciones (SIGI, SCTIS, SCMTP, SCPPE, SCEIN, SCGCC) ya recibieron la **renovación de credenciales** (sin llave maestra expuesta en el navegador) y están en **fase de aseguramiento de calidad (QA)** para replicar el mismo nivel de blindaje de SIGAD y SIGA-SEN.
+**Estado de las 8 aplicaciones:** todas las aplicaciones (SIGAD, SIGA-SEN, SIGI, SCTIS, SCMTP, SCPPE, SCEIN y SCGCC) recibieron el **mismo blindaje el 12-10-2026**: renovación de credenciales (sin llave maestra expuesta en el navegador), **permisos por fila activos (RLS)** y **autenticación centralizada** contra el padrón oficial. Ninguna quedó en «fase de espera»: las 8 están verificadas.
 
-**Compromiso de integridad:** en esta fase se hicieron **pruebas de verificación internas** (acceso, permisos, cifrado). No se han realizado pruebas de "ataque" (pentest) sobre los sistemas desplegados; para ello ya existe un **protocolo formal aprobado en el reporte técnico**, listo para ejecutarse con un equipo acreditado cuando la institución lo disponga. **No ocultamos nada: decimos qué está hecho y qué sigue.**
+**Compromiso de integridad:** se ejecutaron **dos ciclos de prueba de penetración (pentest) autorizados y no destructivos el 12-10-2026** (PENT-001: SIGAD/SIGA-SEN · PENT-002: las 6 aplicaciones restantes), bajo reglas de enfrentamiento estrictas. Ambos ciclos se **cerraron con la remediación ejecutada** (permisos por fila, autenticación centralizada y rotación de la llave maestra) y sus reportes están a disposición de ATIT y Auditoría. **No ocultamos nada: decimos qué está hecho y qué sigue** (rotación de una credencial en el proyecto BCI y saneamiento documental).
 
 ---
 
@@ -101,10 +102,10 @@ Existe un **modo de contingencia local**: si la conexión a la nube se cae (apag
 
 > Frases listas para usar, alineadas con la evidencia técnica del reporte:
 
-1. **"La plataforma SIGAD y SIGA-SEN fueron blindadas bajo el estándar ISO/IEC 27001 — el estándar internacional de seguridad de la información —, eliminando los riesgos críticos identificados en la auditoría."**
+1. **"Las ocho aplicaciones estratégicas del SEN fueron blindadas bajo el estándar ISO/IEC 27001 — el estándar internacional de seguridad de la información —, eliminando los riesgos críticos identificados en la auditoría."**
 2. **"Retiramos la llave maestra de la vista pública: las credenciales de administración ya no viajan dentro de la aplicación que ve el ciudadano; se rotaron y quedaron bajo control institucional."**
 3. **"Cada funcionario accede con su credencial corporativa y solamente ve la información de su competencia territorial. Todo queda registrado y auditable."**
-4. **"Hemos sido rigurosos y transparentes: se ejecutaron verificaciones internas y existe un protocolo formal aprobado para la prueba de penetración independiente, listo para cuando la institución lo disponga con un equipo acreditado."**
+4. **"Hemos sido rigurosos y transparentes: ejecutamos dos ciclos de prueba de penetración autorizados y no destructivos el 12-10-2026 y cerramos los hallazgos; el protocolo formal queda listo para futuros retests con un equipo acreditado."**
 5. **"Esto no es un módulo más: es la plataforma de datos del SEN con Inteligencia Artificial, en la que la seguridad es condición de base para su institucionalización en las salas situacionales de las 24 entidades federales."**
 
 ---
@@ -112,7 +113,7 @@ Existe un **modo de contingencia local**: si la conexión a la nube se cae (apag
 ## ❓ 6. PREGUNTAS FRECUENTES EN REUNIONES (FAQ) Y RESPUESTAS SUGERIDAS
 
 **P1. ¿Ya le hicieron un pentest (pruebas de ataque)?**
-→ *"No hemos ejecutado pruebas ofensivas sobre los sistemas desplegados, por política de no experimentar sobre el sistema en producción sin autorización. Sí realizamos una auditoría y verificación interna exhaustiva (accesos, permisos, cifrado, respuestas del servidor). El protocolo formal de pentest ya está redactado y aprobado en el reporte técnico, listo para ejecutarse con un equipo acreditado y bajo reglas claras."* (Honestidad = credibilidad.)
+→ *"Sí. El 12-10-2026 ejecutamos **dos ciclos de pentest autorizados y no destructivos** (uno sobre SIGAD/SIGA-SEN y otro sobre las 6 aplicaciones restantes), usando solo la credencial pública que vería un atacante y sin tocar datos reales. Los hallazgos críticos se **corrigieron y cerraron** ese mismo día (permisos por fila, autenticación centralizada y rotación de la llave maestra). Los reportes están disponibles para ATIT y Auditoría."* (Honestidad = credibilidad.)
 
 **P2. ¿Alguien de afuera puede ver la base de datos, como antes?**
 → *"No. Antes la aplicación incluía una credencial administrativa visible en el código del navegador — era un riesgo real. Ya se retiró y se rotó. El navegador solo emplea una credencial pública sin privilegios de administración, y la base de datos tiene reglas por fila que limitan cada consulta."*
@@ -127,7 +128,7 @@ Existe un **modo de contingencia local**: si la conexión a la nube se cae (apag
 → *"El sistema registra eventos (enfoque COBIT MEA02) y las acciones de mutación quedan trazadas al identificador del funcionario, habilitando auditoría interna y sanciones administrativas con evidencia."*
 
 **P6. ¿Y las otras seis aplicaciones?**
-→ *"Ya recibieron la renovación de credenciales (sin llave maestra expuesta) y están en fase de QA para replicar el mismo blindaje de SIGAD y SIGA-SEN, que es nuestro patrón de referencia."*
+→ *"Quedaron blindadas el mismo 12-10-2026 con el mismo estándar que SIGAD y SIGA-SEN (credencial pública sin privilegios, permisos por fila activos y login contra el padrón central), y fueron verificadas con el **segundo ciclo de pentest (PENT-002)**, también cerrado."*
 
 ---
 
@@ -135,11 +136,11 @@ Existe un **modo de contingencia local**: si la conexión a la nube se cae (apag
 
 > Para prepararse en 5 minutos antes de una reunión. Responda mentalmente:
 
-1. **¿Cuáles son las dos aplicaciones de prioridad nacional ya blindadas?** → *SIGAD (activos de distribución) y SIGA-SEN (activos del SEN).*
+1. **¿Cuántas aplicaciones del SEN quedaron blindadas y verificadas?** → *Las 8: SIGAD, SIGA-SEN, SIGI, SCTIS, SCMTP, SCPPE, SCEIN y SCGCC.*
 2. **¿Cuántos usuarios hay en el padrón central?** → *38 cuentas institucionales (bcrypt, no texto plano).*
 3. **¿Qué elimina el riesgo de "vernos todo"?** → *La política de permisos por fila (RLS): cada usuario ve solo su competencia.*
-4. **¿Qué se hizo con la llave maestra expuesta?** → *Se retiró del bundle y se rotó (renovada, con vencimiento controlado el 15-10-2026).*
-5. **¿Qué se responde si preguntan por pentest?** → *Ver FAQ P1: verificación interna hecha, protocolo formal listo, ejecución con equipo acreditado cuando la institución lo disponga.*
+4. **¿Qué se hizo con la llave maestra expuesta?** → *Se retiró de todos los bundles y se rotó (renovada, con vencimiento controlado el 15-10-2026).*
+5. **¿Qué se responde si preguntan por pentest?** → *Ver FAQ P1: dos ciclos ejecutados y cerrados el 12-10-2026; protocolo listo para retests con equipo acreditado.*
 6. **¿Modo contingencia sin internet?** → *Sí: modo local con las mismas credenciales y auditoría.*
 
 **Regla de oro del decisor:** *"No invento números ni prometo lo que no está hecho: digo qué está blindado, qué se verificó y qué sigue (el pentest formal bajo protocolo)."*
@@ -149,7 +150,9 @@ Existe un **modo de contingencia local**: si la conexión a la nube se cae (apag
 ## 📌 8. REFERENCIAS Y ACCESO
 
 * **Reporte técnico detallado (para ATIT/auditoría):** `docs/NAC_2026_GGPD_REPORTE_SEGURIDAD_SIGAD_SIGASEN_V01.md`.
-* **Prueba de penetración ejecutada (12-10-2026):** `docs/NAC_2026_GGPD_PENTEST_SIGAD_SIGASEN_V01.md` — para decisores: «se ejecutó el **primer ciclo de pentest autorizado, no destructivo**, con plan de retest; sin hallazgos críticos».
+* **Pruebas de penetración ejecutadas (12-10-2026):**
+  * `docs/NAC_2026_GGPD_PENTEST_SIGAD_SIGASEN_V01.md` (GGPD-SGM-PENT-001 · SIGAD/SIGA-SEN).
+  * `docs/NAC_2026_GGPD_PENTEST_SEIS_APPS_V01.md` (GGPD-SGM-PENT-002 · las 6 aplicaciones restantes) — ambos **cerrados con remediación ejecutada**.
 * **Postura consolidada de las 8 apps:** `docs/NAC_2026_GGPD_REPORTE_SEGURIDAD_8_APLICACIONES_V01.md`.
 * **Instructivos operativos:** `NAC_2026_GGPD_INS_OPERATIVO_SIGAD_V01.md` y `NAC_2026_GGPD_INS_OPERATIVO_SIGA_SEN_V01.md` (incluyen rutas de acceso a la nube).
 * **Acceso real de la plataforma (producción):**
