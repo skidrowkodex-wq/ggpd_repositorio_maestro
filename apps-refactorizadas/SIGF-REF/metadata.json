@@ -1,0 +1,6 @@
+{
+  "name": "Sistema de Ingesta y Gestión de Flota",
+  "description": "Validación de estructura FLOTA.xlsx, catálogo maestro de datos, ingesta masiva y sistema de captura para flota vehicular.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

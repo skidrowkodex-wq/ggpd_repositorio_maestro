@@ -1,0 +1,35 @@
+LICENCIA DE USO INSTITUCIONAL — CORPOELEC · GGPD
+================================================
+
+Copyright (c) 2026 Corporación Eléctrica Nacional S.A. (CORPOELEC)
+Gerencia General de Programación y Control de Operaciones de Distribución (GGPD)
+
+Todos los derechos reservados.
+
+1. PROPIEDAD
+   Este software, su código fuente, su documentación y los datos asociados son
+   propiedad exclusiva de CORPOELEC y se encuentran bajo el régimen de
+   confidencialidad institucional (ISO/IEC 27001:2022).
+
+2. USO AUTORIZADO
+   El uso, despliegue, copia o modificación de este software está autorizado
+   únicamente al personal debidamente facultado por la GGPD. Queda prohibida su
+   distribución, reproducción total o parcial, o su divulgación a terceros sin
+   autorización escrita de CORPOELEC.
+
+3. MARCO NORMATIVO
+   El acceso y tratamiento de la información se rige por:
+   - ISO/IEC 27001:2022 — Seguridad de la información.
+   - ISO 8000-110 — Calidad de datos.
+   - ISO 55000 / 55001 — Gestión de activos.
+   - OWASP ASVS v4.0 / OWASP Top 10.
+   - ISACA COBIT 2019 (MEA02).
+
+4. SIN GARANTÍA
+   EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA
+   O IMPLÍCITA, INCLUYENDO, PERO SIN LIMITARSE A, LAS GARANTÍAS DE
+   COMERCIABILIDAD, IDONEIDAD PARA UN PROPÓSITO PARTICULAR Y NO INFRACCIÓN.
+
+5. CONTACTO
+   Para consultas sobre licenciamiento o autorizaciones:
+   ggpd.automatizacion.corpoelec@gmail.com

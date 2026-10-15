@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Reporte privado de seguridad
+    url: https://github.com/distribucion-corpoelec-automatizacion/SIGF-REF/security/advisories/new
+    about: No reportes vulnerabilidades en issues públicos. Usa el canal privado (ver SECURITY.md).
+  - name: Documentación del proyecto
+    url: https://github.com/distribucion-corpoelec-automatizacion/SIGF-REF/blob/main/README.md
+    about: Consulta el README y la guía de migración antes de abrir un issue.

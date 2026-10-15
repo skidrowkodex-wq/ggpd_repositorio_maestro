@@ -1,0 +1,129 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --sen-primary: #0b3d2e;
+    --sen-secondary: #1a5f47;
+    --sen-accent: #c9a227;
+    --sen-dark: #0a1f17;
+    --sen-light: #f8f9fa;
+  }
+}
+
+@keyframes senPulse {
+  0%, 100% {
+    box-shadow: 0 0 12px rgba(26, 95, 71, 0.6);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(201, 162, 39, 0.7);
+    transform: scale(1.015);
+  }
+}
+
+.animate-sen-pulse {
+  animation: senPulse 2s infinite ease-in-out;
+}
+
+/* Utilidades para navegación táctil y móvil */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Touch targets fluidos y prevención de scroll lateral */
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+@media (max-width: 640px) {
+  input, select, textarea, button {
+    touch-action: manipulation;
+  }
+}
+
+/* ==========================================================================
+   ESTÁNDAR VISUAL DE GRADO INDUSTRIAL SEN: MODO OSCURO (DOC-GGPD-2026-VIS-001)
+   Fondo Base: #0a1f17 (Deep Electric Obsidian / Zona Segura Cifrada)
+   Contenedores: #0f2a20 (Verde Sala de Control) / #13382b
+   Bordes: #1a5f47 (Verde Esmeralda Industrial) / #c9a227 (Oro SEN)
+   ========================================================================== */
+.dark {
+  color-scheme: dark;
+}
+
+.dark .bg-white {
+  background-color: #0f2a20 !important;
+}
+
+.dark .bg-slate-50,
+.dark .bg-slate-100 {
+  background-color: #13382b !important;
+}
+
+.dark .bg-slate-200 {
+  background-color: #1a4f3b !important;
+}
+
+.dark .border-slate-100,
+.dark .border-slate-200,
+.dark .border-slate-300,
+.dark .border-gray-200,
+.dark .border-gray-300 {
+  border-color: #1a5f47 !important;
+}
+
+.dark .text-slate-900,
+.dark .text-gray-900,
+.dark .text-slate-800,
+.dark .text-gray-800 {
+  color: #f8fafc !important;
+}
+
+.dark .text-slate-700,
+.dark .text-slate-600,
+.dark .text-gray-700,
+.dark .text-gray-600 {
+  color: #cbd5e1 !important;
+}
+
+.dark .text-slate-500,
+.dark .text-gray-500 {
+  color: #94a3b8 !important;
+}
+
+.dark input:not([type="checkbox"]):not([type="radio"]),
+.dark select,
+.dark textarea {
+  background-color: #0a1f17 !important;
+  color: #f8fafc !important;
+  border-color: #1a5f47 !important;
+}
+
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+  border-color: #c9a227 !important;
+  box-shadow: 0 0 0 1px #c9a227 !important;
+}
+
+.dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-slate-100:hover,
+.dark .hover\:bg-gray-50:hover {
+  background-color: #184838 !important;
+}
+
+.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
+.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #1a5f47 !important;
+}
+
+.dark .shadow-xs,
+.dark .shadow-sm,
+.dark .shadow-md {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+}
