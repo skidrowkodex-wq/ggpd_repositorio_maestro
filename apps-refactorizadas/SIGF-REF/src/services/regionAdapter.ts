@@ -165,6 +165,7 @@ const STATE_ALIASES: { [alias: string]: string } = {
   'DELTA AMACURO': 'Delta Amacuro',
   'DEL': 'Delta Amacuro',
   'GUAYANA ESEQUIBA': 'Guayana Esequiba',
+  'ESTADO GUAYANA ESEQUIBA': 'Guayana Esequiba',
   'ESEQUIBO': 'Guayana Esequiba',
   'ZONA EN RECLAMACION': 'Guayana Esequiba',
   'ESQ': 'Guayana Esequiba',

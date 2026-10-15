@@ -73,6 +73,19 @@ Consulta el detalle en [.agents/rules/industrial_grade_standard.md](file:///home
 **Aplicaciones publicadas bajo esta regla:**
 - **SIGF** (Sistema de Ingesta y Gestión de Flota Vehicular) → `distribucion-corpoelec-automatizacion/SIGF-REF` · VibeHost: `flota-vehicular-ggpd`
 
+---
+
+## 💱 6. API Externa de Tasa de Cambio (USD / EUR)
+**Guía obligatoria:** [`docs/NAC_2026_GGPD_GUIA_API_TASA_CAMBIO_DOLARAPI_V01.md`](docs/NAC_2026_GGPD_GUIA_API_TASA_CAMBIO_DOLARAPI_V01.md) — cómo conectarse a **`https://ve.dolarapi.com/v1`** para obtener la cotización del dólar y del euro.
+
+- **Sin API key ni autenticación.** `GET` sobre HTTPS, JSON. CORS `Access-Control-Allow-Origin: *` (pero si la app usa CSP `'self'`, el fetch debe ser **server-side**).
+- **Endpoints:** `/dolares` y `/euros` (array) · `/dolares/{fuente}` y `/euros/{fuente}` (objeto) · `/historicos/dolares/{fuente}` y `/historicos/euros/{fuente}` (serie). **Fuentes válidas: `oficial` y `paralelo`, en minúsculas** (case-sensitive; otro valor → `404` con cuerpo vacío).
+- **Usar siempre `promedio`**: `compra`/`venta` llegan `null` en la práctica.
+- **El filtro de fechas del histórico NO existe** (`?fechaDesde` se ignora): la API devuelve la serie completa → filtrar en cliente.
+- **Fecha de valor en hora Caracas (UTC-4, sin DST).** Captura recomendada: al arrancar + diaria a las 08:05.
+- **Patrón de integración de referencia (en producción):** `C:\ggc_corporativos\web\server.js` (`urlTasa`, `pedirJSON`, `upsertTasa`, `capturarTasa`, `tasaDe`, `programarTasa`) + bloque `tasaCambio` de `web\config.json` + tabla `tasa_cambio` (`Scripts\Sql\004_tasa_cambio.sql`).
+- **Consumidor principal en el maestro:** **SCPPE** (multimoneda SAMC, `db/schema_samc/03_samc_multimoneda.sql`). SCTIS, SIGI, SIGAD, SIGF y el Portal también pueden valuar en USD/EUR siguiendo la misma guía.
+
 <!-- INSFORGE:START -->
 ## InsForge backend
 

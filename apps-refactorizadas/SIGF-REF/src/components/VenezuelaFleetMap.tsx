@@ -2,7 +2,23 @@ import React, { useState, useMemo } from 'react';
 import { VehicleRecord } from '../types/fleet';
 import { CORPOELEC_CENTROS_SERVICIOS, VENEZUELA_STATES } from '../data/venezuelaRegions';
 import { STATE_COORDINATES, CS_COORDINATES, projectCoordinates } from '../data/venezuelaCoordinates';
-import { MapPin, ZoomIn, ZoomOut, RotateCcw, Layers, Radio, ShieldCheck, Car, Wrench, AlertTriangle, Eye, Info } from 'lucide-react';
+import {
+  VENEZUELA_MAINLAND,
+  LAGO_MARACAIBO,
+  ORINOCO_RIVER,
+  ORINOCO_DELTA,
+  AGUA_LABELS,
+  RIO_LABELS,
+  VECINOS,
+  SOBERANIA_LABELS,
+  MERIDIANOS,
+  PARALELOS,
+  ENTITY_LABEL_ANCHORS,
+  toSvgPath,
+  toSmoothSvgPath,
+  labelAt,
+} from '../data/venezuelaGeoOutline';
+import { MapPin, ZoomIn, ZoomOut, RotateCcw, Layers, Flag, ShieldCheck, Info } from 'lucide-react';
 
 interface VenezuelaFleetMapProps {
   vehicles: VehicleRecord[];
@@ -22,10 +38,17 @@ export const VenezuelaFleetMap: React.FC<VenezuelaFleetMapProps> = ({
   const [hoveredState, setHoveredState] = useState<string | null>(null);
   const [hoveredCs, setHoveredCs] = useState<string | null>(null);
   const [activeStateDetails, setActiveStateDetails] = useState<string | null>(null);
+  /** Capa cartográfica: rótulos de la división político-territorial (visible por defecto). */
+  const [showRotulos, setShowRotulos] = useState<boolean>(true);
 
   // Dimensiones del lienzo SVG base
   const svgWidth = 900;
   const svgHeight = 600;
+
+  // Escala gráfica: 300 km expresados en píxeles del lienzo (latitud media ~7°N)
+  // 110.48 km ≈ 1 grado de longitud a 7°N · 810 px ≈ 15.4° de longitud
+  const escalaKm = 300;
+  const escalaPx = Math.round((escalaKm / 110.48) * ((svgWidth * 0.9) / 15.4) * 10) / 10;
 
   // Métricas agregadas por Estado
   const stateStats = useMemo(() => {
@@ -222,6 +245,23 @@ export const VenezuelaFleetMap: React.FC<VenezuelaFleetMapProps> = ({
               <RotateCcw className="w-3.5 h-3.5" />
             </button>
           </div>
+
+          {/* Capa cartográfica: rótulos político-territoriales */}
+          <button
+            onClick={() => setShowRotulos(prev => !prev)}
+            aria-pressed={showRotulos}
+            title={showRotulos ? 'Ocultar rótulos político-territoriales' : 'Mostrar rótulos político-territoriales'}
+            className={`px-2.5 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+              showRotulos
+                ? 'bg-[#c9a227] text-[#0b3d2e] border-[#c9a227] shadow-xs'
+                : isDarkMode
+                  ? 'bg-[#13382b] border-[#1a5f47] text-slate-300 hover:border-[#c9a227]'
+                  : 'bg-slate-100 border-slate-300 text-slate-600 hover:border-[#c9a227]'
+            }`}
+          >
+            <Flag className="w-3.5 h-3.5" />
+            <span>Rótulos</span>
+          </button>
         </div>
       </div>
 
@@ -259,6 +299,10 @@ export const VenezuelaFleetMap: React.FC<VenezuelaFleetMapProps> = ({
                 <span>Centro de Servicios (CS)</span>
               </div>
             )}
+            <div className="flex items-center gap-2 pt-1 border-t border-slate-200 dark:border-[#1a5f47]">
+              <span className="w-2.5 h-2.5 rounded-sm bg-emerald-300 dark:bg-[#2f8f6b] border border-[#0b3d2e] shrink-0"></span>
+              <span>División político-territorial de Venezuela</span>
+            </div>
           </div>
 
           {/* SVG Map Container con Soporte de Zoom */}
@@ -276,77 +320,158 @@ export const VenezuelaFleetMap: React.FC<VenezuelaFleetMapProps> = ({
                   <feGaussianBlur stdDeviation="3" result="blur" />
                   <feComposite in="SourceGraphic" in2="blur" operator="over" />
                 </filter>
+                <filter id="reliefShadow" x="-25%" y="-25%" width="150%" height="150%">
+                  <feDropShadow dx="0" dy="3" stdDeviation="3.5" floodColor="#000000" floodOpacity="0.22" />
+                </filter>
                 <linearGradient id="venezuelaLandGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor={isDarkMode ? '#0d2d20' : '#dcfce7'} stopOpacity="0.8" />
-                  <stop offset="100%" stopColor={isDarkMode ? '#091f16' : '#bbf7d0'} stopOpacity="0.9" />
+                  <stop offset="0%" stopColor={isDarkMode ? '#14503c' : '#a7e8cd'} stopOpacity="0.95" />
+                  <stop offset="100%" stopColor={isDarkMode ? '#0d3a2b' : '#86efac'} stopOpacity="0.95" />
                 </linearGradient>
               </defs>
 
-              {/* Polígono Vectorial Estilizado de la República de Venezuela (Incluye Guayana Esequiba) */}
+              {/* =================================================================
+                  CAPA 0 · Retícula geográfica de referencia (graticule)
+                  ================================================================= */}
+              <g id="graticule" pointerEvents="none">
+                {MERIDIANOS.map(lng => {
+                  const a = projectCoordinates(12.8, lng, svgWidth, svgHeight);
+                  const b = projectCoordinates(0.6, lng, svgWidth, svgHeight);
+                  return (
+                    <line
+                      key={`m${lng}`}
+                      x1={a.x} y1={a.y} x2={b.x} y2={b.y}
+                      stroke={isDarkMode ? '#1a5f47' : '#0b3d2e'}
+                      strokeOpacity="0.10" strokeWidth="0.7" strokeDasharray="2 6"
+                    />
+                  );
+                })}
+                {PARALELOS.map(lat => {
+                  const a = projectCoordinates(lat, -73.6, svgWidth, svgHeight);
+                  const b = projectCoordinates(lat, -58.2, svgWidth, svgHeight);
+                  return (
+                    <g key={`p${lat}`}>
+                      <line
+                        x1={a.x} y1={a.y} x2={b.x} y2={b.y}
+                        stroke={isDarkMode ? '#1a5f47' : '#0b3d2e'}
+                        strokeOpacity="0.10" strokeWidth="0.7" strokeDasharray="2 6"
+                      />
+                      <text x={a.x + 5} y={a.y - 4} fontSize="6.5" fontFamily="monospace"
+                        fill={isDarkMode ? '#1a5f47' : '#0b3d2e'} opacity="0.40">
+                        {lat}°N
+                      </text>
+                    </g>
+                  );
+                })}
+              </g>
+
+              {/* =================================================================
+                  CAPA 1 · Entorno: países vecinos y masas de agua
+                  ================================================================= */}
+              <g id="entornos" pointerEvents="none">
+                {VECINOS.map((v, i) => {
+                  const lb = labelAt(v, svgWidth, svgHeight);
+                  return (
+                    <text key={`vecino-${i}`} x={lb.x} y={lb.y} textAnchor="middle" fontSize="8.5"
+                      letterSpacing="2.2" fontWeight="700" fill={isDarkMode ? '#1f6f52' : '#6f9c88'} opacity="0.75">
+                      {lb.texto}
+                    </text>
+                  );
+                })}
+                {AGUA_LABELS.map((a, i) => {
+                  const lb = labelAt(a, svgWidth, svgHeight);
+                  return (
+                    <text key={`agua-${i}`} x={lb.x} y={lb.y} textAnchor="middle" fontSize="8.5"
+                      fontStyle="italic" letterSpacing="2.4" fontWeight="600"
+                      fill={isDarkMode ? '#1c7c63' : '#3b82a6'} opacity="0.6">
+                      {lb.texto}
+                    </text>
+                  );
+                })}
+              </g>
+
+              {/* =================================================================
+                  CAPA 2 · Territorio de la República (contorno georreferenciado)
+                  ================================================================= */}
               <g id="venezuela-land-outline">
-                {/* Cuenca y Costas Venezolanas estilizadas con alta precisión geográfica */}
+                {/* Relieve: sombra proyectada bajo la masa continental */}
                 <path
-                  d="
-                    M 140, 110 
-                    C 170, 70, 240, 80, 280, 70
-                    C 320, 50, 360, 45, 410, 60
-                    C 460, 70, 520, 55, 590, 75
-                    C 640, 90, 710, 80, 740, 100
-                    C 780, 120, 810, 160, 825, 230
-                    C 840, 290, 830, 350, 800, 390
-                    C 760, 430, 700, 480, 640, 510
-                    C 570, 540, 490, 560, 430, 550
-                    C 380, 540, 350, 480, 340, 420
-                    C 330, 360, 300, 310, 260, 280
-                    C 220, 260, 170, 270, 130, 290
-                    C 95, 270, 90, 230, 110, 180
-                    Z
-                  "
+                  d={toSmoothSvgPath(VENEZUELA_MAINLAND, svgWidth, svgHeight, true, 0.85)}
+                  fill="#000000"
+                  opacity={isDarkMode ? 0.4 : 0.12}
+                  filter="url(#reliefShadow)"
+                  transform="translate(2,5)"
+                />
+
+                {/* Masa continental — tratamiento político uniforme */}
+                <path
+                  d={toSmoothSvgPath(VENEZUELA_MAINLAND, svgWidth, svgHeight, true, 0.85)}
                   fill="url(#venezuelaLandGradient)"
-                  stroke={isDarkMode ? '#1a5f47' : '#86efac'}
-                  strokeWidth="2.5"
+                  stroke={isDarkMode ? '#3ba57c' : '#0b3d2e'}
+                  strokeWidth="2.4"
                   strokeLinejoin="round"
                 />
 
-                {/* Golfo de Venezuela & Lago de Maracaibo */}
-                <ellipse 
-                  cx="195" 
-                  cy="175" 
-                  rx="32" 
-                  ry="48" 
-                  fill={isDarkMode ? '#06140e' : '#f0fdf4'} 
-                  stroke={isDarkMode ? '#1a5f47' : '#86efac'} 
-                  strokeWidth="1.5" 
-                  strokeDasharray="3 3"
-                />
-                <text x="195" y="180" textAnchor="middle" fontSize="9" fill={isDarkMode ? '#4ade80' : '#0b3d2e'} opacity="0.6" fontWeight="bold">
-                  Lago de Maracaibo
-                </text>
-
-                {/* Eje del Río Orinoco (Línea de Vida Eléctrica) */}
+                {/* Delta del Orinoco */}
                 <path
-                  d="M 360, 380 Q 480, 340 590, 310 T 730, 220"
+                  d={toSvgPath(ORINOCO_DELTA, svgWidth, svgHeight, true)}
+                  fill={isDarkMode ? '#0e4a39' : '#a7e8cd'}
+                  fillOpacity="0.55"
+                  stroke={isDarkMode ? '#2f8f6b' : '#0b3d2e'}
+                  strokeWidth="0.8" strokeOpacity="0.5" strokeDasharray="3 2"
+                />
+
+                {/* Lago de Maracaibo */}
+                <path
+                  d={toSmoothSvgPath(LAGO_MARACAIBO, svgWidth, svgHeight, true, 0.7)}
+                  fill={isDarkMode ? '#05130d' : '#f0fdfa'}
+                  stroke={isDarkMode ? '#2f8f6b' : '#0b3d2e'}
+                  strokeWidth="1" strokeOpacity="0.55"
+                />
+
+                {/* Eje del Río Orinoco (línea de vida eléctrica del SEN) */}
+                <path
+                  d={toSmoothSvgPath(ORINOCO_RIVER, svgWidth, svgHeight, false, 0.9)}
                   fill="none"
                   stroke={isDarkMode ? '#10b981' : '#059669'}
-                  strokeWidth="1.5"
-                  strokeDasharray="4 4"
-                  opacity="0.4"
+                  strokeWidth="1.6" strokeDasharray="5 4" strokeOpacity="0.55" strokeLinecap="round"
                 />
-                <text x="560" y="300" fontSize="9" fill={isDarkMode ? '#6ee7b7' : '#047857'} opacity="0.6" fontStyle="italic">
-                  Eje Orinoco - Complejo Hidroeléctrico
-                </text>
+                {(() => {
+                  const lb = labelAt(RIO_LABELS[0], svgWidth, svgHeight);
+                  return (
+                    <text x={lb.x} y={lb.y} fontSize="8.5" fontStyle="italic" fontWeight="600"
+                      fill={isDarkMode ? '#6ee7b7' : '#047857'} opacity="0.75"
+                      transform={`rotate(${lb.rot} ${lb.x} ${lb.y})`}>
+                      {lb.texto}
+                    </text>
+                  );
+                })()}
+                {(() => {
+                  const lb = labelAt(RIO_LABELS[1], svgWidth, svgHeight);
+                  return (
+                    <text x={lb.x} y={lb.y} fontSize="8" fontStyle="italic" fontWeight="600" textAnchor="middle"
+                      fill={isDarkMode ? '#6ee7b7' : '#047857'} opacity="0.75"
+                      transform={`rotate(${lb.rot} ${lb.x} ${lb.y})`}>
+                      {lb.texto}
+                    </text>
+                  );
+                })()}
 
-                {/* Territorio de la Guayana Esequiba (Línea Estratégica) */}
-                <path
-                  d="M 720, 220 L 825, 230 L 800, 390 L 710, 340 Z"
-                  fill={isDarkMode ? 'rgba(201, 162, 39, 0.08)' : 'rgba(201, 162, 39, 0.12)'}
-                  stroke="#c9a227"
-                  strokeWidth="1.5"
-                  strokeDasharray="5 3"
-                />
-                <text x="760" y="300" textAnchor="middle" fontSize="9" fill="#c9a227" fontWeight="bold" opacity="0.8">
-                  Estado Guayana Esequiba
-                </text>
+                {/* Marca de agua cartográfica: rotulación interior de soberanía */}
+                {SOBERANIA_LABELS.map((s, i) => {
+                  const lb = labelAt(s, svgWidth, svgHeight);
+                  const principal = lb.texto === 'VENEZUELA';
+                  return (
+                    <text key={`sober-${i}`} x={lb.x} y={lb.y} textAnchor="middle"
+                      fontSize={principal ? '23' : '12'}
+                      fontWeight="900"
+                      letterSpacing={principal ? '7' : '4.5'}
+                      fill={isDarkMode ? '#2f8f6b' : '#0b3d2e'}
+                      opacity={principal ? 0.11 : 0.16}
+                      pointerEvents="none">
+                      {lb.texto}
+                    </text>
+                  );
+                })}
               </g>
 
               {/* Capa de Nodos de Centros de Servicios (CS) */}
@@ -456,6 +581,55 @@ export const VenezuelaFleetMap: React.FC<VenezuelaFleetMapProps> = ({
                           {count}
                         </text>
 
+                        {/* Rótulo político-territorial permanente (mapa geopolítico).
+                            Idéntico tratamiento tipográfico para las 25 entidades. */}
+                        {showRotulos && (() => {
+                          const anchor = ENTITY_LABEL_ANCHORS[st.codigo] ?? {
+                            dx: 0,
+                            dy: radius + 12,
+                            anchor: 'middle' as const,
+                          };
+                          const nombre = st.codigo === 'CCS'
+                            ? '★ CARACAS'
+                            : st.nombre.replace(/^Estado\s+/i, '').toUpperCase();
+                          const fontSize = st.codigo === 'CCS' ? 7.6
+                            : nombre.length > 13 ? 6.1
+                            : nombre.length > 10 ? 6.6
+                            : 7.2;
+                          const halo = isDarkMode ? '#04120c' : '#ffffff';
+                          const tinta = isDarkMode ? '#d1fae5' : '#06301f';
+
+                          return (
+                            <g transform={`translate(${anchor.dx}, ${anchor.dy})`} pointerEvents="none">
+                              {anchor.leader && (
+                                <line
+                                  x1={-anchor.dx}
+                                  y1={-anchor.dy}
+                                  x2="0"
+                                  y2="0"
+                                  stroke={isDarkMode ? '#7dd3a8' : '#0b3d2e'}
+                                  strokeWidth="0.7"
+                                  strokeOpacity="0.55"
+                                  strokeDasharray="2 2"
+                                />
+                              )}
+                              <text
+                                textAnchor={anchor.anchor ?? 'middle'}
+                                fontSize={fontSize}
+                                fontWeight="800"
+                                letterSpacing="0.5"
+                                fill={tinta}
+                                stroke={halo}
+                                strokeWidth="2.4"
+                                strokeLinejoin="round"
+                                paintOrder="stroke"
+                              >
+                                {nombre}
+                              </text>
+                            </g>
+                          );
+                        })()}
+
                         {/* Etiqueta flotante con nombre de estado */}
                         {(isHovered || isSelected) && (
                           <g transform={`translate(0, ${-radius - 10})`}>
@@ -486,6 +660,50 @@ export const VenezuelaFleetMap: React.FC<VenezuelaFleetMapProps> = ({
                   })}
                 </g>
               )}
+
+              {/* =================================================================
+                  CAPA 4 · Elementos cartográficos: rosa de los vientos y escala
+                  ================================================================= */}
+              <g id="cartografia" pointerEvents="none">
+                {/* Rosa de los vientos */}
+                <g transform={`translate(${svgWidth - 52}, 58)`}>
+                  <circle
+                    r="20"
+                    fill={isDarkMode ? '#0a1f17' : '#ffffff'} fillOpacity="0.72"
+                    stroke={isDarkMode ? '#1a5f47' : '#0b3d2e'} strokeOpacity="0.35" strokeWidth="0.8"
+                  />
+                  <path d="M 0,-14 L 4.5,0 L 0,14 L -4.5,0 Z" fill="#0b3d2e" opacity="0.26" />
+                  <path d="M 0,-14 L 4.5,0 L 0,0 Z" fill={isDarkMode ? '#2f8f6b' : '#0b3d2e'} />
+                  <path d="M 0,-14 L -4.5,0 L 0,0 Z" fill={isDarkMode ? '#0d2d20' : '#2f8f6b'} />
+                  <path d="M 0,-14 L 0,-19" stroke={isDarkMode ? '#2f8f6b' : '#0b3d2e'} strokeWidth="1.2" />
+                  <text y="-22" textAnchor="middle" fontSize="9.5" fontWeight="900"
+                    fill={isDarkMode ? '#2f8f6b' : '#0b3d2e'}>
+                    N
+                  </text>
+                  <text y="26" textAnchor="middle" fontSize="6.5" fontWeight="700"
+                    fill={isDarkMode ? '#2f8f6b' : '#0b3d2e'} opacity="0.7">
+                    S
+                  </text>
+                </g>
+
+                {/* Escala gráfica (tres divisiones de 100 km) */}
+                <g transform={`translate(${svgWidth - 60 - escalaPx}, ${svgHeight - 46})`}>
+                  <rect x="0" y="0" width={escalaPx / 3} height="5"
+                    fill={isDarkMode ? '#2f8f6b' : '#0b3d2e'} opacity="0.75" />
+                  <rect x={escalaPx / 3} y="0" width={escalaPx / 3} height="5" fill="none"
+                    stroke={isDarkMode ? '#2f8f6b' : '#0b3d2e'} strokeWidth="0.9" opacity="0.75" />
+                  <rect x={(escalaPx / 3) * 2} y="0" width={escalaPx / 3} height="5"
+                    fill={isDarkMode ? '#2f8f6b' : '#0b3d2e'} opacity="0.75" />
+                  <text x="0" y="-4" fontSize="7" fontFamily="monospace"
+                    fill={isDarkMode ? '#2f8f6b' : '#0b3d2e'} opacity="0.8">
+                    0
+                  </text>
+                  <text x={escalaPx} y="-4" fontSize="7" fontFamily="monospace" textAnchor="end"
+                    fill={isDarkMode ? '#2f8f6b' : '#0b3d2e'} opacity="0.8">
+                    {escalaKm} km
+                  </text>
+                </g>
+              </g>
             </svg>
           </div>
 

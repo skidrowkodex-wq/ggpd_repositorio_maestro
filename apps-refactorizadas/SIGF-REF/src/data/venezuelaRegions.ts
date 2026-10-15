@@ -93,7 +93,7 @@ export const VENEZUELA_REGIONS: VenezuelanRegion[] = [
     codigo: 'GUY',
     gerencia: 'GERENCIA REGIONAL GUAYANA',
     sedePrincipal: 'Puerto Ordaz / Complejo Hidroeléctrico Macagua',
-    estados: ['Amazonas', 'Bolívar', 'Delta Amacuro', 'Estado Guayana Esequiba'],
+    estados: ['Amazonas', 'Bolívar', 'Delta Amacuro', 'Guayana Esequiba'],
     descripcion: 'Pilar hidroeléctrico nacional (Guri, Caruachi, Macagua). Abarca el territorio de la Guayana Esequiba.'
   }
 ];
@@ -143,7 +143,7 @@ export const VENEZUELA_STATES: VenezuelanState[] = [
   { id: 'amz', nombre: 'Amazonas', codigo: 'AMZ', capital: 'Puerto Ayacucho', region_id: 'reg-guayana', region: 'GUAYANA' },
   { id: 'bol', nombre: 'Bolívar', codigo: 'BOL', capital: 'Ciudad Bolívar / Pto. Ordaz', region_id: 'reg-guayana', region: 'GUAYANA' },
   { id: 'del', nombre: 'Delta Amacuro', codigo: 'DEL', capital: 'Tucupita', region_id: 'reg-guayana', region: 'GUAYANA' },
-  { id: 'esq', nombre: 'Estado Guayana Esequiba', codigo: 'ESQ', capital: 'Tumeremo (Administrativa)', region_id: 'reg-guayana', region: 'GUAYANA' }
+  { id: 'esq', nombre: 'Guayana Esequiba', codigo: 'ESQ', capital: 'Tumeremo (Administrativa)', region_id: 'reg-guayana', region: 'GUAYANA' }
 ];
 
 /**
