@@ -67,3 +67,6 @@ database/
 metas_drive/
 repo_ggc/
 corpoelec-bci-developer-kit/
+
+# Copia de trabajo local de SIGF (la version oficial vive en apps-refactorizadas/SIGF-REF)
+/app flota/
