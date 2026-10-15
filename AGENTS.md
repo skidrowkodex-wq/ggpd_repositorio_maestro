@@ -21,7 +21,8 @@ El repositorio integra las cinco aplicaciones estratégicas del SEN más la Cons
 5. **SIGI (Consola Central de Gestión y Planificación):** `apps/corpoelec-sigi-gestion-planificacion-distribucion` / `apps-refactorizadas/SIGI-REF` (Puerto `3001`)
 6. **SCGCC V1.0 (Gestión de Correspondencia Corporativa):** `apps-refactorizadas/SCGCC-REF` (Puerto `3006`)
 7. **SIGAD v1.0 (Sistema Integrado de Gestión de Activos de Distribución):** `apps-refactorizadas/SIGAD-REF` (Puerto `3007`)
-8. **Portal Maestro Unificado:** `index.html` / `src/` (Puerto `5000` o `npm run dev`)
+8. **SIGF v1.0 (Sistema de Ingesta y Gestión de Flota Vehicular):** `app flota/sistema-de-ingesta-y-gestión-de-flota (1)` / `apps-refactorizadas/SIGF-REF` (Puerto `3010`; repo dedicado: `distribucion-corpoelec-automatizacion/SIGF-REF`; VibeHost: `flota-vehicular-ggpd`)
+9. **Portal Maestro Unificado:** `index.html` / `src/` (Puerto `5000` o `npm run dev`)
 
 ---
 
@@ -55,6 +56,22 @@ Consulta el detalle en [.agents/rules/industrial_grade_standard.md](file:///home
 - `npm run dev`: Inicia el servidor de desarrollo Vite para el portal unificado.
 - `npm run serve:portal`: Servidor HTTP en puerto 5000 para el portal maestro.
 - `npm run discover` / `npm run spec` / `npm run scan`: Herramientas automatizadas de inspección y schema de Supabase.
+
+---
+
+## 🚀 5. Publicación de Aplicaciones (GitHub dedicado + apps-refactorizadas + VibeHost)
+**Regla permanente (decisión del usuario, 2026-10-15).** Al incorporar o publicar una aplicación en el Repositorio Maestro se debe cumplir SIEMPRE con este flujo:
+
+1. **Ubicar la app en el maestro:** copiar/refactorizar la aplicación en `apps-refactorizadas/<SIGLA>-REF` (dentro del Repositorio Maestro). Nota: el `database/` local queda fuera del control de versiones del maestro por la regla raíz del `.gitignore`, pero **sí** se versiona en el repositorio dedicado.
+2. **Crear un repositorio GitHub dedicado** en la cuenta **`distribucion-corpoelec-automatizacion`**, con nombre **`<SIGLA>-REF`**, rama **`main`**, visibilidad **privada** por defecto, y **documentación estándar de GitHub** obligatoria:
+   - `README.md`, `LICENSE`, `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, `CHANGELOG.md`
+   - `.github/ISSUE_TEMPLATE/` (`bug_report.md`, `feature_request.md`, `config.yml`)
+   - `.github/PULL_REQUEST_TEMPLATE.md` y `.github/workflows/ci.yml`
+3. **Un repositorio por aplicación.** Nunca mezclar una app nueva dentro del repositorio de otra app (p. ej. no publicar Flota en el repo de SIGI).
+4. **Publicar en VibeHost** (runtime estático) y entregar la **URL pública** al usuario.
+
+**Aplicaciones publicadas bajo esta regla:**
+- **SIGF** (Sistema de Ingesta y Gestión de Flota Vehicular) → `distribucion-corpoelec-automatizacion/SIGF-REF` · VibeHost: `flota-vehicular-ggpd`
 
 <!-- INSFORGE:START -->
 ## InsForge backend
