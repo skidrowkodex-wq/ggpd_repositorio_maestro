@@ -8,7 +8,7 @@
 
 `React 19` · `TypeScript` · `Vite` · `Tailwind CSS v4` · `InsForge (PostgreSQL)`
 
-*Punto de Control oficial: `SISFLOTA01`*
+**Versión `1.1.0`** · *Punto de Control oficial: `SISFLOTA01`*
 
 </div>
 
@@ -26,7 +26,7 @@ SPA institucional que permite a las coordinaciones territoriales (estados), a la
 | :--- | :--- | :--- |
 | **Formulario de Captura** | `tab_formulario` | Registro y edición de fichas técnicas de vehículos (formato A4, nomenclatura `GGDT-[EST]-[TIPO]-[CORR]`). |
 | **Consolidado de Flota** | `tab_consolidado` | Tabla consolidada con filtros avanzados, resúmenes territoriales/por componentes/por gerencias, importación Excel→BD, exportación, PDF por vehículo y vaciado de BD. |
-| **Cuadro de Mando Gerencial** | `tab_gerencia` | KPIs ejecutivos, alertas de mantenimiento y **Historial de Auditoría** de acciones críticas. |
+| **Cuadro de Mando Gerencial** | `tab_gerencia` | KPIs ejecutivos, alertas de mantenimiento, **mapa geopolítico de Venezuela** e **Historial de Auditoría** de acciones críticas. |
 | **Control de Permisos por Rol** | `tab_permisos` | Página **administrativa** que define qué botones/vistas ve cada rol (ver sección RBAC). |
 
 ---
@@ -150,12 +150,38 @@ src/
 │   ├── postgresExportService.ts# Generador DDL/DML PostgreSQL
 │   ├── excelService.ts / pdfService.ts
 │   └── validationService.ts / regionAdapter.ts
-├── data/             # Catálogos, usuarios por defecto y regiones de Venezuela
+├── data/             # Catálogos, usuarios por defecto, regiones y contorno geopolítico de Venezuela
 ├── types/            # Tipos del dominio (fleet, etc.)
 └── assets/           # Imagen corporativa (logo-corpoelec.png)
 database/             # Esquemas y semillas SQL
 scripts/              # Utilidades (exportSql.ts)
 ```
+
+---
+
+## 🗺️ Mapa Geopolítico (Cuadro de Mando Gerencial)
+
+El **Cuadro de Mando Gerencial (`tab_gerencia`)** incluye un **mapa político de Venezuela** construido 100 % en SVG, **sin dependencias externas** (sin GeoJSON ni librerías de mapeo).
+
+### Características
+- **Territorio nacional con tratamiento uniforme:** la **Guayana Esequiba** queda integrada al territorio con **idéntico tratamiento tipográfico** que el resto de las entidades (sin tramas, líneas administradas ni rasgos diferenciadores).
+- **Rotulación de las entidades federales** con anclajes individuales y líneas guía en las regiones densas (Capital, Centro-Norte, Nororiental); `★ CARACAS` como capital.
+- **Capas conmutables:** división político-territorial (rótulos), relación de **Centros de Servicios** y burbujas de **densidad por estado**.
+- **Cartografía de referencia:** contorno georreferenciado, hidrografía (lago de Maracaibo, Orinoco, delta), retícula, entorno de países vecinos, rótulos de agua, rosa de los vientos y escala gráfica de 300 km.
+- **Proyección compartida:** el contorno usa la **misma función de proyección** que los nodos de Estados y Centros de Servicios, garantizando alineación exacta.
+
+> Módulo fuente: `src/data/venezuelaGeoOutline.ts` · Componente: `src/components/VenezuelaFleetMap.tsx`.
+
+---
+
+## 🌐 Despliegue y Repositorios
+
+| Recurso | Ubicación |
+| :--- | :--- |
+| **Aplicación en vivo (VibeHost)** | https://flota-vehicular-ggpd-corpoelec-ggpd-hosting-apps.vibehost.space |
+| **Repositorio dedicado (GitHub)** | https://github.com/distribucion-corpoelec-automatizacion/SIGF-REF (privado) |
+| **Repositorio Maestro** | `apps-refactorizadas/SIGF-REF` |
+| **Puerto de desarrollo** | `3010` (alterno al `3000` por defecto de Vite) |
 
 ---
 
