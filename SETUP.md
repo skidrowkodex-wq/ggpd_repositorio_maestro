@@ -73,6 +73,12 @@ cp apps-refactorizadas/SCEIN-REF/.env.example apps-refactorizadas/SCEIN-REF/.env
 
 # SCGCC-REF
 cp apps-refactorizadas/SCGCC-REF/.env.example apps-refactorizadas/SCGCC-REF/.env
+
+# SIGAD-REF
+cp apps-refactorizadas/SIGAD-REF/.env.example apps-refactorizadas/SIGAD-REF/.env
+
+# SIGF-REF
+cp apps-refactorizadas/SIGF-REF/.env.example apps-refactorizadas/SIGF-REF/.env
 ```
 
 > **Importante:** Los valores reales de `INSFORGE_API_KEY`, `VIBEHOST_TOKEN`, `GITHUB_TOKEN_*` deben ir en `.env.local` (raíz) y copiarse a cada `.env` de app, o usar un script que los inyecte. Ver sección 5.
@@ -107,11 +113,17 @@ cd apps-refactorizadas/SCEIN-REF && npm install && cd ../..
 
 # SCGCC-REF
 cd apps-refactorizadas/SCGCC-REF && npm install && cd ../..
+
+# SIGAD-REF
+cd apps-refactorizadas/SIGAD-REF && npm install && cd ../..
+
+# SIGF-REF
+cd apps-refactorizadas/SIGF-REF && npm install && cd ../..
 ```
 
 > **Tip:** Usa un script para instalar todo en paralelo:
 ```bash
-for app in SIGI-REF SCMTP-REF SCPPE-REF SCEIN-REF SCGCC-REF; do
+for app in SIGI-REF SCMTP-REF SCPPE-REF SCEIN-REF SCGCC-REF SIGAD-REF SIGF-REF; do
   (cd apps-refactorizadas/$app && npm install) &
 done
 wait
@@ -144,6 +156,8 @@ apps=(
   "apps-refactorizadas/SCPPE-REF"
   "apps-refactorizadas/SCEIN-REF"
   "apps-refactorizadas/SCGCC-REF"
+  "apps-refactorizadas/SIGAD-REF"
+  "apps-refactorizadas/SIGF-REF"
 )
 
 for app in "${apps[@]}"; do
@@ -219,9 +233,15 @@ cd apps-refactorizadas/SCEIN-REF && npm run dev
 
 # SCGCC-REF (puerto 3006)
 cd apps-refactorizadas/SCGCC-REF && npm run dev
+
+# SIGAD-REF (puerto 3007)
+cd apps-refactorizadas/SIGAD-REF && npm run dev
+
+# SIGF-REF (puerto 3010)
+cd apps-refactorizadas/SIGF-REF && npm run dev
 ```
 
-### Levantar todas a la vez (portal + 6 apps)
+### Levantar todas a la vez (portal + 8 apps)
 ```bash
 npm run serve:all  # Usa serve_all.py (Python)
 ```
@@ -240,6 +260,8 @@ cd apps-refactorizadas/SCMTP-REF && npm run build
 cd apps-refactorizadas/SCPPE-REF && npm run build
 cd apps-refactorizadas/SCEIN-REF && npm run build
 cd apps-refactorizadas/SCGCC-REF && npm run build
+cd apps-refactorizadas/SIGAD-REF && npm run build
+cd apps-refactorizadas/SIGF-REF && npm run build
 
 # SCTIS-REF (Python)
 cd apps-refactorizadas/SCTIS-REF && npm run build
@@ -265,6 +287,12 @@ python3 scripts/deploy_vibehost_app.py scmtp
 python3 scripts/deploy_vibehost_app.py scppe
 python3 scripts/deploy_vibehost_app.py scein
 python3 scripts/deploy_vibehost_app.py sctis
+python3 scripts/deploy_vibehost_app.py sigad
+
+# SIGF-REF (alias VibeHost: flota-vehicular-ggpd) — despliegue directo con el CLI
+cd apps-refactorizadas/SIGF-REF && npm run build
+vibehost deploy ./dist --app flota-vehicular-ggpd --json
+cd ../..
 ```
 
 ---
@@ -313,13 +341,15 @@ Repositorio_Maestro/
 ├── handoff.md                # Estado del proyecto y continuidad (LEER AL INICIO)
 ├── AGENTS.md                 # Reglas obligatorias para agentes IA
 ├── package.json              # Portal maestro (Vite)
-├── apps-refactorizadas/      # 6 Apps principales (Node.js + Python)
+├── apps-refactorizadas/      # 8 Apps principales (Node.js + Python)
 │   ├── SIGI-REF/             # Puerto 3001 - Consola Central
 │   ├── SCTIS-REF/            # Puerto 3002 - Tiras Interrupción (Python/Flask)
 │   ├── SCMTP-REF/            # Puerto 3003 - Minutas y Tareas
 │   ├── SCPPE-REF/            # Puerto 3004 - Planificación Eléctrica
 │   ├── SCEIN-REF/            # Puerto 3005 - Equipos Indisponibles
-│   └── SCGCC-REF/            # Puerto 3006 - Correspondencia
+│   ├── SCGCC-REF/            # Puerto 3006 - Correspondencia
+│   ├── SIGAD-REF/            # Puerto 3007 - Activos de Distribución
+│   └── SIGF-REF/             # Puerto 3010 - Flota Vehicular
 ├── apps/                     # Apps legacy (referencia, no usar en prod)
 ├── docs/                     # Documentación normativa y técnica
 ├── scripts/                  # Scripts de despliegue, ETL, utilidades
@@ -362,4 +392,4 @@ Repositorio_Maestro/
 
 ---
 
-**Última actualización:** 2026-09-22 — Preparado para transferencia a máquina nueva
+**Última actualización:** 2026-10-15 — Incorporadas SIGAD-REF (3007) y SIGF-REF (3010); sincronizado con `AGENTS.md` §2
