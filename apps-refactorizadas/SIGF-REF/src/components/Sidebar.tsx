@@ -14,11 +14,12 @@ import {
   Moon,
   KeyRound,
   Database,
-  Lock
+  Lock,
+  LibraryBig
 } from 'lucide-react';
 import { getUserProfile } from '../data/defaultUsers';
 
-type SidebarTab = 'formulario' | 'consolidado' | 'gerencia' | 'permisos';
+type SidebarTab = 'formulario' | 'consolidado' | 'gerencia' | 'catalogos' | 'permisos';
 
 interface SidebarProps {
   currentTab: SidebarTab;
@@ -162,6 +163,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
         >
           <PieChart className={`w-5 h-5 shrink-0 ${currentTab === 'gerencia' ? 'text-[#c9a227]' : 'text-slate-400 group-hover:text-white'}`} />
           {(!isCollapsed || isMobileView) && <span className="truncate">Cuadro Mando Gerencial</span>}
+        </button>
+        )}
+
+        {/* Pestaña de Parametrización: Catálogos Maestros */}
+        {allow('btn_catalogs') && (
+        <button
+          onClick={() => handleSelectTabMobile('catalogos')}
+          className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold transition-all cursor-pointer group min-h-[48px] ${
+            currentTab === 'catalogos'
+              ? 'bg-[#1a5f47] text-white shadow-md border border-[#c9a227]'
+              : 'text-slate-300 hover:bg-white/10 hover:text-white'
+          }`}
+          title="Gestor de Catálogos Maestros de Flota"
+        >
+          <LibraryBig className={`w-5 h-5 shrink-0 ${currentTab === 'catalogos' ? 'text-[#c9a227]' : 'text-slate-400 group-hover:text-white'}`} />
+          {(!isCollapsed || isMobileView) && <span className="truncate">Catálogos Maestros</span>}
         </button>
         )}
 

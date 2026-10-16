@@ -20,6 +20,7 @@ import { AdminPasswordResetModal } from './components/AdminPasswordResetModal';
 import { PostgreSqlManagerModal } from './components/PostgreSqlManagerModal';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { RolePermissionsView } from './components/RolePermissionsView';
+import { CatalogManagerView } from './components/CatalogManagerView';
 import { auditService } from './services/auditService';
 import { permissionService, PermissionMatrix, UserRoleKey } from './services/permissionService';
 
@@ -149,7 +150,7 @@ export default function App() {
     });
   };
 
-  const [currentTab, setCurrentTab] = useState<'formulario' | 'consolidado' | 'gerencia' | 'permisos'>('formulario');
+  const [currentTab, setCurrentTab] = useState<'formulario' | 'consolidado' | 'gerencia' | 'catalogos' | 'permisos'>('formulario');
 
   const [selectedVehicleForDetail, setSelectedVehicleForDetail] = useState<VehicleRecord | null>(null);
   const [editingVehicle, setEditingVehicle] = useState<VehicleRecord | null>(null);
@@ -185,6 +186,7 @@ export default function App() {
       currentTab === 'formulario' ? 'tab_formulario'
       : currentTab === 'consolidado' ? 'tab_consolidado'
       : currentTab === 'gerencia' ? 'tab_gerencia'
+      : currentTab === 'catalogos' ? 'btn_catalogs'
       : 'tab_permisos';
     if (!permissionService.canForMatrix(permissionMatrix, userProfile.role, permId)) {
       const fallback =
@@ -269,11 +271,12 @@ export default function App() {
   };
 
   /** Cambio de pestaña con verificación de permisos por rol (RBAC). */
-  const handleSelectTab = (tab: 'formulario' | 'consolidado' | 'gerencia' | 'permisos') => {
+  const handleSelectTab = (tab: 'formulario' | 'consolidado' | 'gerencia' | 'catalogos' | 'permisos') => {
     const permId =
       tab === 'formulario' ? 'tab_formulario'
       : tab === 'consolidado' ? 'tab_consolidado'
       : tab === 'gerencia' ? 'tab_gerencia'
+      : tab === 'catalogos' ? 'btn_catalogs'
       : 'tab_permisos';
     if (!can(permId)) {
       alert('⚠️ Acceso restringido: su perfil no tiene habilitado este módulo. Consulte al Administrador del sistema.');
@@ -380,6 +383,13 @@ export default function App() {
               onExportExcel={() => exportFleetToExcel(visibleVehicles)}
               isDarkMode={isDarkMode}
               can={can}
+            />
+          )}
+
+          {currentTab === 'catalogos' && can('btn_catalogs') && (
+            <CatalogManagerView
+              catalogs={catalogs}
+              onUpdateCatalogs={setCatalogs}
             />
           )}
 

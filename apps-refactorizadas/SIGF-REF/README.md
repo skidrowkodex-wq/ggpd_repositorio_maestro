@@ -27,6 +27,7 @@ SPA institucional que permite a las coordinaciones territoriales (estados), a la
 | **Formulario de Captura** | `tab_formulario` | Registro y edición de fichas técnicas de vehículos (formato A4, nomenclatura `GGDT-[EST]-[TIPO]-[CORR]`). |
 | **Consolidado de Flota** | `tab_consolidado` | Tabla consolidada con filtros avanzados, resúmenes territoriales/por componentes/por gerencias, importación Excel→BD, exportación, PDF por vehículo y vaciado de BD. |
 | **Cuadro de Mando Gerencial** | `tab_gerencia` | KPIs ejecutivos, alertas de mantenimiento, **mapa geopolítico de Venezuela** e **Historial de Auditoría** de acciones críticas. |
+| **Catálogos Maestros** | `btn_catalogs` | Módulo de **parametrización dinámica**: administra las listas oficiales (marcas, tipos, gerencias, centros de servicios, unidades asignadas, medidas de cauchos, características de baterías y regiones) que alimentan el formulario de captura y el validador de importación. **Acceso por defecto solo `admin`** (ver sección RBAC). |
 | **Control de Permisos por Rol** | `tab_permisos` | Página **administrativa** que define qué botones/vistas ve cada rol (ver sección RBAC). |
 
 ---
@@ -48,6 +49,8 @@ Página exclusiva del **Administrador** que gestiona una **matriz rol × acción
 - **Operación de flota:** `btn_import_excel`, `btn_export_excel`, `btn_edit_vehiculo`, `btn_delete_vehiculo`, `btn_vaciar_bd`
 - **Sistema:** `btn_users_mgmt`, `btn_backup`, `btn_changepass`, `btn_password_resets`, `btn_pg_manager`, `btn_theme`, `btn_audit_history`, `btn_catalogs`
 
+> `btn_catalogs` además habilita la pestaña de navegación **Catálogos Maestros** (vista de parametrización de datos maestros); si está apagada para un rol, ese rol no ve la entrada en el menú lateral.
+
 ### Persistencia híbrida (ISO/IEC 27001)
 - **Caché local** (`localStorage`, clave `corpoelec_flota_permissions_v1`): instantánea y **offline-first**.
 - **Fuente de verdad en InsForge** (`public.flota_permisos_roles`): sincronización vía API REST con la **clave pública (`anon`)**.
@@ -55,8 +58,22 @@ Página exclusiva del **Administrador** que gestiona una **matriz rol × acción
 
 ### Valores por defecto (réplica del comportamiento previo)
 - `admin`: todas las acciones habilitadas.
-- `nacional` / `estado`: todo, salvo `tab_permisos`, `btn_password_resets` y `btn_vaciar_bd`.
+- `nacional` / `estado`: todo, salvo `tab_permisos`, `btn_password_resets`, `btn_vaciar_bd` y `btn_catalogs`.
 - `gerente`: igual que `nacional`, además sin `tab_formulario`.
+
+> **Excepción consciente — `btn_catalogs` restringido a `admin` (integridad de datos maestros, ISO 8000-110).**
+> Las listas maestras (marcas, tipos, gerencias, centros de servicios, regiones…) alimentan el
+> formulario de captura **y** el validador de importación de todos los territorios; su
+> parametrización centralizada evita divergencias entre estados. Antes de cablearse la vista,
+> `btn_catalogs` era una acción *huérfana* (sin UI) habilitada por defecto en los cuatro roles;
+> al exponerse se restringe al nivel central. Un administrador puede habilitarla por rol desde
+> **Control de Permisos** si la operación territorial lo requiere. Las plantillas rápidas
+> (`lectura` / `operador` / `restringido`) ya la dejaban apagada para `estado`.
+>
+> **Nota de despliegue:** en instalaciones existentes donde InsForge ya tenga filas en
+> `flota_permisos_roles` con `btn_catalogs=true` para otros roles, esas filas siguen siendo la
+> fuente de verdad y prevalecen sobre este valor por defecto; hay que ajustarlas desde
+> **Control de Permisos** (o dejarlas tal cual) para que la restricción aplique.
 
 > Cada cambio de la matriz se registra en el **Historial de Auditoría** con la acción `CAMBIO_PERMISOS` (ISACA COBIT 2019 · MEA02).
 

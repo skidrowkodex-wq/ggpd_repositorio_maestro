@@ -84,24 +84,37 @@ function buildRole(overrides: Partial<Record<string, boolean>> = {}): Record<str
 /**
  * VALORES POR DEFECTO — replican EXACTAMENTE el comportamiento actual de la app
  * (no rompe nada al activar el sistema de permisos).
+ *
+ * Excepción consciente (integridad de datos maestros, ISO 8000-110):
+ * `btn_catalogs` (edición de marcas, tipos, gerencias, centros de servicios y
+ * regiones) queda restringido por defecto al `admin`. Esas listas alimentan el
+ * formulario de captura y el validador de importación, por lo que su
+ * parametrización centralizada evita divergencias entre territorios. Antes de
+ * cablearse la vista era una acción "huérfana" (sin UI) habilitada en todos los
+ * roles; al exponerse se restringe al nivel central. Un administrador puede
+ * habilitarla por rol desde la página "Control de Permisos" si la operación
+ * territorial lo requiere.
  */
 export const DEFAULT_PERMISSIONS: PermissionMatrix = {
   admin: buildRole(), // admin: todas activas
   nacional: buildRole({
     tab_permisos: false,
     btn_password_resets: false,
-    btn_vaciar_bd: false
+    btn_vaciar_bd: false,
+    btn_catalogs: false
   }),
   gerente: buildRole({
     tab_formulario: false, // comportamiento actual: gerente no ve el formulario
     tab_permisos: false,
     btn_password_resets: false,
-    btn_vaciar_bd: false
+    btn_vaciar_bd: false,
+    btn_catalogs: false
   }),
   estado: buildRole({
     tab_permisos: false,
     btn_password_resets: false,
-    btn_vaciar_bd: false
+    btn_vaciar_bd: false,
+    btn_catalogs: false
   })
 };
 

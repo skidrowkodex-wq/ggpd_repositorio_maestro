@@ -4,6 +4,41 @@ Todos los cambios notables de este proyecto se documentan en este archivo.
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) y
 este proyecto adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
+## [1.2.0] — 2026-10-16
+
+### Añadido
+- **Vista «Catálogos Maestros» cableada** (hasta ahora era un componente huérfano):
+  `CatalogManagerView` se importa en `App.tsx` y se renderiza como pestaña de
+  navegación, gestionando el estado `catalogs` que ya alimentaba el formulario de
+  captura y el validador de importación.
+  - Nueva entrada **«Catálogos Maestros»** en `Sidebar.tsx` (icono `LibraryBig`)
+    y en el drawer móvil, visible **solo si el rol tiene habilitada `btn_catalogs`**.
+  - Nuevo valor `'catalogos'` en el tipo de pestaña de `App.tsx`, `Sidebar.tsx` y
+    `MobileBottomNav.tsx`, con su mapeo de permiso (`btn_catalogs`) tanto en el
+    cambio de pestaña (`handleSelectTab`) como en el efecto que reubica al usuario
+    si pierde el acceso a la pestaña activa.
+
+### Cambiado
+- **`btn_catalogs` restringido por defecto a `admin`** en `permissionService.ts`
+  (`nacional`, `gerente` y `estado` pasan a `false`). Antes era una acción huérfana
+  habilitada en los cuatro roles; al exponerse la vista se protege la edición de
+  los datos maestros que alimentan todo el sistema (ISO 8000-110). Un administrador
+  puede habilitarla por rol desde **Control de Permisos**, y las plantillas rápidas
+  ya la dejaban apagada para `estado`.
+  - **Nota de despliegue:** en instalaciones existentes, las filas ya sincronizadas
+    en InsForge (`flota_permisos_roles`) prevalecen sobre este valor por defecto y
+    deben ajustarse desde **Control de Permisos** para que la restricción aplique.
+
+### Verificado
+- `npm run lint` (`tsc --noEmit`) con **0 errores** y `npm run build` OK.
+- En navegador: `admin` ve las 4 pestañas + **Catálogos Maestros** (con las 8
+  categorías y sus conteos); `gerente` ve solo **Consolidado** y **Gerencia**
+  (sin Formulario, sin Catálogos, sin Control de Permisos). **0 errores de consola.**
+- Árboles `app flota/sistema-de-ingesta-y-gestión-de-flota (1)` y
+  `apps-refactorizadas/SIGF-REF` mantenidos **byte-idénticos** en `src/`.
+
+---
+
 ## [1.1.0] — 2026-10-15
 
 ### Añadido

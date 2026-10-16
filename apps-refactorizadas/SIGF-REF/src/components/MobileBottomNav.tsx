@@ -1,7 +1,7 @@
 import React from 'react';
 import { ClipboardList, BarChart3, PieChart, Menu } from 'lucide-react';
 
-type MobileTab = 'formulario' | 'consolidado' | 'gerencia' | 'permisos';
+type MobileTab = 'formulario' | 'consolidado' | 'gerencia' | 'catalogos' | 'permisos';
 
 interface MobileBottomNavProps {
   currentTab: MobileTab;
