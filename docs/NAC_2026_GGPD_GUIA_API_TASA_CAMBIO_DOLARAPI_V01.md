@@ -378,7 +378,6 @@ WHERE  moneda = $1 AND fuente = $2 AND fecha_valor = $3;
 | **SCTIS** (`apps-refactorizadas/SCTIS-REF`) | 3002 | Valuar en USD los costos asociados a interrupciones de distribución. |
 | **SIGI** (`apps-refactorizadas/SIGI-REF`) | 3001 | Cuadro de mando con indicadores económicos convertibles. |
 | **SIGAD** (`apps-refactorizadas/SIGAD-REF`) | 3007 | Valoración de activos eléctricos (ISO 55000) en moneda extranjera. |
-| **SIGF** (`apps-refactorizadas/SIGF-REF`) | 3010 | Costos de flota (combustible/repuestos importados). |
 | Portal Maestro | 5000 | Visualización de referencias. |
 
 > **Patrón de integración de referencia (en producción):** `C:\ggc_corporativos\web\server.js` → secciones *tasa de cambio* (`TC`, `urlTasa`, `pedirJSON`, `upsertTasa`, `capturarTasa`, `tasaDe`, `tasasData`, `programarTasa`) y `C:\ggc_corporativos\web\config.json` → bloque `tasaCambio`.

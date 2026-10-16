@@ -21,8 +21,7 @@ El repositorio integra las cinco aplicaciones estratégicas del SEN más la Cons
 5. **SIGI (Consola Central de Gestión y Planificación):** `apps/corpoelec-sigi-gestion-planificacion-distribucion` / `apps-refactorizadas/SIGI-REF` (Puerto `3001`)
 6. **SCGCC V1.0 (Gestión de Correspondencia Corporativa):** `apps-refactorizadas/SCGCC-REF` (Puerto `3006`)
 7. **SIGAD v1.0 (Sistema Integrado de Gestión de Activos de Distribución):** `apps-refactorizadas/SIGAD-REF` (Puerto `3007`)
-8. **SIGF v1.0 (Sistema de Ingesta y Gestión de Flota Vehicular):** `app flota/sistema-de-ingesta-y-gestión-de-flota (1)` / `apps-refactorizadas/SIGF-REF` (Puerto `3010`; repo dedicado: `distribucion-corpoelec-automatizacion/SIGF-REF`; VibeHost: `flota-vehicular-ggpd`)
-9. **Portal Maestro Unificado:** `index.html` / `src/` (Puerto `5000` o `npm run dev`)
+8. **Portal Maestro Unificado:** `index.html` / `src/` (Puerto `5000` o `npm run dev`)
 
 ---
 
@@ -70,8 +69,7 @@ Consulta el detalle en [.agents/rules/industrial_grade_standard.md](file:///home
 3. **Un repositorio por aplicación.** Nunca mezclar una app nueva dentro del repositorio de otra app (p. ej. no publicar Flota en el repo de SIGI).
 4. **Publicar en VibeHost** (runtime estático) y entregar la **URL pública** al usuario.
 
-**Aplicaciones publicadas bajo esta regla:**
-- **SIGF** (Sistema de Ingesta y Gestión de Flota Vehicular) → `distribucion-corpoelec-automatizacion/SIGF-REF` · VibeHost: `flota-vehicular-ggpd`
+> **Nota de alcance:** las aplicaciones incorporadas de forma **independiente** (con repositorio y despliegue propios, sin integrarse al catálogo de apps del maestro) se rigen por esta misma mecánica técnica, pero **no se listan** en la documentación compartida del maestro; cada una genera su **documentación propia**.
 
 ---
 
@@ -84,7 +82,7 @@ Consulta el detalle en [.agents/rules/industrial_grade_standard.md](file:///home
 - **El filtro de fechas del histórico NO existe** (`?fechaDesde` se ignora): la API devuelve la serie completa → filtrar en cliente.
 - **Fecha de valor en hora Caracas (UTC-4, sin DST).** Captura recomendada: al arrancar + diaria a las 08:05.
 - **Patrón de integración de referencia (en producción):** `C:\ggc_corporativos\web\server.js` (`urlTasa`, `pedirJSON`, `upsertTasa`, `capturarTasa`, `tasaDe`, `programarTasa`) + bloque `tasaCambio` de `web\config.json` + tabla `tasa_cambio` (`Scripts\Sql\004_tasa_cambio.sql`).
-- **Consumidor principal en el maestro:** **SCPPE** (multimoneda SAMC, `db/schema_samc/03_samc_multimoneda.sql`). SCTIS, SIGI, SIGAD, SIGF y el Portal también pueden valuar en USD/EUR siguiendo la misma guía.
+- **Consumidor principal en el maestro:** **SCPPE** (multimoneda SAMC, `db/schema_samc/03_samc_multimoneda.sql`). SCTIS, SIGI, SIGAD y el Portal también pueden valuar en USD/EUR siguiendo la misma guía.
 
 <!-- INSFORGE:START -->
 ## InsForge backend
