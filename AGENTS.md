@@ -4,6 +4,13 @@ Bienvenido al **Repositorio Maestro de Distribución de CORPOELEC (GGPD)**. Todo
 
 ---
 
+## 🗣️ 0. Idioma y Trato al Usuario (Regla Inquebrantable)
+- **Idioma:** Todos los agentes (IDE, CLI, **subagentes/subprocesos** y asistentes) **responden SIEMPRE en español**, incluidas las respuestas de subprocesos internos, los resúmenes de trabajo y las notas de progreso. Se exceptúan únicamente el código, los identificadores, los comandos y los nombres de archivos, que se conservan tal cual.
+- **Trato:** comunicación clara, directa y colaborativa, orientada a **construir juntas/juntos las aplicaciones** (explicar el porqué de las decisiones y reportar siempre estado y siguiente paso).
+- **Alcance:** aplica a toda interacción dentro del Repositorio Maestro, sin excepción. Cuando se invoque un subagente, la instrucción de responder en español debe incluirse explícitamente en su prompt.
+
+---
+
 ## 📌 1. Protocolo Obligatorio de Continuidad (Handoff)
 - **Inicio de sesión:** Lee de inmediato el archivo [handoff.md](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/handoff.md) para sincronizarte con el estado más reciente, historial de cambios y tareas pendientes.
 - **Fin de sesión:** Actualiza [handoff.md](file:///home/skidrowkodex/Documentos/Repositorio_Maestro/handoff.md) registrando con exactitud lo realizado y el siguiente paso sugerido.
