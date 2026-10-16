@@ -15,9 +15,9 @@ import {
 } from '../types';
 import {
   CATALOGO_PARTIDAS_APU_SEN,
-  TASA_BCV_OFICIAL,
   TABULADOR_VIATICOS_CORPOELEC_2026,
 } from '../data/mockData';
+import { getTasaOficialUsd } from './tasaCambioService';
 
 export interface DataFetchResult<T> {
   data: T[];
@@ -99,7 +99,7 @@ export async function getProyectosPRTSEN(): Promise<DataFetchResult<ProyectoPRTS
       // Atributos de Cómputos Métricos y APU
       computos_apu: p.computos_apu,
       monto_calculado_apu_usd: p.monto_calculado_apu_usd ? Number(p.monto_calculado_apu_usd) : undefined,
-      tasa_bcv_referencia: p.tasa_bcv_referencia ? Number(p.tasa_bcv_referencia) : TASA_BCV_OFICIAL,
+      tasa_bcv_referencia: p.tasa_bcv_referencia ? Number(p.tasa_bcv_referencia) : getTasaBCV(),
     }));
 
     return { data: mapped, isFromSupabase: true };
@@ -565,7 +565,10 @@ export async function getViaticos(): Promise<DataFetchResult<ViaticoControl>> {
 }
 
 export function getTasaBCV(): number {
-  return TASA_BCV_OFICIAL;
+  // Tasa oficial USD en Bs. Toma el valor vivo de ve.dolarapi.com si ya se
+  // capturó (tasaCambioService); en su defecto, la última conocida o la semilla
+  // local de respaldo. Ver docs/NAC_2026_GGPD_GUIA_API_TASA_CAMBIO_DOLARAPI_V01.md
+  return getTasaOficialUsd();
 }
 
 export function getTabuladorViaticos() {
@@ -640,7 +643,8 @@ export async function getConciliacionPresupuestaria(
   const currentList = viaticosList || [];
   // Techo presupuestario de inspección técnica indexado al tabulador multimoneda (Fondo $25,000 USD @ Tasa BCV)
   const techoPresupuestarioUsd = 25000.0;
-  const techoPresupuestario = Math.round(techoPresupuestarioUsd * TASA_BCV_OFICIAL);
+  const tasaBcv = getTasaBCV();
+  const techoPresupuestario = Math.round(techoPresupuestarioUsd * tasaBcv);
 
   const totalAsignado = currentList.reduce((acc, v) => acc + (v.monto_calculado_bs || 0), 0);
   const totalEjecutado = currentList.reduce((acc, v) => acc + (v.monto_calculado_usd || 0), 0);
@@ -672,7 +676,8 @@ export async function crearAsignacionViatico(
   nuevaAsignacion: Omit<ViaticoControl, 'id' | 'numero_solicitud' | 'monto_calculado_usd' | 'estatus_flujo'>
 ): Promise<{ success: boolean; data?: ViaticoControl; error?: string }> {
   const techoPresupuestarioUsd = 25000.0;
-  const techoPresupuestario = Math.round(techoPresupuestarioUsd * TASA_BCV_OFICIAL);
+  const tasaBcv = getTasaBCV();
+  const techoPresupuestario = Math.round(techoPresupuestarioUsd * tasaBcv);
   const viatRes = await getViaticos();
   const actualAsignado = viatRes.data.reduce((acc, v) => acc + (v.monto_calculado_bs || 0), 0);
   const saldoDisponible = techoPresupuestario - actualAsignado;
@@ -681,12 +686,12 @@ export async function crearAsignacionViatico(
   if (nuevaAsignacion.monto_calculado_bs > saldoDisponible) {
     return {
       success: false,
-      error: `PRESUPUESTO EXCEDIDO [trg_validar_presupuesto_viatico]: El monto solicitado (Bs. ${nuevaAsignacion.monto_calculado_bs.toLocaleString('es-VE')}) excede el saldo disponible (Bs. ${saldoDisponible.toLocaleString('es-VE')}). Techo Partida 405: Bs. ${techoPresupuestario.toLocaleString('es-VE')} ($25,000 USD @ Tasa BCV ${TASA_BCV_OFICIAL}).`,
+      error: `PRESUPUESTO EXCEDIDO [trg_validar_presupuesto_viatico]: El monto solicitado (Bs. ${nuevaAsignacion.monto_calculado_bs.toLocaleString('es-VE')}) excede el saldo disponible (Bs. ${saldoDisponible.toLocaleString('es-VE')}). Techo Partida 405: Bs. ${techoPresupuestario.toLocaleString('es-VE')} ($25,000 USD @ Tasa BCV ${tasaBcv}).`,
     };
   }
 
   const newId = `via-${Date.now()}`;
-  const nuevoMontoUsd = Number((nuevaAsignacion.monto_calculado_bs / TASA_BCV_OFICIAL).toFixed(2));
+  const nuevoMontoUsd = Number((nuevaAsignacion.monto_calculado_bs / tasaBcv).toFixed(2));
 
   try {
     const payload = {

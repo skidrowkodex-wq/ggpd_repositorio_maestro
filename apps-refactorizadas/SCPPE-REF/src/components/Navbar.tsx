@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { UserProfile } from '../types';
+import { TasaCambioPill } from './TasaCambioPill';
 
 interface NavbarProps {
   currentUser: UserProfile | null;
@@ -94,6 +95,9 @@ export function Navbar({
         {/* SECCIÓN CENTRAL: SELLOS DE CERTIFICACIÓN & BACKEND INSFORGE       */}
         {/* ================================================================= */}
         <div className="hidden md:flex items-center gap-2 lg:gap-3 shrink-0">
+          {/* Tasa de cambio oficial (ve.dolarapi.com — ISO 8000-110) */}
+          <TasaCambioPill />
+
           {/* Pill Sello Industrial ISO / Zona Segura */}
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300/80 dark:border-emerald-600/40 text-[10px] font-mono font-bold text-emerald-800 dark:text-emerald-300 shadow-2xs">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>

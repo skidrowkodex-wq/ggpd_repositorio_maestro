@@ -937,3 +937,27 @@ Atender el Hallazgo #1 (Riesgo CRÍTICO) del Informe de Auditoría Presupuestari
 ### Verificación
 - `compile_applet` ejecutado exitosamente. Build sin errores ni advertencias de compilación.
 
+---
+
+## Estado de Sesión (2026-10-16 — Integración de la Tasa de Cambio USD/EUR `ve.dolarapi.com`)
+
+### Objetivo
+Cablear en SCPPE la tasa de cambio oficial/paralelo (USD y EUR) siguiendo la guía canónica `docs/NAC_2026_GGPD_GUIA_API_TASA_CAMBIO_DOLARAPI_V01.md` (checklist §11), sustituyendo la constante de referencia fija por un valor vivo, y dejar el proyecto de tipos en verde.
+
+### Acciones Realizadas
+1. **Servicio nuevo `src/services/tasaCambioService.ts`**:
+   - Cliente de `https://ve.dolarapi.com/v1/{dolares|euros}`: base URL en constante, `timeout` de 8 s con `AbortController`, **validación de `res.ok` antes de `res.json()`** (el `404` de fuente inválida llega con cuerpo vacío), uso exclusivo de **`promedio`** y fuentes en minúsculas `oficial`/`paralelo`.
+   - Caché en `localStorage` con TTL de 1 h y **respaldo semilla**; estado global `VIVO`/`PARCIAL`/`RESPALDO`/`CARGANDO`; captura idempotente (promesa en vuelo) con `Promise.allSettled`; **captura al arrancar + diaria a las 08:05 hora Caracas** (UTC-4, sin DST); trazabilidad de origen `API`/`CACHE`/`RESPALDO` (ISO 8000-110).
+2. **Componente nuevo `src/components/TasaCambioPill.tsx`**: pastilla en el navbar central (tasa **USD oficial BCV** en Bs., insignia de estado, recaptura manual) con popover de las 4 combinaciones (USD/EUR × oficial/paralelo), fecha de valor, origen y aviso de que **`paralelo` es referencia NO institucional**.
+3. **Cableado**: `App.tsx` (captura al arrancar + programación diaria), `Navbar.tsx` (montaje de la pastilla), `ViaticosControlView.tsx` (re-render al cambiar la tasa); `supabaseService.getTasaBCV()` devuelve ahora la **tasa viva** (`getTasaOficialUsd()`) y el techo presupuestario de la Partida 405 dejó de usar la constante; semilla `TASA_BCV_OFICIAL` actualizada de `68.50` a **`880.1159`** para el modo offline.
+4. **Limpieza de tipos**: se detectó que **faltaban `@types/react`/`@types/react-dom`** (React 19 + TS); se instalaron y se alinearon los tipos obsoletos (`ProyectoPRTSEN.match_metodo` con `NORMALIZADO`/`MANUAL_PENDIENTE`; `ProyectoGGD` sincronizado con el uso real; `authService` sin la desestructuración de un `password` inexistente).
+
+### Verificación
+- `npm run lint` (`tsc --noEmit`) pasa con **0 errores**; `npm run build` OK (1691 módulos).
+- Verificación funcional en navegador (`localhost:3000`): las 4 tasas capturadas en vivo correctamente (USD oficial 880,1159 · USD paralelo 992,938968 · EUR oficial 985,729808 · EUR paralelo 1114,428378; fecha de valor 2026-10-16), pastilla "Bs. 880,12 · EN VIVO", popover con etiquetas y avisos, **0 errores de consola**.
+
+### Pendientes
+- Persistir las tasas en las tablas `samc_multimoneda` (`samc_moneda`, `tasa_oficial_bs`, `tasa_ministerio_bs`); hoy la app no las consume.
+- Replicar el patrón en SCTIS/SIGI/SIGAD si se requiere valuación en USD/EUR.
+
+

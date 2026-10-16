@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ViaticoControl, ConciliacionPresupuestaria, ComprobanteFiscalViatico } from '../types';
 import { getViaticos, getConciliacionPresupuestaria, crearAsignacionViatico, getTasaBCV, getTabuladorViaticos, getComprobantesViatico } from '../services/supabaseService';
+import { suscribir as suscribirTasas } from '../services/tasaCambioService';
 import { RefreshCw, ShieldAlert, CheckCircle2, PlusCircle, AlertTriangle, FileSpreadsheet, Scale, Lock, ReceiptText, Wallet, Banknote, Gauge, TrendingUp } from 'lucide-react';
 
 export function ViaticosControlView() {
@@ -11,6 +12,8 @@ export function ViaticosControlView() {
   const [activeTab, setActiveTab] = useState<'ASIGNACIONES' | 'CONCILIACION' | 'COMPROBANTES'>('ASIGNACIONES');
   const [comprobantes, setComprobantes] = useState<ComprobanteFiscalViatico[]>([]);
   const [comprobantesLoading, setComprobantesLoading] = useState(false);
+  // Re-render cuando la tasa oficial (ve.dolarapi.com) se actualiza.
+  const [, setTasaVersion] = useState(0);
   
   // Modal de Nueva Asignación
   const [showModal, setShowModal] = useState(false);
@@ -52,6 +55,9 @@ export function ViaticosControlView() {
   useEffect(() => {
     loadData();
   }, []);
+
+  // Refresca los cálculos en Bs. cuando cambia la tasa oficial capturada.
+  useEffect(() => suscribirTasas(() => setTasaVersion((v) => v + 1)), []);
 
   const handleCrearAsignacion = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -12,6 +12,7 @@ import { LoginForm } from './components/LoginForm';
 import { IsoAuditBadge } from './components/IsoAuditBadge';
 import { UserProfile } from './types';
 import { getInitialUser, logoutUser } from './services/authService';
+import { refrescarTasas, programarCapturaDiaria } from './services/tasaCambioService';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
@@ -30,6 +31,12 @@ export default function App() {
       document.documentElement.classList.remove('dark');
     }
   }, [darkMode]);
+
+  // Tasa de cambio (USD/EUR) — captura al arrancar + reprogramación diaria 08:05 (hora Caracas).
+  useEffect(() => {
+    void refrescarTasas();
+    programarCapturaDiaria();
+  }, []);
 
   const handleLogout = () => {
     // Estado primero: garantiza que el LoginForm se muestre de inmediato

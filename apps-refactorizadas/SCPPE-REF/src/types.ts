@@ -113,7 +113,7 @@ export interface ProyectoPRTSEN {
   codigo_sipes?: string;
   accion_poa_codigo?: string;
   accion_poa_nombre?: string;
-  match_metodo: 'EXACTO' | 'FUZZY' | 'SIN_MATCH';
+  match_metodo: 'EXACTO' | 'FUZZY' | 'SIN_MATCH' | 'NORMALIZADO' | 'MANUAL_PENDIENTE';
   unidad_ejecutora_id?: string;
   unidad_ejecutora_nombre?: string;
   unidad_ejecutora_siglas?: string;
@@ -235,24 +235,43 @@ export interface ConciliacionPresupuestaria {
 
 export interface ProyectoGGD {
   id: string;
+  /** Código maestro del proyecto (alias de `codigo_convenio`). */
+  codigo?: string;
   codigo_convenio: string;
   nombre: string;
+  /** Siglas/tipo del ente cofinanciador (columna legada `codigo_estado`/ente). */
   ente_cofinanciador: string;
   ente_cofinanciador_id?: string;
   ente_cofinanciador_nombre?: string;
   ente_cofinanciador_siglas?: string;
   ente_cofinanciador_tipo?: string;
+  /** Alias de presentación provenientes de `v_scppe_proyectos_ggd`. */
+  tipo_ente?: string;
+  nombre_ente?: string;
   gerencia_responsable_id?: string;
   gerencia_responsable_nombre?: string;
   gerencia_responsable_siglas?: string;
+  gerencia_responsable?: string;
   ente_nombre: string;
   estado: string;
   region: string;
   monto_estimado_bs: number;
   monto_estimado_usd: number;
   avance_fisico_pct: number;
-  estatus_gestion: 'DESCENTRALIZADO_GGD' | 'EN_REVISION_PLANIFICACION' | 'NORMALIZADO_POA_PRTSEN';
-  fecha_registro: string;
-  responsable_ggd: string;
+  estatus_gestion?:
+    | 'DESCENTRALIZADO_GGD'
+    | 'EN_FORMULACION'
+    | 'EN_REVISION_PLANIFICACION'
+    | 'NORMALIZADO_POA_PRTSEN';
+  /** Fecha de registro (auditoría ISO 8000-110). */
+  fecha_registro?: string;
+  /** Responsable del seguimiento persistido en `mae_proyectos_ggd`. */
+  responsable_seguimiento?: string;
+  /** Alias de presentación del responsable del seguimiento. */
+  responsable_ggd?: string;
+  fecha_limite?: string;
   observaciones?: string;
+  observaciones_auditoria?: string;
+  /** Indica si el ente cofinanciador está enlazado al árbol organizacional. */
+  vinculado_arbol_org?: boolean;
 }

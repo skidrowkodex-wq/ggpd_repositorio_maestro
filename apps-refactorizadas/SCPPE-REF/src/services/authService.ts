@@ -84,9 +84,9 @@ export function getInitialUser(): UserProfile | null {
         ) || USUARIOS_PREDEFINIDOS.find(u => u.rol === 'ADMINISTRADOR') || USUARIOS_PREDEFINIDOS[0];
 
         if (found) {
-          const { password, ...userProfile } = found;
-          localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(userProfile));
-          return userProfile;
+          // El catálogo institucional NO almacena contraseñas (ISO/IEC 27001).
+          localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(found));
+          return found;
         }
       }
     } catch (e) {

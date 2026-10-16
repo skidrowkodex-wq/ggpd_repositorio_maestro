@@ -1,6 +1,11 @@
 import { PartidaAPU } from '../types';
 
-export const TASA_BCV_OFICIAL = 68.50; // Bs. / USD de referencia oficial
+// Semilla de RESPALDO de la tasa oficial USD (Bs. por USD).
+// El valor vivo proviene de ve.dolarapi.com (servicio `tasaCambioService`); este
+// número sólo se usa como último recurso si la API y la caché local no están
+// disponibles (modo offline en frío). Ver:
+// docs/NAC_2026_GGPD_GUIA_API_TASA_CAMBIO_DOLARAPI_V01.md
+export const TASA_BCV_OFICIAL = 880.1159; // Bs./USD — último valor oficial conocido (16-10-2026)
 
 export const TABULADOR_VIATICOS_CORPOELEC_2026 = {
   tarifa_diaria_pernocta_usd: 45.0, // Hospedaje e imprevistos
